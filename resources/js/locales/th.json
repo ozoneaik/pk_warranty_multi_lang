@@ -1,0 +1,47 @@
+{
+    "loginPage": {
+        "title": "เข้าสู่ระบบ",
+        "loginWithGoogle": "เข้าสู่ระบบด้วย Google",
+        "loginWithLine": "เข้าสู่ระบบด้วย LINE",
+        "loginWithFacebook": "เข้าสู่ระบบด้วย Facebook"
+    },
+    "Warranty": {
+        "Form": {
+            "file": "อัปโหลดไฟล์",
+            "example_file": "ตัวอย่างใบรับประกัน",
+            "serial_number": "หมายเลข S/N",
+            "phone": "เบอร์โทรศัพท์",
+            "model_code": "รหัสสินค้า",
+            "model_name": "รหัสโมเดล",
+            "product_name": "ชื่อสินค้า",
+            "buy_from": "ซื้อจากช่องทาง",
+            "buy_date": "วันที่ซื้อ",
+            "store_name": "ชื่อร้านค้า",
+            "submit" : "ลงทะเบียนรับประกัน"
+        },
+        "Validate": {
+            "file": "กรุณาอัปโหลดไฟล์",
+            "example_file": "กรุณาอัปโหลดตัวอย่างใบรับประกัน",
+            "serial_number": "กรุณากรอกหมายเลข S/N",
+            "phone": "กรุณากรอกเบอร์โทรศัพท์",
+            "model_code": "กรุณากรอกรหัสสินค้า",
+            "model_name": "กรุณากรอกรหัสโมเดล",
+            "product_name": "กรุณากรอกชื่อสินค้า",
+            "buy_from": "กรุณาระบุช่องทางการซื้อ",
+            "buy_date": "กรุณาระบุวันที่ซื้อ",
+            "store_name": "กรุณากรอกชื่อร้านค้า"
+        },
+        "Placeholder": {
+            "file": "อัปโหลดไฟล์",
+            "example_file": "ตัวอย่างใบรับประกัน",
+            "serial_number": "เช่น 6009999999999xx",
+            "phone": "เช่น 09xxxxxxxxx",
+            "model_code": "จะแสดงเมื่อค้นหาหมายเลข S/N",
+            "model_name": "จะแสดงเมื่อค้นหาหมายเลข S/N",
+            "product_name": "จะแสดงเมื่อค้นหาหมายเลข S/N",
+            "buy_from": "เช่น ร้านค้า, ออนไลน์",
+            "buy_date": "เช่น 2022-01-01",
+            "store_name": "เช่น facebook"
+        }
+    }
+}

@@ -1,0 +1,47 @@
+{
+    "loginPage": {
+        "title": "လော့ဂင်ဝင်ပါ",
+        "loginWithGoogle": "Google ဖြင့်ဝင်ရန်",
+        "loginWithLine": "LINE ဖြင့်ဝင်ရန်",
+        "loginWithFacebook": "Facebook ဖြင့်ဝင်ရန်"
+    },
+    "Warranty": {
+        "Form": {
+            "file": "ဖိုင်အပ်လုဒ်",
+            "example_file": "အာမခံစာရင်း ဥပမာ",
+            "serial_number" : "Serial Number",
+            "phone": "ဖုန်းနံပါတ်",
+            "model_code": "ကုဒ်နံပါတ်",
+            "model_name": "မော်ဒယ်နာမည်",
+            "product_name": "ကုန်ပစ္စည်းနာမည်",
+            "buy_from": "ဝယ်ယူသောနေရာ",
+            "buy_date": "ဝယ်ယူသည့်နေ့",
+            "store_name": "ဆိုင်နာမည်",
+            "submit" : "မှတ်ပုံတင်"
+        },
+        "Validate": {
+            "file": "ဖိုင်ကိုအပ်လုဒ်ရန် လိုအပ်ပါသည်",
+            "example_file": "အာမခံစာရင်း ဥပမာကို အပ်လုဒ်ပါ",
+            "serial_number": "Serial Number ကိုဖြည့်ပါ",
+            "phone": "ဖုန်းနံပါတ်ကိုဖြည့်ပါ",
+            "model_code": "ကုဒ်နံပါတ်ကိုဖြည့်ပါ",
+            "model_name": "မော်ဒယ်နာမည်ကိုဖြည့်ပါ",
+            "product_name": "ကုန်ပစ္စည်းနာမည်ကိုဖြည့်ပါ",
+            "buy_from": "ဝယ်ယူသောနေရာကိုဖြည့်ပါ",
+            "buy_date": "ဝယ်ယူသည့်နေ့ကိုဖြည့်ပါ",
+            "store_name": "ဆိုင်နာမည်ကိုဖြည့်ပါ"
+        },
+        "Placeholder": {
+            "file": "ဖိုင်အပ်လုဒ်",
+            "example_file": "အာမခံစာရင်း ဥပမာ",
+            "serial_number": "ဥပမာ 6009999999999xx",
+            "phone": "ဥပမာ 09xxxxxxxxx",
+            "model_code": "Serial Number ရှာဖွေရန်တွင် ပြသမည်",
+            "model_name": "Serial Number ရှာဖွေရန်တွင် ပြသမည်",
+            "product_name": "Serial Number ရှာဖွေရန်တွင် ပြသမည်",
+            "buy_from": "ဥပမာ- စျေး၊ အွန်လိုင်း",
+            "buy_date": "ဥပမာ- 2022-01-01",
+            "store_name": "ဥပမာ- facebook"
+        }
+    }
+}

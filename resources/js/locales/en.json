@@ -1,0 +1,47 @@
+{
+    "loginPage": {
+        "title": "Login",
+        "loginWithGoogle": "Login With Google",
+        "loginWithLine": "Login With Line",
+        "loginWithFacebook": "Login With Facebook"
+    },
+    "Warranty": {
+        "Form": {
+            "file": "Upload File",
+            "example_file": "example Warranty File",
+            "serial_number": "Serial Number",
+            "phone": "Phone",
+            "model_code": "Model Code",
+            "model_name": "Model Name",
+            "product_name": "Product Name",
+            "buy_from": "Buy From",
+            "buy_date": "Buy Date",
+            "store_name": "Store Name",
+            "submit": "Submit"
+        },
+        "Validate": {
+            "file": "pload File is required",
+            "example_file": "example Warranty File",
+            "serial_number": "Serial Number is required",
+            "phone": "Phone is required",
+            "model_code": "Model Code is required",
+            "model_name": "Model Name is required",
+            "product_name": "Product Name is required",
+            "buy_from": "Buy From is required",
+            "buy_date": "Buy Date is required",
+            "store_name": "Store Name is required"
+        },
+        "Placeholder": {
+            "file": "Upload File",
+            "example_file": "example Warranty File",
+            "serial_number": "ex. 6009999999999xx",
+            "phone": "ex. 09xxxxxxxxx",
+            "model_code": "it's show when search serial number",
+            "model_name": "it's show when search serial number",
+            "product_name": "it's show when search serial number",
+            "buy_from": "ex. market, online",
+            "buy_date": "ex. 2022-01-01",
+            "store_name": "ex. facebook"
+        }
+    }
+}

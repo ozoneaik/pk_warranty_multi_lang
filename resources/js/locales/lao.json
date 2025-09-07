@@ -1,0 +1,47 @@
+{
+    "loginPage": {
+        "title": "ເຂົ້າລະບົບ",
+        "loginWithGoogle": "ເຂົ້າລະບົບດ້ວຍ Google",
+        "loginWithLine": "ເຂົ້າລະບົບດ້ວຍ LINE",
+        "loginWithFacebook": "ເຂົ້າລະບົບດ້ວຍ Facebook"
+    },
+    "Warranty": {
+        "Form": {
+            "file": "ອັບໂຫລດໄຟລ໌",
+            "example_file": "ຕົວຢ່າງໃບຮັບປະກັນ",
+            "serial_number": "ເລກ S/N",
+            "phone": "ເບີໂທ",
+            "model_code": "ລະຫັດສິນຄ້າ",
+            "model_name": "ລະຫັດໂມເດວ",
+            "product_name": "ຊື່ສິນຄ້າ",
+            "buy_from": "ຊື້ຈາກ",
+            "buy_date": "ວັນທີຊື້",
+            "store_name": "ຊື່ຮ້ານ",
+            "submit" : "ລົງທະບຽນ"
+        },
+        "Validate": {
+            "file": "ກະລຸນາອັບໂຫລດໄຟລ໌",
+            "example_file": "ກະລຸນາອັບໂຫລດຕົວຢ່າງໃບຮັບປະກັນ",
+            "serial_number": "ກະລຸນາປ້ອນເລກ S/N",
+            "phone": "ກະລຸນາປ້ອນເບີໂທ",
+            "model_code": "ກະລຸນາປ້ອນລະຫັດສິນຄ້າ",
+            "model_name": "ກະລຸນາປ້ອນລະຫັດໂມເດວ",
+            "product_name": "ກະລຸນາປ້ອນຊື່ສິນຄ້າ",
+            "buy_from": "ກະລຸນາປ້ອນສະຖານທີ່ຊື້",
+            "buy_date": "ກະລຸນາປ້ອນວັນທີຊື້",
+            "store_name": "ກະລຸນາປ້ອນຊື່ຮ້ານ"
+        },
+        "Placeholder": {
+            "file": "ອັບໂຫລດໄຟລ໌",
+            "example_file": "ຕົວຢ່າງໃບຮັບປະກັນ",
+            "serial_number": "ຕົວຢ່າງ 6009999999999xx",
+            "phone": "ຕົວຢ່າງ 09xxxxxxxxx",
+            "model_code": "ຈະສະແດງເມື່ອຄົ້ນຫາເລກ S/N",
+            "model_name": "ຈະສະແດງເມື່ອຄົ້ນຫາເລກ S/N",
+            "product_name": "ຈະສະແດງເມື່ອຄົ້ນຫາເລກ S/N",
+            "buy_from": "ຕົວຢ່າງ: ຮ້ານ, ອອນລາຍ",
+            "buy_date": "ຕົວຢ່າງ: 2022-01-01",
+            "store_name": "ຕົວຢ່າງ: facebook"
+        }
+    }
+}
