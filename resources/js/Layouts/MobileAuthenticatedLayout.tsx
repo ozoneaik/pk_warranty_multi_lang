@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction, Container,
     IconButton, Menu, MenuItem, useTheme, useMediaQuery, Select
 } from '@mui/material';
 import { AppRegistration, History, Inventory, Menu as MenuIcon } from '@mui/icons-material';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { useLanguage } from '@/context/LanguageContext';
 
+type Language = "en" | "th" | "lao" | "myanmar";
 interface MobileAuthenticatedLayoutProps {
     children: React.ReactNode;
     title?: string;
@@ -18,44 +19,49 @@ export default function MobileAuthenticatedLayout({
 }: MobileAuthenticatedLayoutProps) {
 
     const { t, setLanguage, language } = useLanguage();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { url } = usePage();
 
-    // State สำหรับ bottom navigation
-    const [value, setValue] = useState(0);
+    // ✅ แก้ไขการเปรียบเทียب URL ให้ถูกต้อง
+    const getSelectedIndex = () => {
+        // เปรียบเทียบกับ URL path แทนที่จะเป็น route name
+        if (url.includes('/warranty/form') || url === route('warranty.form')) return 0;
+        if (url.includes('/warranty/history') || url === route('warranty.history')) return 1;
+        if (url.includes('/profile') || url === route('profile.edit')) return 2;
+        return 0; // default
+    };
 
-    // State สำหรับ menu dropdown ใน navbar
+    const [value, setValue] = useState(getSelectedIndex());
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));   
+    // ✅ useEffect จะทำงานทุกครั้งที่ url เปลี่ยน
+    useEffect(() => {
+        const newIndex = getSelectedIndex();
+        setValue(newIndex);
+        console.log('Current URL:', url, 'Selected Index:', newIndex); // สำหรับ debug
+    }, [url]);
 
-    // ฟังก์ชันสำหรับเปิด/ปิด menu
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
+    
+    const handleClose = () => setAnchorEl(null);
+    
     const handleChangeLang = (value: string) => setLanguage(value as Language);
 
-
-    // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลง bottom navigation
     const handleBottomNavChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-        // ที่นี่คุณสามารถเพิ่มการ navigate ไปยังหน้าต่างๆ ได้
+        setValue(newValue); // ตั้งค่าทันทีเพื่อให้ UI responsive
+        
         switch (newValue) {
             case 0:
-                console.log('ไปยังหน้าลงทะเบียนรับประกัน');
+                router.get(route('warranty.form'));
                 break;
             case 1:
-                console.log('ไปยังหน้าประวัติการลงทะเบียน');
+                router.get(route('warranty.history'));
                 break;
             case 2:
-                console.log('ไปยังหน้าข้อมูลส่วนตัว');
-                break;
-            case 3:
-                console.log('ไปยังหน้าสินค้าที่รับประกัน');
+                router.get(route('profile.edit'));
                 break;
             default:
                 break;
@@ -68,31 +74,13 @@ export default function MobileAuthenticatedLayout({
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            {/* Navbar ด้านบน */}
-            <AppBar
-                position="fixed"
-                sx={{
-                    zIndex: (theme) => theme.zIndex.drawer + 1,
-                    backgroundColor: '#F54927',
-                }}
-            >
+            {/* Navbar */}
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, backgroundColor: '#F54927' }}>
                 <Toolbar>
-                    {/* ปุ่ม Menu ทางซ้าย */}
-                    <IconButton
-                        size="large" edge="start" color="inherit"
-                        aria-label="menu" onClick={handleMenu} sx={{ mr: 2 }}
-                    >
+                    <IconButton size="large" edge="start" color="inherit" onClick={handleMenu} sx={{ mr: 2 }}>
                         <MenuIcon />
                     </IconButton>
-
-                    {/* หัวข้อหลัก */}
-                    <Typography
-                        variant="h6" component="div"
-                        sx={{
-                            flexGrow: 1,
-                            fontSize: isMobile ? '1rem' : '1.25rem'
-                        }}
-                    >
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: isMobile ? '1rem' : '1.25rem' }}>
                         {title}
                     </Typography>
                     <Select
@@ -102,24 +90,16 @@ export default function MobileAuthenticatedLayout({
                         variant="outlined"
                         sx={{
                             color: "white",
-                            "&::before": { borderBottomColor: "white" }, // เปลี่ยนเส้นเป็นสีขาว
+                            "&::before": { borderBottomColor: "white" },
                             "& .MuiSvgIcon-root": { color: "white" },
                             minWidth: 100,
                             ml: 1,
                         }}
                     >
-                        <MenuItem value={'en'}>
-                            English
-                        </MenuItem>
-                        <MenuItem value={'th'}>
-                            ไทย
-                        </MenuItem>
-                        <MenuItem value={'lao'}>
-                            ລາວ
-                        </MenuItem>
-                        <MenuItem value={'myanmar'}>
-                            မြန်မာ
-                        </MenuItem>
+                        <MenuItem value={'en'}>English</MenuItem>
+                        <MenuItem value={'th'}>ไทย</MenuItem>
+                        <MenuItem value={'lao'}>ລາວ</MenuItem>
+                        <MenuItem value={'myanmar'}>မြန်မာ</MenuItem>
                     </Select>
                 </Toolbar>
             </AppBar>
@@ -139,7 +119,7 @@ export default function MobileAuthenticatedLayout({
                 </MenuItem>
             </Menu>
 
-            {/* Content Area */}
+            {/* Content */}
             <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
                 {children}
             </Container>
@@ -155,30 +135,9 @@ export default function MobileAuthenticatedLayout({
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                 }}
             >
-                <BottomNavigationAction
-                    // label="ลงทะเบียนรับประกัน"
-                    icon={<AppRegistration />}
-                    sx={{
-                        '&.Mui-selected': { color: '#F54927' },
-                        fontSize: '0.75rem'
-                    }}
-                />
-                <BottomNavigationAction
-                    // label="ประวัติการลงทะเบียน"
-                    icon={<History />}
-                    sx={{
-                        '&.Mui-selected': { color: '#F54927' },
-                        fontSize: '0.75rem'
-                    }}
-                />
-                <BottomNavigationAction
-                    // label="สินค้าที่รับประกัน"
-                    icon={<Inventory />}
-                    sx={{
-                        '&.Mui-selected': { color: '#F54927' },
-                        fontSize: '0.75rem'
-                    }}
-                />
+                <BottomNavigationAction icon={<AppRegistration />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                <BottomNavigationAction icon={<Inventory />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
             </BottomNavigation>
         </Box>
     );

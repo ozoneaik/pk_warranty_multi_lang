@@ -26,5 +26,5 @@ export default function LineIcon(): JSX.Element {
                 </g>
             </g>
         </svg>
-    );z
+    );
 }

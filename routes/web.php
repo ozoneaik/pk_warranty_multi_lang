@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Warranty\WarrantyFormController;
+use App\Http\Controllers\Warranty\WarrantyHistoryController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -8,7 +10,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     if (Route::has('login')) {
         return redirect()->intended(route('dashboard', absolute: false));
-    }else{
+    } else {
         return redirect()->route('login');
     }
     return Inertia::render('Welcome', [
@@ -28,14 +30,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('warranty')->group(function(){
-        Route::get('/form', function(){
-            return Inertia::render('Warranty/WarrantyForm');
-        })->name('warranty.form');
-        Route::post('/', function(){
-
-        });
+    Route::prefix('warranty')->group(function () {
+        Route::get('/form', [WarrantyFormController::class,'form'])->name('warranty.form');
+        Route::get('/history', [WarrantyHistoryController::class,'history'])->name('warranty.history');
+        Route::post('/', function () {});
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
