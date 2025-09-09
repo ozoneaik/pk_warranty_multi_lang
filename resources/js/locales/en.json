@@ -5,6 +5,16 @@
         "loginWithLine": "Login With Line",
         "loginWithFacebook": "Login With Facebook"
     },
+    "homePage": {
+        "title": "Home",
+        "menu_list": {
+            "title": "Menu",
+            "warrantyFormHeadTitle": "Register",
+            "warrantyFormSubTitle": "Register new product",
+            "warrantyHistoryHeadTitle": "History",
+            "warrantyHistorySubTitle": "View warranty history"
+        }
+    },
     "Warranty": {
         "Form": {
             "file": "Upload File",
@@ -42,6 +52,25 @@
             "buy_from": "ex. market, online",
             "buy_date": "ex. 2022-01-01",
             "store_name": "ex. facebook"
+        }
+    },
+    "History": {
+        "title": "Registration History",
+        "Filter": {
+            "Input": {
+                "Label": "Search",
+                "Placeholder": "Search by serial number, product code"
+            }
+        },
+        "Card": {
+            "SerialNumber": "S/N",
+            "ProductCode": "Product Code",
+            "ProductModelCode": "Model Code",
+            "ProductName": "Product Name",
+            "Warranty": {
+                "isTrue": "Under Warranty",
+                "isFalse": "Not Under Warranty"
+            }
         }
     }
 }

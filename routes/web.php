@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Warranty\WarrantyFormController;
 use App\Http\Controllers\Warranty\WarrantyHistoryController;
+use App\Http\Controllers\Warranty\WarrantyHomeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,7 +31,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/home', function(){
+        
+    })->name('home');
+
     Route::prefix('warranty')->group(function () {
+        Route::get('/home', [WarrantyHomeController::class,'index'])->name('warranty.home');
         Route::get('/form', [WarrantyFormController::class,'form'])->name('warranty.form');
         Route::get('/history', [WarrantyHistoryController::class,'history'])->name('warranty.history');
         Route::post('/', function () {});

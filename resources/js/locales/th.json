@@ -5,6 +5,16 @@
         "loginWithLine": "เข้าสู่ระบบด้วย LINE",
         "loginWithFacebook": "เข้าสู่ระบบด้วย Facebook"
     },
+    "homePage" : {
+        "title" : "หน้าหลัก",
+        "menu_list" : {
+            "title" : "เมนูหลัก",
+            "warrantyFormHeadTitle" : "ลงทะเบียน",
+            "warrantyFormSubTitle" : "ลงทะเบียนสินค้าใหม่",
+            "warrantyHistoryHeadTitle" : "ประวัติ",
+            "warrantyHistorySubTitle" : "ดูประวัติการรับประกัน"
+        }
+    },
     "Warranty": {
         "Form": {
             "file": "อัปโหลดไฟล์",
@@ -42,6 +52,25 @@
             "buy_from": "เช่น ร้านค้า, ออนไลน์",
             "buy_date": "เช่น 2022-01-01",
             "store_name": "เช่น facebook"
+        }
+    },
+    "History" : {
+        "title" : "ประวัติการลงทะเบียน",
+        "Filter" : {
+            "Input" : {
+                "Label" : "ค้นหา",
+                "Placeholder" : "ค้นหาหมายเลขซีเรียล, รหัสสินค้า" 
+            }
+        },
+        "Card" : {
+            "SerialNumber" : "S/N",
+            "ProductCode" : "รหัสสินค้า",
+            "ProductModelCode" : "รหัสโมเดล",
+            "ProductName" : "ชื่อสินค้า",
+            "Warranty" : {
+                "isTrue" : "อยู่ในรับประกัน",
+                "isFalse" : "ไม่อยู่ในรับประกัน"
+            }
         }
     }
 }

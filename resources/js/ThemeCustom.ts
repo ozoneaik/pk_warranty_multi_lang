@@ -18,7 +18,7 @@ export const theme = createTheme({
                 root: {
                     borderRadius: 8,
                     textTransform: "none",
-                    padding : '10px'
+                    padding: '10px'
                 },
             },
         }

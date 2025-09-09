@@ -5,6 +5,16 @@
         "loginWithLine": "ເຂົ້າລະບົບດ້ວຍ LINE",
         "loginWithFacebook": "ເຂົ້າລະບົບດ້ວຍ Facebook"
     },
+    "homePage": {
+        "title": "ໜ້າຫຼັກ",
+        "menu_list": {
+            "title": "ເມນູ",
+            "warrantyFormHeadTitle": "ລົງທະບຽນ",
+            "warrantyFormSubTitle": "ລົງທະບຽນສິນຄ້າໃໝ່",
+            "warrantyHistoryHeadTitle": "ປະຫວັດ",
+            "warrantyHistorySubTitle": "ເບິ່ງປະຫວັດການຮັບປະກັນ"
+        }
+    },
     "Warranty": {
         "Form": {
             "file": "ອັບໂຫລດໄຟລ໌",
@@ -17,7 +27,7 @@
             "buy_from": "ຊື້ຈາກ",
             "buy_date": "ວັນທີຊື້",
             "store_name": "ຊື່ຮ້ານ",
-            "submit" : "ລົງທະບຽນ"
+            "submit": "ລົງທະບຽນ"
         },
         "Validate": {
             "file": "ກະລຸນາອັບໂຫລດໄຟລ໌",
@@ -42,6 +52,25 @@
             "buy_from": "ຕົວຢ່າງ: ຮ້ານ, ອອນລາຍ",
             "buy_date": "ຕົວຢ່າງ: 2022-01-01",
             "store_name": "ຕົວຢ່າງ: facebook"
+        }
+    },
+    "History": {
+        "title": "ປະຫວັດການລົງທະບຽນ",
+        "Filter": {
+            "Input": {
+                "Label": "ຄົ້ນຫາ",
+                "Placeholder": "ຄົ້ນຫາເລກ S/N, ລະຫັດສິນຄ້າ"
+            }
+        },
+        "Card": {
+            "SerialNumber": "S/N",
+            "ProductCode": "ລະຫັດສິນຄ້າ",
+            "ProductModelCode": "ລະຫັດແບບ",
+            "ProductName": "ຊື່ສິນຄ້າ",
+            "Warranty": {
+                "isTrue": "ຢູ່ໃນການຮັບປະກັນ",
+                "isFalse": "ບໍ່ຢູ່ໃນການຮັບປະກັນ"
+            }
         }
     }
 }

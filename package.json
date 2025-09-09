@@ -34,8 +34,5 @@
         "@mui/x-date-pickers": "^8.11.1",
         "dayjs": "^1.11.18",
         "react-is": "18.2.0"
-    },
-    "overrides": {
-        "react-is": "^18.2.0"
     }
 }

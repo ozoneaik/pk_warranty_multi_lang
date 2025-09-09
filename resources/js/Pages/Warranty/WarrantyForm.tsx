@@ -1,11 +1,13 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
 import { useForm } from "@inertiajs/react";
 import { Assessment, FileUpload } from "@mui/icons-material";
-import { Box, Button, FormControl, FormLabel, Grid, Stack, TextField, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Container, FormControl, FormLabel, Grid, Stack, TextField, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useRef, useState } from "react";
 import ProductDetailComponent from "./ProductDetailComponent";
 import { useLanguage } from "@/context/LanguageContext";
+import ExampleWarrantyFile from "./ExampleWarrantyFile";
+import { PreviewFileUpload } from "./PreviewFileUpload";
 
 interface WarrantyFormProps {
     data: {
@@ -15,11 +17,11 @@ interface WarrantyFormProps {
         model_name: string,
         product_name: string,
         buy_from: string,
-        buy_date : string,
+        buy_date: string,
         phone: string,
-        store_name : string
+        store_name: string
     },
-    setData: (key : string, value : any) => void,
+    setData: (key: string, value: any) => void,
     processing: boolean,
     errors: any
 }
@@ -31,9 +33,11 @@ interface ProductDetail {
 }
 
 export default function WarrantyForm() {
-    const {t} = useLanguage();
+    const { t } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    const [openExxampleFile, setOpenExampleFile] = useState(false);
 
     const [showProduct, setShowProduct] = useState(false);
     const [ProductDetail, setProductDetail] = useState<ProductDetail>();
@@ -46,7 +50,7 @@ export default function WarrantyForm() {
         model_name: '',
         product_name: '',
         buy_from: '',
-        buy_date : '',
+        buy_date: '',
         store_name: ''
     });
     const [preview, setPreview] = useState<string | null>(null);
@@ -74,7 +78,7 @@ export default function WarrantyForm() {
             warranty_status: false
         });
         setData('model_code', '50277');
-        setData('model_name' , 'เครื่องเจียรมือ');
+        setData('model_name', 'เครื่องเจียรมือ');
         setData('product_name', 'เครื่องเจียรมือ');
     }
 
@@ -84,116 +88,126 @@ export default function WarrantyForm() {
     }
     return (
         <MobileAuthenticatedLayout>
-            <form onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
-                    <Grid size={12}>
-                        <Box
-                            onClick={() => fileInputRef.current?.click()}
-                            sx={{
-                                border: "2px dashed #ccc", borderRadius: 2,
-                                p: 2, textAlign: "center", cursor: "pointer",
-                                bgcolor: "#fafafa", "&:hover": { bgcolor: "#f0f0f0" },
-                            }}
-                        >
-                            {preview ? (
-                                <Box
-                                    component="img" src={preview} alt="Warranty Preview"
-                                    sx={{ maxHeight: 120, objectFit: "contain" }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenModal(true);
-                                    }}
-                                />
-                            ) : (
-                                <>
-                                    <FileUpload fontSize="large" color="primary" />
-                                    <Typography color="text.secondary">
-                                        {t.Warranty.Form.file}
-                                    </Typography>
-                                </>
+            {openExxampleFile && <ExampleWarrantyFile open={openExxampleFile} setOpen={setOpenExampleFile} />}
+            {openModal && <PreviewFileUpload open={openModal} setOpen={setOpenModal} preview={preview} />}
+            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                        <Grid size={12}>
+                            <Box
+                                onClick={() => fileInputRef.current?.click()}
+                                sx={{
+                                    border: "2px dashed #ccc", borderRadius: 2,
+                                    p: 2, textAlign: "center", cursor: "pointer",
+                                    bgcolor: "#fafafa", "&:hover": { bgcolor: "#f0f0f0" },
+                                }}
+                            >
+                                {preview ? (
+                                    <Stack spacing={1}>
+                                        <Box
+                                            component="img" src={preview} alt="Warranty Preview"
+                                            sx={{ maxHeight: 120, objectFit: "contain" }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenModal(true);
+                                            }}
+                                        />
+                                        <Button size="small">
+                                            {t.Warranty.Form.file} ใหม่
+                                        </Button>
+                                    </Stack>
+                                ) : (
+                                    <>
+                                        <FileUpload fontSize="large" color="primary" />
+                                        <Typography color="text.secondary">
+                                            {t.Warranty.Form.file}
+                                        </Typography>
+                                    </>
 
-                            )}
-                            <input
-                                ref={fileInputRef} type="file" accept="image/*" required
-                                hidden onChange={handleFileChange} name="warranty_file"
-                            />
-                        </Box>
-                        <br />
-                        <Button fullWidth variant="outlined">
-                            {t.Warranty.Form.example_file}
-                        </Button>
-                    </Grid>
-                    <Grid size={12}>
-                        <FormControl fullWidth>
-                            <FormLabel htmlFor="serial_number" required>
-                                {t.Warranty.Form.serial_number}
-                            </FormLabel>
-                            <TextField
-                                id="serial_number" name="serial_number"
-                                value={data.serial_number} onChange={handleOnChange}
-                                required disabled={processing} placeholder={t.Warranty.Placeholder.serial_number}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                        <Stack direction='row' justifyContent='end'>
-                            <Button disabled={!data.serial_number} onClick={handleCheckSn}>
-                                ตรวจสอบรับประกัน
+                                )}
+                                <input
+                                    ref={fileInputRef} type="file" accept="image/*" required
+                                    hidden onChange={handleFileChange} name="warranty_file"
+                                />
+                            </Box>
+                            <br />
+                            <Button fullWidth variant="outlined" onClick={() => setOpenExampleFile(true)}>
+                                {t.Warranty.Form.example_file}
                             </Button>
-                        </Stack>
+                        </Grid>
+                        <Grid size={12}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="serial_number" required>
+                                    {t.Warranty.Form.serial_number}
+                                </FormLabel>
+                                <TextField
+                                    id="serial_number" name="serial_number"
+                                    value={data.serial_number} onChange={handleOnChange}
+                                    required disabled={processing} placeholder={t.Warranty.Placeholder.serial_number}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid size={12}>
+                            <Stack direction='row' justifyContent='end'>
+                                <Button disabled={!data.serial_number} onClick={handleCheckSn}>
+                                    ตรวจสอบรับประกัน
+                                </Button>
+                            </Stack>
+                        </Grid>
+                        {showProduct && <ProductDetailComponent productDetail={ProductDetail} />}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="phone" required>
+                                    {t.Warranty.Form.phone}
+                                </FormLabel>
+                                <TextField
+                                    id="phone" name="phone" type="tel"
+                                    value={data.phone} onChange={handleOnChange}
+                                    required disabled={processing} placeholder={t.Warranty.Placeholder.phone}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="buy_from" required>
+                                    {t.Warranty.Form.buy_from}
+                                </FormLabel>
+                                <TextField
+                                    id="buy_from" name="buy_from"
+                                    value={data.buy_from} onChange={handleOnChange}
+                                    required disabled={processing} placeholder={t.Warranty.Placeholder.buy_from}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="store_name" required>
+                                    {t.Warranty.Form.store_name}
+                                </FormLabel>
+                                <TextField
+                                    id="store_name" name="store_name"
+                                    value={data.store_name} onChange={handleOnChange}
+                                    required disabled={processing} placeholder={t.Warranty.Placeholder.store_name}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="buy_date" required>
+                                    {t.Warranty.Form.buy_date}
+                                </FormLabel>
+                                <DatePicker />
+                            </FormControl>
+                        </Grid>
+                        <Grid size={12}>
+                            <Button fullWidth variant="contained" type="submit" startIcon={<Assessment />}>
+                                {t.Warranty.Form.submit}
+                            </Button>
+                        </Grid>
                     </Grid>
-                    {showProduct && <ProductDetailComponent productDetail={ProductDetail} />}
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <FormControl fullWidth>
-                            <FormLabel htmlFor="phone" required>
-                                {t.Warranty.Form.phone}
-                            </FormLabel>
-                            <TextField
-                                id="phone" name="phone" type="tel"
-                                value={data.phone} onChange={handleOnChange}
-                                required disabled={processing} placeholder={t.Warranty.Placeholder.phone}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <FormControl fullWidth>
-                            <FormLabel htmlFor="buy_from" required>
-                                {t.Warranty.Form.buy_from}
-                            </FormLabel>
-                            <TextField
-                                id="buy_from" name="buy_from"
-                                value={data.buy_from} onChange={handleOnChange}
-                                required disabled={processing} placeholder={t.Warranty.Placeholder.buy_from}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <FormControl fullWidth>
-                            <FormLabel htmlFor="store_name" required>
-                                {t.Warranty.Form.store_name}
-                            </FormLabel>
-                            <TextField
-                                id="store_name" name="store_name"
-                                value={data.store_name} onChange={handleOnChange}
-                                required disabled={processing} placeholder={t.Warranty.Placeholder.store_name}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <FormControl fullWidth>
-                            <FormLabel htmlFor="buy_date" required>
-                                {t.Warranty.Form.buy_date}
-                            </FormLabel>
-                            <DatePicker />
-                        </FormControl>
-                    </Grid>
-                    <Grid size={12}>
-                        <Button fullWidth variant="contained" type="submit" startIcon={<Assessment />}>
-                            {t.Warranty.Form.submit}
-                        </Button>
-                    </Grid>
-                </Grid>
-            </form>
+                </form>
+            </Container>
+
         </MobileAuthenticatedLayout>
     )
 }

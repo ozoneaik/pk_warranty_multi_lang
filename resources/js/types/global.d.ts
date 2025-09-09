@@ -10,8 +10,19 @@ declare global {
 
     /* eslint-disable no-var */
     var route: typeof ziggyRoute;
+
+    interface PreviewFileUploadProps {
+        preview: any,
+        open: boolean,
+        setOpen: any
+    }
+
+    interface ExampleWarrantyFileProps {
+        open: boolean,
+        setOpen: any
+    }
 }
 
 declare module '@inertiajs/core' {
-    interface PageProps extends InertiaPageProps, AppPageProps {}
+    interface PageProps extends InertiaPageProps, AppPageProps { }
 }

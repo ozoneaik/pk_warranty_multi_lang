@@ -1,0 +1,162 @@
+import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
+import {
+    Box, Card, CardContent, Grid, Typography, Stack,
+    Avatar, Paper, Container, useTheme, useMediaQuery
+} from "@mui/material";
+import { Assignment, History, Edit } from "@mui/icons-material";
+import { Link, router, usePage } from "@inertiajs/react";
+import { useLanguage } from "@/context/LanguageContext";
+
+export default function WarrantyHome() {
+
+    const {t} = useLanguage();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    const { user } = usePage().props.auth;
+
+    // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ
+    const navigateTo = (route: string) => {
+        router.visit(route);
+    };
+
+    return (
+        <MobileAuthenticatedLayout title={t.homePage.title}>
+            <Box>
+                {/* Hero Image Section */}
+                <Box sx={{ position: "relative" }}>
+                    <img
+                        src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1738131109188-S__13189163.jpg"
+                        alt="Warranty Banner"
+                        style={{
+                            width: "100%",
+                            borderBottomRightRadius: "12px",
+                            borderBottomLeftRadius: "12px",
+                            objectFit: "cover"
+                        }}
+                    />
+
+                    {/* Floating Header Section */}
+                    <Paper
+                        elevation={4}
+                        sx={{
+                            position: "absolute",
+                            bottom: -40, // ดันให้ลอยออกมาจากรูป
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: "90%",
+                            padding: 2,
+                            borderRadius: 3,
+                        }}
+                    >
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            <Avatar
+                                src="https://pumpkin.co.th/wp-content/uploads/2024/04/warranty/ICON%20-%20BUTTON-LOGO.png"
+                                sx={{
+                                    bgcolor: "rgba(255,255,255,0.2)",
+                                    width: 60,
+                                    height: 60,
+                                }}
+                            />
+                            <Box display='flex' justifyContent='space-between' alignItems='center'>
+                                <Typography fontWeight="bold">
+                                    สวัสดีคุณ{" "}
+                                    <Box component="span" sx={{ color: "#F54927" }}>
+                                        {user.name}
+                                    </Box>
+                                </Typography>
+                                <Link href={route('profile.edit')}>
+                                    <Edit />
+                                </Link>
+                            </Box>
+                        </Stack>
+                    </Paper>
+                </Box>
+            </Box>
+            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
+                <Box>
+                    {/* Quick Actions */}
+                    <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
+                        {t.homePage.menu_list.title}
+                    </Typography>
+
+                    <Grid container spacing={2} sx={{ mb: 4 }}>
+                        {/* ลงทะเบียนรับประกัน */}
+                        <Grid size={{ xs: 6 }}>
+                            <Card
+                                elevation={2}
+                                sx={{
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                    "&:hover": {
+                                        transform: "translateY(-4px)",
+                                        boxShadow: 4,
+                                    },
+                                }}
+                                onClick={() => router.get(route("warranty.form"))}
+                            >
+                                <CardContent sx={{ textAlign: "center", py: 3 }}>
+                                    <Avatar
+                                        sx={{
+                                            bgcolor: "#4caf50",
+                                            mx: "auto",
+                                            mb: 2,
+                                            width: 50,
+                                            height: 50,
+                                        }}
+                                    >
+                                        <Assignment />
+                                    </Avatar>
+                                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
+                                        {t.homePage.menu_list.warrantyFormHeadTitle}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {t.homePage.menu_list.warrantyFormSubTitle}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+
+                        {/* ประวัติการรับประกัน */}
+                        <Grid size={{ xs: 6 }}>
+                            <Card
+                                elevation={2}
+                                sx={{
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                    "&:hover": {
+                                        transform: "translateY(-4px)",
+                                        boxShadow: 4,
+                                    },
+                                }}
+                                onClick={() => navigateTo("/warranty/history")}
+                            >
+                                <CardContent sx={{ textAlign: "center", py: 3 }}>
+                                    <Avatar
+                                        sx={{
+                                            bgcolor: "#2196f3",
+                                            mx: "auto",
+                                            mb: 2,
+                                            width: 50,
+                                            height: 50,
+                                        }}
+                                    >
+                                        <History />
+                                    </Avatar>
+                                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
+                                        {t.homePage.menu_list.warrantyHistoryHeadTitle}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {t.homePage.menu_list.warrantyHistorySubTitle}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                </Box>
+            </Container>
+
+        </MobileAuthenticatedLayout>
+
+    )
+}

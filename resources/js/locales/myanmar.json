@@ -5,11 +5,21 @@
         "loginWithLine": "LINE ဖြင့်ဝင်ရန်",
         "loginWithFacebook": "Facebook ဖြင့်ဝင်ရန်"
     },
+    "homePage": {
+        "title": "ပင်မစာမျက်နှာ",
+        "menu_list": {
+            "title": "မီနူး",
+            "warrantyFormHeadTitle": "စာရင်းသွင်းရန်",
+            "warrantyFormSubTitle": "ထုတ်ကုန်အသစ်ကို စာရင်းသွင်းပါ",
+            "warrantyHistoryHeadTitle": "မှတ်တမ်း",
+            "warrantyHistorySubTitle": "အာမခံမှတ်တမ်းကြည့်ရန်"
+        }
+    },
     "Warranty": {
         "Form": {
             "file": "ဖိုင်အပ်လုဒ်",
             "example_file": "အာမခံစာရင်း ဥပမာ",
-            "serial_number" : "Serial Number",
+            "serial_number": "Serial Number",
             "phone": "ဖုန်းနံပါတ်",
             "model_code": "ကုဒ်နံပါတ်",
             "model_name": "မော်ဒယ်နာမည်",
@@ -17,7 +27,7 @@
             "buy_from": "ဝယ်ယူသောနေရာ",
             "buy_date": "ဝယ်ယူသည့်နေ့",
             "store_name": "ဆိုင်နာမည်",
-            "submit" : "မှတ်ပုံတင်"
+            "submit": "မှတ်ပုံတင်"
         },
         "Validate": {
             "file": "ဖိုင်ကိုအပ်လုဒ်ရန် လိုအပ်ပါသည်",
@@ -42,6 +52,25 @@
             "buy_from": "ဥပမာ- စျေး၊ အွန်လိုင်း",
             "buy_date": "ဥပမာ- 2022-01-01",
             "store_name": "ဥပမာ- facebook"
+        }
+    },
+    "History": {
+        "title": "မှတ်ပုံတင်မှတ်တမ်းများ",
+        "Filter": {
+            "Input": {
+                "Label": "ရှာဖွေမည်",
+                "Placeholder": "စီးရီးနံပါတ်, ထုတ်ကုန်ကုဒ် ရှာဖွေပါ"
+            }
+        },
+        "Card": {
+            "SerialNumber": "S/N",
+            "ProductCode": "ထုတ်ကုန်ကုဒ်",
+            "ProductModelCode": "မော်ဒယ်ကုဒ်",
+            "ProductName": "ထုတ်ကုန်အမည်",
+            "Warranty": {
+                "isTrue": "အာမခံအတွင်းရှိသည်",
+                "isFalse": "အာမခံအတွင်းမရှိပါ"
+            }
         }
     }
 }
