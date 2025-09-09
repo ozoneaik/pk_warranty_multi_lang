@@ -9,7 +9,7 @@ import { useLanguage } from "@/context/LanguageContext";
 
 export default function WarrantyHome() {
 
-    const {t} = useLanguage();
+    const { t } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -32,7 +32,9 @@ export default function WarrantyHome() {
                             width: "100%",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectFit: "cover"
+                            objectFit: "cover",
+                            objectPosition: "top",
+                            maxHeight: "450px"
                         }}
                     />
 
@@ -40,13 +42,9 @@ export default function WarrantyHome() {
                     <Paper
                         elevation={4}
                         sx={{
-                            position: "absolute",
-                            bottom: -40, // ดันให้ลอยออกมาจากรูป
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            width: "90%",
-                            padding: 2,
-                            borderRadius: 3,
+                            position: "absolute", bottom: -40,
+                            left: "50%", transform: "translateX(-50%)",
+                            width: "90%", padding: 2, borderRadius: 3,
                         }}
                     >
                         <Stack direction="row" alignItems="center" spacing={2}>
@@ -54,8 +52,7 @@ export default function WarrantyHome() {
                                 src="https://pumpkin.co.th/wp-content/uploads/2024/04/warranty/ICON%20-%20BUTTON-LOGO.png"
                                 sx={{
                                     bgcolor: "rgba(255,255,255,0.2)",
-                                    width: 60,
-                                    height: 60,
+                                    width: 60, height: 60
                                 }}
                             />
                             <Box display='flex' justifyContent='space-between' alignItems='center'>
@@ -98,11 +95,8 @@ export default function WarrantyHome() {
                                 <CardContent sx={{ textAlign: "center", py: 3 }}>
                                     <Avatar
                                         sx={{
-                                            bgcolor: "#4caf50",
-                                            mx: "auto",
-                                            mb: 2,
-                                            width: 50,
-                                            height: 50,
+                                            bgcolor: "#4caf50", mx: "auto",
+                                            mb: 2, width: 50, height: 50,
                                         }}
                                     >
                                         <Assignment />

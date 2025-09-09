@@ -148,8 +148,8 @@ export default function MobileAuthenticatedLayout({
                 sx={{
                     position: 'fixed', bottom: 0, left: 0, right: 0,
                     // backgroundColor: '#f5f5f5',
-                    backgroundColor: '#F54927',
-                    borderTop: '1px solid #e0e0e0',
+                    backgroundColor: '#070505ff',
+                    borderTop: '1px solid #F54927',
                     borderTopLeftRadius: '25px',
                     borderTopRightRadius: '25px',
                     zIndex: (theme) => theme.zIndex.drawer + 1,
