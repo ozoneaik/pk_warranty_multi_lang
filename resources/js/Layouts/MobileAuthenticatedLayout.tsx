@@ -148,7 +148,7 @@ export default function MobileAuthenticatedLayout({
                 sx={{
                     position: 'fixed', bottom: 0, left: 0, right: 0,
                     // backgroundColor: '#f5f5f5',
-                    backgroundColor: '#070505ff',
+                    backgroundColor: '#F54927',
                     borderTop: '1px solid #F54927',
                     borderTopLeftRadius: '25px',
                     borderTopRightRadius: '25px',
