@@ -5,7 +5,8 @@ import { Box, Card, CardContent, CardMedia, Stack, Typography } from "@mui/mater
 interface ProductDetail {
     pid: string,
     p_name: string,
-    warranty_status: boolean
+    warranty_status: boolean,
+    fac_model : string
 }
 
 const BoxStyle = {
@@ -40,7 +41,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                     borderRadius: 2,
                     bgcolor: "#fff",
                 }}
-                image="https://images.dcpumpkin.com/images/product/500/default.jpg"
+                image={productDetail.p_path}
                 alt={productDetail.p_name}
             />
 
@@ -52,7 +53,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">
-                        <strong>รหัสสินค้า:</strong> {productDetail.pid} ({productDetail.p_name})
+                        <strong>รหัสสินค้า:</strong> {productDetail.pid} ({productDetail.fac_model})
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">

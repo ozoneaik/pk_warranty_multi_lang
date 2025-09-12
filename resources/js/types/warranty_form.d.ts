@@ -17,7 +17,7 @@ declare global {
             product_name: string,
             buy_from: string,
             buy_date: string,
-            phone: string,
+            phone?: string,
             store_name: string
         },
         setData: (key: string, value: any) => void,
@@ -28,7 +28,9 @@ declare global {
     interface ProductDetail {
         pid?: string,
         p_name?: string,
-        warranty_status?: boolean
+        warranty_status?: boolean,
+        fac_model? : string,
+        p_path? : string
     }
 }
 

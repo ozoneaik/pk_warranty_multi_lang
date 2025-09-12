@@ -4,50 +4,6 @@ import { Box, TextField, Button, Typography, Alert, Container } from "@mui/mater
 import { WarningRounded } from "@mui/icons-material";
 import { router } from "@inertiajs/react";
 
-// ฟังก์ชันส่ง SMS (แทน PHP curl)
-async function sendSms(
-    account: string,
-    password: string,
-    mobile_no: string,
-    message: string
-): Promise<{ result: boolean; task_id?: string; message_id?: string; error?: string }> {
-    try {
-        const formData = new URLSearchParams();
-        formData.append("ACCOUNT", account);
-        formData.append("PASSWORD", password);
-        formData.append("MOBILE", mobile_no);
-        formData.append("MESSAGE", message);
-        formData.append("OPTION", "SEND_TYPE=General");
-
-        const response = await axios.post("https://u8-2.sc4msg.com/SendMessage", formData, {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        });
-
-        const text = response.data as string;
-
-        const results = text.trim().split("\n");
-        if (results[results.length - 1] !== "END=OK") {
-            return { result: false, error: "Incorrect Response: " + text };
-        }
-
-        if (results[0].trim() !== "STATUS=0") {
-            return { result: false, error: results[0].trim() };
-        }
-
-        let task_id = "";
-        let message_id = "";
-        results.forEach((line) => {
-            const [key, value] = line.split("=");
-            if (key === "TASK_ID") task_id = value;
-            if (key === "MESSAGE_ID") message_id = value;
-        });
-
-        return { result: true, task_id, message_id };
-    } catch (err: any) {
-        return { result: false, error: err.message };
-    }
-}
-
 export default function AddPhone() {
     const [phone, setPhone] = useState<string>("");
     const [otpSent, setOtpSent] = useState<boolean>(false);
@@ -120,13 +76,6 @@ export default function AddPhone() {
         const enteredOtp = otp.join("");
         if (enteredOtp === generatedOtp) {
             router.post(route('add.phone.store', { phone: phone }));
-            // alert("เพิ่มเบอร์โทรสำเร็จ 🎉");
-            // setPhone("");
-            // setOtp(["", "", "", ""]);
-            // setOtpSent(false);
-            // setGeneratedOtp("");
-            // setError("");
-            // setTimer(0);
         } else {
             setError("OTP ไม่ถูกต้อง");
         }
@@ -136,12 +85,8 @@ export default function AddPhone() {
         <Container>
             <Box
                 sx={{
-                    maxWidth: 400,
-                    mx: "auto",
-                    mt: 5,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
+                    maxWidth: 400, mx: "auto", mt: 5, display: "flex",
+                    flexDirection: "column", gap: 2,
                 }}
             >
                 <Typography variant="h6" textAlign="center" fontWeight='bold'>
@@ -178,6 +123,7 @@ export default function AddPhone() {
                                 <TextField
                                     key={index}
                                     value={digit}
+                                    type="number"
                                     inputProps={{ maxLength: 1, style: { textAlign: "center" } }}
                                     onChange={(e) => handleOtpChange(e, index)}
                                     inputRef={(el) => (inputRefs.current[index] = el)}

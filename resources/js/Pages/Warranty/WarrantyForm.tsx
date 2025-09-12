@@ -1,17 +1,27 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import { Assessment, FileUpload } from "@mui/icons-material";
-import { Box, Button, Container, FormControl, FormLabel, Grid, Stack, TextField, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Container, Autocomplete, FormControl, FormLabel, Grid, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, useMediaQuery, useTheme, CircularProgress } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useRef, useState } from "react";
 import ProductDetailComponent from "./ProductDetailComponent";
 import { useLanguage } from "@/context/LanguageContext";
 import ExampleWarrantyFile from "./ExampleWarrantyFile";
 import { PreviewFileUpload } from "./PreviewFileUpload";
+import axios from "axios";
+import dayjs from "dayjs";
 
+interface StoreItemProps {
+    custgroup: string;
+    custname: string;
+    branch: string;
+}
 
+export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
+    const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-export default function WarrantyForm() {
+    // @ts-ignore
+    const { user } = usePage().props.auth;
     const { t } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -24,11 +34,12 @@ export default function WarrantyForm() {
     const { data, setData, processing, errors }: WarrantyFormProps = useForm({
         warranty_file: '',
         serial_number: '',
-        phone: '',
+        // @ts-ignore
+        phone: user.phone,
         model_code: '',
         model_name: '',
         product_name: '',
-        buy_from: '',
+        buy_from: 'เลือก',
         buy_date: '',
         store_name: ''
     });
@@ -38,6 +49,9 @@ export default function WarrantyForm() {
 
     const [showForm, setShowForm] = useState(false);
     const [checking, setChecking] = useState(false);
+
+    const [storeList, setStoreList] = useState<StoreItemProps | any>([]);
+    const [loadingBuyform, setLoadingBuyFrom] = useState(false);
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -52,23 +66,64 @@ export default function WarrantyForm() {
     };
 
     const handleCheckSn = async () => {
-        setShowProduct(true);
-        setChecking(true);
-        setProductDetail({
-            pid: '50277',
-            p_name: 'เครื่องเจียรมือ',
-            warranty_status: true
-        });
-        setData('model_code', '50277');
-        setData('model_name', 'เครื่องเจียรมือ');
-        setData('product_name', 'เครื่องเจียรมือ');
-        setShowForm(true);
-        setChecking(false);
+        try {
+            setShowProduct(false);
+            setChecking(true);
+            setShowForm(false);
+            const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number }));
+            const skusetFirstIndex = response.data.data.skuset[0];
+            const res_product = response.data.data.assets[skusetFirstIndex];
+            setShowProduct(true);
+            setShowForm(true);
+            setProductDetail({
+                p_path: import.meta.env.VITE_PRODUCT_IMAGE_URI + "/" + res_product.pid + '.jpg',
+                pid: res_product.pid,
+                p_name: res_product.pname,
+                fac_model: res_product.facmodel,
+                warranty_status: false
+            });
+            setData('model_code', res_product.pid);
+            setData('model_name', res_product.facmodel);
+            setData('product_name', res_product.pname);
+        } catch (error: any) {
+            const error_msg = error.response?.data?.message || error.message;
+            alert(error_msg)
+            setShowForm(false);
+        } finally {
+            setChecking(false);
+        }
     }
 
     const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log(data);
+    }
+
+    const handleBuyFromChange = (value: string) => {
+        setData('buy_from', value);
+        setLoadingBuyFrom(true);
+        setData('store_name', null)
+        // clear timeout เดิมก่อน
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+        }
+
+        // ตั้งเวลาใหม่
+        debounceRef.current = setTimeout(() => {
+            handleChangeStoreName(value);
+        }, 500); // หน่วง 500ms
+    };
+
+    const handleChangeStoreName = async (buy_from: string) => {
+        try {
+            const response = await axios(route('warranty.get_store_name', { store_name: buy_from }));
+            console.log(response.data.list.value);
+            setStoreList(response.data.list.value)
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoadingBuyFrom(false);
+        }
     }
     return (
         <MobileAuthenticatedLayout>
@@ -129,13 +184,16 @@ export default function WarrantyForm() {
                                 <TextField
                                     id="serial_number" name="serial_number"
                                     value={data.serial_number} onChange={handleOnChange}
-                                    required disabled={processing} placeholder={t.Warranty.Placeholder.serial_number}
+                                    required disabled={processing || checking} placeholder={t.Warranty.Placeholder.serial_number}
                                 />
                             </FormControl>
                         </Grid>
                         <Grid size={12}>
                             <Stack direction='row' justifyContent='end'>
-                                <Button disabled={!data.serial_number} onClick={handleCheckSn}>
+                                <Button
+                                    disabled={!data.serial_number} loading={processing || checking}
+                                    onClick={handleCheckSn}
+                                >
                                     ตรวจสอบรับประกัน
                                 </Button>
                             </Stack>
@@ -151,7 +209,8 @@ export default function WarrantyForm() {
                                         <TextField
                                             id="phone" name="phone" type="tel"
                                             value={data.phone} onChange={handleOnChange}
-                                            required disabled={processing} placeholder={t.Warranty.Placeholder.phone}
+                                            required disabled={processing} 
+                                            placeholder={t.Warranty.Placeholder.phone}
                                         />
                                     </FormControl>
                                 </Grid>
@@ -160,31 +219,65 @@ export default function WarrantyForm() {
                                         <FormLabel htmlFor="buy_from" required>
                                             {t.Warranty.Form.buy_from}
                                         </FormLabel>
-                                        <TextField
-                                            id="buy_from" name="buy_from"
-                                            value={data.buy_from} onChange={handleOnChange}
-                                            required disabled={processing} placeholder={t.Warranty.Placeholder.buy_from}
-                                        />
+                                        <Select
+                                            required
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={data.buy_from}
+                                            variant="outlined"
+                                            onChange={(e: SelectChangeEvent) => handleBuyFromChange(e.target.value)}
+                                        >
+                                            <MenuItem disabled value={'เลือก'}>
+                                                เลือก
+                                            </MenuItem>
+                                            {channel_list.map((channel, index) => (
+                                                <MenuItem key={index} value={channel}>
+                                                    {channel}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 6 }}>
-                                    <FormControl fullWidth>
-                                        <FormLabel htmlFor="store_name" required>
-                                            {t.Warranty.Form.store_name}
-                                        </FormLabel>
-                                        <TextField
-                                            id="store_name" name="store_name"
-                                            value={data.store_name} onChange={handleOnChange}
-                                            required disabled={processing} placeholder={t.Warranty.Placeholder.store_name}
-                                        />
-                                    </FormControl>
-                                </Grid>
+                                {loadingBuyform ? (
+                                    <>
+                                        <CircularProgress /> {data.buy_from}
+                                    </>
+                                ) : (
+                                    <Grid size={{ xs: 12, md: 6 }}>
+                                        <FormControl fullWidth>
+                                            <FormLabel htmlFor="store_name" required>
+                                                {t.Warranty.Form.store_name}
+                                            </FormLabel>
+                                            <Autocomplete
+                                                options={storeList.map(
+                                                    (item: any) => `${item.custgroup}${item.custname}${item.branch}`
+                                                )}
+                                                value={data.store_name}
+                                                onChange={(_, newValue) => setData('store_name', newValue)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                    />
+                                                )}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                )}
+
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_date" required>
                                             {t.Warranty.Form.buy_date}
                                         </FormLabel>
-                                        <DatePicker />
+                                        <DatePicker
+                                            name="buy_date"
+                                            onChange={(newValue) => {
+                                                setData("buy_date", newValue ? newValue.format("YYYY-MM-DD") : "");
+                                            }}
+                                            maxDate={dayjs()}
+                                        />
                                     </FormControl>
                                 </Grid>
                                 <Grid size={12}>
@@ -197,8 +290,8 @@ export default function WarrantyForm() {
 
                     </Grid>
                 </form>
-            </Container>
+            </Container >
 
-        </MobileAuthenticatedLayout>
+        </MobileAuthenticatedLayout >
     )
 }
