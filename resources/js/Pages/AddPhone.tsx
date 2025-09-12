@@ -101,10 +101,10 @@ export default function AddPhone() {
     }, [timer]);
 
     const handleOtpChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         index: number
     ) => {
-        const val = e.target.value;
+        const val = (e.target as HTMLInputElement).value;
         if (!/^\d?$/.test(val)) return;
         const newOtp = [...otp];
         newOtp[index] = val;
