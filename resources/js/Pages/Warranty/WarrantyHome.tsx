@@ -6,6 +6,8 @@ import {
 import { Assignment, History, Edit } from "@mui/icons-material";
 import { Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
+import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
+import backgroundHome from '../../assets/images/backgroundHome.jpg'
 
 export default function WarrantyHome() {
 
@@ -26,15 +28,13 @@ export default function WarrantyHome() {
                 {/* Hero Image Section */}
                 <Box sx={{ position: "relative" }}>
                     <img
-                        src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1738131109188-S__13189163.jpg"
+                        src={backgroundHome}
                         alt="Warranty Banner"
                         style={{
-                            width: "100%",
+                            width: "100%", objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectFit: "cover",
-                            objectPosition: "top",
-                            maxHeight: "450px"
+                            objectPosition: "top", maxHeight: "350px"
                         }}
                     />
 
@@ -49,7 +49,7 @@ export default function WarrantyHome() {
                     >
                         <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar
-                                src="https://pumpkin.co.th/wp-content/uploads/2024/04/warranty/ICON%20-%20BUTTON-LOGO.png"
+                                src={PumpkinLogo}
                                 sx={{
                                     bgcolor: "rgba(255,255,255,0.2)",
                                     width: 60, height: 60

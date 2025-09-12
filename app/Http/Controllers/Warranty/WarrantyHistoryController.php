@@ -3,20 +3,18 @@
 namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterWaaranty\TblHistoryProd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class WarrantyHistoryController extends Controller
 {
     public function history()
     {
-        $histories = [
-            ['id' => 1,'sn' => 'jokelsadfjlasf', 'pid' => '50277', 'p_name' => 'joker on the rock', 'status' => true],
-            ['id' => 2,'sn' => 'jokelsadfjlasf', 'pid' => '50277', 'p_name' => 'joker on the rock', 'status' => true],
-            ['id' => 3,'sn' => 'jokelsadfjlasf', 'pid' => '50277', 'p_name' => 'joker on the rock', 'status' => true],
-            ['id' => 4,'sn' => 'jokelsadfjlasf', 'pid' => '50277', 'p_name' => 'joker on the rock', 'status' => true],
-            ['id' => 5,'sn' => 'jokelsadfjlasf', 'pid' => '50277', 'p_name' => 'joker on the rock', 'status' => true],
-        ];
+        $histories = TblHistoryProd::query()
+            ->where('cust_tel', Auth::user()->phone)
+            ->orderBy('id', 'desc')->get();
         return Inertia::render('Warranty/WarrantyHistory', [
             'histories' => $histories
         ]);

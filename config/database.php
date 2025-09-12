@@ -130,7 +130,26 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA_WARRANTY'),
             ]) : [],
-        ]
+        ],
+        'mysql_slip' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL_SLIP'),
+            'host' => env('DB_HOST_SLIP', '127.0.0.1'),
+            'port' => env('DB_PORT_SLIP', '3306'),
+            'database' => env('DB_DATABASE_SLIP', 'laravel'),
+            'username' => env('DB_USERNAME_SLIP', 'root'),
+            'password' => env('DB_PASSWORD_SLIP', ''),
+            'unix_socket' => env('DB_SOCKET_SLIP', ''),
+            'charset' => env('DB_CHARSET_SLIP', 'utf8mb4'),
+            'collation' => env('DB_COLLATION_SLIP', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
 
     ],
 
@@ -167,7 +186,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

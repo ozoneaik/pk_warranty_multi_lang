@@ -11,4 +11,8 @@ class WarrantyFormController extends Controller
     public function form(){
         return Inertia::render('Warranty/WarrantyForm');
     }
+
+    public function store(Request $request){
+        
+    }
 }
