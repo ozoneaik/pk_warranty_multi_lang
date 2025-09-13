@@ -6,6 +6,9 @@ export const theme = createTheme({
         primary: {
             main: "#F54927",
         },
+        secondary : {
+            main: "#FFFFFF",
+        }
     },
     components: {
         // MuiButtonBase: {

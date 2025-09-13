@@ -1,7 +1,7 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
 import { Head, useForm, usePage } from "@inertiajs/react";
-import { Assessment, FileUpload } from "@mui/icons-material";
-import { Box, Button, Container, Autocomplete, FormControl, FormLabel, Grid, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, useMediaQuery, useTheme, CircularProgress } from "@mui/material";
+import { Assessment, FileUpload, QrCode } from "@mui/icons-material";
+import { Box, Button, Container, Autocomplete, FormControl, FormLabel, Grid, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, useMediaQuery, useTheme, CircularProgress, InputAdornment } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useRef, useState } from "react";
 import ProductDetailComponent from "./ProductDetailComponent";
@@ -54,6 +54,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
     const [storeList, setStoreList] = useState<StoreItemProps | any>([]);
     const [loadingBuyform, setLoadingBuyFrom] = useState(false);
+
+    const [openCamera, setOpenCamera] = useState(false);
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -136,13 +138,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
 
             <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
-
-                <Html5QrcodePlugin
-                    fps={10} qrbox={250} disableFlip={false}
-                    qrCodeSuccessCallback={(decodedText: any, decodedResult: any) => {
-                        console.log(decodedText, decodedResult)
-                    }}
-                />
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         {showForm && (
@@ -227,6 +222,20 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         />
                                     </FormControl>
                                 </Grid>
+                                {openCamera && (
+                                    <Grid size={{ xs: 12, md: 6 }}>
+                                        <Html5QrcodePlugin
+                                            defaultCamera="back" // 👈 บังคับเปิดกล้องหลัง
+                                            fps={10} qrbox={250} disableFlip={false}
+                                            qrCodeSuccessCallback={(decodedText: number | string, decodedResult: any) => {
+                                                const formatDecodedText = decodedText.toString();
+                                                alert('รับรหัสเรียบร้อยแล้ว✅✅');
+                                                setData('customer_code', formatDecodedText);
+                                                setOpenCamera(false);
+                                            }}
+                                        />
+                                    </Grid>
+                                )}
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="customer_code" required>
@@ -237,6 +246,17 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             value={data.customer_code} onChange={handleOnChange}
                                             required disabled={processing}
                                             placeholder={t.Warranty.Placeholder.customer_code}
+                                            slotProps={{
+                                                input: {
+                                                    endAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Box border='solid' borderRadius={1} sx={{ p: '3px' }}>
+                                                                <QrCode onClick={() => setOpenCamera(!openCamera)} />
+                                                            </Box>
+                                                        </InputAdornment>
+                                                    )
+                                                }
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>
