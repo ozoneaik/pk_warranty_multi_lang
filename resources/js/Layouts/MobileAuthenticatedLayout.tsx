@@ -143,12 +143,13 @@ export default function MobileAuthenticatedLayout({
 
             {/* Bottom Navigation */}
             <BottomNavigation
+                showLabels
                 value={value}
                 onChange={handleBottomNavChange}
                 sx={{
                     position: 'fixed', bottom: 0, left: 0, right: 0,
                     // backgroundColor: '#f5f5f5',
-                    // backgroundColor: '#F54927',
+                    backgroundColor: '#F54927',
                     borderTop: '1px solid gray',
                     borderRight: '1px solid gray',
                     borderLeft: '1px solid gray',
@@ -158,14 +159,14 @@ export default function MobileAuthenticatedLayout({
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                 }}
             >
-                <BottomNavigationAction icon={<Home />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                {/* <BottomNavigationAction icon={<Home />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
-                <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
-                {/* <BottomNavigationAction icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} /> */}
+                <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: '#F54927' } }} /> */}
+                <BottomNavigationAction label='หน้าหลัก' icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label='ฟอร์ม' icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label="ประวัติ" icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label="ผู้ใช้งาน" icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
             </BottomNavigation>
         </Box>
     );
