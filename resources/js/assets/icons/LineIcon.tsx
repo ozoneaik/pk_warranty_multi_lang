@@ -1,4 +1,4 @@
-export default function LineIcon(): JSX.Element {
+export default function LineIcon() {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
