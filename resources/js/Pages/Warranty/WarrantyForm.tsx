@@ -1,5 +1,5 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
-import { useForm, usePage } from "@inertiajs/react";
+import { Head, useForm, usePage } from "@inertiajs/react";
 import { Assessment, FileUpload } from "@mui/icons-material";
 import { Box, Button, Container, Autocomplete, FormControl, FormLabel, Grid, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, useMediaQuery, useTheme, CircularProgress } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
@@ -10,6 +10,7 @@ import ExampleWarrantyFile from "./ExampleWarrantyFile";
 import { PreviewFileUpload } from "./PreviewFileUpload";
 import axios from "axios";
 import dayjs from "dayjs";
+import Html5QrcodePlugin from "@/Components/Html5QrcodePlugin";
 
 interface StoreItemProps {
     custgroup: string;
@@ -41,7 +42,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         product_name: '',
         buy_from: 'เลือก',
         buy_date: '',
-        store_name: ''
+        store_name: '',
+        customer_code: '',
     });
     const [preview, setPreview] = useState<string | null>(null);
     const [openModal, setOpenModal] = useState(false);
@@ -126,10 +128,21 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         }
     }
     return (
-        <MobileAuthenticatedLayout>
+        <MobileAuthenticatedLayout title={t.Warranty.title}>
+            <Head title={t.Warranty.title} />
             {openExampleFile && <ExampleWarrantyFile open={openExampleFile} setOpen={setOpenExampleFile} />}
             {openModal && <PreviewFileUpload open={openModal} setOpen={setOpenModal} preview={preview} />}
+
+
+
             <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
+
+                <Html5QrcodePlugin
+                    fps={10} qrbox={250} disableFlip={false}
+                    qrCodeSuccessCallback={(decodedText: any, decodedResult: any) => {
+                        console.log(decodedText, decodedResult)
+                    }}
+                />
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                         {showForm && (
@@ -209,8 +222,21 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         <TextField
                                             id="phone" name="phone" type="tel"
                                             value={data.phone} onChange={handleOnChange}
-                                            required disabled={processing} 
+                                            required disabled={processing}
                                             placeholder={t.Warranty.Placeholder.phone}
+                                        />
+                                    </FormControl>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 6 }}>
+                                    <FormControl fullWidth>
+                                        <FormLabel htmlFor="customer_code" required>
+                                            รหัสลูกค้า / รหัสพนักงาน
+                                        </FormLabel>
+                                        <TextField
+                                            id="phone" name="customer_code" type="tel"
+                                            value={data.customer_code} onChange={handleOnChange}
+                                            required disabled={processing}
+                                            placeholder={t.Warranty.Placeholder.customer_code}
                                         />
                                     </FormControl>
                                 </Grid>

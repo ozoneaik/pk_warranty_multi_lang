@@ -18,7 +18,8 @@ declare global {
             buy_from: string,
             buy_date: string,
             phone?: string,
-            store_name: string
+            store_name: string,
+            customer_code? : string,
         },
         setData: (key: string, value: any) => void,
         processing: boolean,

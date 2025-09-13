@@ -5,35 +5,38 @@
         "loginWithLine": "เข้าสู่ระบบด้วย LINE",
         "loginWithFacebook": "เข้าสู่ระบบด้วย Facebook"
     },
-    "homePage" : {
-        "title" : "หน้าหลัก",
-        "menu_list" : {
-            "title" : "เมนูหลัก",
-            "warrantyFormHeadTitle" : "ลงทะเบียน",
-            "warrantyFormSubTitle" : "ลงทะเบียนสินค้าใหม่",
-            "warrantyHistoryHeadTitle" : "ประวัติ",
-            "warrantyHistorySubTitle" : "ดูประวัติการรับประกัน"
+    "homePage": {
+        "title": "หน้าหลัก",
+        "menu_list": {
+            "title": "เมนูหลัก",
+            "warrantyFormHeadTitle": "ลงทะเบียน",
+            "warrantyFormSubTitle": "ลงทะเบียนสินค้าใหม่",
+            "warrantyHistoryHeadTitle": "ประวัติ",
+            "warrantyHistorySubTitle": "ดูประวัติการรับประกัน"
         }
     },
     "Warranty": {
+        "title": "ฟอร์มลงทะเบียนรับประกัน",
         "Form": {
             "file": "อัปโหลดไฟล์",
             "example_file": "ตัวอย่างใบรับประกัน",
             "serial_number": "หมายเลข S/N",
             "phone": "เบอร์โทรศัพท์",
+            "customer_code": "รหัสลูกค้า / รหัสพนักงาน",
             "model_code": "รหัสสินค้า",
             "model_name": "รหัสโมเดล",
             "product_name": "ชื่อสินค้า",
             "buy_from": "ซื้อจากช่องทาง",
             "buy_date": "วันที่ซื้อ",
             "store_name": "ชื่อร้านค้า",
-            "submit" : "ลงทะเบียนรับประกัน"
+            "submit": "ลงทะเบียนรับประกัน"
         },
         "Validate": {
             "file": "กรุณาอัปโหลดไฟล์",
             "example_file": "กรุณาอัปโหลดตัวอย่างใบรับประกัน",
             "serial_number": "กรุณากรอกหมายเลข S/N",
             "phone": "กรุณากรอกเบอร์โทรศัพท์",
+            "customer_code": "รหัสลูกค้า / รหัสพนักงาน จะมี 5 หลักเช่น 52135",
             "model_code": "กรุณากรอกรหัสสินค้า",
             "model_name": "กรุณากรอกรหัสโมเดล",
             "product_name": "กรุณากรอกชื่อสินค้า",
@@ -46,6 +49,7 @@
             "example_file": "ตัวอย่างใบรับประกัน",
             "serial_number": "เช่น 6009999999999xx",
             "phone": "เช่น 09xxxxxxxxx",
+            "customer_code": "รหัสลูกค้า / รหัสพนักงาน จะมี 5 หลักเช่น 52135",
             "model_code": "จะแสดงเมื่อค้นหาหมายเลข S/N",
             "model_name": "จะแสดงเมื่อค้นหาหมายเลข S/N",
             "product_name": "จะแสดงเมื่อค้นหาหมายเลข S/N",
@@ -54,22 +58,22 @@
             "store_name": "เช่น facebook"
         }
     },
-    "History" : {
-        "title" : "ประวัติการลงทะเบียน",
-        "Filter" : {
-            "Input" : {
-                "Label" : "ค้นหา",
-                "Placeholder" : "ค้นหาหมายเลขซีเรียล, รหัสสินค้า" 
+    "History": {
+        "title": "ประวัติการลงทะเบียน",
+        "Filter": {
+            "Input": {
+                "Label": "ค้นหา",
+                "Placeholder": "ค้นหาหมายเลขซีเรียล, รหัสสินค้า"
             }
         },
-        "Card" : {
-            "SerialNumber" : "S/N",
-            "ProductCode" : "รหัสสินค้า",
-            "ProductModelCode" : "รหัสโมเดล",
-            "ProductName" : "ชื่อสินค้า",
-            "Warranty" : {
-                "isTrue" : "อยู่ในรับประกัน",
-                "isFalse" : "ไม่อยู่ในรับประกัน"
+        "Card": {
+            "SerialNumber": "S/N",
+            "ProductCode": "รหัสสินค้า",
+            "ProductModelCode": "รหัสโมเดล",
+            "ProductName": "ชื่อสินค้า",
+            "Warranty": {
+                "isTrue": "อยู่ในรับประกัน",
+                "isFalse": "ไม่อยู่ในรับประกัน"
             }
         }
     }

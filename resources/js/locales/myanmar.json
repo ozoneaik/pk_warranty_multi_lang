@@ -16,11 +16,13 @@
         }
     },
     "Warranty": {
+        "title": "ฟอร์มลงทะเบียนรับประกัน",
         "Form": {
             "file": "ဖိုင်အပ်လုဒ်",
             "example_file": "အာမခံစာရင်း ဥပမာ",
             "serial_number": "Serial Number",
             "phone": "ဖုန်းနံပါတ်",
+            "customer_code": "รหัสลูกค้า / รหัสพนักงาน",
             "model_code": "ကုဒ်နံပါတ်",
             "model_name": "မော်ဒယ်နာမည်",
             "product_name": "ကုန်ပစ္စည်းနာမည်",
@@ -34,6 +36,7 @@
             "example_file": "အာမခံစာရင်း ဥပမာကို အပ်လုဒ်ပါ",
             "serial_number": "Serial Number ကိုဖြည့်ပါ",
             "phone": "ဖုန်းနံပါတ်ကိုဖြည့်ပါ",
+            "customer_code": "รหัสลูกค้า / รหัสพนักงาน จะมี 5 หลักเช่น 52135",
             "model_code": "ကုဒ်နံပါတ်ကိုဖြည့်ပါ",
             "model_name": "မော်ဒယ်နာမည်ကိုဖြည့်ပါ",
             "product_name": "ကုန်ပစ္စည်းနာမည်ကိုဖြည့်ပါ",
@@ -46,6 +49,7 @@
             "example_file": "အာမခံစာရင်း ဥပမာ",
             "serial_number": "ဥပမာ 6009999999999xx",
             "phone": "ဥပမာ 09xxxxxxxxx",
+            "customer_code": "รหัสลูกค้า / รหัสพนักงาน จะมี 5 หลักเช่น 52135",
             "model_code": "Serial Number ရှာဖွေရန်တွင် ပြသမည်",
             "model_name": "Serial Number ရှာဖွေရန်တွင် ပြသမည်",
             "product_name": "Serial Number ရှာဖွေရန်တွင် ပြသမည်",
