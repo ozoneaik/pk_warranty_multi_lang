@@ -148,17 +148,24 @@ export default function MobileAuthenticatedLayout({
                 sx={{
                     position: 'fixed', bottom: 0, left: 0, right: 0,
                     // backgroundColor: '#f5f5f5',
-                    backgroundColor: '#F54927',
-                    borderTop: '1px solid #F54927',
+                    // backgroundColor: '#F54927',
+                    borderTop: '1px solid gray',
+                    borderRight: '1px solid gray',
+                    borderLeft: '1px solid gray',
+                    // boxShadow : '4',
                     borderTopLeftRadius: '25px',
                     borderTopRightRadius: '25px',
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                 }}
             >
-                <BottomNavigationAction icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction icon={<Home />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
+                {/* <BottomNavigationAction icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
                 <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
                 <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} /> */}
             </BottomNavigation>
         </Box>
     );
