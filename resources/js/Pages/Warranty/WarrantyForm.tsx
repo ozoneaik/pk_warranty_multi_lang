@@ -130,8 +130,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         e.preventDefault();
         post(route('warranty.form.store'), {
             forceFormData: true,
-            onError: (e) => {
-                console.error("Errors: ", e);
+            onError: (event : any) => {
+                console.error("Errors: ", event);
             },
             onFinish: () => {
                 console.log("Submit finished");
