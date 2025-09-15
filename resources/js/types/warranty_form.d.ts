@@ -23,7 +23,8 @@ declare global {
         },
         setData: any,
         processing: boolean,
-        errors: any
+        errors: any,
+        post : any
     }
     
     interface ProductDetail {

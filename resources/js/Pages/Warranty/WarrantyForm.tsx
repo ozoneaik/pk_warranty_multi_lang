@@ -36,7 +36,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     const [showProduct, setShowProduct] = useState(false);
     const [ProductDetail, setProductDetail] = useState<ProductDetail>();
 
-    const { data, setData, processing, errors }: WarrantyFormProps = useForm({
+    const { data, setData, processing, errors, post }: WarrantyFormProps = useForm({
         warranty_file: '',
         serial_number: '',
         // @ts-ignore
@@ -128,7 +128,15 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(data);
+        post(route('warranty.form.store'), {
+            forceFormData: true,
+            onError: (e) => {
+                console.error("Errors: ", e);
+            },
+            onFinish: () => {
+                console.log("Submit finished");
+            }
+        });
     }
 
     const handleBuyFromChange = useCallback((value: string) => {
@@ -197,12 +205,12 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                 onClose={handleCloseQrScanner}
                 maxWidth="sm"
                 fullWidth
-                // PaperProps={{
-                //     sx: {
-                //         borderRadius: 2,
-                //         minHeight: isMobile ? '80vh' : 'auto'
-                //     }
-                // }}
+            // PaperProps={{
+            //     sx: {
+            //         borderRadius: 2,
+            //         minHeight: isMobile ? '80vh' : 'auto'
+            //     }
+            // }}
             >
                 <DialogTitle>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -306,7 +314,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         type="file"
                                         accept="image/*"
                                         required
-                                        hidden
+                                        // hidden
+                                        style={{ zIndex: -1 }}
                                         onChange={handleFileChange}
                                         name="warranty_file"
                                     />

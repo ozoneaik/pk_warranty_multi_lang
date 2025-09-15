@@ -14,7 +14,6 @@ class TblHistoryProd extends Model
         'lineid',
         'cust_tel',
         'reward',
-        'cust_tel',
         'serial_number',
         'model_code',
         'model_name',

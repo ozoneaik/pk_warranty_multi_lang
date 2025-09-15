@@ -3,26 +3,34 @@
 namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Warranty\WrFormRequest;
 use App\Models\MasterWaaranty\TblHistoryProd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class WarrantyFormController extends Controller
 {
     public function form()
     {
-        $uri = env('ROCKET_GET_CHANEL_BUY_URI');
-        $response = Http::timeout(30)->withOptions(['verify' => false])->get($uri, [
-            'name' => 'ช่องทางการซื้อ',
-        ]);
-        if ($response->successful() && $response->status() === 200) {
-            $response_json = $response->json();
-            $response_json = $response_json['data'];
-        } else {
-            $response_json = [];
+        try {
+            $uri = env('ROCKET_GET_CHANEL_BUY_URI');
+            $response = Http::timeout(30)->withOptions(['verify' => false])->get($uri, [
+                'name' => 'ช่องทางการซื้อ',
+            ]);
+            if ($response->successful() && $response->status() === 200) {
+                $response_json = $response->json();
+                $response_json = $response_json['data'];
+            } else {
+                $response_json = [];
+            }
+            return Inertia::render('Warranty/WarrantyForm', ['channel_list' => $response_json]);
+        } catch (\Exception $e) {
+            return Inertia::render('Warranty/WarrantyForm', ['channel_list' => []]);
         }
-        return Inertia::render('Warranty/WarrantyForm', ['channel_list' => $response_json]);
     }
 
     public function get_store_name($store_name)
@@ -59,8 +67,6 @@ class WarrantyFormController extends Controller
             ], 400);
         }
     }
-
-    public function store(Request $request) {}
 
     public function checkSn($sn)
     {
@@ -101,6 +107,64 @@ class WarrantyFormController extends Controller
                 'message' => $e->getMessage(),
                 'data' => $data_response ?? []
             ], $status ?? 400);
+        }
+    }
+
+    public function store(WrFormRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $req = $request->validated();
+            $store = TblHistoryProd::updateOrCreate([
+                'serial_number' => $req['serial_number'],
+            ], [
+                'approval' => '',
+                'lineid' => Auth::user()->google_id ?? Auth::user()->line_id ?? null,
+                'cust_tel' => $req['phone'],
+                'reward' => null,
+                'serial_number'  => $req['serial_number'],
+                'model_code' => $req['model_code'],
+                'model_name' => $req['model_name'],
+                'product_name' => $req['product_name'],
+                'buy_from' => $req['buy_from'],
+                'store_name' => $req['store_name'],
+                'buy_date' => $req['buy_date'],
+                'slip' => 'hello', // path ที่เก็บไฟล์
+                'approver' => null,
+                'round' => null,
+                'warranty_from'  => 'pumpkin_multi_local',
+                'customer_code'  => $req['customer_code'] ?? null,
+                'customer_name'  => $req['customer_name'] ?? null,
+            ]);
+
+            if ($request->hasFile('warranty_file')) {
+                $file = $request->file('warranty_file');
+
+                // ✅ ตั้งชื่อไฟล์ใหม่ (timestamp + uniqid + นามสกุลเดิม)
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                // ✅ path ใน S3
+                $path = 'warranty_slips/' . $fileName;
+
+                // ✅ อัพโหลดขึ้น S3 (เก็บเป็น private)
+                Storage::disk('s3')->put($path, file_get_contents($file), 'private');
+
+                // ✅ เก็บ path ไว้ใน database (ถ้าต้องการ public link ใช้ temporaryUrl ตอนแสดงผล)
+                $slipPath = $path;
+                $full_path = Storage::disk('s3')->url($slipPath);
+            }
+
+            //upload file to s3
+            $store = TblHistoryProd::updateOrCreate([
+                'serial_number' => $req['serial_number'],
+            ], [
+                'slip' => $full_path, // path ที่เก็บไฟล์
+            ]);
+            DB::beginTransaction();
+            return redirect()->route('warranty.history');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            dd($e->getMessage());
         }
     }
 }
