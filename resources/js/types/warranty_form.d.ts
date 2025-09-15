@@ -21,7 +21,7 @@ declare global {
             store_name: string,
             customer_code? : string,
         },
-        setData: (key: string, value: any) => void,
+        setData: any,
         processing: boolean,
         errors: any
     }
