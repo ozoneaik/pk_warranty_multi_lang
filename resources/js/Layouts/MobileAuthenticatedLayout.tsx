@@ -32,6 +32,7 @@ export default function MobileAuthenticatedLayout({
         if (url.includes('/warranty/form') || url === route('warranty.form')) return 1;
         if (url.includes('/warranty/history') || url === route('warranty.history')) return 2;
         if (url.includes('/profile') || url === route('profile.edit')) return 3;
+        if (url.includes('/customer-profile') || url === route('customer.profile.edit')) return 4;
         return 0; // default
     };
 
@@ -68,6 +69,9 @@ export default function MobileAuthenticatedLayout({
                 break;
             case 3:
                 router.get(route('profile.edit'));
+                break;
+            case 4:
+                router.get(route('customer.profile.edit'));
                 break;
             default:
                 break;
@@ -167,6 +171,7 @@ export default function MobileAuthenticatedLayout({
                 <BottomNavigationAction label='ฟอร์ม' icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
                 <BottomNavigationAction label="ประวัติ" icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
                 <BottomNavigationAction label="ผู้ใช้งาน" icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label="จัดการข้อมูลส่วนตัว" icon={<SupervisedUserCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
             </BottomNavigation>
         </Box>
     );

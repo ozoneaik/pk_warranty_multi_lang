@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Warranty\WarrantyFormController;
@@ -37,16 +38,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::prefix('customer-profile')->group(function () {
+        Route::get('/', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
+        Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+    });
+
     Route::get('/home', function () {})->name('home');
 
 
     Route::middleware('checkPhoneAccess')->group(function () {
         Route::prefix('warranty')->group(function () {
-            Route::get('/check-sn/{sn}', [WarrantyFormController::class,'checkSn'])->name('warranty.check.sn');
+            Route::get('/check-sn/{sn}', [WarrantyFormController::class, 'checkSn'])->name('warranty.check.sn');
             Route::get('/home', [WarrantyHomeController::class, 'index'])->name('warranty.home');
             Route::get('/form', [WarrantyFormController::class, 'form'])->name('warranty.form');
-            Route::post('/form', [WarrantyFormController::class,'store'])->name('warranty.form.store');
-            Route::get('/store_name/{store_name}', [WarrantyFormController::class,'get_store_name'])->name('warranty.get_store_name');
+            Route::post('/form', [WarrantyFormController::class, 'store'])->name('warranty.form.store');
+            Route::get('/store_name/{store_name}', [WarrantyFormController::class, 'get_store_name'])->name('warranty.get_store_name');
             Route::get('/history', [WarrantyHistoryController::class, 'history'])->name('warranty.history');
             Route::post('/', function () {});
         });
@@ -56,7 +62,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', function () {
             return Inertia::render('AddPhone');
         })->name('add.phone');
-        Route::post('/', [UserController::class,'updatePhone'])->name('add.phone.store');
+        Route::post('/', [UserController::class, 'updatePhone'])->name('add.phone.store');
     });
 });
 
