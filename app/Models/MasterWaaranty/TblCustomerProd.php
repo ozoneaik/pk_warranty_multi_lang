@@ -34,4 +34,5 @@ class TblCustomerProd extends Model
         'insurance_expire'
     ];
     public $timestamps = false;
+    
 }

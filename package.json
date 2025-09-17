@@ -33,6 +33,7 @@
         "@mui/icons-material": "^7.3.2",
         "@mui/material": "^7.3.2",
         "@mui/x-date-pickers": "^8.11.1",
-        "dayjs": "^1.11.18"
+        "dayjs": "^1.11.18",
+        "sweetalert2": "^11.23.0"
     }
 }

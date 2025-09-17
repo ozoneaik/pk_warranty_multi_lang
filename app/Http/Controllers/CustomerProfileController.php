@@ -13,14 +13,34 @@ class CustomerProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
-        $customer = TblCustomerProd::where('cust_line', $user->line_id ?? null)
-            ->orWhere('cust_tel', $user->phone ?? null)
-            ->with('vatInfo') 
+
+        $customer = TblCustomerProd::query()
+            ->leftJoin('tbl_customer_prod_vat as vat', 'tbl_customer_prod.cust_line', '=', 'vat.cust_line')
+            ->where('tbl_customer_prod.cust_line', $user->line_id ?? null)
+            ->orWhere('tbl_customer_prod.cust_tel', $user->phone ?? null)
+            ->select(
+                'tbl_customer_prod.*',
+                'vat.vat_cust_name as tax_name',
+                'vat.vat_tel_c as tax_tel',
+                'vat.vat_cust_address as tax_address',
+                'vat.vat_cust_province as tax_province',
+                'vat.vat_cust_district as tax_district',
+                'vat.vat_cust_subdistrict as tax_subdistrict',
+                'vat.vat_cust_zipcode as tax_zipcode'
+            )
             ->first();
+
+        if ($customer) {
+            $mapDisplay = [
+                'male'   => 'ชาย',
+                'female' => 'หญิง',
+                'other'  => 'อื่น ๆ',
+            ];
+            $customer->cust_gender = $mapDisplay[$customer->cust_gender] ?? null;
+        }
 
         return Inertia::render('Profile/Customer/Edit', [
             'customer' => $customer,
-            'vat'      => $customer?->vatInfo, 
         ]);
     }
 
@@ -30,7 +50,7 @@ class CustomerProfileController extends Controller
         $validatedCustomer = $request->validate([
             'cust_firstname'   => 'required|string|max:255',
             'cust_lastname'    => 'required|string|max:255',
-            'cust_gender'      => 'nullable|string|in:ชาย,หญิง',
+            'cust_gender'      => 'nullable|string|in:ชาย,หญิง,อื่น ๆ',
             'cust_tel'         => 'required|string|max:20',
             'cust_birthdate'   => 'nullable|date',
             'cust_full_address' => 'nullable|string|max:500',
@@ -39,6 +59,18 @@ class CustomerProfileController extends Controller
             'cust_subdistrict' => 'nullable|string|max:255',
             'cust_zipcode'     => 'nullable|string|max:10',
         ]);
+
+        $mapDB = [
+            'ชาย'   => 'male',
+            'หญิง'  => 'female',
+            'อื่น ๆ' => 'other',
+        ];
+        if (!empty($validatedCustomer['cust_gender'])) {
+            $validatedCustomer['cust_gender'] = $mapDB[$validatedCustomer['cust_gender']] ?? null;
+        }
+
+        $validatedCustomer['cust_address'] = $validatedCustomer['cust_full_address'] ?? '';
+        $validatedCustomer['unlockkey'] = $validatedCustomer['unlockkey'] ?? '';
 
         $validatedVat = $request->validate([
             'tax_name'        => 'required|string|max:255',
