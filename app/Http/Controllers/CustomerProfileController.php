@@ -37,6 +37,15 @@ class CustomerProfileController extends Controller
                 'other'  => 'อื่น ๆ',
             ];
             $customer->cust_gender = $mapDisplay[$customer->cust_gender] ?? null;
+
+            $customer->cust_full_address = $customer->cust_address ?? '';
+            $customer->tax_name = $customer->tax_name ?? '';
+            $customer->tax_tel = $customer->tax_tel ?? '';
+            $customer->tax_address = $customer->tax_address ?? '';
+            $customer->tax_province = $customer->tax_province ?? '';
+            $customer->tax_district = $customer->tax_district ?? '';
+            $customer->tax_subdistrict = $customer->tax_subdistrict ?? '';
+            $customer->tax_zipcode = $customer->tax_zipcode ?? '';
         }
 
         return Inertia::render('Profile/Customer/Edit', [
@@ -51,6 +60,7 @@ class CustomerProfileController extends Controller
             'cust_firstname'   => 'required|string|max:255',
             'cust_lastname'    => 'required|string|max:255',
             'cust_gender'      => 'nullable|string|in:ชาย,หญิง,อื่น ๆ',
+            'cust_email'       => 'nullable|string|max:100',
             'cust_tel'         => 'required|string|max:20',
             'cust_birthdate'   => 'nullable|date',
             'cust_full_address' => 'nullable|string|max:500',

@@ -6,6 +6,7 @@ declare global {
         cust_firstname?: string;
         cust_lastname?: string;
         cust_gender?: string;
+        cust_email?: string | null;
         cust_tel?: string;
         cust_birthdate?: string;
         cust_full_address?: string;

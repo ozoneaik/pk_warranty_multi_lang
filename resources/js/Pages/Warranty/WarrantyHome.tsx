@@ -62,7 +62,7 @@ export default function WarrantyHome() {
                                         {user.name}
                                     </Box>
                                 </Typography>
-                                <Link href={route('profile.edit')}>
+                                <Link href={route('customer.profile.edit')}>
                                     <Edit />
                                 </Link>
                             </Box>

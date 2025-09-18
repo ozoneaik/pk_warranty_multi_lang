@@ -12,6 +12,7 @@ class TblCustomerProd extends Model
         'cust_firstname',
         'cust_lastname',
         'cust_gender',
+        'cust_email',
         'cust_line',
         'cust_tel',
         'cust_birthdate',
@@ -34,5 +35,4 @@ class TblCustomerProd extends Model
         'insurance_expire'
     ];
     public $timestamps = false;
-    
 }
