@@ -57,7 +57,8 @@ export default function WarrantyHome() {
                             />
                             <Box display='flex' justifyContent='space-between' alignItems='center'>
                                 <Typography fontWeight="bold">
-                                    สวัสดีคุณ{" "}
+                                    {/* สวัสดีคุณ {" "} */}
+                                    {t.homePage.menu_list.welcome + " "}
                                     <Box component="span" sx={{ color: "#F54927" }}>
                                         {user.name}
                                     </Box>
@@ -74,7 +75,7 @@ export default function WarrantyHome() {
                 <Box>
                     {/* Quick Actions */}
                     <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
-                        {t.homePage.menu_list.title}
+                        {t.homePage.menu_list.title} 
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 4 }}>

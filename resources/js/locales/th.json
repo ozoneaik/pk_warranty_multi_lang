@@ -9,6 +9,7 @@
         "title": "หน้าหลัก",
         "menu_list": {
             "title": "เมนูหลัก",
+            "welcome": "ยินดีต้อนรับ",
             "warrantyFormHeadTitle": "ลงทะเบียน",
             "warrantyFormSubTitle": "ลงทะเบียนสินค้าใหม่",
             "warrantyHistoryHeadTitle": "ประวัติ",

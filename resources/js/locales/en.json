@@ -9,6 +9,7 @@
         "title": "Home",
         "menu_list": {
             "title": "Menu",
+            "welcome": "Welcome",
             "warrantyFormHeadTitle": "Register",
             "warrantyFormSubTitle": "Register new product",
             "warrantyHistoryHeadTitle": "History",
