@@ -4,19 +4,250 @@ namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\TblHistoryProd;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class WarrantyHistoryController extends Controller
 {
+    // public function history()
+    // {
+    //     $histories = TblHistoryProd::query()
+    //         ->where('cust_tel', Auth::user()->phone)
+    //         ->orderBy('id', 'desc')->get();
+    //     return Inertia::render('Warranty/WarrantyHistory', [
+    //         'histories' => $histories
+    //     ]);
+    // }
+
+
     public function history()
     {
         $histories = TblHistoryProd::query()
             ->where('cust_tel', Auth::user()->phone)
-            ->orderBy('id', 'desc')->get();
+            ->orderBy('id', 'desc')
+            ->get();
+
+        Log::info('=== START Warranty History Processing ===', [
+            'user_phone' => Auth::user()->phone,
+            'total_histories' => $histories->count(),
+        ]);
+
+        foreach ($histories as $item) {
+            try {
+                Log::info('Processing item', [
+                    'id' => $item->id,
+                    'model_code' => $item->model_code,
+                    'serial_number' => $item->serial_number,
+                ]);
+
+                $response = Http::timeout(15)
+                    ->withOptions(['verify' => false])
+                    ->post(env('VITE_SEARCH_SN'), [
+                        'pid' => $item->model_code,
+                        'views' => 'single',
+                    ]);
+
+                Log::info('API Response Status', [
+                    'status' => $response->status(),
+                    'successful' => $response->successful(),
+                ]);
+
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+
+                    Log::info('Raw Response Body (first 500 chars)', [
+                        'body_preview' => substr($responseBody, 0, 500),
+                    ]);
+                    $cleanBody = preg_replace('/<br\s*\/?>\s*<b>.*?<\/b>.*?<br\s*\/?>/s', '', $responseBody);
+                    $cleanBody = preg_replace('/^.*?(\{.*\})$/s', '$1', $cleanBody);
+
+                    Log::info('Cleaned Body (first 500 chars)', [
+                        'cleaned_preview' => substr($cleanBody, 0, 500),
+                    ]);
+
+                    $json = json_decode($cleanBody, true);
+
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        Log::error('JSON Decode Error', [
+                            'error' => json_last_error_msg(),
+                            'body_preview' => substr($cleanBody, 0, 1000),
+                        ]);
+                        continue;
+                    }
+
+                    Log::info('JSON Decoded Successfully', [
+                        'status' => $json['status'] ?? 'null',
+                        'has_assets' => isset($json['assets']),
+                    ]);
+
+                    if (is_array($json) && ($json['status'] ?? '') === 'SUCCESS') {
+                        $assets = $json['assets'] ?? [];
+
+                        if (!empty($assets) && is_array($assets)) {
+                            if (array_is_list($assets)) {
+                                $asset = $assets[0] ?? null;
+                            } else {
+                                $asset = reset($assets);
+                            }
+
+                            if ($asset) {
+                                $item->warrantyperiod = $asset['warrantyperiod'] ?? null;
+                                $item->warrantycondition = $asset['warrantycondition'] ?? null;
+                                $item->warrantynote = $asset['warrantynote'] ?? null;
+                                $item->sp_warranty = $asset['sp_warranty'] ?? [];
+                                $item->sp = $asset['sp'] ?? [];
+                                $item->listbehavior = $asset['listbehavior'] ?? [];
+
+                                Log::info('Data Assigned Successfully', [
+                                    'id' => $item->id,
+                                    'warrantyperiod' => $item->warrantyperiod,
+                                    'sp_warranty_count' => count($item->sp_warranty),
+                                    'listbehavior_count' => count($item->listbehavior),
+                                ]);
+                            } else {
+                                Log::warning('Asset is null after normalization', [
+                                    'assets' => $assets,
+                                ]);
+                            }
+                            if (!empty($item->insurance_expire)) {
+                                $expire = Carbon::parse($item->insurance_expire);
+                                $item->is_warranty_expired = $expire->isPast();
+                                $item->warranty_status_text = $expire->isPast()
+                                    ? 'หมดอายุการรับประกัน'
+                                    : 'อยู่ในระยะประกัน';
+                            } else {
+                                $item->is_warranty_expired = null;
+                                $item->warranty_status_text = 'ไม่พบข้อมูลวันหมดประกัน';
+                            }
+                        } else {
+                            Log::warning('Assets array is empty or invalid', [
+                                'assets' => $assets,
+                            ]);
+                        }
+                    } else {
+                        Log::warning('API response status not SUCCESS', [
+                            'status' => $json['status'] ?? 'null',
+                            'message' => $json['message'] ?? 'null',
+                        ]);
+                    }
+                } else {
+                    Log::warning('API Response Not Successful', [
+                        'status' => $response->status(),
+                        'body' => substr($response->body(), 0, 500),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::error('Exception in Warranty History Processing', [
+                    'serial_number' => $item->serial_number,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+            }
+        }
+
+        Log::info('=== END Warranty History Processing ===', [
+            'final_histories_count' => $histories->count(),
+        ]);
+
         return Inertia::render('Warranty/WarrantyHistory', [
-            'histories' => $histories
+            'histories' => $histories->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'serial_number' => $item->serial_number,
+                    'model_code' => $item->model_code,
+                    'model_name' => $item->model_name,
+                    'product_name' => $item->product_name,
+                    'slip' => $item->slip,
+                    'approval' => $item->approval,
+                    'insurance_expire' => $item->insurance_expire,
+                    'warranty_status_text' => $item->warranty_status_text,
+                    'warrantyperiod' => $item->warrantyperiod ?? null,
+                    'warrantycondition' => $item->warrantycondition ?? null,
+                    'warrantynote' => $item->warrantynote ?? null,
+                    'sp_warranty' => $item->sp_warranty ?? [],
+                    'sp' => $item->sp ?? [],
+                    'listbehavior' => $item->listbehavior ?? [],
+                ];
+            })->toArray(),
         ]);
     }
+    // public function history()
+    // {
+    //     $histories = TblHistoryProd::query()
+    //         ->where('cust_tel', Auth::user()->phone)
+    //         ->orderBy('id', 'desc')
+    //         ->get();
+
+    //     foreach ($histories as $item) {
+    //         try {
+    //             $response = Http::timeout(15)
+    //                 ->withOptions(['verify' => false])
+    //                 ->post(env('VITE_SEARCH_SN'), [
+    //                     'pid' => $item->model_code,
+    //                     'views' => 'single',
+    //                 ]);
+
+    //             if ($response->successful()) {
+    //                 $json = json_decode(preg_replace('/^.*?(\{.*\})$/s', '$1', $response->body()), true);
+
+    //                 if (is_array($json) && ($json['status'] ?? '') === 'SUCCESS') {
+    //                     $asset = $json['assets'][0] ?? null;
+
+    //                     if ($asset) {
+    //                         $item->warrantyperiod = $asset['warrantyperiod'] ?? null;
+    //                         $item->warrantycondition = $asset['warrantycondition'] ?? null;
+    //                         $item->warrantynote = $asset['warrantynote'] ?? null;
+    //                         $item->sp_warranty = $asset['sp_warranty'] ?? [];
+    //                         $item->sp = $asset['sp'] ?? [];
+    //                         $item->listbehavior = $asset['listbehavior'] ?? [];
+    //                     }
+    //                 }
+    //             }
+
+    //             // ✅ ตรวจสอบวันหมดประกันจาก insurance_expire
+    //             if (!empty($item->insurance_expire)) {
+    //                 $expire = Carbon::parse($item->insurance_expire);
+    //                 $item->is_warranty_expired = $expire->isPast();
+    //                 $item->warranty_status_text = $expire->isPast()
+    //                     ? 'หมดอายุการรับประกัน'
+    //                     : 'อยู่ในระยะประกัน';
+    //             } else {
+    //                 $item->is_warranty_expired = null;
+    //                 $item->warranty_status_text = 'ไม่พบข้อมูลวันหมดประกัน';
+    //             }
+    //         } catch (\Throwable $e) {
+    //             Log::error('Warranty History Error', [
+    //                 'serial_number' => $item->serial_number,
+    //                 'error' => $e->getMessage(),
+    //             ]);
+    //         }
+    //     }
+
+    //     return Inertia::render('Warranty/WarrantyHistory', [
+    //         'histories' => $histories->map(function ($item) {
+    //             return [
+    //                 'id' => $item->id,
+    //                 'serial_number' => $item->serial_number,
+    //                 'model_code' => $item->model_code,
+    //                 'model_name' => $item->model_name,
+    //                 'product_name' => $item->product_name,
+    //                 'slip' => $item->slip,
+    //                 'buy_date' => $item->buy_date,
+    //                 'insurance_expire' => $item->insurance_expire,
+    //                 'warranty_status_text' => $item->warranty_status_text,
+    //                 'is_warranty_expired' => $item->is_warranty_expired,
+    //                 'warrantyperiod' => $item->warrantyperiod ?? null,
+    //                 'warrantycondition' => $item->warrantycondition ?? null,
+    //                 'warrantynote' => $item->warrantynote ?? null,
+    //                 'sp_warranty' => $item->sp_warranty ?? [],
+    //                 'sp' => $item->sp ?? [],
+    //                 'listbehavior' => $item->listbehavior ?? [],
+    //             ];
+    //         })->toArray(),
+    //     ]);
+    // }
 }

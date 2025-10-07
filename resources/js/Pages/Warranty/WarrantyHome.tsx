@@ -4,7 +4,7 @@ import {
     Avatar, Paper, Container, useTheme, useMediaQuery
 } from "@mui/material";
 import { Assignment, History, Edit } from "@mui/icons-material";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
 import backgroundHome from '../../assets/images/backgroundHome.jpg'
@@ -24,6 +24,7 @@ export default function WarrantyHome() {
 
     return (
         <MobileAuthenticatedLayout title={t.homePage.title}>
+            <Head title={t.homePage.title} />
             <Box>
                 {/* Hero Image Section */}
                 <Box sx={{ position: "relative" }}>
@@ -63,7 +64,7 @@ export default function WarrantyHome() {
                                         {user.name}
                                     </Box>
                                 </Typography>
-                                <Link href={route('customer.profile.edit')}>
+                                <Link href={route('customer.profile.welcome')}>
                                     <Edit />
                                 </Link>
                             </Box>
@@ -75,7 +76,7 @@ export default function WarrantyHome() {
                 <Box>
                     {/* Quick Actions */}
                     <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
-                        {t.homePage.menu_list.title} 
+                        {t.homePage.menu_list.title}
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -150,8 +151,6 @@ export default function WarrantyHome() {
                     </Grid>
                 </Box>
             </Container>
-
         </MobileAuthenticatedLayout>
-
     )
 }

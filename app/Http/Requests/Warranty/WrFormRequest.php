@@ -31,7 +31,7 @@ class WrFormRequest extends FormRequest
             'buy_from' => 'required',
             'buy_date' => 'required',
             'store_name' => 'required',
-            'customer_code' => 'required',
+            'customer_code' => 'nullable',
         ];
     }
 }

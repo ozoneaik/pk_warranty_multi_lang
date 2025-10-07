@@ -21,6 +21,7 @@ class TblHistoryProd extends Model
         'buy_from',
         'store_name',
         'buy_date',
+        'insurance_expire',
         'slip',
         'approver',
         'round',

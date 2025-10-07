@@ -7,6 +7,10 @@
     },
     "homePage": {
         "title": "Home",
+        "from": "Form",
+        "history": "History",
+        "manageProfile": "Manage Profile",
+        "logout": "Log out",
         "menu_list": {
             "title": "Menu",
             "welcome": "Welcome",
@@ -17,27 +21,39 @@
         }
     },
     "Warranty": {
-        "title": "ฟอร์มลงทะเบียนรับประกัน",
+        "title": "Warranty registration form",
         "Form": {
             "file": "Upload File",
+            "validateFile": "Click to upload warranty card (image only)",
             "example_file": "example Warranty File",
             "serial_number": "Serial Number",
             "phone": "Phone",
-            "customer_code": "customer code",
+            "customer_code_title": "customer code",
             "model_code": "Model Code",
             "model_name": "Model Name",
             "product_name": "Product Name",
             "buy_from": "Buy From",
             "buy_date": "Buy Date",
             "store_name": "Store Name",
-            "submit": "Submit"
+            "submit": "Submit",
+            "ChangSerial": "Chane Serial Number",
+            "SelectShop": "Choose a store",
+            "SelectBuyFrom": "Choose a purchasing channel",
+            "DetailPd": "Product Details",
+            "CodePd": "Product Code",
+            "NamePd": "Product Name",
+            "StatusWaranty": "Warranty Status",
+            "camera": {
+                "CameraPermission": "Camera Permission Required",
+                "AllowCamaraPermission": "Please allow camera access to scan the QR Code"
+            }
         },
         "Validate": {
             "file": "pload File is required",
             "example_file": "example Warranty File",
             "serial_number": "Serial Number is required",
             "phone": "Phone is required",
-            "customer_code": "รหัสลูกค้า / รหัสพนักงาน จะมี 5 หลักเช่น 52135",
+            "customer_code": "Customer ID / Employee ID will have 5 digits such as 52135.",
             "model_code": "Model Code is required",
             "model_name": "Model Name is required",
             "product_name": "Product Name is required",
@@ -74,11 +90,78 @@
             "ProductName": "Product Name",
             "Warranty": {
                 "isTrue": "Under Warranty",
-                "isFalse": "Not Under Warranty"
+                "isFalse": "Out of Warranty",
+                "NotFound": "Warranty expiration date not found",
+                "expired": "Warranty Expired",
+                "dayWaranty": "Expiration Date",
+                "warrantyTo": "Warranty Until"
+            }
+        },
+        "Information": {
+            "warrantyInfo": "Warranty Information",
+            "DurationWaranty": "Warranty Duration",
+            "month": "Month(s)",
+            "condition": "Condition",
+            "noteWaranty": "Note"
+        },
+        "NotMatchFound": "No matching information found"
+    },
+    "Customer": {
+        "routeRedirect": "Go back to my profile",
+        "title": {
+            "mainTitle": "Personal Information",
+            "sub": "You can edit your personal information and billing address here."
+        },
+        "form": {
+            "formLengend": "Personal Information",
+            "firstname": "First Name",
+            "lastname": "Last Name",
+            "gender": "Gender",
+            "male": "Male",
+            "female": "Female",
+            "other": "Other",
+            "tel": "Phone Number",
+            "birthdate": "Date of Birth",
+            "email": "Email",
+            "address": "Address",
+            "province": "Province",
+            "district": "District",
+            "subdistrict": "Subdistrict / Ward",
+            "zipcode": "Postal Code",
+            "tax": {
+                "title": "Billing Address",
+                "sameAsProfile": "Use the same information as personal address",
+                "name": "Name",
+                "tel": "Phone Number",
+                "address": "Address"
+            },
+            "buttonSave": "Save All Information",
+            "saved": "Your information has been saved.",
+            "backToProfile": "Back to My Profile"
+        }
+    },
+    "ProfileWelcome": {
+        "title": "My Profile",
+        "hello": "Hello",
+        "manageTitle": "Manage Your Profile",
+        "menu": {
+            "edit": {
+                "title": "Edit Personal Information",
+                "desc": "Update your name, phone number, and shop information"
+            },
+            "score": {
+                "title": "View Points",
+                "desc": "Check your accumulated points"
+            },
+            "home": {
+                "title": "Back to Home",
+                "desc": "Return to the main warranty system"
             }
         }
     },
-    "Customer": {
-        "title": "UserProfile"
+    "Score": {
+        "title": "Reward Points",
+        "MyPointTitle": "My Reward Points",
+        "FeatureIsDeveloping": "This feature is currently under development"
     }
 }

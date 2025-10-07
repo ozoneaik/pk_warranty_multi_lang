@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import MobileAuthenticatedLayout from '@/Layouts/MobileAuthenticatedLayout';
 import ProfileForm from './ProfileForm';
+import WelComeProFile from './WelComeProFile';
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -16,6 +17,7 @@ export default function Edit({ customer,vat }: any) {
                     {/* Profile Info */}
                     <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800">
                         <ProfileForm customer={customer} vat={vat} className="max-w-xl" />
+                        {/* <WelComeProFile /> */}
                     </div>
                 </div>
             </div>

@@ -13,9 +13,51 @@ import {
     Container,
     useTheme,
     useMediaQuery,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Divider,
+    List,
+    ListItem,
+    ListItemText,
 } from "@mui/material";
-import { CheckCircle, Cancel, Search } from "@mui/icons-material";
+import {
+    CheckCircle,
+    Cancel,
+    Search,
+    InfoOutlined,
+    ExpandMore,
+    BuildOutlined,
+    WarningAmber,
+} from "@mui/icons-material";
 import { useLanguage } from "@/context/LanguageContext";
+import dayjs from "dayjs";
+import { Head } from "@inertiajs/react";
+
+interface SpWarranty {
+    spcode: {
+        pidsp: string;
+        pnamesp: string;
+    };
+    spname: string;
+}
+
+interface Sp {
+    spcode: string;
+    spname: string;
+    stdprice_per_unit: string;
+    price_per_unit: string;
+    spunit: string;
+    warranty: string;
+}
+
+interface ListBehavior {
+    catalog: string;
+    subcatalog: string;
+    behaviorname: string;
+    causecode: string;
+    causename: string;
+}
 
 interface HistoryProps {
     id: number;
@@ -30,19 +72,23 @@ interface HistoryProps {
     product_name: string;
     slip: string;
     insurance_expire: string;
+    warrantyperiod?: string;
+    warrantycondition?: string;
+    warrantynote?: string;
+    sp_warranty?: SpWarranty[];
+    sp?: Sp[];
+    listbehavior?: ListBehavior[];
 }
 
 const productPathMaster = import.meta.env.VITE_PRODUCT_IMAGE_URI;
 
 export default function WarrantyHistory({ histories }: { histories: HistoryProps[] }) {
+    console.log('Histories data:', histories);
     const { t } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-    // state สำหรับเก็บคำค้นหา
     const [searchTerm, setSearchTerm] = useState("");
 
-    // filter ข้อมูลตามคำค้นหา
     const filteredHistories = useMemo(() => {
         const search = searchTerm.toLowerCase();
         return histories.filter((item) => {
@@ -57,7 +103,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
 
     return (
         <MobileAuthenticatedLayout title={t.History.title}>
-            {/* กล่อง search */}
+            <Head title={t.History.title} />
             <Container
                 sx={{
                     position: "sticky",
@@ -74,14 +120,15 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                     label={t.History.Filter.Input.Label}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={{ mt: 2 }}
                     slotProps={{
                         input: {
                             startAdornment: (
                                 <InputAdornment position="start">
                                     <Search />
                                 </InputAdornment>
-                            )
-                        }
+                            ),
+                        },
                     }}
                 />
             </Container>
@@ -225,45 +272,132 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                         </Box>
                                                     </Stack>
 
+                                                    {/* ข้อมูลการรับประกัน */}
+                                                    {(item.warrantyperiod || item.warrantycondition || item.warrantynote) && (
+                                                        <Box
+                                                            sx={{
+                                                                mt: 1.5,
+                                                                p: 1.5,
+                                                                bgcolor: "#fff5f3",
+                                                                borderRadius: 2,
+                                                                borderLeft: "4px solid #F54927",
+                                                            }}
+                                                        >
+                                                            <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+                                                                <InfoOutlined sx={{ color: "#F54927", fontSize: 20 }} />
+                                                                <Typography
+                                                                    variant="subtitle2"
+                                                                    fontWeight="bold"
+                                                                    color="text.primary"
+                                                                >
+                                                                    {t.History.Information.warrantyInfo}
+                                                                </Typography>
+                                                            </Stack>
+
+                                                            <Stack spacing={0.5}>
+                                                                <Typography variant="body2" color="text.secondary">
+                                                                    <strong>{t.History.Information.DurationWaranty}:</strong>{" "}
+                                                                    {item.warrantyperiod ?? "-"} {t.History.Information.month}
+                                                                </Typography>
+
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    color="text.secondary"
+                                                                    sx={{ whiteSpace: "pre-line" }}
+                                                                >
+                                                                    <strong>{t.History.Information.condition}:</strong>{" "}
+                                                                    {item.warrantycondition ?? "-"}
+                                                                </Typography>
+
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    color="text.secondary"
+                                                                    sx={{ whiteSpace: "pre-line" }}
+                                                                >
+                                                                    <strong>{t.History.Information.noteWaranty}:</strong>{" "}
+                                                                    {item.warrantynote ?? "-"}
+                                                                </Typography>
+                                                            </Stack>
+                                                        </Box>
+                                                    )}
+
+                                                    {/* อะไหล่ที่รับประกัน */}
+                                                    {item.sp_warranty && item.sp_warranty.length > 0 && (
+                                                        <Accordion sx={{ mt: 1 }}>
+                                                            <AccordionSummary expandIcon={<ExpandMore />}>
+                                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                                    <BuildOutlined sx={{ fontSize: 18, color: "primary.main" }} />
+                                                                    <Typography variant="body2" fontWeight="600">
+                                                                        อะไหล่ที่รับประกัน ({item.sp_warranty.length} รายการ)
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                <List dense>
+                                                                    {item.sp_warranty.map((sp, idx) => (
+                                                                        <React.Fragment key={sp.spcode.pidsp}>
+                                                                            <ListItem>
+                                                                                <ListItemText
+                                                                                    primary={sp.spname}
+                                                                                    secondary={`รหัส: ${sp.spcode.pidsp}`}
+                                                                                    primaryTypographyProps={{
+                                                                                        variant: "body2",
+                                                                                        fontWeight: 500,
+                                                                                    }}
+                                                                                    secondaryTypographyProps={{
+                                                                                        variant: "caption",
+                                                                                        sx: { fontFamily: "monospace" },
+                                                                                    }}
+                                                                                />
+                                                                            </ListItem>
+                                                                            {idx < item.sp_warranty!.length - 1 && <Divider />}
+                                                                        </React.Fragment>
+                                                                    ))}
+                                                                </List>
+                                                            </AccordionDetails>
+                                                        </Accordion>
+                                                    )}
+
                                                     {/* สถานะรับประกัน */}
-                                                    <Box sx={{ mt: 1 }}>
+                                                    <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                                                         <Chip
                                                             icon={
-                                                                item?.approval === "Y" ? <CheckCircle /> : <Cancel />
+                                                                item?.approval !== "Y"
+                                                                    ? <Cancel />
+                                                                    : dayjs(item.insurance_expire).isBefore(dayjs(), "day")
+                                                                        ? <WarningAmber />
+                                                                        : <CheckCircle />
                                                             }
                                                             label={
-                                                                item?.approval === "Y"
-                                                                    ? t.History.Card.Warranty.isTrue
-                                                                    : t.History.Card.Warranty.isFalse
+                                                                item?.approval !== "Y"
+                                                                    ? t.History.Card.Warranty.isFalse
+                                                                    : !item.insurance_expire
+                                                                        ? t.History.Card.Warranty.NotFound
+                                                                        : dayjs(item.insurance_expire).isBefore(dayjs(), "day")
+                                                                            ? t.History.Card.Warranty.expired + ' (' + t.History.Card.Warranty.dayWaranty + `: ${dayjs(item.insurance_expire).format("YYYY-MM-DD")})`
+                                                                            : t.History.Card.Warranty.isTrue + ' (' + t.History.Card.Warranty.warrantyTo + `: ${dayjs(item.insurance_expire).format("YYYY-MM-DD")})`
                                                             }
-                                                            color={item?.approval === "Y" ? "success" : "error"}
+                                                            color={
+                                                                item?.approval !== "Y"
+                                                                    ? "error"
+                                                                    : !item.insurance_expire
+                                                                        ? "default"
+                                                                        : dayjs(item.insurance_expire).isBefore(dayjs(), "day")
+                                                                            ? "error"
+                                                                            : "success"
+                                                            }
                                                             variant="filled"
                                                             size="small"
                                                             sx={{
                                                                 fontWeight: 600,
                                                                 fontSize: "0.75rem",
-                                                                height: 28,
+                                                                height: "auto",
+                                                                lineHeight: 1.4,
+                                                                whiteSpace: "pre-line",
+                                                                py: 0.5,
                                                             }}
                                                         />
-                                                    </Box>
-                                                    {item?.approval && (
-                                                        <Box sx={{ mt: 1 }}>
-                                                            <Chip
-                                                                icon={
-                                                                    item?.approval === "Y" ? <CheckCircle /> : <Cancel />
-                                                                }
-                                                                label={`รับประกันถึง : ${item.insurance_expire}`}
-                                                                color={item?.approval === "Y" ? "success" : "error"}
-                                                                variant="outlined"
-                                                                size="small"
-                                                                sx={{
-                                                                    fontWeight: 600,
-                                                                    fontSize: "0.75rem",
-                                                                    height: 28,
-                                                                }}
-                                                            />
-                                                        </Box>
-                                                    )}
+                                                    </Stack>
                                                 </Stack>
                                             </Box>
                                         </CardContent>
@@ -271,7 +405,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                 ))
                             ) : (
                                 <Typography variant="body2" color="text.secondary" textAlign="center">
-                                    ไม่พบข้อมูลที่ตรงกับ "{searchTerm}"
+                                    {t.History.NotMatchFound} "{searchTerm}"
                                 </Typography>
                             )}
                         </Stack>

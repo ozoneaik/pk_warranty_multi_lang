@@ -16,7 +16,7 @@ import { PreviewFileUpload } from "./PreviewFileUpload";
 import axios from "axios";
 import dayjs from "dayjs";
 import Html5QrcodePlugin from "@/Components/Html5QrcodePlugin";
-
+import Swal from "sweetalert2";
 interface StoreItemProps {
     custgroup: string;
     custname: string;
@@ -35,6 +35,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     const [openExampleFile, setOpenExampleFile] = useState(false);
     const [showProduct, setShowProduct] = useState(false);
     const [ProductDetail, setProductDetail] = useState<ProductDetail>();
+    const [snVerified, setSnVerified] = useState(false); // ตรวจสอบ SN ผ่านหรือยัง
 
     const { data, setData, processing, errors, post }: WarrantyFormProps = useForm({
         warranty_file: '',
@@ -51,6 +52,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     });
 
     const [preview, setPreview] = useState<string | null>(null);
+    const [fileName, setFileName] = useState<string>('');
     const [openModal, setOpenModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +88,46 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         }
     };
 
+    // const handleCheckSn = async () => {
+    //     if (!data.serial_number.trim()) {
+    //         alert('กรุณาใส่หมายเลขซีเรียล');
+    //         return;
+    //     }
+
+    //     try {
+    //         setShowProduct(false);
+    //         setChecking(true);
+    //         setShowForm(false);
+
+    //         const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number.trim() }));
+    //         const skusetFirstIndex = response.data.data.skuset[0];
+    //         const res_product = response.data.data.assets[skusetFirstIndex];
+
+    //         setShowProduct(true);
+    //         setShowForm(true);
+    //         setProductDetail({
+    //             p_path: `${import.meta.env.VITE_PRODUCT_IMAGE_URI}/${res_product.pid}.jpg`,
+    //             pid: res_product.pid,
+    //             p_name: res_product.pname,
+    //             fac_model: res_product.facmodel,
+    //             warranty_status: false
+    //         });
+
+    //         setData({
+    //             ...data,
+    //             model_code: res_product.pid,
+    //             model_name: res_product.facmodel,
+    //             product_name: res_product.pname,
+    //         });
+    //     } catch (error: any) {
+    //         const error_msg = error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด';
+    //         alert(error_msg);
+    //         setShowForm(false);
+    //     } finally {
+    //         setChecking(false);
+    //     }
+    // }
+
     const handleCheckSn = async () => {
         if (!data.serial_number.trim()) {
             alert('กรุณาใส่หมายเลขซีเรียล');
@@ -93,22 +135,21 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         }
 
         try {
-            setShowProduct(false);
             setChecking(true);
             setShowForm(false);
+            setShowProduct(false);
+            setSnVerified(false);
 
             const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number.trim() }));
             const skusetFirstIndex = response.data.data.skuset[0];
             const res_product = response.data.data.assets[skusetFirstIndex];
 
-            setShowProduct(true);
-            setShowForm(true);
             setProductDetail({
                 p_path: `${import.meta.env.VITE_PRODUCT_IMAGE_URI}/${res_product.pid}.jpg`,
                 pid: res_product.pid,
                 p_name: res_product.pname,
                 fac_model: res_product.facmodel,
-                warranty_status: false
+                warranty_status: false,
             });
 
             setData({
@@ -117,20 +158,25 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                 model_name: res_product.facmodel,
                 product_name: res_product.pname,
             });
+
+            setShowForm(true);
+            setShowProduct(true);
+            setSnVerified(true);
         } catch (error: any) {
-            const error_msg = error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด';
-            alert(error_msg);
+            const msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
+            alert(msg);
             setShowForm(false);
+            setSnVerified(false);
         } finally {
             setChecking(false);
         }
-    }
+    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(route('warranty.form.store'), {
             forceFormData: true,
-            onError: (event : any) => {
+            onError: (event: any) => {
                 console.error("Errors: ", event);
             },
             onFinish: () => {
@@ -255,11 +301,11 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
+
                         {/* File Upload Section */}
                         {showForm && (
                             <Grid size={12}>
                                 <Box
-                                    onClick={() => fileInputRef.current?.click()}
                                     sx={{
                                         border: "2px dashed",
                                         borderColor: preview ? "primary.main" : "#ccc",
@@ -271,53 +317,74 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         transition: "all 0.3s ease",
                                         "&:hover": {
                                             bgcolor: preview ? "primary.100" : "#f0f0f0",
-                                            borderColor: "primary.main"
+                                            borderColor: "primary.main",
                                         },
                                     }}
                                 >
-                                    {preview ? (
-                                        <Stack spacing={2}>
-                                            <Box
-                                                component="img"
-                                                src={preview}
-                                                alt="Warranty Preview"
-                                                sx={{
-                                                    maxHeight: 120,
-                                                    objectFit: "contain",
-                                                    borderRadius: 1
-                                                }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setOpenModal(true);
-                                                }}
-                                            />
-                                            <Chip
-                                                label="เปลี่ยนไฟล์ใหม่"
-                                                color="primary"
-                                                variant="outlined"
-                                                size="small"
-                                            />
-                                        </Stack>
-                                    ) : (
-                                        <Stack spacing={1}>
-                                            <FileUpload fontSize="large" color="primary" />
-                                            <Typography color="text.secondary" fontWeight="medium">
-                                                {t.Warranty.Form.file}
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                คลิกเพื่ออัพโหลดใบรับประกัน (รูปภาพเท่านั้น)
-                                            </Typography>
-                                        </Stack>
-                                    )}
+                                    {/* ✅ ใช้ label ครอบ input เพื่อให้คลิกได้ครั้งเดียว */}
+                                    <label htmlFor="warranty_file" style={{ cursor: "pointer" }}>
+                                        {preview ? (
+                                            <Stack spacing={2}>
+                                                <Box
+                                                    component="img"
+                                                    src={preview}
+                                                    alt="Warranty Preview"
+                                                    sx={{
+                                                        maxHeight: 120,
+                                                        objectFit: "contain",
+                                                        borderRadius: 1,
+                                                        mx: "auto",
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenModal(true);
+                                                    }}
+                                                />
+
+                                                {/* ✅ แสดงชื่อไฟล์ */}
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    noWrap
+                                                    sx={{ fontStyle: "italic", textAlign: "center" }}
+                                                >
+                                                    {fileName || "ยังไม่ได้เลือกไฟล์"}
+                                                </Typography>
+
+                                                <Chip
+                                                    label="เปลี่ยนไฟล์ใหม่"
+                                                    color="primary"
+                                                    variant="outlined"
+                                                    size="small"
+                                                />
+                                            </Stack>
+                                        ) : (
+                                            <Stack spacing={1}>
+                                                <FileUpload fontSize="large" color="primary" />
+                                                <Typography color="text.secondary" fontWeight="medium">
+                                                    {t.Warranty.Form.file}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {t.Warranty.Form.validateFile}
+                                                </Typography>
+                                            </Stack>
+                                        )}
+                                    </label>
+
                                     <input
-                                        ref={fileInputRef}
+                                        id="warranty_file"
                                         type="file"
                                         accept="image/*"
                                         required
-                                        // hidden
-                                        style={{ zIndex: -1 }}
-                                        onChange={handleFileChange}
-                                        name="warranty_file"
+                                        hidden
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setData("warranty_file", file);
+                                                setPreview(URL.createObjectURL(file));
+                                                setFileName(file.name); // ✅ เก็บชื่อไฟล์
+                                            }
+                                        }}
                                     />
                                 </Box>
                                 <Box mt={2}>
@@ -339,42 +406,76 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                 <FormLabel htmlFor="serial_number" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                     {t.Warranty.Form.serial_number}
                                 </FormLabel>
-                                <TextField
-                                    id="serial_number"
-                                    name="serial_number"
-                                    value={data.serial_number}
-                                    onChange={handleOnChange}
-                                    required
-                                    disabled={processing || checking}
-                                    placeholder={t.Warranty.Placeholder.serial_number}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                        }
-                                    }}
-                                />
+
+                                <Stack direction="row" spacing={1}>
+                                    <TextField
+                                        id="serial_number"
+                                        name="serial_number"
+                                        value={data.serial_number}
+                                        onChange={handleOnChange}
+                                        required
+                                        disabled={processing || checking || snVerified}
+                                        placeholder={t.Warranty.Placeholder.serial_number}
+                                        sx={{
+                                            flex: 1,
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            }
+                                        }}
+                                    />
+
+                                    {snVerified && (
+                                        <Button
+                                            variant="outlined"
+                                            color="warning"
+                                            onClick={() => {
+                                                setData({
+                                                    warranty_file: '',
+                                                    serial_number: '',
+                                                    phone: '',
+                                                    model_code: '',
+                                                    model_name: '',
+                                                    product_name: '',
+                                                    buy_from: 'เลือก',
+                                                    buy_date: '',
+                                                    store_name: '',
+                                                    customer_code: '',
+                                                });
+
+                                                setShowForm(false);
+                                                setShowProduct(false);
+                                                setPreview(null);
+                                                setFileName('');
+                                                setSnVerified(false);
+                                            }}
+                                        >
+                                            {t.Warranty.Form.ChangSerial}
+                                        </Button>
+                                    )}
+                                </Stack>
                             </FormControl>
                         </Grid>
 
-                        {/* Check Serial Number Button */}
-                        <Grid size={12}>
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                disabled={!data.serial_number.trim() || checking}
-                                onClick={handleCheckSn}
-                                sx={{ py: 1.5, borderRadius: 2 }}
-                            >
-                                {checking ? (
-                                    <>
-                                        <CircularProgress size={20} sx={{ mr: 1 }} />
-                                        กำลังตรวจสอบ...
-                                    </>
-                                ) : (
-                                    'ตรวจสอบรับประกัน'
-                                )}
-                            </Button>
-                        </Grid>
+                        {!snVerified && (
+                            <Grid size={12}>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    disabled={!data.serial_number.trim() || checking}
+                                    onClick={handleCheckSn}
+                                    sx={{ py: 1.5, borderRadius: 2 }}
+                                >
+                                    {checking ? (
+                                        <>
+                                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                                            กำลังตรวจสอบ...
+                                        </>
+                                    ) : (
+                                        'ตรวจสอบรับประกัน'
+                                    )}
+                                </Button>
+                            </Grid>
+                        )}
 
                         {/* Product Detail */}
                         {showProduct && <ProductDetailComponent productDetail={ProductDetail} />}
@@ -382,55 +483,104 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         {/* Form Fields */}
                         {showForm && (
                             <>
-                                <Grid size={{ xs: 12, md: 6 }}>
+                                <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
                                     <FormControl fullWidth>
-                                        <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: 'medium' }}>
+                                        <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: "medium" }}>
                                             {t.Warranty.Form.phone}
                                         </FormLabel>
+
                                         <TextField
                                             id="phone"
                                             name="phone"
                                             type="tel"
                                             value={data.phone}
-                                            onChange={handleOnChange}
+                                            onChange={(e) => {
+                                                const onlyDigits = e.target.value.replace(/\D/g, "");
+                                                setData("phone", onlyDigits);
+                                            }}
+                                            inputProps={{
+                                                maxLength: 10,
+                                                pattern: "[0-9]*",
+                                                inputMode: "numeric",
+                                            }}
                                             required
                                             disabled={processing}
-                                            placeholder={t.Warranty.Placeholder.phone}
-                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                            placeholder="เช่น 0812345678"
+                                            error={!!errors.phone || ((data.phone ?? '').length > 0 && (data.phone ?? '').length < 10)}
+                                            helperText={
+                                                errors.phone
+                                                    ? errors.phone
+                                                    : (data.phone ?? '').length > 0 && (data.phone ?? '').length < 10
+                                                        ? "กรุณากรอกเบอร์โทรให้ครบ 10 หลัก"
+                                                        : " "
+                                            }
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                                            }}
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Typography
+                                                                variant="body2"
+                                                                sx={{
+                                                                    color: "text.secondary",
+                                                                    fontWeight: 500,
+                                                                    mr: 0.5,
+                                                                }}
+                                                            >
+                                                            </Typography>
+                                                        </InputAdornment>
+                                                    ),
+                                                },
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>
 
-                                <Grid size={{ xs: 12, md: 6 }}>
+                                <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
                                     <FormControl fullWidth>
-                                        <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: 'medium' }}>
-                                            {t.Warranty.Form.customer_code}
+                                        <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: "medium" }}>
+                                            {t.Warranty.Form.customer_code_title}
                                         </FormLabel>
+
                                         <TextField
                                             id="customer_code"
                                             name="customer_code"
                                             value={data.customer_code}
-                                            onChange={handleOnChange}
+                                            onChange={(e) => {
+                                                const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 5);
+                                                setData("customer_code", onlyDigits);
+                                            }}
+                                            inputProps={{
+                                                maxLength: 5,
+                                                inputMode: "numeric",
+                                                pattern: "[0-9]*",
+                                            }}
                                             disabled={processing}
-                                            placeholder={t.Warranty.Placeholder.customer_code}
-                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                            placeholder={t.Warranty.Validate.customer_code}
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                                            }}
                                             slotProps={{
                                                 input: {
                                                     endAdornment: (
                                                         <InputAdornment position="end">
-                                                            <IconButton
-                                                                onClick={handleOpenQrScanner}
-                                                                color="primary"
-                                                                sx={{
-                                                                    bgcolor: 'primary.50',
-                                                                    '&:hover': { bgcolor: 'primary.100' }
-                                                                }}
-                                                            >
-                                                                <QrCode />
-                                                            </IconButton>
+                                                            {false && (
+                                                                <IconButton
+                                                                    onClick={handleOpenQrScanner}
+                                                                    color="primary"
+                                                                    sx={{
+                                                                        bgcolor: "primary.50",
+                                                                        "&:hover": { bgcolor: "primary.100" },
+                                                                    }}
+                                                                >
+                                                                    <QrCode />
+                                                                </IconButton>
+                                                            )}
                                                         </InputAdornment>
-                                                    )
-                                                }
+                                                    ),
+                                                },
                                             }}
                                         />
                                     </FormControl>
@@ -451,7 +601,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             sx={{ borderRadius: 2 }}
                                         >
                                             <MenuItem disabled value={'เลือก'}>
-                                                เลือกช่องทางการซื้อ
+                                                {t.Warranty.Form.SelectBuyFrom}
                                             </MenuItem>
                                             {channel_list.map((channel, index) => (
                                                 <MenuItem key={index} value={channel}>
@@ -484,7 +634,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                         {...params}
                                                         variant="outlined"
                                                         fullWidth
-                                                        placeholder="เลือกร้านค้า"
+                                                        placeholder={t.Warranty.Form.SelectShop}
                                                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                                                     />
                                                 )}
@@ -505,6 +655,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 setData("buy_date", newValue ? newValue.format("YYYY-MM-DD") : "");
                                             }}
                                             maxDate={dayjs()}
+                                            minDate={dayjs().subtract(15, "days")} //ย้อนหลังลงทะเบียนไม่เกิน 15 วัน
                                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                                         />
                                     </FormControl>

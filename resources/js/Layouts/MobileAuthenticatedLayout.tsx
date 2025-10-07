@@ -32,7 +32,11 @@ export default function MobileAuthenticatedLayout({
         if (url.includes('/warranty/form') || url === route('warranty.form')) return 1;
         if (url.includes('/warranty/history') || url === route('warranty.history')) return 2;
         // if (url.includes('/profile') || url === route('profile.edit')) return 3;
-        if (url.includes('/customer-profile') || url === route('customer.profile.edit')) return 3;
+        // if (url.includes('/customer-profile') || url === route('customer.profile.edit')) return 3;
+        if (
+            url.includes('/customer-profile') ||
+            url === route('customer.profile.welcome')
+        ) return 3;
         return 0; // default
     };
 
@@ -70,8 +74,11 @@ export default function MobileAuthenticatedLayout({
             // case 3:
             //     router.get(route('profile.edit'));
             //     break;
+            // case 3:
+            //     router.get(route('customer.profile.edit'));
+            //     break;
             case 3:
-                router.get(route('customer.profile.edit'));
+                router.get(route('customer.profile.welcome'));
                 break;
             default:
                 break;
@@ -133,10 +140,10 @@ export default function MobileAuthenticatedLayout({
                 open={Boolean(anchorEl)} onClose={handleClose} sx={{ mt: '45px' }}
             >
                 <MenuItem onClick={handleClose}>
-                    <Typography>ข้อมูลส่วนตัว</Typography>
+                    <Typography>{t.homePage.manageProfile}</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>
-                    <Typography>ออกจากระบบ</Typography>
+                    <Typography>{t.homePage.logout}</Typography>
                 </MenuItem>
             </Menu>
 
@@ -167,11 +174,11 @@ export default function MobileAuthenticatedLayout({
                 <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: '#F54927' } }} /> */}
-                <BottomNavigationAction label='หน้าหลัก' icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction label='ฟอร์ม' icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction label="ประวัติ" icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label={t.homePage.title} icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label={t.homePage.from} icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label={t.homePage.history} icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
                 {/* <BottomNavigationAction label="ผู้ใช้งาน" icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} /> */}
-                <BottomNavigationAction label="จัดการข้อมูลส่วนตัว" icon={<SupervisedUserCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label={t.homePage.manageProfile} icon={<SupervisedUserCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
             </BottomNavigation>
         </Box>
     );

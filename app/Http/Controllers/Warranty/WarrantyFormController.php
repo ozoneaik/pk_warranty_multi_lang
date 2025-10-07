@@ -21,6 +21,7 @@ class WarrantyFormController extends Controller
             $response = Http::timeout(30)->withOptions(['verify' => false])->get($uri, [
                 'name' => 'ช่องทางการซื้อ',
             ]);
+            
             if ($response->successful() && $response->status() === 200) {
                 $response_json = $response->json();
                 $response_json = $response_json['data'];

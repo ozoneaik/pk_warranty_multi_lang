@@ -4,8 +4,9 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { useLanguage } from '@/context/LanguageContext';
 import { Transition } from '@headlessui/react';
-import { useForm } from "@inertiajs/react";
-import { Autocomplete, TextField } from '@mui/material';
+import { router, useForm } from "@inertiajs/react";
+import { Autocomplete, Button, TextField } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { green } from '@mui/material/colors';
 import { FormEventHandler, useState, useEffect } from "react";
 import Swal from 'sweetalert2';
@@ -35,8 +36,6 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
         tax_zipcode: customer?.tax_zipcode || "",
     });
 
-    console.log(customer);
-
     const [sameAsProfile, setSameAsProfile] = useState(false);
 
     const [provinces, setProvinces] = useState<Province[]>([]);
@@ -48,7 +47,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     const [taxTambons, setTaxTambons] = useState<Tambon[]>([]);
 
     useEffect(() => {
-        fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json")
+        fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province.json")
             .then(res => res.json())
             .then((data: Province[]) => {
                 setProvinces(data);
@@ -61,16 +60,17 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
             if (customer?.cust_province) {
                 const selectedProvince = provinces.find(p => p.name_th === customer.cust_province);
                 if (selectedProvince) {
-                    const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json");
+                    const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json");
                     const allAmphures = await amphureRes.json();
                     const filteredAmphures = allAmphures.filter((a: any) => a.province_id == selectedProvince.id);
                     setAmphures(filteredAmphures);
+
                     if (customer.cust_district) {
                         const selectedAmphure = filteredAmphures.find((a: any) => a.name_th === customer.cust_district);
                         if (selectedAmphure) {
-                            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json");
+                            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json");
                             const allTambons = await tambonRes.json();
-                            const filteredTambons = allTambons.filter((t: any) => t.amphure_id == selectedAmphure.id);
+                            const filteredTambons = allTambons.filter((t: any) => t.district_id == selectedAmphure.id); // ✅ FIX
                             setTambons(filteredTambons);
                         }
                     }
@@ -80,18 +80,17 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
             if (customer?.tax_province) {
                 const selectedTaxProvince = provinces.find(p => p.name_th === customer.tax_province);
                 if (selectedTaxProvince) {
-                    const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json");
+                    const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json");
                     const allAmphures = await amphureRes.json();
                     const filteredTaxAmphures = allAmphures.filter((a: any) => a.province_id == selectedTaxProvince.id);
                     setTaxAmphures(filteredTaxAmphures);
 
-                    // โหลดตำบลถ้ามีอำเภอ
                     if (customer.tax_district) {
                         const selectedTaxAmphure = filteredTaxAmphures.find((a: any) => a.name_th === customer.tax_district);
                         if (selectedTaxAmphure) {
-                            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json");
+                            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json");
                             const allTambons = await tambonRes.json();
-                            const filteredTaxTambons = allTambons.filter((t: any) => t.amphure_id == selectedTaxAmphure.id);
+                            const filteredTaxTambons = allTambons.filter((t: any) => t.district_id == selectedTaxAmphure.id); // ✅ FIX
                             setTaxTambons(filteredTaxTambons);
                         }
                     }
@@ -99,15 +98,13 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
             }
         };
 
-        if (provinces.length > 0 && customer) {
-            loadInitialData();
-        }
+        if (provinces.length > 0 && customer) loadInitialData();
     }, [provinces, customer]);
 
     const handleProvinceChange = async (province: Province | null) => {
         if (province) {
             setData("cust_province", province.name_th);
-            const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json");
+            const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json");
             const allAmphures = await amphureRes.json();
             setAmphures(allAmphures.filter((a: any) => a.province_id == province.id));
             setTambons([]);
@@ -120,9 +117,9 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     const handleAmphureChange = async (amphure: Amphure | null) => {
         if (amphure) {
             setData("cust_district", amphure.name_th);
-            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json");
+            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json");
             const allTambons = await tambonRes.json();
-            setTambons(allTambons.filter((t: any) => t.amphure_id == amphure.id));
+            setTambons(allTambons.filter((t: any) => t.district_id == amphure.id)); // ✅ FIX
             setData("cust_subdistrict", "");
             setData("cust_zipcode", "");
         } else {
@@ -140,11 +137,9 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     const handleTaxProvinceChange = async (province: Province | null) => {
         if (province) {
             setData("tax_province", province.name_th);
-
-            const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json");
+            const amphureRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json");
             const allAmphures = await amphureRes.json();
             setTaxAmphures(allAmphures.filter((a: any) => a.province_id == province.id));
-
             setTaxTambons([]);
             setData("tax_district", "");
             setData("tax_subdistrict", "");
@@ -155,11 +150,9 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     const handleTaxAmphureChange = async (amphure: Amphure | null) => {
         if (amphure) {
             setData("tax_district", amphure.name_th);
-
-            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json");
+            const tambonRes = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json");
             const allTambons = await tambonRes.json();
-            setTaxTambons(allTambons.filter((t: any) => t.amphure_id == amphure.id));
-
+            setTaxTambons(allTambons.filter((t: any) => t.district_id == amphure.id)); // ✅ FIX
             setData("tax_subdistrict", "");
             setData("tax_zipcode", "");
         }
@@ -188,21 +181,19 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                 tax_zipcode: String(data.cust_zipcode || ""),
             });
 
-            const selectedProvince = provinces.find((p) => p.name_th === data.cust_province) || null;
+            const selectedProvince = provinces.find((p) => p.name_th === data.cust_province);
             if (selectedProvince) {
-                setTaxProvinces(provinces);
-                fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json")
-                    .then((res) => res.json())
-                    .then((allAmphures) => {
+                fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json")
+                    .then(res => res.json())
+                    .then(allAmphures => {
                         const filtered = allAmphures.filter((a: any) => a.province_id == selectedProvince.id);
                         setTaxAmphures(filtered);
-
-                        const selectedAmphure = filtered.find((a: any) => a.name_th === data.cust_district) || null;
+                        const selectedAmphure = filtered.find((a: any) => a.name_th === data.cust_district);
                         if (selectedAmphure) {
-                            fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json")
-                                .then((res) => res.json())
-                                .then((allTambons) => {
-                                    const filteredTambons = allTambons.filter((t: any) => t.amphure_id == selectedAmphure.id);
+                            fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json")
+                                .then(res => res.json())
+                                .then(allTambons => {
+                                    const filteredTambons = allTambons.filter((t: any) => t.district_id == selectedAmphure.id); // ✅ FIX
                                     setTaxTambons(filteredTambons);
                                 });
                         }
@@ -227,37 +218,57 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             icon: 'success',
                             timer: 2000,
                             confirmButtonColor: 'green',
-                        })
+                        });
                     },
                     onError: () => {
                         Swal.fire({
                             title: 'บันทึกข้อมูลผิดพลาด',
                             icon: 'error',
-                        })
-                    }
+                        });
+                    },
                 });
-            } else {
-                console.log('Not Confirmed')
             }
-        })
+        });
     };
 
     return (
         <section className={className}>
+
+            <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                startIcon={<ArrowBackIcon sx={{ fontSize: 18 }} />}
+                sx={{
+                    mb: 2,
+                    borderRadius: 1,
+                    px: 1.5,
+                    py: 0.5,
+                    fontSize: 13,
+                    textTransform: "none", // ✅ ไม่ให้เป็นตัวพิมพ์ใหญ่ทั้งหมด
+                }}
+                onClick={() => router.get(route("customer.profile.welcome"))}
+            >
+                {t.Customer.routeRedirect}
+            </Button>
+
             <header>
                 <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    {t.Customer.title}
+                    {t.Customer.title.mainTitle}
                 </h2>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    คุณสามารถแก้ไขข้อมูลส่วนตัวและที่อยู่ใบกำกับภาษีได้ที่นี่
+                    {/* คุณสามารถแก้ไขข้อมูลส่วนตัวและที่อยู่ใบกำกับภาษีได้ที่นี่ */}
+                    {t.Customer.title.sub}
                 </p>
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
                 <fieldset className="border border-gray-300 rounded-md p-4 dark:border-gray-700">
-                    <legend className="text-md font-semibold text-gray-700 dark:text-gray-200">ข้อมูลส่วนตัว</legend>
+                    <legend className="text-md font-semibold text-gray-700 dark:text-gray-200">
+                        {t.Customer.form.formLengend}
+                    </legend>
                     <div>
-                        <InputLabel htmlFor="cust_firstname" value="ชื่อ" required />
+                        <InputLabel htmlFor="cust_firstname" value={t.Customer.form.firstname} required />
                         <TextInput
                             id="cust_firstname"
                             className="mt-1 block w-full"
@@ -268,7 +279,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.cust_firstname} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="cust_lastname" value="นามสกุล" required />
+                        <InputLabel htmlFor="cust_lastname" value={t.Customer.form.lastname} required />
                         <TextInput
                             id="cust_lastname"
                             className="mt-1 block w-full"
@@ -279,7 +290,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.cust_lastname} />
                     </div>
                     <div className="mt-4">
-                        <InputLabel htmlFor="cust_gender" value="เพศ" required />
+                        <InputLabel htmlFor="cust_gender" value={t.Customer.form.gender} required />
                         <select
                             id="cust_gender"
                             className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"
@@ -287,16 +298,16 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             onChange={(e) => setData('cust_gender', e.target.value)}
                             required
                         >
-                            <option value=""> เลือกเพศ </option>
-                            <option value="ชาย">ชาย</option>
-                            <option value="หญิง">หญิง</option>
-                            <option value="อื่น ๆ">อื่น ๆ</option>
+                            {/* <option value=""> เลือกเพศ </option> */}
+                            <option value="ชาย">{t.Customer.form.male}</option>
+                            <option value="หญิง">{t.Customer.form.female}</option>
+                            <option value="อื่น ๆ">{t.Customer.form.other}</option>
                         </select>
 
                         <InputError className="mt-2" message={errors.cust_gender} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="cust_tel" value="เบอร์โทร" required />
+                        <InputLabel htmlFor="cust_tel" value={t.Customer.form.tel} required />
                         <TextInput
                             id="cust_tel"
                             className="mt-1 block w-full"
@@ -307,7 +318,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.cust_tel} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="cust_birthdate" value="วันเกิด" required />
+                        <InputLabel htmlFor="cust_birthdate" value={t.Customer.form.birthdate} required />
                         <TextInput
                             id="cust_birthdate"
                             type="date"
@@ -318,9 +329,9 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         />
                         <InputError className="mt-2" message={errors.cust_birthdate} />
                     </div>
-                    
+
                     <div className='mt-4'>
-                        <InputLabel htmlFor="cust_email" value="อีเมล" />
+                        <InputLabel htmlFor="cust_email" value={t.Customer.form.email} />
                         <TextInput
                             id="cust_email"
                             className="mt-1 block w-full"
@@ -331,7 +342,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
 
                     <div className='mt-4'>
-                        <InputLabel htmlFor="cust_full_address" value="ที่อยู่" required />
+                        <InputLabel htmlFor="cust_full_address" value={t.Customer.form.address} required />
                         <TextInput
                             id="cust_full_address"
                             className="mt-1 block w-full"
@@ -343,7 +354,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div className="grid grid-cols-1 gap-4 mt-4">
                         <div>
-                            <InputLabel htmlFor="cust_province" value="จังหวัด" required />
+                            <InputLabel htmlFor="cust_province" value={t.Customer.form.province} />
                             <Autocomplete
                                 options={provinces}
                                 getOptionLabel={(option) => option.name_th}
@@ -356,7 +367,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div className="grid grid-cols-1 gap-4 mt-4">
                         <div>
-                            <InputLabel htmlFor="cust_district" value="อำเภอ" required />
+                            <InputLabel htmlFor="cust_district" value={t.Customer.form.district} />
                             <Autocomplete
                                 options={amphures}
                                 getOptionLabel={(option) => option.name_th}
@@ -371,7 +382,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div className="grid grid-cols-1 gap-4 mt-4">
                         <div>
-                            <InputLabel htmlFor="cust_subdistrict" value="ตำบล/แขวง" required />
+                            <InputLabel htmlFor="cust_subdistrict" value={t.Customer.form.subdistrict} />
                             <Autocomplete
                                 options={tambons}
                                 getOptionLabel={(option) => option.name_th}
@@ -382,7 +393,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             <InputError className="mt-2" message={errors.cust_subdistrict} />
                         </div>
                         <div>
-                            <InputLabel htmlFor="cust_zipcode" value="รหัสไปรษณีย์" required />
+                            <InputLabel htmlFor="cust_zipcode" value={t.Customer.form.zipcode} required />
                             <TextInput
                                 id="cust_zipcode"
                                 className="mt-1 block w-full"
@@ -399,19 +410,20 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                 {/* ---------- Tax Address Info ---------- */}
                 <fieldset className="border border-gray-300 rounded-md p-4 dark:border-gray-700">
                     <legend className="text-md font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                        ที่อยู่ใบกำกับภาษี
+                        {/* ที่อยู่ใบกำกับภาษี */}
+                        {t.Customer.form.tax.title}
                         <label className="flex items-center gap-2 text-sm font-normal">
                             <input
                                 type="checkbox"
                                 checked={sameAsProfile}
                                 onChange={handleCheckboxChange}
                             />
-                            ใช้ข้อมูลเดียวกับที่อยู่ส่วนตัว
+                            {t.Customer.form.tax.sameAsProfile}
                         </label>
                     </legend>
 
                     <div className="space-y-4 mt-4">
-                        <InputLabel htmlFor="tax_name" value="ชื่อ" required />
+                        <InputLabel htmlFor="tax_name" value={t.Customer.form.firstname} required />
                         <TextInput
                             id="tax_name"
                             className="mt-1 block w-full"
@@ -422,7 +434,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.tax_name} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="tax_tel" value="เบอร์โทร" required />
+                        <InputLabel htmlFor="tax_tel" value={t.Customer.form.tel} required />
                         <TextInput
                             id="tax_tel"
                             className="mt-1 block w-full"
@@ -433,7 +445,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.tax_tel} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="tax_address" value="ที่อยู่" required />
+                        <InputLabel htmlFor="tax_address" value={t.Customer.form.address} required />
                         <TextInput
                             id="tax_address"
                             className="mt-1 block w-full"
@@ -445,7 +457,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div className='mt-4'>
                         <div>
-                            <InputLabel htmlFor="tax_province" value="จังหวัด" required />
+                            <InputLabel htmlFor="tax_province" value={t.Customer.form.province} />
                             <Autocomplete
                                 options={taxProvinces}
                                 getOptionLabel={(option) => option.name_th}
@@ -456,7 +468,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             <InputError className="mt-2" message={errors.tax_province} />
                         </div>
                         <div className='mt-4'>
-                            <InputLabel htmlFor="tax_district" value="อำเภอ" required />
+                            <InputLabel htmlFor="tax_district" value={t.Customer.form.district} />
                             <Autocomplete
                                 options={taxAmphures}
                                 getOptionLabel={(option) => option.name_th}
@@ -469,7 +481,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div>
                         <div className='mt-4'>
-                            <InputLabel htmlFor="tax_subdistrict" value="ตำบล/แขวง" required />
+                            <InputLabel htmlFor="tax_subdistrict" value={t.Customer.form.subdistrict} />
                             <Autocomplete
                                 options={taxTambons}
                                 getOptionLabel={(option) => option.name_th}
@@ -481,7 +493,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         </div>
 
                         <div className='mt-4'>
-                            <InputLabel htmlFor="tax_zipcode" value="รหัสไปรษณีย์" required />
+                            <InputLabel htmlFor="tax_zipcode" value={t.Customer.form.zipcode} required />
                             <TextInput
                                 id="tax_zipcode"
                                 className="mt-1 block w-full"
@@ -496,7 +508,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                 </fieldset>
 
                 <div className="flex items-center gap-4 mt-8">
-                    <PrimaryButton disabled={processing}>บันทึกข้อมูลทั้งหมด</PrimaryButton>
+                    <PrimaryButton disabled={processing}>{t.Customer.form.buttonSave}</PrimaryButton>
                     <Transition
                         show={recentlySuccessful}
                         enter="transition ease-in-out"
@@ -505,7 +517,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         leaveTo="opacity-0"
                     >
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                            ข้อมูลถูกบันทึกแล้ว
+                            {t.Customer.form.saved}
                         </p>
                     </Transition>
                 </div>

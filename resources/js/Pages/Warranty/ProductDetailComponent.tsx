@@ -1,4 +1,5 @@
 
+import { useLanguage } from "@/context/LanguageContext";
 import { Box, Card, CardContent, CardMedia, Stack, Typography } from "@mui/material";
 
 
@@ -6,7 +7,7 @@ interface ProductDetail {
     pid: string,
     p_name: string,
     warranty_status: boolean,
-    fac_model : string
+    fac_model: string
 }
 
 const BoxStyle = {
@@ -17,6 +18,7 @@ const BoxStyle = {
 
 
 export default function ProductDetailComponent({ productDetail }: { productDetail: ProductDetail | any }) {
+    const { t } = useLanguage();
     return (
         <Card
             sx={{
@@ -49,15 +51,15 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
             <CardContent sx={{ flex: 1 }}>
                 <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight="bold" color="text.primary">
-                        รายละเอียดสินค้า
+                        {t.Warranty.Form.DetailPd}
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">
-                        <strong>รหัสสินค้า:</strong> {productDetail.pid} ({productDetail.fac_model})
+                        <strong>{t.Warranty.Form.CodePd} :</strong> {productDetail.pid} ({productDetail.fac_model})
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">
-                        <strong>ชื่อสินค้า:</strong> {productDetail.p_name}
+                        <strong>{t.Warranty.Form.NamePd} :</strong> {productDetail.p_name}
                     </Typography>
 
                     <Typography
@@ -67,8 +69,8 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                             color: productDetail.warranty_status ? "green" : "red",
                         }}
                     >
-                        สถานะรับประกัน:{" "}
-                        {productDetail.warranty_status ? "✅ รับประกัน" : "❌ ไม่รับประกัน"}
+                        {t.Warranty.Form.StatusWaranty}:{" "}
+                        {productDetail.warranty_status ? t.History.Card.Warranty.isTrue : t.History.Card.Warranty.isFalse}
                     </Typography>
                 </Stack>
             </CardContent>

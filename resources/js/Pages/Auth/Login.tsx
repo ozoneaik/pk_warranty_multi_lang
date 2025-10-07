@@ -156,7 +156,7 @@ export default function Login({ status }: { status?: string }) {
                             </Button>
 
                             {/* Facebook Button */}
-                            <Button
+                            {/* <Button
                                 onClick={() => window.location.href = route('facebook.login')}
                                 variant="contained"
                                 fullWidth
@@ -180,7 +180,7 @@ export default function Login({ status }: { status?: string }) {
                                 }}
                             >
                                 {t.loginPage.loginWithFacebook}
-                            </Button>
+                            </Button> */}
                         </Stack>
                     </Paper>
                 </Container>
