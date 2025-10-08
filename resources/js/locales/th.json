@@ -102,6 +102,7 @@
         },
         "Information": {
             "warrantyInfo": "ข้อมูลรับประกัน",
+            "ViewwarrantyInfo": "ดูข้อมูลรับการประกัน",
             "DurationWaranty": "ระยะเวลารับประกัน",
             "month": "เดือน",
             "condition": "เงื่อนไข",

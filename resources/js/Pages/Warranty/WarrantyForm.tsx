@@ -638,7 +638,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         ) : (
                                             <Autocomplete
                                                 options={storeList.map(
-                                                    (item) => `${item.custgroup} ${item.custname} ${item.branch}`
+                                                    // ${item.custgroup}
+                                                    (item) => ` ${item.custname} ${item.branch}`
                                                 )}
                                                 value={data.store_name}
                                                 onChange={(_, newValue) => setData('store_name', newValue || '')}

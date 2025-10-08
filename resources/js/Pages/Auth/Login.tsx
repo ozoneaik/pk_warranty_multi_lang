@@ -9,7 +9,7 @@ export default function Login({ status }: { status?: string }) {
 
     return (
         <>
-            <Head title={t.loginPage.title} />
+            <Head title="Warranty Pumpkin" />
             <Box
                 sx={{
                     minHeight: '100vh',
@@ -46,35 +46,7 @@ export default function Login({ status }: { status?: string }) {
                             boxShadow: '0 20px 40px rgba(242, 87, 34, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1)'
                         }}
                     >
-                        {/* Title with Orange Accent */}
-                        <Box sx={{ textAlign: 'center', mb: 4 }}>
-                            <Typography
-                                variant="h4"
-                                fontWeight="700"
-                                sx={{
-                                    background: 'linear-gradient(45deg, #f25722, #ff7849)',
-                                    backgroundClip: 'text',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    mb: 1,
-                                    textShadow: '0 2px 4px rgba(242, 87, 34, 0.2)'
-                                }}
-                            >
-                                {t.loginPage.title}
-                            </Typography>
-                            {/* เส้นตกแต่งใต้หัวข้อ */}
-                            <Box
-                                sx={{
-                                    width: '60px',
-                                    height: '4px',
-                                    backgroundColor: '#f25722',
-                                    margin: '0 auto',
-                                    borderRadius: '2px',
-                                    background: 'linear-gradient(90deg, #f25722, #ff7849)'
-                                }}
-                            />
-                        </Box>
-
+                        
                         {/* Status Message */}
                         {status && (
                             <Box

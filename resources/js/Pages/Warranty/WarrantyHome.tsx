@@ -205,7 +205,7 @@ export default function WarrantyHome() {
                                         sx={{
                                             width: "100%",
                                             height: "100%",      
-                                            objectFit: "cover", 
+                                            objectFit: "cover",  // ครอปรูปให้พอดี
                                             display: "block",
                                         }}
                                     />

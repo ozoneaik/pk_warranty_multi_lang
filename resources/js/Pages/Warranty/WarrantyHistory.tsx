@@ -448,6 +448,7 @@ import {
     ExpandMore,
     BuildOutlined,
     WarningAmber,
+    Warning,
 } from "@mui/icons-material";
 import { useLanguage } from "@/context/LanguageContext";
 import dayjs from "dayjs";
@@ -789,7 +790,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                         <Chip
                                                             icon={
                                                                 item?.approval !== "Y"
-                                                                    ? <Cancel />
+                                                                    ? <Warning />
                                                                     : dayjs(
                                                                         item.insurance_expire
                                                                     ).isBefore(dayjs(), "day")
@@ -798,7 +799,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             }
                                                             label={
                                                                 item?.approval !== "Y"
-                                                                    ? t.History.Card.Warranty.isFalse
+                                                                    ? "อยู่ระหว่างการตรวจสอบ"
                                                                     : !item.insurance_expire
                                                                         ? t.History.Card.Warranty.NotFound
                                                                         : dayjs(
@@ -813,7 +814,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             }
                                                             color={
                                                                 item?.approval !== "Y"
-                                                                    ? "error"
+                                                                    ? "warning"
                                                                     : !item.insurance_expire
                                                                         ? "default"
                                                                         : dayjs(
