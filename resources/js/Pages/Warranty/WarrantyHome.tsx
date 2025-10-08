@@ -8,7 +8,6 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
 import backgroundHome from '../../assets/images/backgroundHome.jpg'
-// import backgroundHome from '../../assets/images/maxresdefault.jpg'
 
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
