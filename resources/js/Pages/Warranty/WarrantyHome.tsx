@@ -18,13 +18,14 @@ const bottomBanners = [
     "https://pumpkin.co.th/wp-content/uploads/2023/01/1920x752px-product-group.jpg",
     "https://pumpkin.co.th/wp-content/uploads/2023/05/NEW-CORDLESS-SERIES-1530x630px.jpg"
 ];
+const bannerHeight = { xs: 180, sm: 220, md: 260 };
 export default function WarrantyHome() {
-
     const { t } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const { user } = usePage().props.auth;
+    console.log("userrrrrrr", user);
 
     // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ
     const navigateTo = (route: string) => {
@@ -53,10 +54,13 @@ export default function WarrantyHome() {
                         src={backgroundHome}
                         alt="Warranty Banner"
                         style={{
-                            width: "100%", objectFit: "cover",
+                            backgroundColor: "black",
+                            paddingTop: "20px",
+                            // marginTop: "20px",
+                            width: "100%", height: "100%", objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectPosition: "top", maxHeight: "345px"
+                            objectPosition: "top", maxHeight: "350px"
                         }}
                     />
 
@@ -177,24 +181,33 @@ export default function WarrantyHome() {
                             overflow: "visible",
                             boxShadow: 3,
                             position: "relative",
+                            backgroundColor: "black"
                         }}
                     >
                         <Slider {...bannerSettings}>
                             {bottomBanners.map((banner, idx) => (
-                                <Box key={idx}>
-                                    <img
+                                <Box
+                                    key={idx}
+                                    sx={{
+                                        // กล่องกำหนด “ความสูงคงที่” ให้ทุกสไลด์
+                                        height: bannerHeight,
+                                        borderRadius: 2,
+                                        overflow: "hidden",
+                                        position: "relative",
+                                    }}
+                                >
+                                    <Box
+                                        component="img"
                                         src={banner}
                                         alt={`Promotion ${idx + 1}`}
-                                        style={{
-                                            width: "100%",
-                                            objectFit: "cover",
-                                            maxHeight: "220px",
-                                            borderRadius: "10px",
-                                            display: "block",
-                                            backgroundColor: "black",
-                                        }}
                                         loading="lazy"
                                         decoding="async"
+                                        sx={{
+                                            width: "100%",
+                                            height: "100%",      
+                                            objectFit: "cover", 
+                                            display: "block",
+                                        }}
                                     />
                                 </Box>
                             ))}

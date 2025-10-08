@@ -96,16 +96,16 @@ export default function MobileAuthenticatedLayout({
     const navStyle = {
         color: "rgba(255,255,255,0.8)",
         minWidth: "auto",
-        flexDirection: "row",
-        gap: "6px",
+        flexDirection: "column", 
+        gap: "1px",
         "& .MuiSvgIcon-root": {
-            fontSize: "1.5rem",
+            fontSize: "1.8rem",
         },
         "& .MuiBottomNavigationAction-label": {
-            fontSize: "0.80rem",
-            fontWeight: 600,
+            fontSize: "0.7rem",
+            fontWeight: 500,
             textTransform: "none",
-            marginTop: "0 !important",
+            marginTop: "2px !important", 
         },
         "&.Mui-selected": {
             color: "white",
@@ -193,8 +193,8 @@ export default function MobileAuthenticatedLayout({
                     // borderRight: '1px solid gray',
                     // borderLeft: '1px solid gray',
                     // boxShadow : '4',
-                    // borderTopLeftRadius: '25px',
-                    // borderTopRightRadius: '25px',
+                    borderTopLeftRadius: '25px',
+                    borderTopRightRadius: '25px',
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                 }}
             >
@@ -202,11 +202,19 @@ export default function MobileAuthenticatedLayout({
                 <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: '#F54927' } }} /> */}
-                <BottomNavigationAction label={t.homePage.title} icon={<Home />} sx={navStyle} />
-                <BottomNavigationAction label={t.homePage.from} icon={<Assignment />} sx={navStyle} />
-                <BottomNavigationAction label={t.homePage.history} icon={<History />} sx={navStyle} />
+                <BottomNavigationAction 
+                // label={t.homePage.title} 
+                icon={<Home />} sx={navStyle} />
+                <BottomNavigationAction 
+                // label={t.homePage.from} 
+                icon={<Assignment />} sx={navStyle} />
+                <BottomNavigationAction 
+                // label={t.homePage.history} 
+                icon={<History />} sx={navStyle} />
                 {/* <BottomNavigationAction label="ผู้ใช้งาน" icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} /> */}
-                <BottomNavigationAction label={t.homePage.manageProfile} icon={<SupervisedUserCircle />} sx={navStyle} />
+                <BottomNavigationAction 
+                // label={t.homePage.manageProfile} 
+                icon={<SupervisedUserCircle />} sx={navStyle} />
             </BottomNavigation>
         </Box>
     );
