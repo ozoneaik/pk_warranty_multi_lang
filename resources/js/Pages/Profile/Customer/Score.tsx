@@ -5,9 +5,11 @@ import { Head, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import { ChevronRight, Gavel, Logout, Shield, Edit, Flare } from "@mui/icons-material";
 import dayjs from "dayjs";
+
+
 export default function ScorePage() {
     const { t } = useLanguage();
-    const { user } = usePage().props.auth;
+    const { user } = usePage().props.auth as any;
     return (
         <MobileAuthenticatedLayout title={t.Score.title}>
             <Head title={t.Score.title} />
@@ -23,9 +25,9 @@ export default function ScorePage() {
                 <Container maxWidth="md" sx={{ py: 2, mt: 10, mb: 10, borderRadius: 3, background: "#fafafa", padding: 2 }}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                         <Avatar
-                        src={user.avatar}
-                        sx={{ width: 64, height: 64, border: "2px solid #F54927" }}
-                    />
+                            src={user.avatar || "https://via.placeholder.com/64"}
+                            sx={{ width: 64, height: 64, border: "2px solid #F54927" }}
+                        />
                         <Box flex={1}>
                             <Box
                                 display={"flex"}
@@ -67,7 +69,6 @@ export default function ScorePage() {
                                         Member Since : {dayjs(user.created_at).format("D MMM YYYY")}
                                     </Typography>
                                 </Box>
-
                                 <Box
                                     component="img"
                                     src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
