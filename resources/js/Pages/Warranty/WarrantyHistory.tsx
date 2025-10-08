@@ -791,35 +791,37 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             icon={
                                                                 item?.approval !== "Y"
                                                                     ? <Warning />
-                                                                    : dayjs(
-                                                                        item.insurance_expire
-                                                                    ).isBefore(dayjs(), "day")
+                                                                    : dayjs(item.insurance_expire).isBefore(dayjs(), "day")
                                                                         ? <WarningAmber />
                                                                         : <CheckCircle />
                                                             }
                                                             label={
-                                                                item?.approval !== "Y"
-                                                                    ? "อยู่ระหว่างการตรวจสอบ"
-                                                                    : !item.insurance_expire
-                                                                        ? t.History.Card.Warranty.NotFound
-                                                                        : dayjs(
-                                                                            item.insurance_expire
-                                                                        ).isBefore(dayjs(), "day")
-                                                                            ? `${t.History.Card.Warranty.expired} (${t.History.Card.Warranty.dayWaranty}: ${dayjs(
-                                                                                item.insurance_expire
-                                                                            ).format("YYYY-MM-DD")})`
-                                                                            : `${t.History.Card.Warranty.isTrue} (${t.History.Card.Warranty.warrantyTo}: ${dayjs(
-                                                                                item.insurance_expire
-                                                                            ).format("YYYY-MM-DD")})`
+                                                                item?.approval !== "Y" ? (
+                                                                    "อยู่ระหว่างการตรวจสอบ"
+                                                                ) : !item.insurance_expire ? (
+                                                                    t.History.Card.Warranty.NotFound
+                                                                ) : dayjs(item.insurance_expire).isBefore(dayjs(), "day") ? (
+                                                                    <>
+                                                                        {t.History.Card.Warranty.expired}
+                                                                        <br />
+                                                                        {t.History.Card.Warranty.dayWaranty}:{" "}
+                                                                        {dayjs(item.insurance_expire).format("YYYY-MM-DD")}
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        {t.History.Card.Warranty.isTrue}
+                                                                        <br />
+                                                                        {t.History.Card.Warranty.warrantyTo}:{" "}
+                                                                        {dayjs(item.insurance_expire).format("YYYY-MM-DD")}
+                                                                    </>
+                                                                )
                                                             }
                                                             color={
                                                                 item?.approval !== "Y"
                                                                     ? "warning"
                                                                     : !item.insurance_expire
                                                                         ? "default"
-                                                                        : dayjs(
-                                                                            item.insurance_expire
-                                                                        ).isBefore(dayjs(), "day")
+                                                                        : dayjs(item.insurance_expire).isBefore(dayjs(), "day")
                                                                             ? "error"
                                                                             : "success"
                                                             }
@@ -834,6 +836,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                                 py: 0.5,
                                                             }}
                                                         />
+
                                                     </Stack>
                                                 </Stack>
                                             </Box>
