@@ -59,7 +59,7 @@ export default function ScorePage() {
                                 direction="row"
                                 justifyContent="space-between"
                                 alignItems="flex-start"
-                                sx={{ pt: 3, pb: 10 }}
+                                sx={{ pt: 2, pb: 2 }}
                             >
                                 <Box>
                                     <Typography fontSize="1.2rem" fontWeight={700}>
@@ -92,10 +92,12 @@ export default function ScorePage() {
                             <Box
                                 display="flex"
                                 sx={{
-                                    justifyContent: "center",
+                                    justifyContent: "left",
                                     alignItems: "flex-end",
                                     padding: "10px",
+                                    paddingLeft: "12px",
                                     gap: "6px",
+
                                 }}
                             >
                                 <Typography
@@ -114,9 +116,11 @@ export default function ScorePage() {
                                 color="text.secondary"
                                 fontSize="0.8rem"
                                 display="flex"
-                                justifyContent="center"
+                                justifyContent="left"
                                 alignItems="center"
+                                paddingLeft={2}
                                 gap={0.3}
+                                fontWeight={800}
                             >
                                 <button onClick={() => alert("อยู่ระหว่างการพัฒนา")}>ดูเพิ่มเติม <ChevronRight fontSize="small" /></button>
                             </Typography>
@@ -134,10 +138,12 @@ export default function ScorePage() {
                             <Box
                                 display="flex"
                                 sx={{
-                                    justifyContent: "center",
+                                    justifyContent: "left",
                                     alignItems: "flex-end",
                                     padding: "10px",
+                                    paddingLeft: "12px",
                                     gap: "6px",
+
                                 }}
                             >
                                 <Typography
@@ -145,6 +151,7 @@ export default function ScorePage() {
                                     fontWeight={700}
                                     fontSize="2rem"
                                     lineHeight={1}
+
                                 >
                                     0
                                 </Typography>
@@ -156,16 +163,18 @@ export default function ScorePage() {
                                 color="text.secondary"
                                 fontSize="0.8rem"
                                 display="flex"
-                                justifyContent="center"
+                                justifyContent="left"
                                 alignItems="center"
                                 gap={0.3}
+                                paddingLeft={2}
+                                fontWeight={800}
                             >
                                 <button onClick={() => alert("อยู่ระหว่างการพัฒนา")}>ดูเพิ่มเติม <ChevronRight fontSize="small" /></button>
                             </Typography>
                         </Card>
                     </Stack>
 
-                    <Box sx={{ mt: 6 }}>
+                    <Box sx={{ mt: 3 }}>
                         <Typography fontWeight={700} sx={{ mb: 1 }}>
                             ตั้งค่า
                         </Typography>
