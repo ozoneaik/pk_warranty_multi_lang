@@ -2,14 +2,14 @@ import LineIcon from '@/assets/icons/LineIcon';
 import { useLanguage } from '@/context/LanguageContext';
 import { Head } from '@inertiajs/react';
 import { Facebook, Google } from '@mui/icons-material';
-import { Button, Container, Stack, Typography, Box, Paper } from '@mui/material';
-
+import { Button, Container, Stack, Typography, Box, Paper, Avatar } from '@mui/material';
+import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
 export default function Login({ status }: { status?: string }) {
     const { t } = useLanguage();
 
     return (
         <>
-            <Head title="Warranty Pumpkin" />
+            <Head title="Login" />
             <Box
                 sx={{
                     minHeight: '100vh',
@@ -37,16 +37,17 @@ export default function Login({ status }: { status?: string }) {
                     <Paper
                         elevation={20}
                         sx={{
-                            p: 5,
+                            p: 4,
+                            pt: 10, 
+                            position: 'relative',
                             borderRadius: 4,
                             background: 'rgba(255, 255, 255, 0.95)',
                             backdropFilter: 'blur(10px)',
                             border: '1px solid rgba(242, 87, 34, 0.1)',
-                            // เงาสีส้ม
                             boxShadow: '0 20px 40px rgba(242, 87, 34, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1)'
                         }}
                     >
-                        
+
                         {/* Status Message */}
                         {status && (
                             <Box
@@ -68,7 +69,28 @@ export default function Login({ status }: { status?: string }) {
                                 </Typography>
                             </Box>
                         )}
-
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: -50,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 2, 
+                                display: 'flex',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Avatar
+                                src={PumpkinLogo}
+                                sx={{
+                                    bgcolor: 'rgba(255,255,255,0.9)',
+                                    width: 100,
+                                    height: 100,
+                                    boxShadow: '0 4px 15px rgba(242, 87, 34, 0.3)',
+                                    border: '3px solid white'
+                                }}
+                            />
+                        </Box>
                         {/* Social Login Buttons */}
                         <Stack spacing={3}>
                             {/* Google Button */}

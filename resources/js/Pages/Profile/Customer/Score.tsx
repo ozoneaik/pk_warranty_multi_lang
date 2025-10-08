@@ -17,55 +17,93 @@ export default function ScorePage() {
                 sx={{
                     display: "flex",
                     justifyContent: "center",
-                    // background: "#fbe9e7",
-                    pt: 2,
-                    marginTop: 0
+                    pt: { xs: 2, sm: 3 },
+                    marginTop: 0,
+                    minHeight: "100vh",
+                    px: { xs: 1, sm: 2 }
                 }}
             >
-                <Container maxWidth="md" sx={{ py: 2, mt: 10, mb: 10, borderRadius: 3, background: "#fafafa", padding: 2 }}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                <Container 
+                    maxWidth="md" 
+                    sx={{ 
+                        py: { xs: 2, sm: 3 }, 
+                        mt: { xs: 8, sm: 10 }, 
+                        mb: { xs: 8, sm: 10 }, 
+                        borderRadius: 3, 
+                        background: "#fafafa", 
+                        padding: { xs: 2, sm: 3, md: 4 }
+                    }}
+                >
+                    {/* User Profile Section */}
+                    <Stack 
+                        direction="row" 
+                        alignItems="center" 
+                        spacing={{ xs: 1.5, sm: 2 }}
+                    >
                         <Avatar
                             src={user.avatar || "https://via.placeholder.com/64"}
-                            sx={{ width: 64, height: 64, border: "2px solid #F54927" }}
+                            sx={{ 
+                                width: { xs: 56, sm: 64, md: 72 }, 
+                                height: { xs: 56, sm: 64, md: 72 }, 
+                                border: "2px solid #F54927" 
+                            }}
                         />
                         <Box flex={1}>
                             <Box
                                 display={"flex"}
                                 gap={1}
+                                alignItems="center"
                             >
-                                <Typography fontWeight={700} fontSize={"1.2rem"} ml={1}>{user.name}</Typography>
+                                <Typography 
+                                    fontWeight={700} 
+                                    fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.3rem" }} 
+                                    ml={1}
+                                >
+                                    {user.name}
+                                </Typography>
                                 <Link href={route('customer.profile.edit')}>
-                                    <Edit />
+                                    <Edit sx={{ fontSize: { xs: 20, sm: 24 } }} />
                                 </Link>
                             </Box>
 
-                            <Typography color="text.secondary" fontSize="1rem" ml={1} fontWeight={700}>
-                                {/* {user.points}  */}
+                            <Typography 
+                                color="text.secondary" 
+                                fontSize={{ xs: "0.9rem", sm: "1rem" }} 
+                                ml={1} 
+                                fontWeight={700}
+                            >
                                 999 คะแนน
                             </Typography>
                         </Box>
                     </Stack>
 
+                    {/* Member Card */}
                     <Card
                         sx={{
-                            mt: 3,
+                            mt: { xs: 2, sm: 3 },
                             borderRadius: 3,
                             background:
                                 "linear-gradient(135deg, #f5f5f5 0%, #d9d9d9 100%)",
                         }}
                     >
-                        <CardContent>
+                        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                             <Stack
                                 direction="row"
                                 justifyContent="space-between"
                                 alignItems="flex-start"
-                                sx={{ pt: 2, pb: 2 }}
+                                sx={{ pt: { xs: 1, sm: 2 }, pb: { xs: 1, sm: 2 } }}
                             >
                                 <Box>
-                                    <Typography fontSize="1.2rem" fontWeight={700}>
+                                    <Typography 
+                                        fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.4rem" }} 
+                                        fontWeight={700}
+                                    >
                                         999 P
                                     </Typography>
-                                    <Typography fontSize="0.8rem" color="text.secondary">
+                                    <Typography 
+                                        fontSize={{ xs: "0.7rem", sm: "0.8rem" }} 
+                                        color="text.secondary"
+                                    >
                                         Member Since : {dayjs(user.created_at).format("D MMM YYYY")}
                                     </Typography>
                                 </Box>
@@ -73,20 +111,28 @@ export default function ScorePage() {
                                     component="img"
                                     src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
                                     alt="Pumpkin"
-                                    sx={{ height: 35, opacity: 0.8 }}
+                                    sx={{ 
+                                        height: { xs: 30, sm: 35, md: 40 }, 
+                                        opacity: 0.8 
+                                    }}
                                 />
                             </Stack>
                         </CardContent>
                     </Card>
 
-                    <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                        {/* 🔹 คูปอง */}
+                    {/* Coupons & Privileges Cards */}
+                    <Stack 
+                        direction="row" 
+                        spacing={2} 
+                        sx={{ mt: 2 }}
+                    >
+                        {/* คูปอง */}
                         <Card
                             sx={{
                                 flex: 1,
                                 borderRadius: 3,
                                 textAlign: "center",
-                                py: 1.5,
+                                py: { xs: 1.5, sm: 2 },
                             }}
                         >
                             <Box
@@ -94,27 +140,29 @@ export default function ScorePage() {
                                 sx={{
                                     justifyContent: "left",
                                     alignItems: "flex-end",
-                                    padding: "10px",
-                                    paddingLeft: "12px",
+                                    padding: { xs: "8px", sm: "10px" },
+                                    paddingLeft: { xs: "10px", sm: "12px" },
                                     gap: "6px",
-
                                 }}
                             >
                                 <Typography
                                     color="#F54927"
                                     fontWeight={700}
-                                    fontSize="2rem"
+                                    fontSize={{ xs: "1.8rem", sm: "2rem", md: "2.2rem" }}
                                     lineHeight={1}
                                 >
                                     0
                                 </Typography>
-                                <Typography fontSize="1rem" sx={{ pb: 0.3 }}>
+                                <Typography 
+                                    fontSize={{ xs: "0.9rem", sm: "1rem" }} 
+                                    sx={{ pb: 0.3 }}
+                                >
                                     คูปอง
                                 </Typography>
                             </Box>
                             <Typography
                                 color="text.secondary"
-                                fontSize="0.8rem"
+                                fontSize={{ xs: "0.75rem", sm: "0.8rem" }}
                                 display="flex"
                                 justifyContent="left"
                                 alignItems="center"
@@ -122,17 +170,30 @@ export default function ScorePage() {
                                 gap={0.3}
                                 fontWeight={800}
                             >
-                                <button onClick={() => alert("อยู่ระหว่างการพัฒนา")}>ดูเพิ่มเติม <ChevronRight fontSize="small" /></button>
+                                <button 
+                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
+                                    style={{ 
+                                        background: "none", 
+                                        border: "none", 
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: 0,
+                                        color: "inherit"
+                                    }}
+                                >
+                                    ดูเพิ่มเติม <ChevronRight fontSize="small" />
+                                </button>
                             </Typography>
                         </Card>
 
-                        {/* 🔹 สิทธิพิเศษ */}
+                        {/* สิทธิพิเศษ */}
                         <Card
                             sx={{
                                 flex: 1,
                                 borderRadius: 3,
                                 textAlign: "center",
-                                py: 1.5,
+                                py: { xs: 1.5, sm: 2 },
                             }}
                         >
                             <Box
@@ -140,28 +201,29 @@ export default function ScorePage() {
                                 sx={{
                                     justifyContent: "left",
                                     alignItems: "flex-end",
-                                    padding: "10px",
-                                    paddingLeft: "12px",
+                                    padding: { xs: "8px", sm: "10px" },
+                                    paddingLeft: { xs: "10px", sm: "12px" },
                                     gap: "6px",
-
                                 }}
                             >
                                 <Typography
                                     color="#F54927"
                                     fontWeight={700}
-                                    fontSize="2rem"
+                                    fontSize={{ xs: "1.8rem", sm: "2rem", md: "2.2rem" }}
                                     lineHeight={1}
-
                                 >
                                     0
                                 </Typography>
-                                <Typography fontSize="1rem" sx={{ pb: 0.3 }}>
+                                <Typography 
+                                    fontSize={{ xs: "0.9rem", sm: "1rem" }} 
+                                    sx={{ pb: 0.3 }}
+                                >
                                     สิทธิพิเศษ
                                 </Typography>
                             </Box>
                             <Typography
                                 color="text.secondary"
-                                fontSize="0.8rem"
+                                fontSize={{ xs: "0.75rem", sm: "0.8rem" }}
                                 display="flex"
                                 justifyContent="left"
                                 alignItems="center"
@@ -169,13 +231,31 @@ export default function ScorePage() {
                                 paddingLeft={2}
                                 fontWeight={800}
                             >
-                                <button onClick={() => alert("อยู่ระหว่างการพัฒนา")}>ดูเพิ่มเติม <ChevronRight fontSize="small" /></button>
+                                <button 
+                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
+                                    style={{ 
+                                        background: "none", 
+                                        border: "none", 
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: 0,
+                                        color: "inherit"
+                                    }}
+                                >
+                                    ดูเพิ่มเติม <ChevronRight fontSize="small" />
+                                </button>
                             </Typography>
                         </Card>
                     </Stack>
 
-                    <Box sx={{ mt: 3 }}>
-                        <Typography fontWeight={700} sx={{ mb: 1 }}>
+                    {/* Settings Section */}
+                    <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+                        <Typography 
+                            fontWeight={700} 
+                            sx={{ mb: 1 }}
+                            fontSize={{ xs: "0.95rem", sm: "1rem" }}
+                        >
                             ตั้งค่า
                         </Typography>
                         <Card
@@ -185,28 +265,51 @@ export default function ScorePage() {
                             }}
                         >
                             <List disablePadding>
-                                <ListItemButton onClick={() => alert("อยู่ระหว่างการพัฒนา")}>
+                                <ListItemButton 
+                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
+                                    sx={{ py: { xs: 1.5, sm: 2 } }}
+                                >
                                     <ListItemIcon>
-                                        <Shield sx={{ color: "#F54927" }} />
+                                        <Shield sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
-                                    <ListItemText primary="PDPA" />
+                                    <ListItemText 
+                                        primary="PDPA" 
+                                        primaryTypographyProps={{ 
+                                            fontSize: { xs: "0.9rem", sm: "1rem" } 
+                                        }}
+                                    />
                                 </ListItemButton>
                                 <Divider />
-                                <ListItemButton onClick={() => alert("อยู่ระหว่างการพัฒนา")}>
+                                <ListItemButton 
+                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
+                                    sx={{ py: { xs: 1.5, sm: 2 } }}
+                                >
                                     <ListItemIcon>
-                                        <Gavel sx={{ color: "#F54927" }} />
+                                        <Gavel sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
-                                    <ListItemText primary="Term And Condition" />
+                                    <ListItemText 
+                                        primary="Term And Condition" 
+                                        primaryTypographyProps={{ 
+                                            fontSize: { xs: "0.9rem", sm: "1rem" } 
+                                        }}
+                                    />
                                 </ListItemButton>
                                 <Divider />
 
-                                <ListItemButton onClick={() => router.post(route('logout'))}>
+                                <ListItemButton 
+                                    onClick={() => router.post(route('logout'))}
+                                    sx={{ py: { xs: 1.5, sm: 2 } }}
+                                >
                                     <ListItemIcon>
-                                        <Logout sx={{ color: "#F54927" }} />
+                                        <Logout sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="ออกจากระบบ"
-                                        primaryTypographyProps={{ color: "#F54927", fontWeight: 600 }}
+                                        primaryTypographyProps={{ 
+                                            color: "#F54927", 
+                                            fontWeight: 600,
+                                            fontSize: { xs: "0.9rem", sm: "1rem" }
+                                        }}
                                     />
                                 </ListItemButton>
                             </List>
