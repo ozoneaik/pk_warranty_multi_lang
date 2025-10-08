@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction, Container,
-    IconButton, Menu, MenuItem, useTheme, useMediaQuery, Select
+    IconButton, Menu, MenuItem, useTheme, useMediaQuery, Select,
+    alpha
 } from '@mui/material';
 import { AccountCircle, AppRegistration, Assignment, History, Home, Inventory, Menu as MenuIcon, SupervisedUserCircle } from '@mui/icons-material';
 import { router, usePage } from '@inertiajs/react';
@@ -17,7 +18,6 @@ export default function MobileAuthenticatedLayout({
     children,
     title = ""
 }: MobileAuthenticatedLayoutProps) {
-
 
 
     const { t, setLanguage, language } = useLanguage();
@@ -119,7 +119,9 @@ export default function MobileAuthenticatedLayout({
                 sx={{
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                     backgroundColor: !isWarrantyHome ? "#F54927" : "transparent",
-                    boxShadow: "none"
+                    // backgroundColor: 'rgba(245, 73, 39, 0.9)', 
+                    backdropFilter: 'blur(6px)',
+                    boxShadow: 'none',
                 }}
             >
                 <Toolbar>
@@ -163,7 +165,7 @@ export default function MobileAuthenticatedLayout({
                 <MenuItem
                     onClick={() => {
                         handleClose(); // ปิดเมนู
-                        router.get(route("customer.profile.welcome")); 
+                        router.get(route("customer.profile.welcome"));
                     }}
                 >
                     <Typography>{t.homePage.manageProfile}</Typography>
@@ -187,12 +189,12 @@ export default function MobileAuthenticatedLayout({
                     position: 'fixed', bottom: 0, left: 0, right: 0,
                     // backgroundColor: '#f5f5f5',
                     backgroundColor: '#F54927',
-                    borderTop: '1px solid gray',
-                    borderRight: '1px solid gray',
-                    borderLeft: '1px solid gray',
+                    // borderTop: '1px solid gray',
+                    // borderRight: '1px solid gray',
+                    // borderLeft: '1px solid gray',
                     // boxShadow : '4',
-                    borderTopLeftRadius: '25px',
-                    borderTopRightRadius: '25px',
+                    // borderTopLeftRadius: '25px',
+                    // borderTopRightRadius: '25px',
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                 }}
             >

@@ -8,7 +8,17 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
 import backgroundHome from '../../assets/images/backgroundHome.jpg'
+// import backgroundHome from '../../assets/images/maxresdefault.jpg'
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+const bottomBanners = [
+    "https://pumpkin.co.th/wp-content/uploads/2025/01/20250113-092158.jpg",
+    "https://pumpkin.co.th/wp-content/uploads/2023/01/1920x752px-product-group.jpg",
+    "https://pumpkin.co.th/wp-content/uploads/2023/05/NEW-CORDLESS-SERIES-1530x630px.jpg"
+];
 export default function WarrantyHome() {
 
     const { t } = useLanguage();
@@ -20,6 +30,18 @@ export default function WarrantyHome() {
     // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ
     const navigateTo = (route: string) => {
         router.visit(route);
+    };
+
+    const bannerSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 4000,
+        arrows: false,
+        pauseOnHover: true,
     };
 
     return (
@@ -35,7 +57,7 @@ export default function WarrantyHome() {
                             width: "100%", objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectPosition: "top", maxHeight: "350px"
+                            objectPosition: "top", maxHeight: "345px"
                         }}
                     />
 
@@ -79,7 +101,7 @@ export default function WarrantyHome() {
                         {t.homePage.menu_list.title}
                     </Typography>
 
-                    <Grid container spacing={2} sx={{ mb: 4 }}>
+                    <Grid container spacing={2} sx={{ mb: 3 }}>
                         {/* ลงทะเบียนรับประกัน */}
                         <Grid size={{ xs: 6 }}>
                             <Card
@@ -149,6 +171,36 @@ export default function WarrantyHome() {
                             </Card>
                         </Grid>
                     </Grid>
+                    <Box
+                        sx={{
+                            mt: { xs: 2, sm: 3 },
+                            borderRadius: 3,
+                            overflow: "visible",
+                            boxShadow: 3,
+                            position: "relative",
+                        }}
+                    >
+                        <Slider {...bannerSettings}>
+                            {bottomBanners.map((banner, idx) => (
+                                <Box key={idx}>
+                                    <img
+                                        src={banner}
+                                        alt={`Promotion ${idx + 1}`}
+                                        style={{
+                                            width: "100%",
+                                            objectFit: "cover",
+                                            maxHeight: "220px",
+                                            borderRadius: "10px",
+                                            display: "block",
+                                            backgroundColor: "black",
+                                        }}
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                </Box>
+                            ))}
+                        </Slider>
+                    </Box>
                 </Box>
             </Container>
         </MobileAuthenticatedLayout>
