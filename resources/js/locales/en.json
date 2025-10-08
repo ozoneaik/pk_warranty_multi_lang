@@ -105,7 +105,12 @@
             "DurationWaranty": "Warranty Duration",
             "month": "Month(s)",
             "condition": "Condition",
-            "noteWaranty": "Note"
+            "noteWaranty": "Note",
+            "loading": "Loading warranty information...",
+            "noData": "No warranty information found",
+            "spareWarranty": "Spare Parts under Warranty",
+            "spareCode": "Spare Part Code",
+            "items": "items"
         },
         "NotMatchFound": "No matching information found"
     },

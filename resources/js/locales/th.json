@@ -48,7 +48,7 @@
                 "AllowCamaraPermission": "กรุณาอนุญาตการใช้งานกล้องเพื่อสแกน QR Code"
             },
             "CheckWaranty": "ตรวจสอบรับประกัน",
-            "CheckingWaranty" : "กำลังตรวจสอบ",
+            "CheckingWaranty": "กำลังตรวจสอบ",
             "NumberRegisted": "หมายเลขนี้เคยลงทะเบียนแล้ว"
         },
         "Validate": {
@@ -105,7 +105,12 @@
             "DurationWaranty": "ระยะเวลารับประกัน",
             "month": "เดือน",
             "condition": "เงื่อนไข",
-            "noteWaranty": "หมายเหตุ"
+            "noteWaranty": "หมายเหตุ",
+            "loading": "กำลังโหลดข้อมูลรับประกัน...",
+            "noData": "ไม่พบข้อมูลรับประกัน",
+            "spareWarranty": "อะไหล่ที่รับประกัน",
+            "spareCode": "รหัสอะไหล่",
+            "items": "รายการ"
         },
         "NotMatchFound": "ไม่พบข้อมูลที่ตรงกับ"
     },
@@ -162,7 +167,7 @@
             }
         }
     },
-    "Score":{
+    "Score": {
         "title": "คะแนนสะสม",
         "MyPointTitle": "คะแนนสะสมของฉัน",
         "FeatureIsDeveloping": "ฟีเจอร์นี้ยังกําลังพัฒนา"
