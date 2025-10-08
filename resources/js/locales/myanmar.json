@@ -26,7 +26,7 @@
             "file": "ဖိုင်အပ်လုဒ်",
             "validateFile": "အာမခံကတ်ကို အပ်လုဒ်လုပ်ရန် နှိပ်ပါ (ရုပ်ပုံသီးသန့်)",
             "example_file": "အာမခံစာရင်း ဥပမာ",
-            "serial_number": "Serial Number",
+            "serial_number": "နံပါတ်စဥ်",
             "phone": "ဖုန်းနံပါတ်",
             "customer_code_title": "ဖောက်သည်ကုဒ် / ဝန်ထမ်းကုဒ်",
             "model_code": "ကုဒ်နံပါတ်",
@@ -46,7 +46,10 @@
             "camera": {
                 "CameraPermission": "ကင်မရာခွင့်ပြုချက်လိုအပ်သည်",
                 "AllowCamaraPermission": "QR Code ကို scan လုပ်ရန် ကင်မရာခွင့်ပြုပါ"
-            }
+            },
+            "CheckWaranty": "အာမခံစစ်ဆေးပါ။",
+            "CheckingWaranty": "စစ်ဆေးနေပါတယ်။",
+            "NumberRegisted": "ဤနံပါတ်ကို မှတ်ပုံတင်ပြီးဖြစ်သည်။"
         },
         "Validate": {
             "file": "ဖိုင်ကိုအပ်လုဒ်ရန် လိုအပ်ပါသည်",

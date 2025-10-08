@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/form', [WarrantyFormController::class, 'store'])->name('warranty.form.store');
             Route::get('/store_name/{store_name}', [WarrantyFormController::class, 'get_store_name'])->name('warranty.get_store_name');
             Route::get('/history', [WarrantyHistoryController::class, 'history'])->name('warranty.history');
+            Route::get('/history/detail/{model_code}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
             Route::post('/', function () {});
         });
     });

@@ -93,6 +93,24 @@ export default function MobileAuthenticatedLayout({
 
     // current route = http://localhost:8000/warranty/home
 
+    const navStyle = {
+        color: "rgba(255,255,255,0.8)",
+        minWidth: "auto",
+        flexDirection: "row",
+        gap: "6px",
+        "& .MuiSvgIcon-root": {
+            fontSize: "1.5rem",
+        },
+        "& .MuiBottomNavigationAction-label": {
+            fontSize: "0.80rem",
+            fontWeight: 600,
+            textTransform: "none",
+            marginTop: "0 !important",
+        },
+        "&.Mui-selected": {
+            color: "white",
+        },
+    };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -139,7 +157,15 @@ export default function MobileAuthenticatedLayout({
                 transformOrigin={{ vertical: 'top', horizontal: 'right', }}
                 open={Boolean(anchorEl)} onClose={handleClose} sx={{ mt: '45px' }}
             >
-                <MenuItem onClick={handleClose}>
+                {/* <MenuItem onClick={handleClose}>
+                    <Typography>{t.homePage.manageProfile}</Typography>
+                </MenuItem> */}
+                <MenuItem
+                    onClick={() => {
+                        handleClose(); // ปิดเมนู
+                        router.get(route("customer.profile.welcome")); 
+                    }}
+                >
                     <Typography>{t.homePage.manageProfile}</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>
@@ -174,11 +200,11 @@ export default function MobileAuthenticatedLayout({
                 <BottomNavigationAction icon={<Assignment />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<History />} sx={{ '&.Mui-selected': { color: '#F54927' } }} />
                 <BottomNavigationAction icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: '#F54927' } }} /> */}
-                <BottomNavigationAction label={t.homePage.title} icon={<Home />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction label={t.homePage.from} icon={<Assignment />} sx={{ '&.Mui-selected': { color: 'white' } }} />
-                <BottomNavigationAction label={t.homePage.history} icon={<History />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label={t.homePage.title} icon={<Home />} sx={navStyle} />
+                <BottomNavigationAction label={t.homePage.from} icon={<Assignment />} sx={navStyle} />
+                <BottomNavigationAction label={t.homePage.history} icon={<History />} sx={navStyle} />
                 {/* <BottomNavigationAction label="ผู้ใช้งาน" icon={<AccountCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} /> */}
-                <BottomNavigationAction label={t.homePage.manageProfile} icon={<SupervisedUserCircle />} sx={{ '&.Mui-selected': { color: 'white' } }} />
+                <BottomNavigationAction label={t.homePage.manageProfile} icon={<SupervisedUserCircle />} sx={navStyle} />
             </BottomNavigation>
         </Box>
     );

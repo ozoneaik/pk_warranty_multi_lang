@@ -129,6 +129,7 @@ export default function WelComeProFile() {
                             <Card
                                 elevation={2}
                                 sx={{
+                                    height: "100%",
                                     cursor: "pointer",
                                     transition: "all 0.3s ease",
                                     "&:hover": {

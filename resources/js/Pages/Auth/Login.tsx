@@ -100,7 +100,7 @@ export default function Login({ status }: { status?: string }) {
                         {/* Social Login Buttons */}
                         <Stack spacing={3}>
                             {/* Google Button */}
-                            <Button
+                            {/* <Button
                                 onClick={() => window.location.href = route('google.login')}
                                 variant="outlined"
                                 fullWidth
@@ -126,7 +126,7 @@ export default function Login({ status }: { status?: string }) {
                                 }}
                             >
                                 {t.loginPage.loginWithGoogle}
-                            </Button>
+                            </Button> */}
 
                             {/* LINE Button */}
                             <Button

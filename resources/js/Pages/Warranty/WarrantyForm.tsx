@@ -163,8 +163,15 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             setShowProduct(true);
             setSnVerified(true);
         } catch (error: any) {
-            const msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
-            alert(msg);
+            let msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
+            if (msg.includes("หมายเลขนี้เคยลงทะเบียนแล้ว")) {
+                msg = t.Warranty.Form.NumberRegisted;
+            }
+            Swal.fire({
+                title: msg,
+                icon: 'error',
+                confirmButtonColor: '#F54927',
+            });
             setShowForm(false);
             setSnVerified(false);
         } finally {
@@ -416,6 +423,12 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         required
                                         disabled={processing || checking || snVerified}
                                         placeholder={t.Warranty.Placeholder.serial_number}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !snVerified) {
+                                                e.preventDefault();
+                                                handleCheckSn();  
+                                            }
+                                        }}
                                         sx={{
                                             flex: 1,
                                             '& .MuiOutlinedInput-root': {
@@ -468,10 +481,10 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                     {checking ? (
                                         <>
                                             <CircularProgress size={20} sx={{ mr: 1 }} />
-                                            กำลังตรวจสอบ...
+                                            {t.Warranty.Form.CheckingWaranty}
                                         </>
                                     ) : (
-                                        'ตรวจสอบรับประกัน'
+                                        t.Warranty.Form.CheckWaranty
                                     )}
                                 </Button>
                             </Grid>

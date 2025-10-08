@@ -46,7 +46,10 @@
             "camera": {
                 "CameraPermission": "Camera Permission Required",
                 "AllowCamaraPermission": "Please allow camera access to scan the QR Code"
-            }
+            },
+            "CheckWaranty": "Check warranty",
+            "CheckingWaranty": "Checking...",
+            "NumberRegisted": "This number has already been registered."
         },
         "Validate": {
             "file": "pload File is required",

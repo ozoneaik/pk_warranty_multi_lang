@@ -46,7 +46,10 @@
             "camera": {
                 "CameraPermission": "ต้องได้รับอนุญาตการใช้งานกล้อง",
                 "AllowCamaraPermission": "กรุณาอนุญาตการใช้งานกล้องเพื่อสแกน QR Code"
-            }
+            },
+            "CheckWaranty": "ตรวจสอบรับประกัน",
+            "CheckingWaranty" : "กำลังตรวจสอบ",
+            "NumberRegisted": "หมายเลขนี้เคยลงทะเบียนแล้ว"
         },
         "Validate": {
             "file": "กรุณาอัปโหลดไฟล์",

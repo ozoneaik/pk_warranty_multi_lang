@@ -46,7 +46,10 @@
             "camera": {
                 "CameraPermission": "ຕ້ອງໄດ້ຮັບການອະນຸຍາດໃຫ້ໃຊ້ກ້ອງ",
                 "AllowCamaraPermission": "ກະລຸນາອະນຸຍາດໃຫ້ໃຊ້ກ້ອງເພື່ອສະແກນ QR Code"
-            }
+            },
+            "CheckWaranty": "ກວດສອບການຮັບປະກັນ",
+            "CheckingWaranty": "ການກວດກາ",
+            "NumberRegisted": "ຕົວເລກນີ້ໄດ້ຖືກລົງທະບຽນແລ້ວ"
         },
         "Validate": {
             "file": "ກະລຸນາອັບໂຫລດໄຟລ໌",
