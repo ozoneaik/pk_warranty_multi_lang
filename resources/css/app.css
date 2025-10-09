@@ -10,3 +10,7 @@
     box-sizing: border-box;
     font-family: 'sarabun', sans-serif !important;
 }
+
+.MuiFormLabel-asterisk {
+  color: red !important;
+}

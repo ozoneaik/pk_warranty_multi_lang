@@ -179,18 +179,59 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         }
     };
 
+    // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     if (!data.warranty_file) {
+    //         Swal.fire('กรุณาอัปโหลดไฟล์ใบเสร็จรับประกัน', '', 'warning');
+    //         return;
+    //     }
+    //     post(route('warranty.form.store'), {
+    //         forceFormData: true,
+    //         onError: (event: any) => {
+    //             console.error("Errors: ", event);
+    //         },
+    //         onFinish: () => {
+    //             console.log("Submit finished");
+    //         }
+    //     });
+    // }
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!data.warranty_file) {
+            Swal.fire(t.Warranty.Validate.AlertMessage.file, '', 'warning');
+            return;
+        }
+        if (!data.buy_date) {
+            Swal.fire(t.Warranty.Validate.AlertMessage.buy_date, '', 'warning');
+            return;
+        }
+        if (!data.store_name?.trim()) {
+            Swal.fire(t.Warranty.Validate.AlertMessage.store_name, '', 'warning');
+            return;
+        }
+        if (!data.buy_from || data.buy_from === 'เลือก') {
+            Swal.fire(t.Warranty.Validate.AlertMessage.buy_from, '', 'warning');
+            return;
+        }
+        if (!data.phone || data.phone.length !== 10) {
+            Swal.fire(t.Warranty.Validate.AlertMessage.phone, '', 'warning');
+            return;
+        }
         post(route('warranty.form.store'), {
             forceFormData: true,
-            onError: (event: any) => {
-                console.error("Errors: ", event);
+            onError: (errors: any) => {
+                console.error("Errors: ", errors);
+                const messages = Object.values(errors).join('\n');
+                if (messages) {
+                    Swal.fire('ข้อมูลไม่ถูกต้อง', messages, 'error');
+                }
             },
             onFinish: () => {
                 console.log("Submit finished");
-            }
+            },
         });
-    }
+    };
 
     const handleBuyFromChange = useCallback((value: string) => {
         setData('buy_from', value);
@@ -293,7 +334,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                     />
                 </DialogContent>
             </Dialog>
-
             <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
                 {/* Success Alert for QR Scan */}
                 {qrScanSuccess && (
@@ -308,7 +348,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
-
                         {/* File Upload Section */}
                         {showForm && (
                             <Grid size={12}>
@@ -357,7 +396,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 >
                                                     {fileName || "ยังไม่ได้เลือกไฟล์"}
                                                 </Typography>
-
                                                 <Chip
                                                     label="เปลี่ยนไฟล์ใหม่"
                                                     color="primary"
@@ -377,12 +415,11 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             </Stack>
                                         )}
                                     </label>
-
                                     <input
                                         id="warranty_file"
                                         type="file"
                                         accept="image/*"
-                                        required
+                                        // required
                                         hidden
                                         onChange={(e) => {
                                             const file = e.target.files?.[0];
@@ -413,7 +450,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                 <FormLabel htmlFor="serial_number" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                     {t.Warranty.Form.serial_number}
                                 </FormLabel>
-
                                 <Stack direction="row" spacing={1}>
                                     <TextField
                                         id="serial_number"
@@ -426,7 +462,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !snVerified) {
                                                 e.preventDefault();
-                                                handleCheckSn();  
+                                                handleCheckSn();
                                             }
                                         }}
                                         sx={{
@@ -436,7 +472,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             }
                                         }}
                                     />
-
                                     {snVerified && (
                                         <Button
                                             variant="outlined"
@@ -468,7 +503,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                 </Stack>
                             </FormControl>
                         </Grid>
-
                         {!snVerified && (
                             <Grid size={12}>
                                 <Button
@@ -501,7 +535,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: "medium" }}>
                                             {t.Warranty.Form.phone}
                                         </FormLabel>
-
                                         <TextField
                                             id="phone"
                                             name="phone"
@@ -550,7 +583,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         />
                                     </FormControl>
                                 </Grid>
-
                                 <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: "medium" }}>
@@ -598,7 +630,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         />
                                     </FormControl>
                                 </Grid>
-
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_from" required sx={{ mb: 1, fontWeight: 'medium' }}>
@@ -624,9 +655,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         </Select>
                                     </FormControl>
                                 </Grid>
-
                                 <Grid size={{ xs: 12, md: 6 }}>
-                                    <FormControl fullWidth>
+                                    {/* <FormControl fullWidth>
                                         <FormLabel htmlFor="store_name" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                             {t.Warranty.Form.store_name}
                                         </FormLabel>
@@ -655,9 +685,45 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 noOptionsText="ไม่พบร้านค้า"
                                             />
                                         )}
+                                    </FormControl> */}
+                                    <FormControl fullWidth>
+                                        <FormLabel
+                                            htmlFor="store_name"
+                                            required
+                                            sx={{
+                                                mb: 1,
+                                                fontWeight: "medium",
+                                                "& .MuiFormLabel-asterisk": { color: "red" }, // ดอกจันสีแดง
+                                            }}
+                                        >
+                                            {t.Warranty.Form.store_name}
+                                        </FormLabel>
+
+                                        {loadingBuyform ? (
+                                            <Box display="flex" alignItems="center" gap={1} p={2}>
+                                                <CircularProgress size={20} />
+                                                <Typography variant="body2">กำลังโหลดร้านค้า...</Typography>
+                                            </Box>
+                                        ) : (
+                                            <Select
+                                                id="store_name"
+                                                value={data.store_name}
+                                                onChange={(e: SelectChangeEvent) => setData("store_name", e.target.value)}
+                                                sx={{ borderRadius: 2 }}
+                                                displayEmpty
+                                            >
+                                                <MenuItem disabled value="">
+                                                    {t.Warranty.Form.SelectShop}
+                                                </MenuItem>
+                                                {storeList.map((item, index) => (
+                                                    <MenuItem key={index} value={`${item.custname} ${item.branch}`}>
+                                                        {item.custname} {item.branch}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        )}
                                     </FormControl>
                                 </Grid>
-
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_date" required sx={{ mb: 1, fontWeight: 'medium' }}>
@@ -674,7 +740,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         />
                                     </FormControl>
                                 </Grid>
-
                                 <Grid size={12}>
                                     <Button
                                         fullWidth
