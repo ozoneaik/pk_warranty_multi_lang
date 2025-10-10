@@ -56,7 +56,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('checkPhoneAccess')->group(function () {
         Route::prefix('warranty')->group(function () {
-            Route::get('/check-sn/{sn}', [WarrantyFormController::class, 'checkSn'])->name('warranty.check.sn');
+            // Route::get('/check-sn/{sn}', [WarrantyFormController::class, 'checkSn'])->name('warranty.check.sn');
+            Route::post('/check-sn', [WarrantyFormController::class, 'checkSn'])->name('warranty.check.sn');
             Route::get('/home', [WarrantyHomeController::class, 'index'])->name('warranty.home');
             Route::get('/form', [WarrantyFormController::class, 'form'])->name('warranty.form');
             Route::post('/form', [WarrantyFormController::class, 'store'])->name('warranty.form.store');

@@ -19,20 +19,37 @@ declare global {
             buy_date: string,
             phone?: string,
             store_name: string,
-            customer_code? : string,
+            customer_code?: string,
         },
         setData: any,
         processing: boolean,
         errors: any,
-        post : any
+        post: any
     }
-    
+
+    // interface ProductDetail {
+    //     pid?: string,
+    //     p_name?: string,
+    //     warranty_status?: boolean,
+    //     fac_model? : string,
+    //     p_path? : string
+    // }
     interface ProductDetail {
-        pid?: string,
-        p_name?: string,
-        warranty_status?: boolean,
-        fac_model? : string,
-        p_path? : string
+        pid?: string;
+        p_name?: string;
+        pname?: string;
+        warranty_status?: boolean;
+        fac_model?: string;
+        p_path?: string;
+        image?: string;
+        // เพิ่มจาก ProductDetailComponent
+        warrantyperiod?: string;
+        warrantycondition?: string;
+        warrantynote?: string;
+        sp_warranty?: {
+            spname: string;
+            spcode?: { pidsp: string };
+        }[];
     }
 }
 

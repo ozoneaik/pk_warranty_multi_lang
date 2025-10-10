@@ -11,6 +11,7 @@ use Inertia\Inertia;
 
 class CustomerProfileController extends Controller
 {
+    
     // public function edit()
     // {
     //     $user = Auth::user();

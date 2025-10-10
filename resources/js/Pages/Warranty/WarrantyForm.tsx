@@ -33,9 +33,14 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const [openExampleFile, setOpenExampleFile] = useState(false);
+
     const [showProduct, setShowProduct] = useState(false);
-    const [ProductDetail, setProductDetail] = useState<ProductDetail>();
+    const [loadingProduct, setLoadingProduct] = useState(false);
+    // const [ProductDetail, setProductDetail] = useState<ProductDetail>();
+    const [ProductDetail, setProductDetail] = useState<ProductDetail | null>(null);
+
     const [snVerified, setSnVerified] = useState(false); // ตรวจสอบ SN ผ่านหรือยัง
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const { data, setData, processing, errors, post }: WarrantyFormProps = useForm({
         warranty_file: '',
@@ -65,6 +70,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     // QR Scanner states
     const [openQrScanner, setOpenQrScanner] = useState(false);
     const [qrScanSuccess, setQrScanSuccess] = useState(false);
+
+    const [showReferralField, setShowReferralField] = useState(false);
 
     // Cleanup debounce on unmount
     useEffect(() => {
@@ -128,56 +135,56 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     //     }
     // }
 
-    const handleCheckSn = async () => {
-        if (!data.serial_number.trim()) {
-            alert('กรุณาใส่หมายเลขซีเรียล');
-            return;
-        }
+    // const handleCheckSn = async () => {
+    //     if (!data.serial_number.trim()) {
+    //         alert('กรุณาใส่หมายเลขซีเรียล');
+    //         return;
+    //     }
 
-        try {
-            setChecking(true);
-            setShowForm(false);
-            setShowProduct(false);
-            setSnVerified(false);
+    //     try {
+    //         setChecking(true);
+    //         setShowForm(false);
+    //         setShowProduct(false);
+    //         setSnVerified(false);
 
-            const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number.trim() }));
-            const skusetFirstIndex = response.data.data.skuset[0];
-            const res_product = response.data.data.assets[skusetFirstIndex];
+    //         const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number.trim() }));
+    //         const skusetFirstIndex = response.data.data.skuset[0];
+    //         const res_product = response.data.data.assets[skusetFirstIndex];
 
-            setProductDetail({
-                p_path: `${import.meta.env.VITE_PRODUCT_IMAGE_URI}/${res_product.pid}.jpg`,
-                pid: res_product.pid,
-                p_name: res_product.pname,
-                fac_model: res_product.facmodel,
-                warranty_status: false,
-            });
+    //         setProductDetail({
+    //             p_path: `${import.meta.env.VITE_PRODUCT_IMAGE_URI}/${res_product.pid}.jpg`,
+    //             pid: res_product.pid,
+    //             p_name: res_product.pname,
+    //             fac_model: res_product.facmodel,
+    //             warranty_status: false,
+    //         });
 
-            setData({
-                ...data,
-                model_code: res_product.pid,
-                model_name: res_product.facmodel,
-                product_name: res_product.pname,
-            });
+    //         setData({
+    //             ...data,
+    //             model_code: res_product.pid,
+    //             model_name: res_product.facmodel,
+    //             product_name: res_product.pname,
+    //         });
 
-            setShowForm(true);
-            setShowProduct(true);
-            setSnVerified(true);
-        } catch (error: any) {
-            let msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
-            if (msg.includes("หมายเลขนี้เคยลงทะเบียนแล้ว")) {
-                msg = t.Warranty.Form.NumberRegisted;
-            }
-            Swal.fire({
-                title: msg,
-                icon: 'error',
-                confirmButtonColor: '#F54927',
-            });
-            setShowForm(false);
-            setSnVerified(false);
-        } finally {
-            setChecking(false);
-        }
-    };
+    //         setShowForm(true);
+    //         setShowProduct(true);
+    //         setSnVerified(true);
+    //     } catch (error: any) {
+    //         let msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
+    //         if (msg.includes("หมายเลขนี้เคยลงทะเบียนแล้ว")) {
+    //             msg = t.Warranty.Form.NumberRegisted;
+    //         }
+    //         Swal.fire({
+    //             title: msg,
+    //             icon: 'error',
+    //             confirmButtonColor: '#F54927',
+    //         });
+    //         setShowForm(false);
+    //         setSnVerified(false);
+    //     } finally {
+    //         setChecking(false);
+    //     }
+    // };
 
     // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     //     e.preventDefault();
@@ -195,6 +202,160 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     //         }
     //     });
     // }
+
+    // useEffect(() => {
+    //     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    //     debounceRef.current = setTimeout(async () => {
+    //         const hasSN = data.serial_number.trim();
+    //         const hasModel = data.model_code.trim();
+
+    //         if (!hasSN && !hasModel) {
+    //             setShowProduct(false);
+    //             setLoadingProduct(false);
+    //             return;
+    //         }
+
+    //         try {
+    //             setLoadingProduct(true); // ✅ เริ่มโหลด
+    //             const response = await axios.post(route('warranty.check.sn'), {
+    //                 sn: hasSN,
+    //                 model_code: hasModel,
+    //             });
+
+    //             if (response.data?.data?.product_detail) {
+    //                 setProductDetail(response.data.data.product_detail);
+    //                 setShowProduct(true);
+    //             } else {
+    //                 setShowProduct(false);
+    //             }
+    //         } catch (err: any) {
+    //             console.warn("⚠️ ไม่มีข้อมูลสินค้า:", err.response?.data?.message);
+    //             setShowProduct(false);
+    //         } finally {
+    //             setLoadingProduct(false); // ✅ จบโหลดไม่ว่าจะสำเร็จหรือไม่
+    //         }
+    //     }, 700);
+
+    //     return () => {
+    //         if (debounceRef.current) clearTimeout(debounceRef.current);
+    //     };
+    // }, [data.serial_number, data.model_code]);
+
+    const handleCheckProduct = async () => {
+        if (!data.model_code.trim()) {
+            Swal.fire({
+                title: 'กรุณากรอก Model Code ก่อนตรวจสอบ',
+                icon: 'warning',
+                confirmButtonColor: '#F54927',
+            });
+            return;
+        }
+
+        try {
+            setLoadingProduct(true);
+            setShowProduct(false);
+
+            const response = await axios.post(route('warranty.check.sn'), {
+                model_code: data.model_code.trim(),
+                sn: data.serial_number.trim(),
+            });
+
+            console.log("🔍 API Response:", response.data);
+            if (response.data?.status === 'duplicate') {
+                Swal.fire({
+                    title: response.data.message,
+                    icon: 'error',
+                    confirmButtonColor: '#F54927',
+                });
+                setShowProduct(false);
+                return;
+            }
+            if (response.data?.data?.product_detail) {
+                const pd = response.data.data.product_detail;
+                setProductDetail(pd);
+                setShowProduct(true);
+
+                setData((prevData: typeof data) => ({
+                    ...prevData,
+                    model_code: pd.pid || "",
+                    model_name: pd.fac_model || "",
+                    product_name: pd.pname || "",
+                }));
+            }
+            else {
+                Swal.fire({
+                    title: 'ไม่พบข้อมูลสินค้า',
+                    icon: 'warning',
+                    confirmButtonColor: '#F54927',
+                });
+                setShowProduct(false);
+            }
+        } catch (error: any) {
+            let msg = error.response?.data?.message || 'เกิดข้อผิดพลาดระหว่างตรวจสอบสินค้า';
+            Swal.fire({
+                title: msg,
+                icon: 'error',
+                confirmButtonColor: '#F54927',
+            });
+            setShowProduct(false);
+        } finally {
+            setLoadingProduct(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!data.serial_number && !data.model_code) return;
+        if (showProduct || snVerified || showForm) {
+            setShowProduct(false);
+            setSnVerified(false);
+            setShowForm(false);
+            setProductDetail(null);
+
+            console.log("🔄 Reset state because SN or SKU changed");
+        }
+    }, [data.serial_number, data.model_code]);
+
+    const handleCheckSn = async () => {
+        if (!data.serial_number.trim() && !data.model_code.trim()) {
+            alert('กรุณากรอก Serial Number หรือ Model Code อย่างน้อยหนึ่งอย่าง');
+            return;
+        }
+
+        try {
+            setChecking(true);
+            setShowForm(false);
+            setShowProduct(false);
+            setSnVerified(false);
+
+            // เรียกหลังบ้านแค่รอบเดียว
+            const response = await axios.post(route('warranty.check.sn'), {
+                sn: data.serial_number.trim(),
+                model_code: data.model_code.trim(),
+            });
+
+            // ถ้าผ่าน
+            setShowForm(true);
+            setSnVerified(true);
+
+            // ถ้ามีข้อมูลสินค้าใน response.data.data.product_detail ให้ setProductDetail ด้วย
+            if (response.data.data?.product_detail) {
+                setProductDetail(response.data.data.product_detail);
+                setShowProduct(true);
+            }
+        } catch (error: any) {
+            let msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
+            Swal.fire({
+                title: msg,
+                icon: 'error',
+                confirmButtonColor: '#F54927',
+            });
+            setShowForm(false);
+            setSnVerified(false);
+        } finally {
+            setChecking(false);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -233,18 +394,45 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         });
     };
 
+    // const handleBuyFromChange = useCallback((value: string) => {
+    //     setData('buy_from', value);
+    //     setLoadingBuyFrom(true);
+    //     setData('store_name', '');
+    //     setStoreList([]);
+
+    //     // Clear existing timeout
+    //     if (debounceRef.current) {
+    //         clearTimeout(debounceRef.current);
+    //     }
+
+    //     // Set new timeout
+    //     debounceRef.current = setTimeout(() => {
+    //         handleChangeStoreName(value);
+    //     }, 500);
+    // }, [setData]);
+
+
     const handleBuyFromChange = useCallback((value: string) => {
         setData('buy_from', value);
         setLoadingBuyFrom(true);
         setData('store_name', '');
         setStoreList([]);
 
-        // Clear existing timeout
+        // ✅ ตรวจชื่อช่องทางซื้อ ถ้าเป็นใน list ด้านล่างนี้ให้เปิดฟิลด์ Referral Code
+        const requireReferral = [
+            "ไทวัสดุ",
+            "Homepro",
+            "Mega home",
+            "Dohome",
+            "Global house",
+            "ฮาร์แวร์เฮาส์",
+        ];
+        setShowReferralField(requireReferral.includes(value));
+
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
         }
 
-        // Set new timeout
         debounceRef.current = setTimeout(() => {
             handleChangeStoreName(value);
         }, 500);
@@ -445,6 +633,66 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         )}
 
                         {/* Serial Number Section */}
+                        {/* <Grid size={12}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="serial_number" required sx={{ mb: 1, fontWeight: 'medium' }}>
+                                    {t.Warranty.Form.serial_number}
+                                </FormLabel>
+                                <Stack direction="row" spacing={1}>
+                                    <TextField
+                                        id="serial_number"
+                                        name="serial_number"
+                                        value={data.serial_number}
+                                        onChange={handleOnChange}
+                                        required
+                                        disabled={processing || checking || snVerified}
+                                        placeholder={t.Warranty.Placeholder.serial_number}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !snVerified) {
+                                                e.preventDefault();
+                                                handleCheckSn();
+                                            }
+                                        }}
+                                        sx={{
+                                            flex: 1,
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            }
+                                        }}
+                                    />
+                                    {snVerified && (
+                                        <Button
+                                            variant="outlined"
+                                            color="warning"
+                                            onClick={() => {
+                                                setData({
+                                                    warranty_file: '',
+                                                    serial_number: '',
+                                                    phone: '',
+                                                    model_code: '',
+                                                    model_name: '',
+                                                    product_name: '',
+                                                    buy_from: 'เลือก',
+                                                    buy_date: '',
+                                                    store_name: '',
+                                                    customer_code: '',
+                                                });
+
+                                                setShowForm(false);
+                                                setShowProduct(false);
+                                                setPreview(null);
+                                                setFileName('');
+                                                setSnVerified(false);
+                                            }}
+                                        >
+                                            {t.Warranty.Form.ChangSerial}
+                                        </Button>
+                                    )}
+                                </Stack>
+                            </FormControl>
+                        </Grid> */}
+
+                        {/* Serial Number Section */}
                         <Grid size={12}>
                             <FormControl fullWidth>
                                 <FormLabel htmlFor="serial_number" required sx={{ mb: 1, fontWeight: 'medium' }}>
@@ -503,12 +751,79 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                 </Stack>
                             </FormControl>
                         </Grid>
+
+                        {/* Model Code Section */}
+                        <Grid size={12}>
+                            <FormControl fullWidth>
+                                <FormLabel htmlFor="model_code" required sx={{ mb: 1, fontWeight: 'medium' }}>
+                                    {/* {t.Warranty.Form.model_code || "รหัสรุ่นสินค้า (Model Code)"} */}
+                                    Sku Code
+                                </FormLabel>
+                                <TextField
+                                    id="model_code"
+                                    name="model_code"
+                                    value={data.model_code}
+                                    onChange={handleOnChange}
+                                    required
+                                    disabled={processing || checking || snVerified}
+                                    placeholder="กรอกรหัสรุ่นสินค้า"
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                        }
+                                    }}
+                                />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid size={12}>
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                onClick={handleCheckProduct}
+                                disabled={loadingProduct || checking}
+                                sx={{ py: 1.5, borderRadius: 2 }}
+                            >
+                                {loadingProduct ? (
+                                    <>
+                                        <CircularProgress size={20} sx={{ mr: 1 }} />
+                                        กำลังตรวจสอบสินค้า...
+                                    </>
+                                ) : (
+                                    "ตรวจสอบสินค้า"
+                                )}
+                            </Button>
+                        </Grid>
+
+                        {/* Product Detail */}
+                        {/* {showProduct && <ProductDetailComponent productDetail={ProductDetail} />} */}
+                        {loadingProduct ? (
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexDirection: "column",
+                                    py: 4,
+                                    width: "100%",
+                                }}
+                            >
+                                <CircularProgress size={32} sx={{ mb: 1 }} />
+                                <Typography variant="body2" color="text.secondary">
+                                    {t.History.Information.loading || "กำลังโหลดข้อมูลสินค้า..."}
+                                </Typography>
+                            </Box>
+                        ) : (
+                            showProduct && ProductDetail && (
+                                <ProductDetailComponent productDetail={ProductDetail} />
+                            ))}
                         {!snVerified && (
                             <Grid size={12}>
                                 <Button
                                     fullWidth
                                     variant="outlined"
-                                    disabled={!data.serial_number.trim() || checking}
+                                    // disabled={!data.serial_number.trim() || checking}
+                                    disabled={!showProduct || checking}
                                     onClick={handleCheckSn}
                                     sx={{ py: 1.5, borderRadius: 2 }}
                                 >
@@ -524,13 +839,10 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                             </Grid>
                         )}
 
-                        {/* Product Detail */}
-                        {showProduct && <ProductDetailComponent productDetail={ProductDetail} />}
-
                         {/* Form Fields */}
                         {showForm && (
                             <>
-                                <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
+                                <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 0 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: "medium" }}>
                                             {t.Warranty.Form.phone}
@@ -539,7 +851,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             id="phone"
                                             name="phone"
                                             type="tel"
-                                            value={data.phone}
+                                            // value={data.phone}
                                             onChange={(e) => {
                                                 const onlyDigits = e.target.value.replace(/\D/g, "");
                                                 setData("phone", onlyDigits);
@@ -551,7 +863,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             }}
                                             required
                                             disabled={processing}
-                                            placeholder="เช่น 0812345678"
+                                            // placeholder="เช่น 0812349999"
                                             error={!!errors.phone || ((data.phone ?? '').length > 0 && (data.phone ?? '').length < 10)}
                                             helperText={
                                                 errors.phone
@@ -583,53 +895,55 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         />
                                     </FormControl>
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
-                                    <FormControl fullWidth>
-                                        <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: "medium" }}>
-                                            {t.Warranty.Form.customer_code_title}
-                                        </FormLabel>
+                                {showReferralField && (
+                                    <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 0 }}>
+                                        <FormControl fullWidth>
+                                            <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: "medium" }}>
+                                                {t.Warranty.Form.customer_code_title}
+                                            </FormLabel>
 
-                                        <TextField
-                                            id="customer_code"
-                                            name="customer_code"
-                                            value={data.customer_code}
-                                            onChange={(e) => {
-                                                const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 5);
-                                                setData("customer_code", onlyDigits);
-                                            }}
-                                            inputProps={{
-                                                maxLength: 5,
-                                                inputMode: "numeric",
-                                                pattern: "[0-9]*",
-                                            }}
-                                            disabled={processing}
-                                            placeholder={t.Warranty.Validate.customer_code}
-                                            sx={{
-                                                "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                                            }}
-                                            slotProps={{
-                                                input: {
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            {false && (
-                                                                <IconButton
-                                                                    onClick={handleOpenQrScanner}
-                                                                    color="primary"
-                                                                    sx={{
-                                                                        bgcolor: "primary.50",
-                                                                        "&:hover": { bgcolor: "primary.100" },
-                                                                    }}
-                                                                >
-                                                                    <QrCode />
-                                                                </IconButton>
-                                                            )}
-                                                        </InputAdornment>
-                                                    ),
-                                                },
-                                            }}
-                                        />
-                                    </FormControl>
-                                </Grid>
+                                            <TextField
+                                                id="customer_code"
+                                                name="customer_code"
+                                                value={data.customer_code}
+                                                onChange={(e) => {
+                                                    const onlyDigits = e.target.value.replace(/\D/g, "").slice(0, 5);
+                                                    setData("customer_code", onlyDigits);
+                                                }}
+                                                inputProps={{
+                                                    maxLength: 5,
+                                                    inputMode: "numeric",
+                                                    pattern: "[0-9]*",
+                                                }}
+                                                disabled={processing}
+                                                placeholder={t.Warranty.Validate.customer_code}
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                                                }}
+                                                slotProps={{
+                                                    input: {
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                {false && (
+                                                                    <IconButton
+                                                                        onClick={handleOpenQrScanner}
+                                                                        color="primary"
+                                                                        sx={{
+                                                                            bgcolor: "primary.50",
+                                                                            "&:hover": { bgcolor: "primary.100" },
+                                                                        }}
+                                                                    >
+                                                                        <QrCode />
+                                                                    </IconButton>
+                                                                )}
+                                                            </InputAdornment>
+                                                        ),
+                                                    },
+                                                }}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                )}
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_from" required sx={{ mb: 1, fontWeight: 'medium' }}>
@@ -639,7 +953,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             required
                                             labelId="buy-from-select-label"
                                             id="buy_from"
-                                            value={data.buy_from}
+                                            // value={data.buy_from}
                                             variant="outlined"
                                             onChange={(e: SelectChangeEvent) => handleBuyFromChange(e.target.value)}
                                             sx={{ borderRadius: 2 }}
@@ -656,7 +970,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                     </FormControl>
                                 </Grid>
                                 <Grid size={{ xs: 12, md: 6 }}>
-                                    {/* <FormControl fullWidth>
+                                    <FormControl fullWidth>
                                         <FormLabel htmlFor="store_name" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                             {t.Warranty.Form.store_name}
                                         </FormLabel>
@@ -685,8 +999,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 noOptionsText="ไม่พบร้านค้า"
                                             />
                                         )}
-                                    </FormControl> */}
-                                    <FormControl fullWidth>
+                                    </FormControl>
+                                    {/* <FormControl fullWidth>
                                         <FormLabel
                                             htmlFor="store_name"
                                             required
@@ -722,7 +1036,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 ))}
                                             </Select>
                                         )}
-                                    </FormControl>
+                                    </FormControl> */}
                                 </Grid>
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <FormControl fullWidth>
