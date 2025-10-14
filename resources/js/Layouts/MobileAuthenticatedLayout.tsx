@@ -220,6 +220,7 @@
 //     );
 // }
 
+
 import React, { useState, useEffect } from 'react';
 import {
     Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction,
@@ -289,49 +290,54 @@ export default function MobileAuthenticatedLayout({
     };
 
     return (
-        // outer center page
         <Box
             sx={{
-                width: '100%',
-                minHeight: '100vh',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                py: 0,
-                // background: optional
+                minHeight: '100vh',
+                backgroundColor: '#f5f5f5',
             }}
         >
-            {/* phone-like frame */}
+            {/* ✅ กรอบจำลองจอมือถือ */}
             <Box
                 sx={{
-                    width: 500,
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: 500, // ขนาดสูงสุดเหมือนมือถือ
                     height: '100vh',
-                    bgcolor: '#fff',
-                    overflow: 'hidden',
+                    backgroundColor: '#fff',
+                    boxShadow: {
+                        xs: 'none', // ไม่ใส่เงาถ้าเป็นมือถือจริง
+                        md: '0 0 20px rgba(0,0,0,0.15)', // เงาเฉพาะบน PC
+                    },
                     display: 'flex',
                     flexDirection: 'column',
-                    position: 'relative',
-                    borderRadius: 0,
+                    overflow: 'hidden',
+                    borderRadius: { xs: 0, md: '25px' }, // มีมุมโค้งเฉพาะตอนอยู่ PC
                 }}
             >
-                {/* Header - stays fixed (flexShrink:0) */}
+                {/* ✅ Navbar */}
                 <AppBar
-                    position="static" // use static inside flex container
+                    position="fixed"
                     sx={{
+                        top: 0,
                         backgroundColor: '#F54927',
                         boxShadow: 'none',
-                        flexShrink: 0,
+                        zIndex: (theme) => theme.zIndex.drawer + 1,
+                        width: '100%',
+                        maxWidth: 500,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        // borderTopLeftRadius: { md: '25px' },
+                        // borderTopRightRadius: { md: '25px' },
                     }}
                 >
-                    <Toolbar sx={{ minHeight: 56 }}>
+                    <Toolbar>
                         <IconButton edge="start" color="inherit" onClick={handleMenu} sx={{ mr: 1 }}>
                             <MenuIcon />
                         </IconButton>
-                        <Typography
-                            variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1, fontSize: '1rem', fontWeight: 600 }}
-                        >
+                        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600, fontSize: '1rem' }}>
                             {title}
                         </Typography>
                         <Select
@@ -343,8 +349,7 @@ export default function MobileAuthenticatedLayout({
                                 color: "white",
                                 "& .MuiSvgIcon-root": { color: "white" },
                                 minWidth: 80,
-                                fontSize: "0.8rem",
-                                borderColor: "rgba(255,255,255,0.3)",
+                                border: 'none',
                                 '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                             }}
                         >
@@ -356,7 +361,7 @@ export default function MobileAuthenticatedLayout({
                     </Toolbar>
                 </AppBar>
 
-                {/* Dropdown Menu */}
+                {/* ✅ Dropdown Menu */}
                 <Menu
                     id="menu-appbar"
                     anchorEl={anchorEl}
@@ -380,40 +385,49 @@ export default function MobileAuthenticatedLayout({
                     </MenuItem>
                 </Menu>
 
-                {/* Main content: flex:1 and scrollable only this area */}
+                {/* ✅ ส่วนเนื้อหา (scroll ได้) */}
+                {/* ✅ ส่วนเนื้อหา (scroll ได้แต่ไม่แสดง scrollbar) */}
                 <Box
                     sx={{
-                        flex: '1 1 auto',
+                        flexGrow: 1,
+                        mt: '64px',
+                        mb: '65px',
+                        overflowY: 'auto',
+                        WebkitOverflowScrolling: 'touch', // ทำให้เลื่อนนุ่มในมือถือ
                         px: 2,
                         py: 1,
-                        overflowY: 'auto',
-                        WebkitOverflowScrolling: 'touch',
-                        scrollbarWidth: 'none',
-                        '&::-webkit-scrollbar': { display: 'none' },
+                        scrollbarWidth: 'none',            // 🔹 ซ่อน scrollbar (Firefox)
+                        msOverflowStyle: 'none',           // 🔹 สำหรับ IE
+                        '&::-webkit-scrollbar': { display: 'none' }, // 🔹 Chrome / Safari / Edge
                     }}
                 >
                     {children}
                 </Box>
 
-                {/* Footer / Bottom Navigation - stays fixed (flexShrink:0) */}
-                <Box sx={{ flexShrink: 0 }}>
-                    <BottomNavigation
-                        showLabels
-                        value={value}
-                        onChange={handleBottomNavChange}
-                        sx={{
-                            backgroundColor: '#F54927',
-                            borderTopLeftRadius: '8px',
-                            borderTopRightRadius: '8px',
-                            boxShadow: '0 -2px 8px rgba(0,0,0,0.06)',
-                        }}
-                    >
-                        <BottomNavigationAction icon={<Home />} sx={navStyle} />
-                        <BottomNavigationAction icon={<Assignment />} sx={navStyle} />
-                        <BottomNavigationAction icon={<History />} sx={navStyle} />
-                        <BottomNavigationAction icon={<SupervisedUserCircle />} sx={navStyle} />
-                    </BottomNavigation>
-                </Box>
+                {/* ✅ Footer ติดขอบล่างตลอด */}
+                <BottomNavigation
+                    showLabels
+                    value={value}
+                    onChange={handleBottomNavChange}
+                    sx={{
+                        position: 'fixed',
+                        bottom: 0,
+                        backgroundColor: '#F54927',
+                        width: '100%',
+                        maxWidth: 500,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        borderTopLeftRadius: { md: '25px' },
+                        borderTopRightRadius: { md: '25px' },
+                        boxShadow: '0 -3px 8px rgba(0,0,0,0.1)',
+                        zIndex: (theme) => theme.zIndex.drawer + 1,
+                    }}
+                >
+                    <BottomNavigationAction icon={<Home />} sx={navStyle} />
+                    <BottomNavigationAction icon={<Assignment />} sx={navStyle} />
+                    <BottomNavigationAction icon={<History />} sx={navStyle} />
+                    <BottomNavigationAction icon={<SupervisedUserCircle />} sx={navStyle} />
+                </BottomNavigation>
             </Box>
         </Box>
     );
