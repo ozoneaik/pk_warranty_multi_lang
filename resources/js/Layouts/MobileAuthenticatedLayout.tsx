@@ -297,7 +297,7 @@ export default function MobileAuthenticatedLayout({
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                py: 2,
+                py: 0,
                 // background: optional
             }}
         >
