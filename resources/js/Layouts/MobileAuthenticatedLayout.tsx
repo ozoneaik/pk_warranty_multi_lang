@@ -220,8 +220,6 @@
 //     );
 // }
 
-
-
 import React, { useState, useEffect } from 'react';
 import {
     Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction,
@@ -277,13 +275,13 @@ export default function MobileAuthenticatedLayout({
     };
 
     const navStyle = {
-        color: "rgba(255,255,255,0.8)",
+        color: "rgba(255,255,255,0.9)",
         minWidth: "auto",
         flexDirection: "column",
         gap: "1px",
-        "& .MuiSvgIcon-root": { fontSize: "1.8rem" },
+        "& .MuiSvgIcon-root": { fontSize: "1.6rem" },
         "& .MuiBottomNavigationAction-label": {
-            fontSize: "0.7rem",
+            fontSize: "0.72rem",
             fontWeight: 500,
             marginTop: "2px !important",
         },
@@ -291,6 +289,7 @@ export default function MobileAuthenticatedLayout({
     };
 
     return (
+        // outer center page
         <Box
             sx={{
                 width: '100%',
@@ -298,36 +297,33 @@ export default function MobileAuthenticatedLayout({
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                // background: 'linear-gradient(135deg, #fff5f1 0%, #ffeee6 25%, #ffe4d6 50%, #f25722 100%)',
+                py: 2,
+                // background: optional
             }}
         >
+            {/* phone-like frame */}
             <Box
                 sx={{
                     width: 500,
                     height: '100vh',
                     bgcolor: '#fff',
-                    // borderRadius: 0,
-                    overflow: 'hidden', 
-                    // boxShadow: '0 0 35px rgba(0,0,0,0.2)',
+                    overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
+                    borderRadius: 0,
                 }}
             >
-                {/* ✅ Navbar */}
+                {/* Header - stays fixed (flexShrink:0) */}
                 <AppBar
-                    position="absolute"
+                    position="static" // use static inside flex container
                     sx={{
-                        top: 0,
-                        left: 0,
-                        right: 0,
                         backgroundColor: '#F54927',
-                        // borderTopLeftRadius: '16px',
-                        // borderTopRightRadius: '16px',
                         boxShadow: 'none',
+                        flexShrink: 0,
                     }}
                 >
-                    <Toolbar>
+                    <Toolbar sx={{ minHeight: 56 }}>
                         <IconButton edge="start" color="inherit" onClick={handleMenu} sx={{ mr: 1 }}>
                             <MenuIcon />
                         </IconButton>
@@ -346,7 +342,7 @@ export default function MobileAuthenticatedLayout({
                             sx={{
                                 color: "white",
                                 "& .MuiSvgIcon-root": { color: "white" },
-                                minWidth: 100,
+                                minWidth: 80,
                                 fontSize: "0.8rem",
                                 borderColor: "rgba(255,255,255,0.3)",
                                 '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
@@ -360,7 +356,7 @@ export default function MobileAuthenticatedLayout({
                     </Toolbar>
                 </AppBar>
 
-                {/* ✅ Dropdown Menu */}
+                {/* Dropdown Menu */}
                 <Menu
                     id="menu-appbar"
                     anchorEl={anchorEl}
@@ -384,45 +380,40 @@ export default function MobileAuthenticatedLayout({
                     </MenuItem>
                 </Menu>
 
-                {/* ✅ Main Content */}
+                {/* Main content: flex:1 and scrollable only this area */}
                 <Box
                     sx={{
-                        flexGrow: 1,
-                        mt: 8,
-                        mb: 7,
+                        flex: '1 1 auto',
                         px: 2,
                         py: 1,
-                        overflowY: 'auto',             
-                        WebkitOverflowScrolling: 'touch', 
-                        scrollbarWidth: 'none',        
-                        '&::-webkit-scrollbar': { display: 'none' }, 
+                        overflowY: 'auto',
+                        WebkitOverflowScrolling: 'touch',
+                        scrollbarWidth: 'none',
+                        '&::-webkit-scrollbar': { display: 'none' },
                     }}
                 >
                     {children}
                 </Box>
 
-                {/* ✅ Footer / Bottom Navigation */}
-                <BottomNavigation
-                    showLabels
-                    value={value}
-                    onChange={handleBottomNavChange}
-                    sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        backgroundColor: '#F54927',
-                        borderTopLeftRadius: '18px',
-                        borderTopRightRadius: '18px',
-                        zIndex: 5,
-                        boxShadow: '0 -2px 8px rgba(0,0,0,0.1)',
-                    }}
-                >
-                    <BottomNavigationAction icon={<Home />} sx={navStyle} />
-                    <BottomNavigationAction icon={<Assignment />} sx={navStyle} />
-                    <BottomNavigationAction icon={<History />} sx={navStyle} />
-                    <BottomNavigationAction icon={<SupervisedUserCircle />} sx={navStyle} />
-                </BottomNavigation>
+                {/* Footer / Bottom Navigation - stays fixed (flexShrink:0) */}
+                <Box sx={{ flexShrink: 0 }}>
+                    <BottomNavigation
+                        showLabels
+                        value={value}
+                        onChange={handleBottomNavChange}
+                        sx={{
+                            backgroundColor: '#F54927',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            boxShadow: '0 -2px 8px rgba(0,0,0,0.06)',
+                        }}
+                    >
+                        <BottomNavigationAction icon={<Home />} sx={navStyle} />
+                        <BottomNavigationAction icon={<Assignment />} sx={navStyle} />
+                        <BottomNavigationAction icon={<History />} sx={navStyle} />
+                        <BottomNavigationAction icon={<SupervisedUserCircle />} sx={navStyle} />
+                    </BottomNavigation>
+                </Box>
             </Box>
         </Box>
     );
