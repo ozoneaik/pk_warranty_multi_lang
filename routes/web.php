@@ -49,6 +49,14 @@ Route::middleware('auth')->group(function () {
         })->name('customer.profile.score');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+
+        Route::get('/info/pdpa', function () {
+            return Inertia::render('Profile/Customer/InfoPDPA');
+        })->name('customer.profile.info.pdpa');
+
+        Route::get('/info/term', function () {
+            return Inertia::render('Profile/Customer/InfoTerm');
+        })->name('customer.profile.info.term');
     });
 
     Route::get('/home', function () {})->name('home');

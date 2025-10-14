@@ -372,7 +372,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                 open={open}
                 onClose={closeDialog}
                 fullWidth
-                maxWidth="sm"
+                maxWidth="xs"
                 scroll="paper"
                 TransitionComponent={Transition}
                 PaperProps={{ sx: { borderRadius: 3 } }}

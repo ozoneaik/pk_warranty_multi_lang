@@ -12,6 +12,7 @@ import backgroundHome from '../../assets/images/backgroundHome.jpg'
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import IconMenuCarousel from "@/Components/IconMenuCarousel";
 
 const bottomBanners = [
     "https://pumpkin.co.th/wp-content/uploads/2025/01/20250113-092158.jpg",
@@ -24,7 +25,9 @@ export default function WarrantyHome() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    const { user } = usePage().props.auth;
+    // const { user } = usePage().props.auth;
+    const { auth, line_avatar } = usePage().props as any;
+    const user = auth.user;
     console.log("userrrrrrr", user);
 
     // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ
@@ -75,8 +78,7 @@ export default function WarrantyHome() {
                     >
                         <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar
-                                src={PumpkinLogo}
-                                sx={{
+                                src={line_avatar || "https://via.placeholder.com/64"} sx={{
                                     bgcolor: "rgba(255,255,255,0.2)",
                                     width: 60, height: 60
                                 }}
@@ -174,9 +176,10 @@ export default function WarrantyHome() {
                             </Card>
                         </Grid>
                     </Grid>
+                    <IconMenuCarousel />
                     <Box
                         sx={{
-                            mt: { xs: 2, sm: 3 },
+                            mt: { sm: 0 },
                             borderRadius: 3,
                             overflow: "visible",
                             boxShadow: 3,
@@ -189,7 +192,6 @@ export default function WarrantyHome() {
                                 <Box
                                     key={idx}
                                     sx={{
-                                        // กล่องกำหนด “ความสูงคงที่” ให้ทุกสไลด์
                                         height: bannerHeight,
                                         borderRadius: 2,
                                         overflow: "hidden",
@@ -204,7 +206,7 @@ export default function WarrantyHome() {
                                         decoding="async"
                                         sx={{
                                             width: "100%",
-                                            height: "100%",      
+                                            height: "100%",
                                             objectFit: "cover",  // ครอปรูปให้พอดี
                                             display: "block",
                                         }}

@@ -418,7 +418,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         setData('store_name', '');
         setStoreList([]);
 
-        // ✅ ตรวจชื่อช่องทางซื้อ ถ้าเป็นใน list ด้านล่างนี้ให้เปิดฟิลด์ Referral Code
         const requireReferral = [
             "ไทวัสดุ",
             "Homepro",
@@ -776,27 +775,28 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                             </FormControl>
                         </Grid>
 
-                        <Grid size={12}>
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                onClick={handleCheckProduct}
-                                disabled={loadingProduct || checking}
-                                sx={{ py: 1.5, borderRadius: 2 }}
-                            >
-                                {loadingProduct ? (
-                                    <>
-                                        <CircularProgress size={20} sx={{ mr: 1 }} />
-                                        กำลังตรวจสอบสินค้า...
-                                    </>
-                                ) : (
-                                    "ตรวจสอบสินค้า"
-                                )}
-                            </Button>
-                        </Grid>
+                        {/* ✅ ปุ่มตรวจสอบสินค้า (จะแสดงเฉพาะตอนที่ยังไม่ได้ตรวจสอบสินค้าเท่านั้น) */}
+                        {!showProduct && !snVerified && (
+                            <Grid size={12}>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    onClick={handleCheckProduct}
+                                    disabled={loadingProduct || checking}
+                                    sx={{ py: 1.5, borderRadius: 2 }}
+                                >
+                                    {loadingProduct ? (
+                                        <>
+                                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                                            กำลังตรวจสอบสินค้า...
+                                        </>
+                                    ) : (
+                                        "ตรวจสอบสินค้า"
+                                    )}
+                                </Button>
+                            </Grid>
+                        )}
 
-                        {/* Product Detail */}
-                        {/* {showProduct && <ProductDetailComponent productDetail={ProductDetail} />} */}
                         {loadingProduct ? (
                             <Box
                                 sx={{
@@ -816,13 +816,15 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         ) : (
                             showProduct && ProductDetail && (
                                 <ProductDetailComponent productDetail={ProductDetail} />
-                            ))}
+                            )
+                        )}
+
+                        {/* ปุ่มตรวจสอบการรับประกัน (ขั้นตอนต่อไป) */}
                         {!snVerified && (
                             <Grid size={12}>
                                 <Button
                                     fullWidth
                                     variant="outlined"
-                                    // disabled={!data.serial_number.trim() || checking}
                                     disabled={!showProduct || checking}
                                     onClick={handleCheckSn}
                                     sx={{ py: 1.5, borderRadius: 2 }}
@@ -842,7 +844,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         {/* Form Fields */}
                         {showForm && (
                             <>
-                                <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 0 }}>
+                                <Grid size={12} sx={{ mt: 0 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: "medium" }}>
                                             {t.Warranty.Form.phone}
@@ -863,7 +865,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             }}
                                             required
                                             disabled={processing}
-                                            // placeholder="เช่น 0812349999"
+                                            placeholder="Example 0812349999"
                                             error={!!errors.phone || ((data.phone ?? '').length > 0 && (data.phone ?? '').length < 10)}
                                             helperText={
                                                 errors.phone
@@ -875,28 +877,28 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             sx={{
                                                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
                                             }}
-                                            slotProps={{
-                                                input: {
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <Typography
-                                                                variant="body2"
-                                                                sx={{
-                                                                    color: "text.secondary",
-                                                                    fontWeight: 500,
-                                                                    mr: 0.5,
-                                                                }}
-                                                            >
-                                                            </Typography>
-                                                        </InputAdornment>
-                                                    ),
-                                                },
-                                            }}
+                                        // slotProps={{
+                                        //     input: {
+                                        //         startAdornment: (
+                                        //             <InputAdornment position="start">
+                                        //                 <Typography
+                                        //                     variant="body2"
+                                        //                     sx={{
+                                        //                         color: "text.secondary",
+                                        //                         fontWeight: 500,
+                                        //                         mr: 0.5,
+                                        //                     }}
+                                        //                 >
+                                        //                 </Typography>
+                                        //             </InputAdornment>
+                                        //         ),
+                                        //     },
+                                        // }}
                                         />
                                     </FormControl>
                                 </Grid>
                                 {showReferralField && (
-                                    <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 0 }}>
+                                    <Grid size={12} sx={{ mt: 0 }}>
                                         <FormControl fullWidth>
                                             <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: "medium" }}>
                                                 {t.Warranty.Form.customer_code_title}
@@ -944,7 +946,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         </FormControl>
                                     </Grid>
                                 )}
-                                <Grid size={{ xs: 12, md: 6 }}>
+                                <Grid size={12}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_from" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                             {t.Warranty.Form.buy_from}
@@ -953,9 +955,10 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             required
                                             labelId="buy-from-select-label"
                                             id="buy_from"
-                                            // value={data.buy_from}
+                                            value={data.buy_from}
                                             variant="outlined"
                                             onChange={(e: SelectChangeEvent) => handleBuyFromChange(e.target.value)}
+
                                             sx={{ borderRadius: 2 }}
                                         >
                                             <MenuItem disabled value={'เลือก'}>
@@ -969,7 +972,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 6 }}>
+                                <Grid size={12}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="store_name" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                             {t.Warranty.Form.store_name}
@@ -1000,45 +1003,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             />
                                         )}
                                     </FormControl>
-                                    {/* <FormControl fullWidth>
-                                        <FormLabel
-                                            htmlFor="store_name"
-                                            required
-                                            sx={{
-                                                mb: 1,
-                                                fontWeight: "medium",
-                                                "& .MuiFormLabel-asterisk": { color: "red" }, // ดอกจันสีแดง
-                                            }}
-                                        >
-                                            {t.Warranty.Form.store_name}
-                                        </FormLabel>
-
-                                        {loadingBuyform ? (
-                                            <Box display="flex" alignItems="center" gap={1} p={2}>
-                                                <CircularProgress size={20} />
-                                                <Typography variant="body2">กำลังโหลดร้านค้า...</Typography>
-                                            </Box>
-                                        ) : (
-                                            <Select
-                                                id="store_name"
-                                                value={data.store_name}
-                                                onChange={(e: SelectChangeEvent) => setData("store_name", e.target.value)}
-                                                sx={{ borderRadius: 2 }}
-                                                displayEmpty
-                                            >
-                                                <MenuItem disabled value="">
-                                                    {t.Warranty.Form.SelectShop}
-                                                </MenuItem>
-                                                {storeList.map((item, index) => (
-                                                    <MenuItem key={index} value={`${item.custname} ${item.branch}`}>
-                                                        {item.custname} {item.branch}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        )}
-                                    </FormControl> */}
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 6 }}>
+                                <Grid size={12}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_date" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                             {t.Warranty.Form.buy_date}

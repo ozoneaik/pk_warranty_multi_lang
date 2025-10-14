@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\SendOtpController;
+use App\Http\Controllers\Warranty\WarrantyFormController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

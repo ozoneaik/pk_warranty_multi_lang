@@ -6,10 +6,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import { ChevronRight, Gavel, Logout, Shield, Edit, Flare } from "@mui/icons-material";
 import dayjs from "dayjs";
 
-
 export default function ScorePage() {
     const { t } = useLanguage();
-    const { user } = usePage().props.auth as any;
+    const { auth, line_avatar, point, joined_at } = usePage().props as any;
+    const user = auth.user;
+    console.log("user", user);
+    // const { user } = usePage().props.auth as any;
     return (
         <MobileAuthenticatedLayout title={t.Score.title}>
             <Head title={t.Score.title} />
@@ -23,29 +25,29 @@ export default function ScorePage() {
                     px: { xs: 1, sm: 2 }
                 }}
             >
-                <Container 
-                    maxWidth="md" 
-                    sx={{ 
-                        py: { xs: 2, sm: 3 }, 
-                        mt: { xs: 8, sm: 10 }, 
-                        mb: { xs: 8, sm: 10 }, 
-                        borderRadius: 3, 
-                        background: "#fafafa", 
+                <Container
+                    maxWidth="md"
+                    sx={{
+                        py: { xs: 2, sm: 3 },
+                        mt: { xs: 8, sm: 10 },
+                        mb: { xs: 8, sm: 10 },
+                        borderRadius: 3,
+                        background: "#fafafa",
                         padding: { xs: 2, sm: 3, md: 4 }
                     }}
                 >
                     {/* User Profile Section */}
-                    <Stack 
-                        direction="row" 
-                        alignItems="center" 
+                    <Stack
+                        direction="row"
+                        alignItems="center"
                         spacing={{ xs: 1.5, sm: 2 }}
                     >
                         <Avatar
-                            src={user.avatar || "https://via.placeholder.com/64"}
-                            sx={{ 
-                                width: { xs: 56, sm: 64, md: 72 }, 
-                                height: { xs: 56, sm: 64, md: 72 }, 
-                                border: "2px solid #F54927" 
+                            src={line_avatar || "https://via.placeholder.com/64"}
+                            sx={{
+                                width: { xs: 56, sm: 64, md: 72 },
+                                height: { xs: 56, sm: 64, md: 72 },
+                                // border: "2px solid #F54927"
                             }}
                         />
                         <Box flex={1}>
@@ -54,9 +56,9 @@ export default function ScorePage() {
                                 gap={1}
                                 alignItems="center"
                             >
-                                <Typography 
-                                    fontWeight={700} 
-                                    fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.3rem" }} 
+                                <Typography
+                                    fontWeight={700}
+                                    fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.3rem" }}
                                     ml={1}
                                 >
                                     {user.name}
@@ -66,13 +68,13 @@ export default function ScorePage() {
                                 </Link>
                             </Box>
 
-                            <Typography 
-                                color="text.secondary" 
-                                fontSize={{ xs: "0.9rem", sm: "1rem" }} 
-                                ml={1} 
+                            <Typography
+                                color="text.secondary"
+                                fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                                ml={1}
                                 fontWeight={700}
                             >
-                                999 คะแนน
+                                {point ?? 0} P
                             </Typography>
                         </Box>
                     </Stack>
@@ -94,26 +96,28 @@ export default function ScorePage() {
                                 sx={{ pt: { xs: 1, sm: 2 }, pb: { xs: 1, sm: 2 } }}
                             >
                                 <Box>
-                                    <Typography 
-                                        fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.4rem" }} 
+                                    <Typography
+                                        fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.4rem" }}
                                         fontWeight={700}
                                     >
-                                        999 P
+                                        {point ?? 0} P
                                     </Typography>
-                                    <Typography 
-                                        fontSize={{ xs: "0.7rem", sm: "0.8rem" }} 
+                                    <Typography
+                                        fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
                                         color="text.secondary"
                                     >
-                                        Member Since : {dayjs(user.created_at).format("D MMM YYYY")}
+                                        {/* Member Since : {dayjs(user.created_at).format("D MMM YYYY")} */}
+                                        Member Since : {dayjs(joined_at).format("D MMM YYYY")}
+
                                     </Typography>
                                 </Box>
                                 <Box
                                     component="img"
                                     src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
                                     alt="Pumpkin"
-                                    sx={{ 
-                                        height: { xs: 30, sm: 35, md: 40 }, 
-                                        opacity: 0.8 
+                                    sx={{
+                                        height: { xs: 30, sm: 35, md: 40 },
+                                        opacity: 0.8
                                     }}
                                 />
                             </Stack>
@@ -121,12 +125,12 @@ export default function ScorePage() {
                     </Card>
 
                     {/* Coupons & Privileges Cards */}
-                    <Stack 
-                        direction="row" 
-                        spacing={2} 
+                    {/* <Stack
+                        direction="row"
+                        spacing={2}
                         sx={{ mt: 2 }}
                     >
-                        {/* คูปอง */}
+                        
                         <Card
                             sx={{
                                 flex: 1,
@@ -153,8 +157,8 @@ export default function ScorePage() {
                                 >
                                     0
                                 </Typography>
-                                <Typography 
-                                    fontSize={{ xs: "0.9rem", sm: "1rem" }} 
+                                <Typography
+                                    fontSize={{ xs: "0.9rem", sm: "1rem" }}
                                     sx={{ pb: 0.3 }}
                                 >
                                     คูปอง
@@ -170,11 +174,11 @@ export default function ScorePage() {
                                 gap={0.3}
                                 fontWeight={800}
                             >
-                                <button 
+                                <button
                                     onClick={() => alert("อยู่ระหว่างการพัฒนา")}
-                                    style={{ 
-                                        background: "none", 
-                                        border: "none", 
+                                    style={{
+                                        background: "none",
+                                        border: "none",
                                         cursor: "pointer",
                                         display: "flex",
                                         alignItems: "center",
@@ -187,7 +191,7 @@ export default function ScorePage() {
                             </Typography>
                         </Card>
 
-                        {/* สิทธิพิเศษ */}
+                    
                         <Card
                             sx={{
                                 flex: 1,
@@ -214,8 +218,8 @@ export default function ScorePage() {
                                 >
                                     0
                                 </Typography>
-                                <Typography 
-                                    fontSize={{ xs: "0.9rem", sm: "1rem" }} 
+                                <Typography
+                                    fontSize={{ xs: "0.9rem", sm: "1rem" }}
                                     sx={{ pb: 0.3 }}
                                 >
                                     สิทธิพิเศษ
@@ -231,11 +235,11 @@ export default function ScorePage() {
                                 paddingLeft={2}
                                 fontWeight={800}
                             >
-                                <button 
+                                <button
                                     onClick={() => alert("อยู่ระหว่างการพัฒนา")}
-                                    style={{ 
-                                        background: "none", 
-                                        border: "none", 
+                                    style={{
+                                        background: "none",
+                                        border: "none",
                                         cursor: "pointer",
                                         display: "flex",
                                         alignItems: "center",
@@ -247,12 +251,12 @@ export default function ScorePage() {
                                 </button>
                             </Typography>
                         </Card>
-                    </Stack>
+                    </Stack> */}
 
                     {/* Settings Section */}
                     <Box sx={{ mt: { xs: 3, sm: 4 } }}>
-                        <Typography 
-                            fontWeight={700} 
+                        <Typography
+                            fontWeight={700}
                             sx={{ mb: 1 }}
                             fontSize={{ xs: "0.95rem", sm: "1rem" }}
                         >
@@ -265,38 +269,37 @@ export default function ScorePage() {
                             }}
                         >
                             <List disablePadding>
-                                <ListItemButton 
-                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
+                                <ListItemButton
+                                    onClick={() => router.get(route('customer.profile.info.pdpa'))}
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
                                         <Shield sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
-                                    <ListItemText 
-                                        primary="PDPA" 
-                                        primaryTypographyProps={{ 
-                                            fontSize: { xs: "0.9rem", sm: "1rem" } 
+                                    <ListItemText
+                                        primary="PDPA"
+                                        primaryTypographyProps={{
+                                            fontSize: { xs: "0.9rem", sm: "1rem" }
                                         }}
                                     />
                                 </ListItemButton>
                                 <Divider />
-                                <ListItemButton 
-                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
+                                <ListItemButton
+                                    onClick={() => router.get(route('customer.profile.info.term'))}
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
                                         <Gavel sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
-                                    <ListItemText 
-                                        primary="Term And Condition" 
-                                        primaryTypographyProps={{ 
-                                            fontSize: { xs: "0.9rem", sm: "1rem" } 
+                                    <ListItemText
+                                        primary="Term And Condition"
+                                        primaryTypographyProps={{
+                                            fontSize: { xs: "0.9rem", sm: "1rem" }
                                         }}
                                     />
                                 </ListItemButton>
                                 <Divider />
-
-                                <ListItemButton 
+                                <ListItemButton
                                     onClick={() => router.post(route('logout'))}
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
@@ -305,8 +308,8 @@ export default function ScorePage() {
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="ออกจากระบบ"
-                                        primaryTypographyProps={{ 
-                                            color: "#F54927", 
+                                        primaryTypographyProps={{
+                                            color: "#F54927",
                                             fontWeight: 600,
                                             fontSize: { xs: "0.9rem", sm: "1rem" }
                                         }}

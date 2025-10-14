@@ -252,6 +252,19 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
             });
             setTaxAmphures(amphures);
             setTaxTambons(tambons);
+        } else {
+            setData({
+                ...data,
+                tax_name: "",
+                tax_tel: "",
+                tax_address: "",
+                tax_province: "",
+                tax_district: "",
+                tax_subdistrict: "",
+                tax_zipcode: "",
+            });
+            setTaxAmphures([]);
+            setTaxTambons([]);
         }
     };
 
@@ -286,7 +299,6 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
 
     return (
         <section className={className}>
-
             <Button
                 variant="contained"
                 color="primary"
@@ -298,7 +310,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     px: 1.5,
                     py: 0.5,
                     fontSize: 13,
-                    textTransform: "none", // ✅ ไม่ให้เป็นตัวพิมพ์ใหญ่ทั้งหมด
+                    textTransform: "none", 
                 }}
                 onClick={() => router.get(route("customer.profile.welcome"))}
             >
@@ -351,10 +363,9 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             onChange={(e) => setData('cust_gender', e.target.value)}
                             required
                         >
-                            {/* <option value=""> เลือกเพศ </option> */}
+                            <option value=""> {'--- กรุณาเลือกเพศ ---'} </option>
                             <option value="ชาย">{t.Customer.form.male}</option>
                             <option value="หญิง">{t.Customer.form.female}</option>
-                            <option value="อื่น ๆ">{t.Customer.form.other}</option>
                         </select>
 
                         <InputError className="mt-2" message={errors.cust_gender} />

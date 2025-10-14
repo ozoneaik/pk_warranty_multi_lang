@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\MasterWaaranty\TblHistoryProd;
+use App\Observers\HistoryProdObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,5 +30,10 @@ class AppServiceProvider extends ServiceProvider
             $event->extendSocialite('google', \SocialiteProviders\Google\Provider::class);
             $event->extendSocialite('facebook', \SocialiteProviders\Facebook\Provider::class);
         });
+
+        Inertia::share([
+            'line_avatar' => fn() => session('line_avatar'),
+            'line_email' => fn() => session('line_email'),
+        ]);
     }
 }
