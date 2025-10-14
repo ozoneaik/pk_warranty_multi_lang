@@ -322,8 +322,8 @@ export default function MobileAuthenticatedLayout({
                         left: 0,
                         right: 0,
                         backgroundColor: '#F54927',
-                        borderTopLeftRadius: '16px',
-                        borderTopRightRadius: '16px',
+                        // borderTopLeftRadius: '16px',
+                        // borderTopRightRadius: '16px',
                         boxShadow: 'none',
                     }}
                 >

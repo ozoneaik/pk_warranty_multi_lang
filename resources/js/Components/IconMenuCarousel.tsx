@@ -45,7 +45,7 @@ export default function IconMenuCarousel() {
         dots: false,
         infinite: false,
         speed: 400,
-        slidesToShow: 4, 
+        slidesToShow: 3, 
         slidesToScroll: 1,
         swipeToSlide: true,
         arrows: false,
@@ -60,7 +60,7 @@ export default function IconMenuCarousel() {
     }
 
     return (
-        <Box sx={{ mt: 1, mb: 0, px: 0.5 }}>
+        <Box sx={{ mt: 1, mb: 0, px: 1 }}>
             <Slider {...sliderSettings}>
                 {menus.map((item) => {
                     const link = item.link.includes("warranty_check")
@@ -68,7 +68,7 @@ export default function IconMenuCarousel() {
                         : item.link;
 
                     return (
-                        <Box key={item.id} px={0.5}> {/* ✅ ลดระยะห่างซ้ายขวา */}
+                        <Box key={item.id} px={1}> {/* ✅ ลดระยะห่างซ้ายขวา */}
                             <a
                                 href={link}
                                 target="_blank"
@@ -81,7 +81,7 @@ export default function IconMenuCarousel() {
                                         cursor: "pointer",
                                         textAlign: "center",
                                         boxShadow: "none",
-                                        py: 0.5, // ✅ ลดความสูงภายในการ์ด
+                                        py: 0.5, 
                                         borderRadius: 2,
                                         transition: "all 0.2s ease",
                                         "&:hover": { transform: "translateY(-1px)" },
@@ -89,11 +89,11 @@ export default function IconMenuCarousel() {
                                 >
                                     <CardContent
                                         sx={{
-                                            py: 1, // ✅ ลด padding ภายใน
+                                            py: 1,
                                             display: "flex",
                                             flexDirection: "column",
                                             alignItems: "center",
-                                            gap: 0.6, // ✅ ระยะ icon กับ title แคบลง
+                                            gap: 0.6, 
                                         }}
                                     >
                                         <Avatar
@@ -101,7 +101,7 @@ export default function IconMenuCarousel() {
                                             alt={item.title}
                                             sx={{
                                                 bgcolor: item.color || "#F54927",
-                                                width: 48, // ✅ ขนาด icon เล็กลง
+                                                width: 48, 
                                                 height: 48,
                                             }}
                                         />
@@ -113,8 +113,8 @@ export default function IconMenuCarousel() {
                                                 whiteSpace: "nowrap",
                                                 overflow: "hidden",
                                                 textOverflow: "ellipsis",
-                                                fontSize: "0.8rem", // ✅ ขนาดตัวอักษรเล็กลง
-                                                maxWidth: 80, // ✅ จำกัดความกว้างข้อความ
+                                                fontSize: "0.8rem", 
+                                                maxWidth: 80,
                                             }}
                                         >
                                             {item.title}

@@ -113,6 +113,8 @@ export default function WarrantyHome() {
                                 elevation={2}
                                 sx={{
                                     cursor: "pointer",
+                                    height: "100%", // ✅ ความสูงเต็ม grid
+                                    display: "flex", // ✅ บังคับให้การ์ดขยายเท่ากัน
                                     transition: "all 0.3s ease",
                                     "&:hover": {
                                         transform: "translateY(-4px)",
@@ -121,7 +123,17 @@ export default function WarrantyHome() {
                                 }}
                                 onClick={() => router.get(route("warranty.form"))}
                             >
-                                <CardContent sx={{ textAlign: "center", py: 3 }}>
+                                <CardContent
+                                    sx={{
+                                        textAlign: "center",
+                                        py: 3,
+                                        flexGrow: 1, // ✅ ทำให้ card content ขยายเต็มพื้นที่
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
                                     <Avatar
                                         sx={{
                                             bgcolor: "#4caf50", mx: "auto",
@@ -146,6 +158,8 @@ export default function WarrantyHome() {
                                 elevation={2}
                                 sx={{
                                     cursor: "pointer",
+                                    height: "100%", // ✅ ความสูงเท่ากัน
+                                    display: "flex",
                                     transition: "all 0.3s ease",
                                     "&:hover": {
                                         transform: "translateY(-4px)",
@@ -154,7 +168,17 @@ export default function WarrantyHome() {
                                 }}
                                 onClick={() => navigateTo("/warranty/history")}
                             >
-                                <CardContent sx={{ textAlign: "center", py: 3 }}>
+                                <CardContent
+                                    sx={{
+                                        textAlign: "center",
+                                        py: 3,
+                                        flexGrow: 1,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
                                     <Avatar
                                         sx={{
                                             bgcolor: "#2196f3",
