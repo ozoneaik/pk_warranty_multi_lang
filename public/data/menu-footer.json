@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "label": "Home",
+        "route": "warranty.home",
+        "icon": "Home"
+    },
+    {
+        "id": 2,
+        "label": "Form",
+        "route": "warranty.form",
+        "icon": "Assignment"
+    },
+    {
+        "id": 3,
+        "label": "History",
+        "route": "warranty.history",
+        "icon": "History"
+    },
+    {
+        "id": 4,
+        "label": "Profile",
+        "route": "customer.profile.welcome",
+        "icon": "SupervisedUserCircle"
+    }
+]

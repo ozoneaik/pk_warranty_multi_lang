@@ -45,7 +45,7 @@ export default function IconMenuCarousel() {
         dots: false,
         infinite: false,
         speed: 400,
-        slidesToShow: 3, 
+        slidesToShow: 4,
         slidesToScroll: 1,
         swipeToSlide: true,
         arrows: false,
@@ -60,7 +60,7 @@ export default function IconMenuCarousel() {
     }
 
     return (
-        <Box sx={{ mt: 1, mb: 0, px: 1 }}>
+        <Box sx={{ mt: 1, mb: 0, px: 0 }}>
             <Slider {...sliderSettings}>
                 {menus.map((item) => {
                     const link = item.link.includes("warranty_check")
@@ -68,7 +68,7 @@ export default function IconMenuCarousel() {
                         : item.link;
 
                     return (
-                        <Box key={item.id} px={1}> {/* ✅ ลดระยะห่างซ้ายขวา */}
+                        <Box key={item.id} px={0}> {/* ✅ ลดระยะห่างซ้ายขวา */}
                             <a
                                 href={link}
                                 target="_blank"
@@ -81,7 +81,7 @@ export default function IconMenuCarousel() {
                                         cursor: "pointer",
                                         textAlign: "center",
                                         boxShadow: "none",
-                                        py: 0.5, 
+                                        py: 0,
                                         borderRadius: 2,
                                         transition: "all 0.2s ease",
                                         "&:hover": { transform: "translateY(-1px)" },
@@ -89,11 +89,12 @@ export default function IconMenuCarousel() {
                                 >
                                     <CardContent
                                         sx={{
-                                            py: 1,
+                                            py: 1.6,
                                             display: "flex",
                                             flexDirection: "column",
                                             alignItems: "center",
-                                            gap: 0.6, 
+                                            justifyContent: "flex-start",
+                                            minHeight: 100,
                                         }}
                                     >
                                         <Avatar
@@ -101,8 +102,9 @@ export default function IconMenuCarousel() {
                                             alt={item.title}
                                             sx={{
                                                 bgcolor: item.color || "#F54927",
-                                                width: 48, 
-                                                height: 48,
+                                                width: 42,
+                                                height: 42,
+                                                mb: 1,
                                             }}
                                         />
                                         <Typography
@@ -110,11 +112,14 @@ export default function IconMenuCarousel() {
                                             fontWeight="600"
                                             textAlign="center"
                                             sx={{
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                                fontSize: "0.8rem", 
+                                                whiteSpace: "normal", // ✅ อนุญาตให้ขึ้นบรรทัด
+                                                overflow: "hidden", // ✅ กันล้น
+                                                display: "-webkit-box", 
+                                                WebkitLineClamp: 2, // ✅ จำกัดแค่ 2 บรรทัด
+                                                WebkitBoxOrient: "vertical", // ✅ ให้ตัดแนวตั้ง
+                                                fontSize: "0.73rem",
                                                 maxWidth: 80,
+                                                lineHeight: 1.2,
                                             }}
                                         >
                                             {item.title}

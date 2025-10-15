@@ -231,6 +231,9 @@ import {
 } from '@mui/icons-material';
 import { router, usePage } from '@inertiajs/react';
 import { useLanguage } from '@/context/LanguageContext';
+import PumpkinLogo from '../assets/logo/PumpkinLogo.png';
+import * as MuiIcons from '@mui/icons-material';
+import FooterCarousel from '@/Components/FooterCarousel';
 
 type Language = "en" | "th" | "lao" | "myanmar";
 
@@ -246,6 +249,17 @@ export default function MobileAuthenticatedLayout({
 
     const { t, setLanguage, language } = useLanguage();
     const { url } = usePage();
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            setScrolled(scrollTop > 5);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const getSelectedIndex = () => {
         if (url.includes('/warranty/home')) return 0;
@@ -264,16 +278,6 @@ export default function MobileAuthenticatedLayout({
     const handleClose = () => setAnchorEl(null);
     const handleLogout = () => router.post(route('logout'));
     const handleChangeLang = (value: string) => setLanguage(value as Language);
-
-    const handleBottomNavChange = (e: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-        switch (newValue) {
-            case 0: router.get(route('warranty.home')); break;
-            case 1: router.get(route('warranty.form')); break;
-            case 2: router.get(route('warranty.history')); break;
-            case 3: router.get(route('customer.profile.welcome')); break;
-        }
-    };
 
     const navStyle = {
         color: "rgba(255,255,255,0.9)",
@@ -304,17 +308,17 @@ export default function MobileAuthenticatedLayout({
                 sx={{
                     position: 'relative',
                     width: '100%',
-                    maxWidth: 500, // ขนาดสูงสุดเหมือนมือถือ
+                    maxWidth: 500,
                     height: '100vh',
                     backgroundColor: '#fff',
                     boxShadow: {
-                        xs: 'none', // ไม่ใส่เงาถ้าเป็นมือถือจริง
-                        md: '0 0 20px rgba(0,0,0,0.15)', // เงาเฉพาะบน PC
+                        xs: 'none',
+                        md: '0 0 20px rgba(0,0,0,0.15)',
                     },
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden',
-                    borderRadius: { xs: 0, md: '25px' }, // มีมุมโค้งเฉพาะตอนอยู่ PC
+                    borderRadius: { xs: 0, md: '25px' },
                 }}
             >
                 {/* ✅ Navbar */}
@@ -322,32 +326,52 @@ export default function MobileAuthenticatedLayout({
                     position="fixed"
                     sx={{
                         top: 0,
-                        backgroundColor: '#F54927',
+                        backgroundColor: 'transparent',
                         boxShadow: 'none',
                         zIndex: (theme) => theme.zIndex.drawer + 1,
+                        backdropFilter: 'blur(0px)',
                         width: '100%',
                         maxWidth: 500,
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        // borderTopLeftRadius: { md: '25px' },
-                        // borderTopRightRadius: { md: '25px' },
                     }}
                 >
                     <Toolbar>
-                        <IconButton edge="start" color="inherit" onClick={handleMenu} sx={{ mr: 1 }}>
+                        <Box
+                            component="img"
+                            src={PumpkinLogo}
+                            alt="Pumpkin Logo"
+                            sx={{
+                                height: 35,
+                                mr: 2,
+                                ml: -1,
+                            }}
+                            onClick={() => router.get('/warranty/home')}
+                        />
+
+                        <IconButton edge="start" onClick={handleMenu} sx={{ mr: 1, color: '#000' }}>
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600, fontSize: '1rem' }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                flexGrow: 1,
+                                fontWeight: 600,
+                                fontSize: '1rem',
+                                color: '#000',
+                            }}
+                        >
                             {title}
                         </Typography>
+
                         <Select
                             value={language}
                             onChange={(e) => handleChangeLang(e.target.value)}
                             size="small"
                             variant="outlined"
                             sx={{
-                                color: "white",
-                                "& .MuiSvgIcon-root": { color: "white" },
+                                color: '#000',
+                                '& .MuiSvgIcon-root': { color: '#000' },
                                 minWidth: 80,
                                 border: 'none',
                                 '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
@@ -360,6 +384,7 @@ export default function MobileAuthenticatedLayout({
                         </Select>
                     </Toolbar>
                 </AppBar>
+
 
                 {/* ✅ Dropdown Menu */}
                 <Menu
@@ -384,50 +409,23 @@ export default function MobileAuthenticatedLayout({
                         <Typography>{t.homePage.logout}</Typography>
                     </MenuItem>
                 </Menu>
-
-                {/* ✅ ส่วนเนื้อหา (scroll ได้) */}
-                {/* ✅ ส่วนเนื้อหา (scroll ได้แต่ไม่แสดง scrollbar) */}
                 <Box
                     sx={{
                         flexGrow: 1,
                         mt: '64px',
                         mb: '65px',
                         overflowY: 'auto',
-                        WebkitOverflowScrolling: 'touch', // ทำให้เลื่อนนุ่มในมือถือ
+                        WebkitOverflowScrolling: 'touch',
                         px: 2,
                         py: 1,
-                        scrollbarWidth: 'none',            // 🔹 ซ่อน scrollbar (Firefox)
-                        msOverflowStyle: 'none',           // 🔹 สำหรับ IE
-                        '&::-webkit-scrollbar': { display: 'none' }, // 🔹 Chrome / Safari / Edge
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                        '&::-webkit-scrollbar': { display: 'none' },
                     }}
                 >
                     {children}
                 </Box>
-
-                {/* ✅ Footer ติดขอบล่างตลอด */}
-                <BottomNavigation
-                    showLabels
-                    value={value}
-                    onChange={handleBottomNavChange}
-                    sx={{
-                        position: 'fixed',
-                        bottom: 0,
-                        backgroundColor: '#F54927',
-                        width: '100%',
-                        maxWidth: 500,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        borderTopLeftRadius: { md: '25px' },
-                        borderTopRightRadius: { md: '25px' },
-                        boxShadow: '0 -3px 8px rgba(0,0,0,0.1)',
-                        zIndex: (theme) => theme.zIndex.drawer + 1,
-                    }}
-                >
-                    <BottomNavigationAction icon={<Home />} sx={navStyle} />
-                    <BottomNavigationAction icon={<Assignment />} sx={navStyle} />
-                    <BottomNavigationAction icon={<History />} sx={navStyle} />
-                    <BottomNavigationAction icon={<SupervisedUserCircle />} sx={navStyle} />
-                </BottomNavigation>
+                <FooterCarousel />
             </Box>
         </Box>
     );

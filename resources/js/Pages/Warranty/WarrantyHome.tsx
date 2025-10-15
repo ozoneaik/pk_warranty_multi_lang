@@ -208,7 +208,8 @@ export default function WarrantyHome() {
                             overflow: "visible",
                             boxShadow: 3,
                             position: "relative",
-                            backgroundColor: "black"
+                            height: bannerHeight,
+                            width: "100%",
                         }}
                     >
                         <Slider {...bannerSettings}>
@@ -217,7 +218,7 @@ export default function WarrantyHome() {
                                     key={idx}
                                     sx={{
                                         height: bannerHeight,
-                                        borderRadius: 2,
+                                        // borderRadius: 2,
                                         overflow: "hidden",
                                         position: "relative",
                                     }}
@@ -231,7 +232,7 @@ export default function WarrantyHome() {
                                         sx={{
                                             width: "100%",
                                             height: "100%",
-                                            objectFit: "cover",  // ครอปรูปให้พอดี
+                                            objectFit: "cover",  
                                             display: "block",
                                         }}
                                     />

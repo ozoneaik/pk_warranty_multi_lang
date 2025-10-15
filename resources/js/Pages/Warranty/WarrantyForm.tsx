@@ -73,7 +73,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
     const [showReferralField, setShowReferralField] = useState(false);
 
-    // Cleanup debounce on unmount
     useEffect(() => {
         return () => {
             if (debounceRef.current) {
@@ -318,7 +317,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
     const handleCheckSn = async () => {
         if (!data.serial_number.trim() && !data.model_code.trim()) {
-            alert('กรุณากรอก Serial Number หรือ Model Code อย่างน้อยหนึ่งอย่าง');
+            alert('กรุณากรอก Serial Number หรือ Sku Code อย่างน้อยหนึ่งอย่าง');
             return;
         }
 
