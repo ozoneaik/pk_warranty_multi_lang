@@ -743,7 +743,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 setSnVerified(false);
                                             }}
                                         >
-                                            {t.Warranty.Form.ChangSerial}
+                                            {t.Warranty.Form.ChangeSerial}
                                         </Button>
                                     )}
                                 </Stack>
