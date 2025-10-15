@@ -8,7 +8,8 @@ import dayjs from "dayjs";
 
 export default function ScorePage() {
     const { t } = useLanguage();
-    const { auth, line_avatar, point, joined_at } = usePage().props as any;
+    const { auth, line_avatar, point, joined_at} = usePage().props as any;
+    console.log("score",point);
     const user = auth.user;
     console.log("user", user);
     // const { user } = usePage().props.auth as any;

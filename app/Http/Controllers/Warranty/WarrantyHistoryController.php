@@ -249,12 +249,9 @@ class WarrantyHistoryController extends Controller
             $skuset = $json['skuset'] ?? [];
 
             $asset = null;
-
-            // กรณี assets เป็น array (index 0,1,2,...)
             if (is_array($assets) && array_is_list($assets)) {
                 $asset = $assets[0] ?? null;
             }
-            // กรณี assets เป็น associative (key ตาม skuset)
             elseif (is_array($assets)) {
                 if (is_array($skuset) && !empty($skuset)) {
                     $firstKey = $skuset[0];

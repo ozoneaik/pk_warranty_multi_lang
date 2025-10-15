@@ -101,6 +101,7 @@
             "Warranty": {
                 "isTrue": "Under Warranty",
                 "isFalse": "Out of Warranty",
+                "isChecking": "Under review",
                 "NotFound": "Warranty expiration date not found",
                 "expired": "Warranty Expired",
                 "dayWaranty": "Expiration Date",

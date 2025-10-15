@@ -39,14 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::prefix('customer-profile')->group(function () {
-        Route::get('/', function () {
-            return Inertia::render('Profile/Customer/WelComeProFile', [
-                'title' => 'โปรไฟล์ของฉัน',
-            ]);
-        })->name('customer.profile.welcome');
-        Route::get('/customer/profile/score', function () {
-            return Inertia::render('Profile/Customer/Score');
-        })->name('customer.profile.score');
+        Route::get('/', [CustomerProfileController::class, 'welcome'])->name('customer.profile.welcome');
+        Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 

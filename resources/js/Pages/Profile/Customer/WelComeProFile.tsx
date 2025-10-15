@@ -7,11 +7,12 @@ import { Edit, Star, ArrowBack } from "@mui/icons-material";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import backgroundHome from "@/assets/images/backgroundHome.jpg";
+import { WorkspacePremium } from "@mui/icons-material";
 
 export default function WelComeProFile() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    const { auth, line_avatar } = usePage().props as any;
+    const { auth, line_avatar, point } = usePage().props as any;
     const user = auth.user;
     const { t } = useLanguage();
 
@@ -56,18 +57,32 @@ export default function WelComeProFile() {
                                 height: 60,
                             }}
                         />
-                        <Box flexGrow={1}>
+                        <Box
+                            sx={{
+                                // display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                width: "100%",
+                            }}
+                        >
                             <Typography fontWeight="bold">
                                 {t.ProfileWelcome.hello}{" "}
                                 <Box component="span" sx={{ color: "#F54927" }}>
                                     {user.name}
                                 </Box>
                             </Typography>
+                            <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
+                                <WorkspacePremium sx={{ color: "#F5B301" }} />
+                                <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
+                                    {point ?? 0} คะแนน
+                                </Typography>
+                            </Box>
                         </Box>
                         <Edit
                             sx={{ color: "#F54927", cursor: "pointer" }}
                             onClick={() => router.get(route("customer.profile.edit"))}
                         />
+
                     </Stack>
                 </Paper>
             </Box>

@@ -343,13 +343,13 @@ export default function MobileAuthenticatedLayout({
                             alt="Pumpkin Logo"
                             sx={{
                                 height: 35,
-                                mr: 2,
+                                mr: 1.5,
                                 ml: -1,
                             }}
                             onClick={() => router.get('/warranty/home')}
                         />
 
-                        <IconButton edge="start" onClick={handleMenu} sx={{ mr: 1, color: '#000' }}>
+                        <IconButton edge="start" onClick={handleMenu} sx={{ mr: -0.5, color: '#000' }}>
                             <MenuIcon />
                         </IconButton>
                         <Typography
@@ -363,7 +363,6 @@ export default function MobileAuthenticatedLayout({
                         >
                             {title}
                         </Typography>
-
                         <Select
                             value={language}
                             onChange={(e) => handleChangeLang(e.target.value)}

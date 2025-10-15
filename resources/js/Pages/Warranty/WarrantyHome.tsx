@@ -3,7 +3,7 @@ import {
     Box, Card, CardContent, Grid, Typography, Stack,
     Avatar, Paper, Container, useTheme, useMediaQuery
 } from "@mui/material";
-import { Assignment, History, Edit } from "@mui/icons-material";
+import { Assignment, History, Edit, WorkspacePremium } from "@mui/icons-material";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
@@ -26,7 +26,7 @@ export default function WarrantyHome() {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     // const { user } = usePage().props.auth;
-    const { auth, line_avatar } = usePage().props as any;
+    const { auth, line_avatar, point } = usePage().props as any;
     const user = auth.user;
     console.log("userrrrrrr", user);
 
@@ -83,7 +83,15 @@ export default function WarrantyHome() {
                                     width: 60, height: 60
                                 }}
                             />
-                            <Box display='flex' justifyContent='space-between' alignItems='center'>
+
+                            <Box
+                                sx={{
+                                    // display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    width: "100%",
+                                }}
+                            >
                                 <Typography fontWeight="bold">
                                     {/* สวัสดีคุณ {" "} */}
                                     {t.homePage.menu_list.welcome + " "}
@@ -91,10 +99,16 @@ export default function WarrantyHome() {
                                         {user.name}
                                     </Box>
                                 </Typography>
-                                <Link href={route('customer.profile.welcome')}>
-                                    <Edit />
-                                </Link>
+                                <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
+                                    <WorkspacePremium sx={{ color: "#F5B301" }} />
+                                    <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
+                                        {point ?? 0} คะแนน
+                                    </Typography>
+                                </Box>
                             </Box>
+                            <Link href={route('customer.profile.welcome')}>
+                                <Edit />
+                            </Link>
                         </Stack>
                     </Paper>
                 </Box>
@@ -232,7 +246,7 @@ export default function WarrantyHome() {
                                         sx={{
                                             width: "100%",
                                             height: "100%",
-                                            objectFit: "cover",  
+                                            objectFit: "cover",
                                             display: "block",
                                         }}
                                     />
