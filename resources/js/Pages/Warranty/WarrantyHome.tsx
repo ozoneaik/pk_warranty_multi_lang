@@ -7,7 +7,10 @@ import { Assignment, History, Edit, WorkspacePremium } from "@mui/icons-material
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
-import backgroundHome from '../../assets/images/backgroundHome.jpg'
+import backgroundHome from '../../assets/images/bigBanner_20251016-161220.jpg'
+import banner1 from '../../assets/images/banner1_20251016-161139.jpg'
+import banner2 from '../../assets/images/banner2_20251016-161200.jpg'
+import banner3 from '../../assets/images/banner3_20251016-161210.jpg'
 
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -15,9 +18,9 @@ import "slick-carousel/slick/slick-theme.css";
 import IconMenuCarousel from "@/Components/IconMenuCarousel";
 
 const bottomBanners = [
-    "https://pumpkin.co.th/wp-content/uploads/2025/01/20250113-092158.jpg",
-    "https://pumpkin.co.th/wp-content/uploads/2023/01/1920x752px-product-group.jpg",
-    "https://pumpkin.co.th/wp-content/uploads/2023/05/NEW-CORDLESS-SERIES-1530x630px.jpg"
+    banner1,
+    banner2,
+    banner3
 ];
 const bannerHeight = { xs: 180, sm: 220, md: 260 };
 export default function WarrantyHome() {
@@ -63,7 +66,7 @@ export default function WarrantyHome() {
                             width: "100%", height: "100%", objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectPosition: "top", maxHeight: "350px"
+                            objectPosition: "top", maxHeight: "400px"
                         }}
                     />
 
@@ -102,7 +105,7 @@ export default function WarrantyHome() {
                                 <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
                                     <WorkspacePremium sx={{ color: "#F5B301" }} />
                                     <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
-                                        {point ?? 0} คะแนน
+                                        {point ?? 0} P
                                     </Typography>
                                 </Box>
                             </Box>

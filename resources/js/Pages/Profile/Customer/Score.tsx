@@ -8,8 +8,8 @@ import dayjs from "dayjs";
 
 export default function ScorePage() {
     const { t } = useLanguage();
-    const { auth, line_avatar, point, joined_at} = usePage().props as any;
-    console.log("score",point);
+    const { auth, line_avatar, point, joined_at } = usePage().props as any;
+    console.log("score", point);
     const user = auth.user;
     console.log("user", user);
     // const { user } = usePage().props.auth as any;
@@ -19,44 +19,36 @@ export default function ScorePage() {
             <Box
                 sx={{
                     display: "flex",
-                    justifyContent: "center",
-                    pt: { xs: 2, sm: 3 },
-                    marginTop: 0,
+                    flexDirection: "column",
                     minHeight: "100vh",
-                    px: { xs: 1, sm: 2 }
+                    bgcolor: "#fafafa",
                 }}
             >
                 <Container
-                    maxWidth="md"
+                    maxWidth="sm"
                     sx={{
-                        py: { xs: 2, sm: 3 },
-                        mt: { xs: 8, sm: 10 },
-                        mb: { xs: 8, sm: 10 },
+                        flexGrow: 1,
+                        py: { xs: 1, sm: 1 },
+                        mt: { xs: 0, sm: 1 },
                         borderRadius: 3,
-                        background: "#fafafa",
-                        padding: { xs: 2, sm: 3, md: 4 }
+                        px: { xs: 1, sm: 1 },
                     }}
                 >
                     {/* User Profile Section */}
                     <Stack
                         direction="row"
                         alignItems="center"
-                        spacing={{ xs: 1.5, sm: 2 }}
+                        spacing={{ xs: 1, sm: 2 }}
                     >
                         <Avatar
                             src={line_avatar || "https://via.placeholder.com/64"}
                             sx={{
                                 width: { xs: 56, sm: 64, md: 72 },
                                 height: { xs: 56, sm: 64, md: 72 },
-                                // border: "2px solid #F54927"
                             }}
                         />
                         <Box flex={1}>
-                            <Box
-                                display={"flex"}
-                                gap={1}
-                                alignItems="center"
-                            >
+                            <Box display={"flex"} gap={1} alignItems="center">
                                 <Typography
                                     fontWeight={700}
                                     fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.3rem" }}
@@ -64,7 +56,7 @@ export default function ScorePage() {
                                 >
                                     {user.name}
                                 </Typography>
-                                <Link href={route('customer.profile.edit')}>
+                                <Link href={route("customer.profile.edit")}>
                                     <Edit sx={{ fontSize: { xs: 20, sm: 24 } }} />
                                 </Link>
                             </Box>
@@ -79,14 +71,16 @@ export default function ScorePage() {
                             </Typography>
                         </Box>
                     </Stack>
-
-                    {/* Member Card */}
                     <Card
                         sx={{
-                            mt: { xs: 2, sm: 3 },
+                            mt: { xs: 2, sm: 2 },
                             borderRadius: 3,
+                            border: "1px solid #d9d9d9",
                             background:
-                                "linear-gradient(135deg, #f5f5f5 0%, #d9d9d9 100%)",
+                                "linear-gradient(45deg, #999 5%, #fff 10%, #ccc 30%, #ddd 50%, #ccc 70%, #fff 80%, #999 95%)",
+                            "&:hover": {
+                                transform: "translateY(-2px)",
+                            }
                         }}
                     >
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -94,7 +88,7 @@ export default function ScorePage() {
                                 direction="row"
                                 justifyContent="space-between"
                                 alignItems="flex-start"
-                                sx={{ pt: { xs: 1, sm: 2 }, pb: { xs: 1, sm: 2 } }}
+                                sx={{ pt: { xs: 0, sm: 1 }, pb: { xs: 2, sm: 4 } }}
                             >
                                 <Box>
                                     <Typography
@@ -107,9 +101,8 @@ export default function ScorePage() {
                                         fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
                                         color="text.secondary"
                                     >
-                                        {/* Member Since : {dayjs(user.created_at).format("D MMM YYYY")} */}
-                                        Member Since : {dayjs(joined_at).format("D MMM YYYY")}
-
+                                        Member Since :{" "}
+                                        {dayjs(joined_at).format("D MMM YYYY")}
                                     </Typography>
                                 </Box>
                                 <Box
@@ -118,12 +111,35 @@ export default function ScorePage() {
                                     alt="Pumpkin"
                                     sx={{
                                         height: { xs: 30, sm: 35, md: 40 },
-                                        opacity: 0.8
+                                        opacity: 1,
+                                        mt: { xs: 10, sm: 12 },
                                     }}
                                 />
                             </Stack>
                         </CardContent>
                     </Card>
+
+                    {/* Image Banner Section */}
+                    <Box
+                        sx={{
+                            mt: { xs: 2, sm: 3 }, // เว้นระยะห่างด้านบนจาก Card คะแนน
+                            mb: { xs: 1, sm: 1 }, // เว้นระยะห่างด้านล่างจาก Settings
+                            borderRadius: 3,
+                            overflow: "hidden", // เพื่อให้รูปภาพไม่เกินขอบโค้ง
+                        }}
+                    >
+                        <Box
+                            component="img"
+                            src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1743759942038-img_v3_02l1_6c9c4f8a-acb7-455a-9012-582d499e89fh.jpg"
+                            alt="Reward Banner"
+                            sx={{
+                                width: "100%", // ให้รูปภาพเต็มความกว้างของ Box
+                                height: "auto", // รักษาสัดส่วนของรูปภาพ
+                                display: "block",
+                            }}
+                        />
+                    </Box>
+                    {/* End Image Banner Section */}
 
                     {/* Coupons & Privileges Cards */}
                     {/* <Stack
@@ -255,7 +271,13 @@ export default function ScorePage() {
                     </Stack> */}
 
                     {/* Settings Section */}
-                    <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+                    <Box
+                        sx={{
+                            mt: { xs: 4, sm: 4 },
+                            mb: { xs: 8, sm: 10 },
+                            px: { xs: 2, sm: 1 },
+                        }}
+                    >
                         <Typography
                             fontWeight={700}
                             sx={{ mb: 1 }}
@@ -267,58 +289,80 @@ export default function ScorePage() {
                             sx={{
                                 borderRadius: 3,
                                 overflow: "hidden",
+                                boxShadow: 0,
+                                border: "1px solid #eee",
                             }}
                         >
                             <List disablePadding>
                                 <ListItemButton
-                                    onClick={() => router.get(route('customer.profile.info.pdpa'))}
+                                    onClick={() =>
+                                        router.get(route("customer.profile.info.pdpa"))
+                                    }
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
-                                        <Shield sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
+                                        <Shield
+                                            sx={{
+                                                color: "#F54927",
+                                                fontSize: { xs: 22, sm: 24 },
+                                            }}
+                                        />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="PDPA"
                                         primaryTypographyProps={{
-                                            fontSize: { xs: "0.9rem", sm: "1rem" }
+                                            fontSize: { xs: "0.9rem", sm: "1rem" },
                                         }}
                                     />
                                 </ListItemButton>
                                 <Divider />
                                 <ListItemButton
-                                    onClick={() => router.get(route('customer.profile.info.term'))}
+                                    onClick={() =>
+                                        router.get(route("customer.profile.info.term"))
+                                    }
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
-                                        <Gavel sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
+                                        <Gavel
+                                            sx={{
+                                                color: "#F54927",
+                                                fontSize: { xs: 22, sm: 24 },
+                                            }}
+                                        />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="Term And Condition"
                                         primaryTypographyProps={{
-                                            fontSize: { xs: "0.9rem", sm: "1rem" }
+                                            fontSize: { xs: "0.9rem", sm: "1rem" },
                                         }}
                                     />
                                 </ListItemButton>
                                 <Divider />
                                 <ListItemButton
-                                    onClick={() => router.post(route('logout'))}
+                                    onClick={() => router.post(route("logout"))}
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
-                                        <Logout sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
+                                        <Logout
+                                            sx={{
+                                                color: "#F54927",
+                                                fontSize: { xs: 22, sm: 24 },
+                                            }}
+                                        />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="ออกจากระบบ"
                                         primaryTypographyProps={{
                                             color: "#F54927",
                                             fontWeight: 600,
-                                            fontSize: { xs: "0.9rem", sm: "1rem" }
+                                            fontSize: { xs: "0.9rem", sm: "1rem" },
                                         }}
                                     />
                                 </ListItemButton>
                             </List>
                         </Card>
                     </Box>
+
                 </Container>
             </Box>
         </MobileAuthenticatedLayout>

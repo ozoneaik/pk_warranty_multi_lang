@@ -74,7 +74,7 @@ export default function WelComeProFile() {
                             <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
                                 <WorkspacePremium sx={{ color: "#F5B301" }} />
                                 <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
-                                    {point ?? 0} คะแนน
+                                    {point ?? 0} P
                                 </Typography>
                             </Box>
                         </Box>
@@ -82,7 +82,6 @@ export default function WelComeProFile() {
                             sx={{ color: "#F54927", cursor: "pointer" }}
                             onClick={() => router.get(route("customer.profile.edit"))}
                         />
-
                     </Stack>
                 </Paper>
             </Box>

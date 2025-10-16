@@ -72,6 +72,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     const [qrScanSuccess, setQrScanSuccess] = useState(false);
 
     const [showReferralField, setShowReferralField] = useState(false);
+    const [storeLabel, setStoreLabel] = useState<string>(t.Warranty.Form.store_name);
 
     useEffect(() => {
         return () => {
@@ -317,7 +318,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
     const handleCheckSn = async () => {
         if (!data.serial_number.trim() && !data.model_code.trim()) {
-            alert('กรุณากรอก Serial Number หรือ Sku Code อย่างน้อยหนึ่งอย่าง');
+            alert('กรุณากรอก Serial Number หรือ รหัสสินค้า อย่างน้อยหนึ่งอย่าง');
             return;
         }
 
@@ -425,7 +426,11 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             "Global house",
             "ฮาร์แวร์เฮาส์",
         ];
-        setShowReferralField(requireReferral.includes(value));
+
+        const isBigStore = requireReferral.includes(value);
+
+        setStoreLabel(isBigStore ? "Branch Name (ชื่อสาขา)" : t.Warranty.Form.store_name);
+        setShowReferralField(isBigStore);
 
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
@@ -755,7 +760,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                             <FormControl fullWidth>
                                 <FormLabel htmlFor="model_code" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                     {/* {t.Warranty.Form.model_code || "รหัสรุ่นสินค้า (Model Code)"} */}
-                                    Sku Code
+                                    รหัสสินค้า
                                 </FormLabel>
                                 <TextField
                                     id="model_code"
@@ -843,7 +848,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         {/* Form Fields */}
                         {showForm && (
                             <>
-                                <Grid size={12} sx={{ mt: 0 }}>
+                                {/* <Grid size={12} sx={{ mt: 0 }}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: "medium" }}>
                                             {t.Warranty.Form.phone}
@@ -895,6 +900,66 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         // }}
                                         />
                                     </FormControl>
+                                </Grid> */}
+
+                                <Grid size={12}>
+                                    <FormControl fullWidth>
+                                        <FormLabel htmlFor="buy_from" required sx={{ mb: 1, fontWeight: 'medium' }}>
+                                            {t.Warranty.Form.buy_from}
+                                        </FormLabel>
+                                        <Select
+                                            required
+                                            labelId="buy-from-select-label"
+                                            id="buy_from"
+                                            value={data.buy_from}
+                                            variant="outlined"
+                                            onChange={(e: SelectChangeEvent) => handleBuyFromChange(e.target.value)}
+
+                                            sx={{ borderRadius: 2 }}
+                                        >
+                                            <MenuItem disabled value={'เลือก'}>
+                                                {t.Warranty.Form.SelectBuyFrom}
+                                            </MenuItem>
+                                            {channel_list.map((channel, index) => (
+                                                <MenuItem key={index} value={channel}>
+                                                    {channel}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid size={12}>
+                                    <FormControl fullWidth>
+                                        <FormLabel htmlFor="store_name" required sx={{ mb: 1, fontWeight: 'medium' }}>
+                                            {/* {t.Warranty.Form.store_name} */}
+                                            {storeLabel}
+                                        </FormLabel>
+                                        {loadingBuyform ? (
+                                            <Box display="flex" alignItems="center" gap={1} p={2}>
+                                                <CircularProgress size={20} />
+                                                <Typography variant="body2">กำลังโหลดร้านค้า...</Typography>
+                                            </Box>
+                                        ) : (
+                                            <Autocomplete
+                                                options={storeList.map(
+                                                    // ${item.custgroup}
+                                                    (item) => ` ${item.custname} ${item.branch}`
+                                                )}
+                                                value={data.store_name}
+                                                onChange={(_, newValue) => setData('store_name', newValue || '')}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        placeholder={t.Warranty.Form.SelectShop}
+                                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                                    />
+                                                )}
+                                                noOptionsText="ไม่พบร้านค้า"
+                                            />
+                                        )}
+                                    </FormControl>
                                 </Grid>
                                 {showReferralField && (
                                     <Grid size={12} sx={{ mt: 0 }}>
@@ -945,64 +1010,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         </FormControl>
                                     </Grid>
                                 )}
-                                <Grid size={12}>
-                                    <FormControl fullWidth>
-                                        <FormLabel htmlFor="buy_from" required sx={{ mb: 1, fontWeight: 'medium' }}>
-                                            {t.Warranty.Form.buy_from}
-                                        </FormLabel>
-                                        <Select
-                                            required
-                                            labelId="buy-from-select-label"
-                                            id="buy_from"
-                                            value={data.buy_from}
-                                            variant="outlined"
-                                            onChange={(e: SelectChangeEvent) => handleBuyFromChange(e.target.value)}
-
-                                            sx={{ borderRadius: 2 }}
-                                        >
-                                            <MenuItem disabled value={'เลือก'}>
-                                                {t.Warranty.Form.SelectBuyFrom}
-                                            </MenuItem>
-                                            {channel_list.map((channel, index) => (
-                                                <MenuItem key={index} value={channel}>
-                                                    {channel}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid size={12}>
-                                    <FormControl fullWidth>
-                                        <FormLabel htmlFor="store_name" required sx={{ mb: 1, fontWeight: 'medium' }}>
-                                            {t.Warranty.Form.store_name}
-                                        </FormLabel>
-                                        {loadingBuyform ? (
-                                            <Box display="flex" alignItems="center" gap={1} p={2}>
-                                                <CircularProgress size={20} />
-                                                <Typography variant="body2">กำลังโหลดร้านค้า...</Typography>
-                                            </Box>
-                                        ) : (
-                                            <Autocomplete
-                                                options={storeList.map(
-                                                    // ${item.custgroup}
-                                                    (item) => ` ${item.custname} ${item.branch}`
-                                                )}
-                                                value={data.store_name}
-                                                onChange={(_, newValue) => setData('store_name', newValue || '')}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        variant="outlined"
-                                                        fullWidth
-                                                        placeholder={t.Warranty.Form.SelectShop}
-                                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                                                    />
-                                                )}
-                                                noOptionsText="ไม่พบร้านค้า"
-                                            />
-                                        )}
-                                    </FormControl>
-                                </Grid>
                                 <Grid size={12}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_date" required sx={{ mb: 1, fontWeight: 'medium' }}>

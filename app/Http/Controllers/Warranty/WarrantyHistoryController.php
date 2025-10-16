@@ -178,11 +178,23 @@ class WarrantyHistoryController extends Controller
 
     public function history()
     {
+        // $histories = TblHistoryProd::query()
+        //     ->where('cust_tel', Auth::user()->phone)
+        //     ->orderBy('id', 'desc')
+        //     ->get(['id', 'serial_number', 'model_code', 'model_name', 'product_name', 'slip', 'approval', 'insurance_expire']);
         $histories = TblHistoryProd::query()
-            ->where('cust_tel', Auth::user()->phone)
-            ->orderBy('id', 'desc')
-            ->get(['id', 'serial_number', 'model_code', 'model_name', 'product_name', 'slip', 'approval', 'insurance_expire']);
-
+            ->where('lineid', Auth::user()->line_id)
+            ->orderByDesc('id')
+            ->get([
+                'id',
+                'serial_number',
+                'model_code',
+                'model_name',
+                'product_name',
+                'slip',
+                'approval',
+                'insurance_expire',
+            ]);
         return Inertia::render('Warranty/WarrantyHistory', [
             'histories' => $histories->map(fn($item) => [
                 'id' => $item->id,

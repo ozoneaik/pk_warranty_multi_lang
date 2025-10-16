@@ -18,6 +18,12 @@
             "warrantyFormSubTitle": "ထုတ်ကုန်အသစ်ကို စာရင်းသွင်းပါ",
             "warrantyHistoryHeadTitle": "မှတ်တမ်း",
             "warrantyHistorySubTitle": "အာမခံမှတ်တမ်းကြည့်ရန်"
+        },
+        "mainMenu": {
+            "checkRepairStatus": "ပြုပြင်မှုအခြေအနေ စစ်ဆေးရန်",
+            "warrantyProduct": "အာမခံထားသော ပစ္စည်းများ",
+            "pumpkinCorner": "Pumpkin Corner",
+            "onlineShop": "အွန်လိုင်းစျေးဝယ် လင့်ခ်များ"
         }
     },
     "Warranty": {

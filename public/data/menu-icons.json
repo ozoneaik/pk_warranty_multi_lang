@@ -1,28 +1,48 @@
 [
     {
         "id": 1,
-        "title": "เช็กสถานะซ่อม",
+        "title": {
+            "th": "เช็กสถานะซ่อม",
+            "en": "Repair Status",
+            "lao": "ກວດສະຖານະການສ້ອມແປງ",
+            "myanmar": "ပြုပြင်မှုအခြေအနေ စစ်ဆေးရန်"
+        },
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184410046-Layer_1-1%201.png",
         "link": "https://pumpkin.co.th/track/",
         "color": "#2196f3"
     },
     {
         "id": 2,
-        "title": "สินค้ารับประกัน",
+        "title": {
+            "th": "สินค้ารับประกัน",
+            "en": "Warranty Products",
+            "lao": "ສິນຄ້າຮັບປະກັນ",
+            "myanmar": "အာမခံထားသော ပစ္စည်းများ"
+        },
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184424820-Frame%20427321869%202%20%288%29.png",
         "link": "https://pumpkin.co.th/warranty_check/?tel=",
         "color": "#4caf50"
     },
     {
         "id": 3,
-        "title": "Pumpkin Corner",
+        "title": {
+            "th": "Pumpkin Corner",
+            "en": "Pumpkin Corner",
+            "lao": "Pumpkin Corner",
+            "myanmar": "Pumpkin Corner"
+        },
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184431964-Frame%20427321869%201.png",
         "link": "https://pumpkin.co.th/pumpkincorner/",
         "color": "#f57c00"
     },
     {
         "id": 4,
-        "title": "ช่องทางสื่อสารออนไลน์",
+        "title": {
+            "th": "ช่องทางสื่อสารออนไลน์",
+            "en": "Online Communication Channels",
+            "lao": "ຊ່ອງທາງສື່ສານອອນໄລນ໌",
+            "myanmar": "အွန်လိုင်းဆက်သွယ်မှုလမ်းကြောင်းများ"
+        },
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184436674-Layer_1-1%201%20%281%29.png",
         "link": "https://linktr.ee/pumpkintoolschannel",
         "color": "#e91e63"

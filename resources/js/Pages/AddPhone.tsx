@@ -14,6 +14,40 @@ export default function AddPhone() {
 
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
+    // const handleSendOtp = async () => {
+    //     if (!/^\d{10}$/.test(phone)) {
+    //         setError("กรุณากรอกเบอร์โทร 10 หลัก");
+    //         return;
+    //     }
+    //     setError("");
+
+    //     const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    //     setGeneratedOtp(otpCode);
+    //     setOtp(["", "", "", ""]);
+    //     inputRefs.current[0]?.focus();
+    //     setOtpSent(true);
+    //     setTimer(30);
+
+    //     try {
+    //         const result = await .post(route('send.otp'), {
+    //             phone,
+    //             otp: otpCode
+    //         });
+
+    //         if (!result.data.success) {
+    //             setError(result.data.error || "ส่ง SMS ล้มเหลว");
+    //             setOtpSent(false);
+    //             setTimer(0);
+    //         } else {
+    //             console.log("SMS sent:", result.data.data);
+    //         }
+    //     } catch (err: any) {
+    //         setError(err.message);
+    //         setOtpSent(false);
+    //         setTimer(0);
+    //     }
+    // };
+
     const handleSendOtp = async () => {
         if (!/^\d{10}$/.test(phone)) {
             setError("กรุณากรอกเบอร์โทร 10 หลัก");
@@ -35,14 +69,18 @@ export default function AddPhone() {
             });
 
             if (!result.data.success) {
-                setError(result.data.error || "ส่ง SMS ล้มเหลว");
+                setError(result.data.message || result.data.error || "ส่ง SMS ล้มเหลว");
                 setOtpSent(false);
                 setTimer(0);
             } else {
                 console.log("SMS sent:", result.data.data);
             }
         } catch (err: any) {
-            setError(err.message);
+            const msg =
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                "เกิดข้อผิดพลาดในการส่ง OTP";
+            setError(msg);
             setOtpSent(false);
             setTimer(0);
         }

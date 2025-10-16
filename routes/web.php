@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SendOtpController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -42,12 +43,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [CustomerProfileController::class, 'welcome'])->name('customer.profile.welcome');
         Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
+        
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
-
         Route::get('/info/pdpa', function () {
             return Inertia::render('Profile/Customer/InfoPDPA');
         })->name('customer.profile.info.pdpa');
-
         Route::get('/info/term', function () {
             return Inertia::render('Profile/Customer/InfoTerm');
         })->name('customer.profile.info.term');
@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         })->name('add.phone');
         Route::post('/', [UserController::class, 'updatePhone'])->name('add.phone.store');
     });
+    Route::post('/api/send-otp', [SendOtpController::class, 'send'])->name('send.otp');
 });
 
 require __DIR__ . '/auth.php';

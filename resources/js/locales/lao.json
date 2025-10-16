@@ -18,6 +18,12 @@
             "warrantyFormSubTitle": "ລົງທະບຽນສິນຄ້າໃໝ່",
             "warrantyHistoryHeadTitle": "ປະຫວັດ",
             "warrantyHistorySubTitle": "ເບິ່ງປະຫວັດການຮັບປະກັນ"
+        },
+        "mainMenu": {
+            "checkRepairStatus": "ກວດສະຖານະການສ້ອມແປງ",
+            "warrantyProduct": "ສິນຄ້າຮັບປະກັນ",
+            "pumpkinCorner": "Pumpkin Corner",
+            "onlineShop": "ຊ່ອງທາງຊື້ສິນຄ້າອອນໄລນ໌"
         }
     },
     "Warranty": {

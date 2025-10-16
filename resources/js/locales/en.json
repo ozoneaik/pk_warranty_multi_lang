@@ -18,6 +18,12 @@
             "warrantyFormSubTitle": "Register new product",
             "warrantyHistoryHeadTitle": "History",
             "warrantyHistorySubTitle": "View warranty history"
+        },
+        "mainMenu": {
+            "checkRepairStatus": "Repair Status",
+            "warrantyProduct": "Warranty Products",
+            "pumpkinCorner": "Pumpkin Corner",
+            "onlineShop": "Online Store"
         }
     },
     "Warranty": {

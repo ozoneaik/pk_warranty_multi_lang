@@ -10,4 +10,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::post('/send-otp', [SendOtpController::class,'send'])->name('send.otp');
+// Route::post('/send-otp', [SendOtpController::class,'send'])->name('send.otp');
