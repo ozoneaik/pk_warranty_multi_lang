@@ -1,4 +1,4 @@
-// import { useState, forwardRef, ReactElement, Ref } from "react";
+// import { useState, forwardRef, Ref } from "react";
 // import { useLanguage } from "@/context/LanguageContext";
 // import {
 //     Box,
@@ -13,55 +13,44 @@
 //     Dialog,
 //     DialogTitle,
 //     DialogContent,
-//     DialogActions,
 //     IconButton,
 //     Slide,
 // } from "@mui/material";
-// import { InfoOutlined, ExpandMore, ExpandLess, Close } from "@mui/icons-material";
+// import { InfoOutlined, ExpandMore, Close } from "@mui/icons-material";
 // import axios from "axios";
 
-// interface ProductDetail {
-//     pid: string;
-//     p_name: string;
-//     warranty_status: boolean;
-//     fac_model: string;
-//     p_path: string;
-// }
+// // interface ProductDetail {
+// //     pid: string;
+// //     pname?: string;
+// //     p_name?: string;
+// //     fac_model?: string;
+// //     image?: string;
+// //     p_path?: string;
+// //     warranty_status?: boolean;
+// //     warrantyperiod?: string;
+// //     warrantycondition?: string;
+// //     warrantynote?: string;
+// //     sp_warranty?: {
+// //         spname: string;
+// //         spcode?: { pidsp: string };
+// //     }[];
+// // }
 
-// interface WarrantyInfo {
-//     warrantyperiod?: string;
-//     warrantycondition?: string;
-//     warrantynote?: string;
-//     sp_warranty?: {
-//         spname: string;
-//         spcode: { pidsp: string };
-//     }[];
-// }
-
-// const Transition = forwardRef(function Transition(
-//     props: any,
-//     ref: Ref<unknown>
-// ) {
+// const Transition = forwardRef(function Transition(props: any, ref: Ref<unknown>) {
 //     return <Slide direction="up" ref={ref} {...props} />;
 // });
 
-// export default function ProductDetailComponent({
-//     productDetail,
-// }: {
-//     productDetail: ProductDetail | any;
-// }) {
+// export default function ProductDetailComponent({ productDetail }: { productDetail: ProductDetail }) {
 //     const { t } = useLanguage();
 
 //     // dialog states
 //     const [open, setOpen] = useState(false);
 //     const [loading, setLoading] = useState(false);
-//     const [warrantyDetail, setWarrantyDetail] = useState<WarrantyInfo | null>(null);
+//     const [warrantyDetail, setWarrantyDetail] = useState<ProductDetail | null>(null);
 //     const [loadedOnce, setLoadedOnce] = useState(false);
 
 //     const openDialog = async () => {
 //         setOpen(true);
-
-//         // โหลดข้อมูลครั้งแรกเท่านั้น
 //         if (!loadedOnce) {
 //             setLoading(true);
 //             try {
@@ -83,6 +72,12 @@
 
 //     const closeDialog = () => setOpen(false);
 
+//     // ✅ Fallback fields
+//     const imgSrc = productDetail.image || productDetail.p_path || "";
+//     const name = productDetail.pname || productDetail.p_name || "-";
+//     const model = productDetail.fac_model || "-";
+//     const bgColor = productDetail.warranty_status ? "#e8f5e9" : "#ffebee";
+
 //     return (
 //         <>
 //             <Card
@@ -94,26 +89,28 @@
 //                     p: 2,
 //                     borderRadius: 3,
 //                     boxShadow: 3,
-//                     backgroundColor: productDetail.warranty_status ? "#e8f5e9" : "#ffebee",
+//                     backgroundColor: bgColor,
 //                     transition: "transform 0.2s ease-in-out",
 //                     "&:hover": { transform: "scale(1.01)" },
 //                 }}
 //             >
-//                 {/* รูปสินค้า */}
-//                 <CardMedia
-//                     component="img"
-//                     sx={{
-//                         width: 120,
-//                         height: 120,
-//                         objectFit: "contain",
-//                         borderRadius: 2,
-//                         bgcolor: "#fff",
-//                     }}
-//                     image={productDetail.p_path}
-//                     alt={productDetail.p_name}
-//                 />
+//                 {/* ✅ รูปสินค้า */}
+//                 {imgSrc && (
+//                     <CardMedia
+//                         component="img"
+//                         sx={{
+//                             width: 120,
+//                             height: 120,
+//                             objectFit: "contain",
+//                             borderRadius: 2,
+//                             bgcolor: "#fff",
+//                         }}
+//                         image={imgSrc}
+//                         alt={name}
+//                     />
+//                 )}
 
-//                 {/* รายละเอียดสินค้า */}
+//                 {/* ✅ รายละเอียดสินค้า */}
 //                 <CardContent sx={{ flex: 1, width: "100%" }}>
 //                     <Stack spacing={0.5}>
 //                         <Typography variant="h6" fontWeight="bold" color="text.primary">
@@ -121,14 +118,14 @@
 //                         </Typography>
 
 //                         <Typography variant="body2" color="text.secondary">
-//                             <strong>{t.Warranty.Form.CodePd} :</strong> {productDetail.pid} ({productDetail.fac_model})
+//                             <strong>{t.Warranty.Form.CodePd} :</strong> {productDetail.pid} ({model})
 //                         </Typography>
 
 //                         <Typography variant="body2" color="text.secondary">
-//                             <strong>{t.Warranty.Form.NamePd} :</strong> {productDetail.p_name}
+//                             <strong>{t.Warranty.Form.NamePd} :</strong> {name}
 //                         </Typography>
 
-//                         {/* ปุ่มเปิดป๊อปอัพข้อมูลการรับประกัน */}
+//                         {/* ✅ ปุ่มเปิดรายละเอียดการรับประกัน */}
 //                         <Button
 //                             onClick={openDialog}
 //                             endIcon={<ExpandMore />}
@@ -146,12 +143,12 @@
 //                 </CardContent>
 //             </Card>
 
-//             {/* Dialog แสดงข้อมูลการรับประกัน */}
+//             {/* ✅ Dialog แสดงข้อมูลการรับประกัน */}
 //             <Dialog
 //                 open={open}
 //                 onClose={closeDialog}
 //                 fullWidth
-//                 maxWidth="sm"
+//                 maxWidth="xs"
 //                 scroll="paper"
 //                 TransitionComponent={Transition}
 //                 PaperProps={{ sx: { borderRadius: 3 } }}
@@ -200,7 +197,8 @@
 //                                 <>
 //                                     <Divider sx={{ my: 1.2 }} />
 //                                     <Typography variant="subtitle2" fontWeight={700}>
-//                                         {t.History.Information.spareWarranty} ({warrantyDetail.sp_warranty.length} {t.History.Information.items})
+//                                         {t.History.Information.spareWarranty} ({warrantyDetail.sp_warranty.length}{" "}
+//                                         {t.History.Information.items})
 //                                     </Typography>
 //                                     <Stack spacing={0.5}>
 //                                         {warrantyDetail.sp_warranty.map((sp, i) => (
@@ -222,6 +220,7 @@
 //         </>
 //     );
 // }
+
 import { useState, forwardRef, Ref } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -243,35 +242,21 @@ import {
 import { InfoOutlined, ExpandMore, Close } from "@mui/icons-material";
 import axios from "axios";
 
-// interface ProductDetail {
-//     pid: string;
-//     pname?: string;
-//     p_name?: string;
-//     fac_model?: string;
-//     image?: string;
-//     p_path?: string;
-//     warranty_status?: boolean;
-//     warrantyperiod?: string;
-//     warrantycondition?: string;
-//     warrantynote?: string;
-//     sp_warranty?: {
-//         spname: string;
-//         spcode?: { pidsp: string };
-//     }[];
-// }
-
 const Transition = forwardRef(function Transition(props: any, ref: Ref<unknown>) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function ProductDetailComponent({ productDetail }: { productDetail: ProductDetail }) {
+export default function ProductDetailComponent({ productDetail }: { productDetail: any }) {
     const { t } = useLanguage();
 
     // dialog states
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [warrantyDetail, setWarrantyDetail] = useState<ProductDetail | null>(null);
+    const [warrantyDetail, setWarrantyDetail] = useState<any | null>(null);
     const [loadedOnce, setLoadedOnce] = useState(false);
+
+    // ✅ Default image from .env
+    const defaultImage = import.meta.env.VITE_DEFAULT_IMAGE;
 
     const openDialog = async () => {
         setOpen(true);
@@ -296,8 +281,8 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
 
     const closeDialog = () => setOpen(false);
 
-    // ✅ Fallback fields
-    const imgSrc = productDetail.image || productDetail.p_path || "";
+    // ✅ Fallback values
+    const imgSrc = productDetail.image || productDetail.p_path || defaultImage;
     const name = productDetail.pname || productDetail.p_name || "-";
     const model = productDetail.fac_model || "-";
     const bgColor = productDetail.warranty_status ? "#e8f5e9" : "#ffebee";
@@ -318,21 +303,39 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                     "&:hover": { transform: "scale(1.01)" },
                 }}
             >
-                {/* ✅ รูปสินค้า */}
-                {imgSrc && (
+                {/* ✅ รูปสินค้า (มี fallback และ fade-in effect) */}
+                <Box
+                    sx={{
+                        position: "relative",
+                        width: 120,
+                        height: 120,
+                        borderRadius: 2,
+                        bgcolor: "#fff",
+                        overflow: "hidden",
+                    }}
+                >
                     <CardMedia
                         component="img"
-                        sx={{
-                            width: 120,
-                            height: 120,
-                            objectFit: "contain",
-                            borderRadius: 2,
-                            bgcolor: "#fff",
-                        }}
-                        image={imgSrc}
+                        src={imgSrc}
                         alt={name}
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                            const target = e.currentTarget;
+                            target.onerror = null; // ป้องกัน loop
+                            target.src = defaultImage;
+                        }}
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            opacity: 0,
+                            transition: "opacity 0.5s ease-in-out",
+                            "&.loaded": { opacity: 1 },
+                        }}
+                        onLoad={(e: React.SyntheticEvent<HTMLImageElement>) =>
+                            e.currentTarget.classList.add("loaded")
+                        }
                     />
-                )}
+                </Box>
 
                 {/* ✅ รายละเอียดสินค้า */}
                 <CardContent sx={{ flex: 1, width: "100%" }}>
@@ -349,7 +352,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                             <strong>{t.Warranty.Form.NamePd} :</strong> {name}
                         </Typography>
 
-                        {/* ✅ ปุ่มเปิดรายละเอียดการรับประกัน */}
+                        {/* ปุ่มเปิดรายละเอียดการรับประกัน */}
                         <Button
                             onClick={openDialog}
                             endIcon={<ExpandMore />}
@@ -425,7 +428,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                                         {t.History.Information.items})
                                     </Typography>
                                     <Stack spacing={0.5}>
-                                        {warrantyDetail.sp_warranty.map((sp, i) => (
+                                        {warrantyDetail.sp_warranty.map((sp: any, i: number) => (
                                             <Typography key={i} variant="body2" color="text.secondary">
                                                 • {sp.spname} ({sp.spcode?.pidsp ?? "-"})
                                             </Typography>

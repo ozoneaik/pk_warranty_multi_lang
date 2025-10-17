@@ -95,153 +95,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         }
     };
 
-    // const handleCheckSn = async () => {
-    //     if (!data.serial_number.trim()) {
-    //         alert('กรุณาใส่หมายเลขซีเรียล');
-    //         return;
-    //     }
-
-    //     try {
-    //         setShowProduct(false);
-    //         setChecking(true);
-    //         setShowForm(false);
-
-    //         const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number.trim() }));
-    //         const skusetFirstIndex = response.data.data.skuset[0];
-    //         const res_product = response.data.data.assets[skusetFirstIndex];
-
-    //         setShowProduct(true);
-    //         setShowForm(true);
-    //         setProductDetail({
-    //             p_path: `${import.meta.env.VITE_PRODUCT_IMAGE_URI}/${res_product.pid}.jpg`,
-    //             pid: res_product.pid,
-    //             p_name: res_product.pname,
-    //             fac_model: res_product.facmodel,
-    //             warranty_status: false
-    //         });
-
-    //         setData({
-    //             ...data,
-    //             model_code: res_product.pid,
-    //             model_name: res_product.facmodel,
-    //             product_name: res_product.pname,
-    //         });
-    //     } catch (error: any) {
-    //         const error_msg = error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด';
-    //         alert(error_msg);
-    //         setShowForm(false);
-    //     } finally {
-    //         setChecking(false);
-    //     }
-    // }
-
-    // const handleCheckSn = async () => {
-    //     if (!data.serial_number.trim()) {
-    //         alert('กรุณาใส่หมายเลขซีเรียล');
-    //         return;
-    //     }
-
-    //     try {
-    //         setChecking(true);
-    //         setShowForm(false);
-    //         setShowProduct(false);
-    //         setSnVerified(false);
-
-    //         const response = await axios.get(route('warranty.check.sn', { sn: data.serial_number.trim() }));
-    //         const skusetFirstIndex = response.data.data.skuset[0];
-    //         const res_product = response.data.data.assets[skusetFirstIndex];
-
-    //         setProductDetail({
-    //             p_path: `${import.meta.env.VITE_PRODUCT_IMAGE_URI}/${res_product.pid}.jpg`,
-    //             pid: res_product.pid,
-    //             p_name: res_product.pname,
-    //             fac_model: res_product.facmodel,
-    //             warranty_status: false,
-    //         });
-
-    //         setData({
-    //             ...data,
-    //             model_code: res_product.pid,
-    //             model_name: res_product.facmodel,
-    //             product_name: res_product.pname,
-    //         });
-
-    //         setShowForm(true);
-    //         setShowProduct(true);
-    //         setSnVerified(true);
-    //     } catch (error: any) {
-    //         let msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
-    //         if (msg.includes("หมายเลขนี้เคยลงทะเบียนแล้ว")) {
-    //             msg = t.Warranty.Form.NumberRegisted;
-    //         }
-    //         Swal.fire({
-    //             title: msg,
-    //             icon: 'error',
-    //             confirmButtonColor: '#F54927',
-    //         });
-    //         setShowForm(false);
-    //         setSnVerified(false);
-    //     } finally {
-    //         setChecking(false);
-    //     }
-    // };
-
-    // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
-    //     if (!data.warranty_file) {
-    //         Swal.fire('กรุณาอัปโหลดไฟล์ใบเสร็จรับประกัน', '', 'warning');
-    //         return;
-    //     }
-    //     post(route('warranty.form.store'), {
-    //         forceFormData: true,
-    //         onError: (event: any) => {
-    //             console.error("Errors: ", event);
-    //         },
-    //         onFinish: () => {
-    //             console.log("Submit finished");
-    //         }
-    //     });
-    // }
-
-    // useEffect(() => {
-    //     if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    //     debounceRef.current = setTimeout(async () => {
-    //         const hasSN = data.serial_number.trim();
-    //         const hasModel = data.model_code.trim();
-
-    //         if (!hasSN && !hasModel) {
-    //             setShowProduct(false);
-    //             setLoadingProduct(false);
-    //             return;
-    //         }
-
-    //         try {
-    //             setLoadingProduct(true); // ✅ เริ่มโหลด
-    //             const response = await axios.post(route('warranty.check.sn'), {
-    //                 sn: hasSN,
-    //                 model_code: hasModel,
-    //             });
-
-    //             if (response.data?.data?.product_detail) {
-    //                 setProductDetail(response.data.data.product_detail);
-    //                 setShowProduct(true);
-    //             } else {
-    //                 setShowProduct(false);
-    //             }
-    //         } catch (err: any) {
-    //             console.warn("⚠️ ไม่มีข้อมูลสินค้า:", err.response?.data?.message);
-    //             setShowProduct(false);
-    //         } finally {
-    //             setLoadingProduct(false); // ✅ จบโหลดไม่ว่าจะสำเร็จหรือไม่
-    //         }
-    //     }, 700);
-
-    //     return () => {
-    //         if (debounceRef.current) clearTimeout(debounceRef.current);
-    //     };
-    // }, [data.serial_number, data.model_code]);
-
     const handleCheckProduct = async () => {
         if (!data.model_code.trim()) {
             Swal.fire({
@@ -375,10 +228,12 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             Swal.fire(t.Warranty.Validate.AlertMessage.buy_from, '', 'warning');
             return;
         }
-        if (!data.phone || data.phone.length !== 10) {
-            Swal.fire(t.Warranty.Validate.AlertMessage.phone, '', 'warning');
-            return;
-        }
+
+        // if (!data.phone || data.phone.length !== 10) {
+        //     Swal.fire(t.Warranty.Validate.AlertMessage.phone, '', 'warning');
+        //     return;
+        // }
+
         post(route('warranty.form.store'), {
             forceFormData: true,
             onError: (errors: any) => {
@@ -636,66 +491,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         )}
 
                         {/* Serial Number Section */}
-                        {/* <Grid size={12}>
-                            <FormControl fullWidth>
-                                <FormLabel htmlFor="serial_number" required sx={{ mb: 1, fontWeight: 'medium' }}>
-                                    {t.Warranty.Form.serial_number}
-                                </FormLabel>
-                                <Stack direction="row" spacing={1}>
-                                    <TextField
-                                        id="serial_number"
-                                        name="serial_number"
-                                        value={data.serial_number}
-                                        onChange={handleOnChange}
-                                        required
-                                        disabled={processing || checking || snVerified}
-                                        placeholder={t.Warranty.Placeholder.serial_number}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && !snVerified) {
-                                                e.preventDefault();
-                                                handleCheckSn();
-                                            }
-                                        }}
-                                        sx={{
-                                            flex: 1,
-                                            '& .MuiOutlinedInput-root': {
-                                                borderRadius: 2,
-                                            }
-                                        }}
-                                    />
-                                    {snVerified && (
-                                        <Button
-                                            variant="outlined"
-                                            color="warning"
-                                            onClick={() => {
-                                                setData({
-                                                    warranty_file: '',
-                                                    serial_number: '',
-                                                    phone: '',
-                                                    model_code: '',
-                                                    model_name: '',
-                                                    product_name: '',
-                                                    buy_from: 'เลือก',
-                                                    buy_date: '',
-                                                    store_name: '',
-                                                    customer_code: '',
-                                                });
-
-                                                setShowForm(false);
-                                                setShowProduct(false);
-                                                setPreview(null);
-                                                setFileName('');
-                                                setSnVerified(false);
-                                            }}
-                                        >
-                                            {t.Warranty.Form.ChangSerial}
-                                        </Button>
-                                    )}
-                                </Stack>
-                            </FormControl>
-                        </Grid> */}
-
-                        {/* Serial Number Section */}
                         <Grid size={12}>
                             <FormControl fullWidth>
                                 <FormLabel htmlFor="serial_number" required sx={{ mb: 1, fontWeight: 'medium' }}>
@@ -729,9 +524,10 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             color="warning"
                                             onClick={() => {
                                                 setData({
+                                                    ...data,
                                                     warranty_file: '',
                                                     serial_number: '',
-                                                    phone: '',
+                                                    // phone: '',
                                                     model_code: '',
                                                     model_name: '',
                                                     product_name: '',
@@ -1021,8 +817,13 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 setData("buy_date", newValue ? newValue.format("YYYY-MM-DD") : "");
                                             }}
                                             maxDate={dayjs()}
-                                            minDate={dayjs().subtract(15, "days")} //ย้อนหลังลงทะเบียนไม่เกิน 15 วัน
-                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                            minDate={dayjs().subtract(15, "days")} 
+                                            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                                            slotProps={{
+                                                textField: {
+                                                    inputProps: { readOnly: true }, 
+                                                },
+                                            }}
                                         />
                                     </FormControl>
                                 </Grid>

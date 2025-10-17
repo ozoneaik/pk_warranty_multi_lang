@@ -26,7 +26,7 @@ class WrFormRequest extends FormRequest
             'serial_number' => 'required',
             'phone' => 'required',
             'model_code' => 'required',
-            'model_name' => 'required',
+            'model_name' => 'nullable',
             'product_name' => 'required',
             'buy_from' => 'required',
             'buy_date' => 'required',
