@@ -817,11 +817,12 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                                 setData("buy_date", newValue ? newValue.format("YYYY-MM-DD") : "");
                                             }}
                                             maxDate={dayjs()}
-                                            minDate={dayjs().subtract(15, "days")} 
+                                            minDate={dayjs().subtract(15, "days")}
                                             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                                             slotProps={{
                                                 textField: {
-                                                    inputProps: { readOnly: true }, 
+                                                    readOnly: true, 
+                                                    title: "กรุณาเลือกวันที่จากปฏิทินเท่านั้น", 
                                                 },
                                             }}
                                         />
