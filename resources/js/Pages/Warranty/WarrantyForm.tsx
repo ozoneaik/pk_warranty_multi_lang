@@ -98,7 +98,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     const handleCheckProduct = async () => {
         if (!data.model_code.trim()) {
             Swal.fire({
-                title: 'กรุณากรอก Model Code ก่อนตรวจสอบ',
+                title: 'กรุณากรอกซีเรียลและรหัสสินค้าก่อนตรวจสอบ',
                 icon: 'warning',
                 confirmButtonColor: '#F54927',
             });
@@ -170,11 +170,30 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     }, [data.serial_number, data.model_code]);
 
     const handleCheckSn = async () => {
-        if (!data.serial_number.trim() && !data.model_code.trim()) {
-            alert('กรุณากรอก Serial Number หรือ รหัสสินค้า อย่างน้อยหนึ่งอย่าง');
+        // if (!data.serial_number.trim() && !data.model_code.trim()) {
+        //     alert('กรุณากรอก Serial Number หรือ รหัสสินค้า อย่างน้อยหนึ่งอย่าง');
+        //     return;
+        // }
+        const serial = data.serial_number.trim();
+        const model = data.model_code.trim();
+
+        if (!serial) {
+            Swal.fire({
+                title: 'กรุณากรอก Serial Number',
+                icon: 'warning',
+                confirmButtonColor: '#F54927',
+            });
             return;
         }
 
+        if (!model) {
+            Swal.fire({
+                title: 'กรุณากรอก Model Code',
+                icon: 'warning',
+                confirmButtonColor: '#F54927',
+            });
+            return;
+        }
         try {
             setChecking(true);
             setShowForm(false);
@@ -821,8 +840,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                                             slotProps={{
                                                 textField: {
-                                                    readOnly: true, 
-                                                    title: "กรุณาเลือกวันที่จากปฏิทินเท่านั้น", 
+                                                    readOnly: true,
+                                                    title: "กรุณาเลือกวันที่จากปฏิทินเท่านั้น",
                                                 },
                                             }}
                                         />

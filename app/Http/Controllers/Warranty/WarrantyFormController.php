@@ -87,12 +87,19 @@ class WarrantyFormController extends Controller
                 })
                 ->first();
 
-            if ($check_form_history) {
+            if ($check_form_history && $check_form_history->serial_number == $sn) {
                 return response()->json([
                     'status' => 'duplicate',
                     'message' => 'หมายเลขสินค้านี้ถูกลงทะเบียนแล้ว',
                 ], 200);
             }
+
+            // if ($check_form_history) {
+            //     return response()->json([
+            //         'status' => 'duplicate',
+            //         'message' => 'หมายเลขสินค้านี้ถูกลงทะเบียนแล้ว',
+            //     ], 200);
+            // }
 
             if ($model_code) {
                 $response = Http::timeout(30)
@@ -161,7 +168,7 @@ class WarrantyFormController extends Controller
             }
 
             // ❌ 4️⃣ ถ้าไม่เจอทั้ง SN และ Model
-            throw new \Exception('ไม่พบข้อมูล Model Code หรือ Serial Number นี้ในระบบ');
+            throw new \Exception('ไม่พบข้อมูลรหัสสินค้าหรือ Serial Number นี้ในระบบ');
         } catch (\Exception $e) {
             Log::error('❌ Warranty Check Error', [
                 'sn' => $sn,
