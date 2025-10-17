@@ -203,4 +203,44 @@ class CustomerProfileController extends Controller
         return redirect()->route('customer.profile.edit')
             ->with('success', 'อัปเดตข้อมูลเรียบร้อยแล้ว');
     }
+
+    public function updateConsent(Request $request)
+    {
+        $user = Auth::user();
+
+        $customer = TblCustomerProd::query()
+            ->where(function ($q) use ($user) {
+                if (!empty($user->line_id)) {
+                    $q->where('cust_line', $user->line_id);
+                }
+                if (!empty($user->phone)) {
+                    $q->orWhere('cust_tel', $user->phone);
+                }
+            })
+            ->first();
+
+        if (!$customer) {
+            return response()->json(['error' => 'ไม่พบข้อมูลลูกค้า'], 404);
+        }
+
+        $acceptPolicy = $request->input('accept_policy') === 'Y';
+        $acceptPdpa = $request->input('accept_pdpa') === 'Y';
+
+        $customer->accept_policy = $acceptPolicy ? 'Y' : 'N';
+        $customer->accept_pdpa = $acceptPdpa ? 'Y' : 'N';
+
+        $customer->accepted_pdpa_at = $acceptPolicy ? now() : null;
+        $customer->accepted_marketing_at = $acceptPdpa ? now() : null;
+
+        $customer->save();
+        return redirect()->back()->with('success', 'อัปเดตการยินยอมเรียบร้อยแล้ว');
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'อัปเดตการยินยอมเรียบร้อยแล้ว',
+        //     'data' => [
+        //         'accept_policy' => $customer->accept_policy,
+        //         'accept_pdpa' => $customer->accept_pdpa,
+        //     ],
+        // ]);
+    }
 }

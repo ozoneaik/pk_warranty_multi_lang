@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 import PROVINCES_JSON from '@/data/province.json';
 import DISTRICTS_JSON from '@/data/district.json';
 import SUBDISTRICTS_JSON from '@/data/sub_district.json';
+import axios from 'axios';
 
 type Province = { id: number; name_th: string; name_en?: string; };
 type Amphure = { id: number; province_id: number; name_th: string; };
@@ -297,6 +298,95 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
         });
     };
 
+    // OTP
+    // const submit: FormEventHandler = async (e) => {
+    //     e.preventDefault();
+
+    //     const phone = data.cust_tel;
+
+    //     // 🔹 Popup ยืนยันตัวตน
+    //     Swal.fire({
+    //         title: 'ยืนยันตัวตนด้วยรหัส OTP',
+    //         html: `
+    //         <p style="margin-bottom:10px;">ระบบจะส่งรหัส OTP ไปยังเบอร์ <b>${phone}</b></p>
+    //         <input id="otp-input" type="text" maxlength="4" placeholder="กรอกรหัส 4 หลัก" class="swal2-input" style="width:200px;text-align:center;">
+    //         <button id="send-otp-btn" class="swal2-styled" style="background-color:#F54927;margin-top:8px;">ส่ง OTP</button>
+    //     `,
+    //         showCancelButton: true,
+    //         confirmButtonText: 'ยืนยันรหัส',
+    //         cancelButtonText: 'ยกเลิก',
+    //         allowOutsideClick: false,
+    //         preConfirm: async () => {
+    //             const otp = (document.getElementById('otp-input') as HTMLInputElement)?.value;
+    //             if (!otp || otp.length !== 4) {
+    //                 Swal.showValidationMessage('กรุณากรอกรหัส OTP 4 หลัก');
+    //                 return false;
+    //             }
+
+    //             try {
+    //                 // ✅ ตรวจรหัสกับ backend
+    //                 const res = await axios.post(route('verify.otp'), { otp });
+    //                 if (!res.data.success) {
+    //                     Swal.showValidationMessage(res.data.message || 'OTP ไม่ถูกต้อง');
+    //                     return false;
+    //                 }
+    //                 return otp;
+    //             } catch {
+    //                 Swal.showValidationMessage('❌ ตรวจสอบ OTP ไม่สำเร็จ');
+    //                 return false;
+    //             }
+    //         },
+    //         didOpen: () => {
+    //             const sendOtpBtn = document.getElementById('send-otp-btn');
+    //             sendOtpBtn?.addEventListener('click', async () => {
+    //                 const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    //                 Swal.showLoading();
+    //                 try {
+    //                     // ✅ ส่ง OTP ไป backend (จะส่ง SMS และเก็บ session)
+    //                     const res = await axios.post(route('send.otp'), {
+    //                         phone,
+    //                         otp: otpCode,
+    //                     });
+    //                     if (res.data.success) {
+    //                         Swal.hideLoading();
+    //                         Swal.showValidationMessage('✅ ส่ง OTP สำเร็จ กรุณาตรวจสอบ SMS');
+    //                         setTimeout(() => Swal.resetValidationMessage(), 2000);
+    //                     } else {
+    //                         Swal.showValidationMessage(res.data.message || '❌ ส่ง OTP ล้มเหลว');
+    //                     }
+    //                 } catch (err) {
+    //                     Swal.showValidationMessage('❌ ไม่สามารถส่ง OTP ได้');
+    //                 }
+    //             });
+    //         },
+    //     }).then((result) => {
+    //         if (result.isConfirmed && result.value) {
+    //             Swal.fire({
+    //                 title: 'กำลังบันทึกข้อมูล...',
+    //                 allowOutsideClick: false,
+    //                 didOpen: () => Swal.showLoading(),
+    //             });
+
+    //             patch(route("customer.profile.update"), {
+    //                 onFinish: () => {
+    //                     Swal.fire({
+    //                         title: 'บันทึกข้อมูลสำเร็จ',
+    //                         icon: 'success',
+    //                         timer: 2000,
+    //                         confirmButtonColor: 'green',
+    //                     });
+    //                 },
+    //                 onError: () => {
+    //                     Swal.fire({
+    //                         title: 'บันทึกข้อมูลผิดพลาด',
+    //                         icon: 'error',
+    //                     });
+    //                 },
+    //             });
+    //         }
+    //     });
+    // };
+
     return (
         <section className={className}>
             <Button
@@ -310,7 +400,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     px: 1.5,
                     py: 0.5,
                     fontSize: 13,
-                    textTransform: "none", 
+                    textTransform: "none",
                 }}
                 onClick={() => router.get(route("customer.profile.welcome"))}
             >

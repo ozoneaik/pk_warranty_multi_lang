@@ -3,10 +3,12 @@
 use App\Http\Controllers\Api\SendOtpController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Warranty\WarrantyFormController;
 use App\Http\Controllers\Warranty\WarrantyHistoryController;
 use App\Http\Controllers\Warranty\WarrantyHomeController;
+use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Http;
@@ -43,11 +45,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [CustomerProfileController::class, 'welcome'])->name('customer.profile.welcome');
         Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
-        
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+        Route::get('/score/point', [ScoreController::class, 'getPoint']);
         Route::get('/info/pdpa', function () {
-            return Inertia::render('Profile/Customer/InfoPDPA');
+            $user = Auth::user();
+            $customer = TblCustomerProd::where('cust_line', $user->line_id)
+                ->orWhere('cust_tel', $user->phone)
+                ->select('accept_policy', 'accept_pdpa')
+                ->first();
+            return Inertia::render('Profile/Customer/InfoPDPA', [
+                'customer' => $customer,
+            ]);
         })->name('customer.profile.info.pdpa');
+        Route::post('/pdpa', [CustomerProfileController::class, 'updateConsent'])
+            ->name('customer.profile.update.pdpa');
         Route::get('/info/term', function () {
             return Inertia::render('Profile/Customer/InfoTerm');
         })->name('customer.profile.info.term');
@@ -76,6 +87,8 @@ Route::middleware('auth')->group(function () {
         })->name('add.phone');
         Route::post('/', [UserController::class, 'updatePhone'])->name('add.phone.store');
     });
+    
+    Route::post('/api/verify-otp', [SendOtpController::class, 'verify'])->name('verify.otp');
     Route::post('/api/send-otp', [SendOtpController::class, 'send'])->name('send.otp');
 });
 

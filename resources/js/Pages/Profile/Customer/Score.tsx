@@ -1,18 +1,39 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
-import { Box, Typography, Stack, Button, Container, Grid, Card, List, ListItemButton, ListItemIcon, ListItemText, Divider, CardContent, Avatar, Link } from "@mui/material";
-import ConstructionIcon from "@mui/icons-material/Construction";
+import {
+    Box, Typography, Stack, Button, Container, Grid, Card, List,
+    ListItemButton, ListItemIcon, ListItemText, Divider, CardContent, Avatar, Link
+} from "@mui/material";
+import { ChevronRight, Gavel, Logout, Shield, Edit } from "@mui/icons-material";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
-import { ChevronRight, Gavel, Logout, Shield, Edit, Flare } from "@mui/icons-material";
 import dayjs from "dayjs";
+import RewardProgress from "./RewardProgress";
 
 export default function ScorePage() {
     const { t } = useLanguage();
     const { auth, line_avatar, point, joined_at } = usePage().props as any;
-    console.log("score", point);
     const user = auth.user;
-    console.log("user", user);
-    // const { user } = usePage().props.auth as any;
+
+    // ✅ กำหนดระดับสมาชิกตาม point
+    const tier =
+        point > 3000
+            ? "platinum"
+            : point > 1000
+                ? "gold"
+                : "silver";
+
+    const cardColors: Record<string, string> = {
+        silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
+        gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)",
+        platinum: "linear-gradient(45deg, #004D40 0%, #00796B 30%, #4DB6AC 50%, #00796B 70%, #004D40 100%)",
+    };
+
+    const tierName: Record<string, string> = {
+        silver: "Silver Member",
+        gold: "gold Member",
+        platinum: "platinum Member",
+    };
+
     return (
         <MobileAuthenticatedLayout title={t.Score.title}>
             <Head title={t.Score.title} />
@@ -34,12 +55,8 @@ export default function ScorePage() {
                         px: { xs: 1, sm: 1 },
                     }}
                 >
-                    {/* User Profile Section */}
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={{ xs: 1, sm: 2 }}
-                    >
+                    {/* Profile Section */}
+                    <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
                         <Avatar
                             src={line_avatar || "https://via.placeholder.com/64"}
                             sx={{
@@ -48,7 +65,7 @@ export default function ScorePage() {
                             }}
                         />
                         <Box flex={1}>
-                            <Box display={"flex"} gap={1} alignItems="center">
+                            <Box display="flex" gap={1} alignItems="center">
                                 <Typography
                                     fontWeight={700}
                                     fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.3rem" }}
@@ -61,26 +78,69 @@ export default function ScorePage() {
                                 </Link>
                             </Box>
 
-                            <Typography
-                                color="text.secondary"
-                                fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0.5}
                                 ml={1}
-                                fontWeight={700}
                             >
-                                {point ?? 0} P
-                            </Typography>
+                                {/* วงกลม P พร้อม Gradient */}
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        width: { xs: 22, sm: 26 },
+                                        height: { xs: 22, sm: 26 },
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'radial-gradient(circle at center, #FFEFBA 0%, #E0B45F 70%, #9F7928 100%)',
+                                        // border: '2px solid transparent',
+                                        backgroundImage: 'linear-gradient(#222, #222), linear-gradient(45deg, #FFEFBA 0%, #8B660F 100%)',
+                                        backgroundOrigin: 'border-box',
+                                        backgroundClip: 'padding-box, border-box',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        fontWeight={900}
+                                        sx={{
+                                            color: '#fff',
+                                            fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                                            lineHeight: 1,
+                                            userSelect: 'none',
+                                        }}
+                                    >
+                                        P
+                                    </Typography>
+                                </Box>
+
+                                {/* คะแนน */}
+                                <Typography
+                                    color="text.secondary"
+                                    fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                                    fontWeight={800}
+                                >
+                                    {point ?? 0}
+                                </Typography>
+                            </Stack>
                         </Box>
                     </Stack>
+
+                    {/* ✅ Member Card */}
                     <Card
                         sx={{
                             mt: { xs: 2, sm: 2 },
                             borderRadius: 3,
                             border: "1px solid #d9d9d9",
-                            background:
-                                "linear-gradient(45deg, #999 5%, #fff 10%, #ccc 30%, #ddd 50%, #ccc 70%, #fff 80%, #999 95%)",
+                            background: cardColors[tier],
+                            color: "#111",
+                            transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
                             "&:hover": {
-                                transform: "translateY(-2px)",
-                            }
+                                transform: "translateY(-6px) scale(1.02)",
+                                boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
+                            },
                         }}
                     >
                         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -89,21 +149,77 @@ export default function ScorePage() {
                                 justifyContent="space-between"
                                 alignItems="flex-start"
                                 sx={{ pt: { xs: 0, sm: 1 }, pb: { xs: 2, sm: 4 } }}
+                                color={"white"}
                             >
                                 <Box>
-                                    <Typography
-                                        fontSize={{ xs: "1rem", sm: "1.2rem", md: "1.4rem" }}
-                                        fontWeight={700}
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={0.5}
+                                        ml={0}
                                     >
-                                        {point ?? 0} P
-                                    </Typography>
+                                        {/* วงกลม P พร้อม Gradient */}
+                                        <Box
+                                            sx={{
+                                                position: 'relative',
+                                                width: { xs: 22, sm: 26 }, 
+                                                height: { xs: 22, sm: 26 }, 
+                                                borderRadius: '50%', 
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                background: 'radial-gradient(circle at center, #FFEFBA 0%, #E0B45F 70%, #9F7928 100%)',
+                                                // border: '2px solid transparent',
+                                                backgroundImage: 'linear-gradient(#222, #222), linear-gradient(45deg, #FFEFBA 0%, #8B660F 100%)',
+                                                backgroundOrigin: 'border-box',
+                                                backgroundClip: 'padding-box, border-box',
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="caption"
+                                                fontWeight={900}
+                                                sx={{
+                                                    color: '#fff',
+                                                    fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                                                    lineHeight: 1,
+                                                    userSelect: 'none',
+                                                }}
+                                            >
+                                                P
+                                            </Typography>
+                                        </Box>
+
+                                        {/* คะแนน */}
+                                        <Typography
+                                            color="text.secondary"
+                                            fontSize={{ xs: "1rem", sm: "1rem" }}
+                                            fontWeight={800}
+                                            sx={{
+                                                color: '#fff',
+                                                textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000',
+                                            }}
+                                        >
+                                            {point ?? 0}
+                                        </Typography>
+                                    </Stack>
                                     <Typography
                                         fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
                                         color="text.secondary"
+                                        sx={{
+                                            color: '#333',
+                                        }}
                                     >
                                         Member Since :{" "}
                                         {dayjs(joined_at).format("D MMM YYYY")}
                                     </Typography>
+                                    {/* <Typography
+                                        mt={1}
+                                        fontWeight={700}
+                                        fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                                        color="#000"
+                                    >
+                                        {tierName[tier]}
+                                    </Typography> */}
                                 </Box>
                                 <Box
                                     component="img"
@@ -119,13 +235,25 @@ export default function ScorePage() {
                         </CardContent>
                     </Card>
 
-                    {/* Image Banner Section */}
+                    {/* Progress Section */}
+                    <RewardProgress
+                        cardColors={{
+                            silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
+                            gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)", 
+                            platinum: "linear-gradient(45deg, #004D40 0%, #00796B 30%, #4DB6AC 50%, #00796B 70%, #004D40 100%)", 
+
+                        }}
+                        point={point}
+                        joined_at={joined_at}
+                    />
+
+                    {/* Reward Banner */}
                     <Box
                         sx={{
-                            mt: { xs: 2, sm: 3 }, // เว้นระยะห่างด้านบนจาก Card คะแนน
-                            mb: { xs: 1, sm: 1 }, // เว้นระยะห่างด้านล่างจาก Settings
+                            mt: { xs: 2, sm: 3 },
+                            mb: { xs: 1, sm: 1 },
                             borderRadius: 3,
-                            overflow: "hidden", // เพื่อให้รูปภาพไม่เกินขอบโค้ง
+                            overflow: "hidden",
                         }}
                     >
                         <Box
@@ -133,156 +261,16 @@ export default function ScorePage() {
                             src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1743759942038-img_v3_02l1_6c9c4f8a-acb7-455a-9012-582d499e89fh.jpg"
                             alt="Reward Banner"
                             sx={{
-                                width: "100%", // ให้รูปภาพเต็มความกว้างของ Box
-                                height: "auto", // รักษาสัดส่วนของรูปภาพ
+                                width: "100%",
+                                height: "auto",
                                 display: "block",
                             }}
                         />
                     </Box>
-                    {/* End Image Banner Section */}
 
-                    {/* Coupons & Privileges Cards */}
-                    {/* <Stack
-                        direction="row"
-                        spacing={2}
-                        sx={{ mt: 2 }}
-                    >
-                        
-                        <Card
-                            sx={{
-                                flex: 1,
-                                borderRadius: 3,
-                                textAlign: "center",
-                                py: { xs: 1.5, sm: 2 },
-                            }}
-                        >
-                            <Box
-                                display="flex"
-                                sx={{
-                                    justifyContent: "left",
-                                    alignItems: "flex-end",
-                                    padding: { xs: "8px", sm: "10px" },
-                                    paddingLeft: { xs: "10px", sm: "12px" },
-                                    gap: "6px",
-                                }}
-                            >
-                                <Typography
-                                    color="#F54927"
-                                    fontWeight={700}
-                                    fontSize={{ xs: "1.8rem", sm: "2rem", md: "2.2rem" }}
-                                    lineHeight={1}
-                                >
-                                    0
-                                </Typography>
-                                <Typography
-                                    fontSize={{ xs: "0.9rem", sm: "1rem" }}
-                                    sx={{ pb: 0.3 }}
-                                >
-                                    คูปอง
-                                </Typography>
-                            </Box>
-                            <Typography
-                                color="text.secondary"
-                                fontSize={{ xs: "0.75rem", sm: "0.8rem" }}
-                                display="flex"
-                                justifyContent="left"
-                                alignItems="center"
-                                paddingLeft={2}
-                                gap={0.3}
-                                fontWeight={800}
-                            >
-                                <button
-                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
-                                    style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        padding: 0,
-                                        color: "inherit"
-                                    }}
-                                >
-                                    ดูเพิ่มเติม <ChevronRight fontSize="small" />
-                                </button>
-                            </Typography>
-                        </Card>
-
-                    
-                        <Card
-                            sx={{
-                                flex: 1,
-                                borderRadius: 3,
-                                textAlign: "center",
-                                py: { xs: 1.5, sm: 2 },
-                            }}
-                        >
-                            <Box
-                                display="flex"
-                                sx={{
-                                    justifyContent: "left",
-                                    alignItems: "flex-end",
-                                    padding: { xs: "8px", sm: "10px" },
-                                    paddingLeft: { xs: "10px", sm: "12px" },
-                                    gap: "6px",
-                                }}
-                            >
-                                <Typography
-                                    color="#F54927"
-                                    fontWeight={700}
-                                    fontSize={{ xs: "1.8rem", sm: "2rem", md: "2.2rem" }}
-                                    lineHeight={1}
-                                >
-                                    0
-                                </Typography>
-                                <Typography
-                                    fontSize={{ xs: "0.9rem", sm: "1rem" }}
-                                    sx={{ pb: 0.3 }}
-                                >
-                                    สิทธิพิเศษ
-                                </Typography>
-                            </Box>
-                            <Typography
-                                color="text.secondary"
-                                fontSize={{ xs: "0.75rem", sm: "0.8rem" }}
-                                display="flex"
-                                justifyContent="left"
-                                alignItems="center"
-                                gap={0.3}
-                                paddingLeft={2}
-                                fontWeight={800}
-                            >
-                                <button
-                                    onClick={() => alert("อยู่ระหว่างการพัฒนา")}
-                                    style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        padding: 0,
-                                        color: "inherit"
-                                    }}
-                                >
-                                    ดูเพิ่มเติม <ChevronRight fontSize="small" />
-                                </button>
-                            </Typography>
-                        </Card>
-                    </Stack> */}
-
-                    {/* Settings Section */}
-                    <Box
-                        sx={{
-                            mt: { xs: 4, sm: 4 },
-                            mb: { xs: 8, sm: 10 },
-                            px: { xs: 2, sm: 1 },
-                        }}
-                    >
-                        <Typography
-                            fontWeight={700}
-                            sx={{ mb: 1 }}
-                            fontSize={{ xs: "0.95rem", sm: "1rem" }}
-                        >
+                    {/* Settings */}
+                    <Box sx={{ mt: { xs: 4 }, mb: { xs: 8, sm: 10 }, px: { xs: 2, sm: 1 } }}>
+                        <Typography fontWeight={700} sx={{ mb: 1 }} fontSize={{ xs: "0.95rem", sm: "1rem" }}>
                             ตั้งค่า
                         </Typography>
                         <Card
@@ -295,46 +283,28 @@ export default function ScorePage() {
                         >
                             <List disablePadding>
                                 <ListItemButton
-                                    onClick={() =>
-                                        router.get(route("customer.profile.info.pdpa"))
-                                    }
+                                    onClick={() => router.get(route("customer.profile.info.pdpa"))}
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
-                                        <Shield
-                                            sx={{
-                                                color: "#F54927",
-                                                fontSize: { xs: 22, sm: 24 },
-                                            }}
-                                        />
+                                        <Shield sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="PDPA"
-                                        primaryTypographyProps={{
-                                            fontSize: { xs: "0.9rem", sm: "1rem" },
-                                        }}
+                                        primaryTypographyProps={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
                                     />
                                 </ListItemButton>
                                 <Divider />
                                 <ListItemButton
-                                    onClick={() =>
-                                        router.get(route("customer.profile.info.term"))
-                                    }
+                                    onClick={() => router.get(route("customer.profile.info.term"))}
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
-                                        <Gavel
-                                            sx={{
-                                                color: "#F54927",
-                                                fontSize: { xs: 22, sm: 24 },
-                                            }}
-                                        />
+                                        <Gavel sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="Term And Condition"
-                                        primaryTypographyProps={{
-                                            fontSize: { xs: "0.9rem", sm: "1rem" },
-                                        }}
+                                        primaryTypographyProps={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
                                     />
                                 </ListItemButton>
                                 <Divider />
@@ -343,12 +313,7 @@ export default function ScorePage() {
                                     sx={{ py: { xs: 1.5, sm: 2 } }}
                                 >
                                     <ListItemIcon>
-                                        <Logout
-                                            sx={{
-                                                color: "#F54927",
-                                                fontSize: { xs: 22, sm: 24 },
-                                            }}
-                                        />
+                                        <Logout sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="ออกจากระบบ"
@@ -362,7 +327,6 @@ export default function ScorePage() {
                             </List>
                         </Card>
                     </Box>
-
                 </Container>
             </Box>
         </MobileAuthenticatedLayout>
