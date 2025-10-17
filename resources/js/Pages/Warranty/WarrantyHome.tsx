@@ -22,7 +22,7 @@ const bottomBanners = [
     banner2,
     banner3
 ];
-const bannerHeight = { xs: 180, sm: 220, md: 260 };
+const bannerHeight = { xs: 250, sm: 220, md: 260 };
 export default function WarrantyHome() {
     const { t } = useLanguage();
     const theme = useTheme();
@@ -144,7 +144,7 @@ export default function WarrantyHome() {
                                     sx={{
                                         textAlign: "center",
                                         py: 3,
-                                        flexGrow: 1, // ✅ ทำให้ card content ขยายเต็มพื้นที่
+                                        flexGrow: 1, 
                                         display: "flex",
                                         flexDirection: "column",
                                         alignItems: "center",
@@ -223,7 +223,7 @@ export default function WarrantyHome() {
                             mt: { sm: 0 },
                             borderRadius: 3,
                             overflow: "visible",
-                            boxShadow: 3,
+                            // boxShadow: 3,
                             position: "relative",
                             height: bannerHeight,
                             width: "100%",
@@ -249,7 +249,7 @@ export default function WarrantyHome() {
                                         sx={{
                                             width: "100%",
                                             height: "100%",
-                                            objectFit: "cover",
+                                            objectFit: "contain",
                                             display: "block",
                                         }}
                                     />

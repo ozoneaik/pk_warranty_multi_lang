@@ -188,7 +188,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
         if (!model) {
             Swal.fire({
-                title: 'กรุณากรอก Model Code',
+                title: 'กรุณากรอกรหัสสินค้า',
                 icon: 'warning',
                 confirmButtonColor: '#F54927',
             });
@@ -298,7 +298,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             "Mega home",
             "Dohome",
             "Global house",
-            "ฮาร์แวร์เฮาส์",
+            "ฮาร์ดแวร์เฮาส์",
         ];
 
         const isBigStore = requireReferral.includes(value);

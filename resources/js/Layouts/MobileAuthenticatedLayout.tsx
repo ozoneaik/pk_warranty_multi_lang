@@ -193,7 +193,7 @@ export default function MobileAuthenticatedLayout({
                     position="fixed"
                     sx={{
                         top: 0,
-                        backgroundColor: isWarrantyHome ? 'transparent' : '#F54927',
+                        backgroundColor: isWarrantyHome ? 'white' : '#F54927',
                         boxShadow: 'none',
                         zIndex: (theme) => theme.zIndex.drawer + 1,
                         backdropFilter: 'blur(0px)',

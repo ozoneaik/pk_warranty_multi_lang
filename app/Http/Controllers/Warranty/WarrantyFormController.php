@@ -140,10 +140,8 @@ class WarrantyFormController extends Controller
                         'sn' => $sn,
                         'view' => 'sigle'
                     ]);
-
                 if ($response->successful()) {
                     $response_json = $response->json();
-
                     if ($response_json['status'] === 'SUCCESS' && ($response_json['warrantyexpire'] === false || $response_json['warrantyexpire'] === 'false')) {
                         $asset = $response_json['assets'][$response_json['skuset'][0]] ?? null;
                         if ($asset) {
@@ -166,7 +164,6 @@ class WarrantyFormController extends Controller
                     }
                 }
             }
-
             // ❌ 4️⃣ ถ้าไม่เจอทั้ง SN และ Model
             throw new \Exception('ไม่พบข้อมูลรหัสสินค้าหรือ Serial Number นี้ในระบบ');
         } catch (\Exception $e) {
