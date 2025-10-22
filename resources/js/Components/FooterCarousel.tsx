@@ -37,7 +37,7 @@ export default function FooterCarousel() {
         dots: false,
         infinite: false,
         speed: 400,
-        slidesToShow: 4,
+        slidesToShow: 5,
         slidesToScroll: 1,
         swipeToSlide: true,
         arrows: false,
@@ -82,8 +82,9 @@ export default function FooterCarousel() {
         >
             <Slider {...sliderSettings}>
                 {menus.map((item) => {
-                    const isActive = url.includes(item.route?.split(".")[1] || "");
+                    const isActive = route().current(item.route);
                     const IconComponent = MuiIcons[item.icon as keyof typeof MuiIcons];
+
                     return (
                         <Box
                             key={item.id}

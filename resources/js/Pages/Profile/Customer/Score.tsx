@@ -7,20 +7,14 @@ import { ChevronRight, Gavel, Logout, Shield, Edit } from "@mui/icons-material";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import dayjs from "dayjs";
-import RewardProgress from "./RewardProgress";
-
+import RewardProgress from "./CardTiers/RewardProgress";
+import CardPreviewDialog from "./CardTiers/CardPreviewDialog";
+import React from "react";
 export default function ScorePage() {
     const { t } = useLanguage();
-    const { auth, line_avatar, point, joined_at } = usePage().props as any;
+    const { auth, line_avatar, point, joined_at, tier, tier_expired_at } = usePage().props as any;
     const user = auth.user;
-
-    // ✅ กำหนดระดับสมาชิกตาม point
-    const tier =
-        point > 3000
-            ? "platinum"
-            : point > 1000
-                ? "gold"
-                : "silver";
+    const [openPreview, setOpenPreview] = React.useState(false);
 
     const cardColors: Record<string, string> = {
         silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
@@ -87,26 +81,25 @@ export default function ScorePage() {
                                 {/* วงกลม P พร้อม Gradient */}
                                 <Box
                                     sx={{
-                                        position: 'relative',
-                                        width: { xs: 22, sm: 26 },
-                                        height: { xs: 22, sm: 26 },
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: 'radial-gradient(circle at center, #FFEFBA 0%, #E0B45F 70%, #9F7928 100%)',
-                                        // border: '2px solid transparent',
-                                        backgroundImage: 'linear-gradient(#222, #222), linear-gradient(45deg, #FFEFBA 0%, #8B660F 100%)',
-                                        backgroundOrigin: 'border-box',
-                                        backgroundClip: 'padding-box, border-box',
+                                        width: 22,
+                                        height: 22,
+                                        borderRadius: "50%",
+                                        background: "radial-gradient(#FFF, #FFF6B4)",
+                                        border: "2px solid #FFE970",
+                                        display: "grid",
+                                        placeItems: "center",
+                                        color: "#8A8200",
+                                        fontWeight: 900,
+                                        fontSize: 12,
                                     }}
                                 >
                                     <Typography
                                         variant="caption"
                                         fontWeight={900}
                                         sx={{
-                                            color: '#fff',
-                                            fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                                            // color: '#fff',
+                                            color: "black",
+                                            fontSize: { xs: "0.9rem", sm: "0.9rem" },
                                             lineHeight: 1,
                                             userSelect: 'none',
                                         }}
@@ -129,6 +122,7 @@ export default function ScorePage() {
 
                     {/* ✅ Member Card */}
                     <Card
+                        onClick={() => setOpenPreview(true)}
                         sx={{
                             mt: { xs: 2, sm: 2 },
                             borderRadius: 3,
@@ -161,26 +155,25 @@ export default function ScorePage() {
                                         {/* วงกลม P พร้อม Gradient */}
                                         <Box
                                             sx={{
-                                                position: 'relative',
-                                                width: { xs: 22, sm: 26 }, 
-                                                height: { xs: 22, sm: 26 }, 
-                                                borderRadius: '50%', 
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                background: 'radial-gradient(circle at center, #FFEFBA 0%, #E0B45F 70%, #9F7928 100%)',
-                                                // border: '2px solid transparent',
-                                                backgroundImage: 'linear-gradient(#222, #222), linear-gradient(45deg, #FFEFBA 0%, #8B660F 100%)',
-                                                backgroundOrigin: 'border-box',
-                                                backgroundClip: 'padding-box, border-box',
+                                                width: 22,
+                                                height: 22,
+                                                borderRadius: "50%",
+                                                background: "radial-gradient(#FFF, #FFF6B4)",
+                                                border: "2px solid #FFE970",
+                                                display: "grid",
+                                                placeItems: "center",
+                                                color: "#8A8200",
+                                                fontWeight: 900,
+                                                fontSize: 12,
                                             }}
                                         >
                                             <Typography
                                                 variant="caption"
                                                 fontWeight={900}
                                                 sx={{
-                                                    color: '#fff',
-                                                    fontSize: { xs: "0.9rem", sm: "1.1rem" },
+                                                    // color: '#fff',
+                                                    color: "black",
+                                                    fontSize: { xs: "0.9rem", sm: "0.9rem" },
                                                     lineHeight: 1,
                                                     userSelect: 'none',
                                                 }}
@@ -239,12 +232,14 @@ export default function ScorePage() {
                     <RewardProgress
                         cardColors={{
                             silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
-                            gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)", 
-                            platinum: "linear-gradient(45deg, #004D40 0%, #00796B 30%, #4DB6AC 50%, #00796B 70%, #004D40 100%)", 
+                            gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)",
+                            platinum: "linear-gradient(45deg, #004D40 0%, #00796B 30%, #4DB6AC 50%, #00796B 70%, #004D40 100%)",
 
                         }}
                         point={point}
                         joined_at={joined_at}
+                        tier_expired_at={tier_expired_at}
+                        tier={tier}
                     />
 
                     {/* Reward Banner */}
@@ -329,6 +324,14 @@ export default function ScorePage() {
                     </Box>
                 </Container>
             </Box>
+            <CardPreviewDialog
+                open={openPreview}
+                onClose={() => setOpenPreview(false)}
+                activeTier={tier as "silver" | "gold" | "platinum"}
+                point={point ?? 0}
+                joined_at={joined_at}
+                cardColors={cardColors}
+            />
         </MobileAuthenticatedLayout>
     );
 }

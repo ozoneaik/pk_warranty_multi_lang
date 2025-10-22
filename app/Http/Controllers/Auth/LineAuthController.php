@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
+use App\Models\MasterWaaranty\TypeProcessPoint;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
@@ -224,6 +228,112 @@ class LineAuthController extends Controller
                 $cust->cust_tel = $user->phone ?? '';
             }
             $cust->save();
+
+            // ✅ ตรวจสอบวันหมดอายุของ Tier ทุกครั้งที่ Login
+            if (!empty($cust->tier_expired_at)) {
+                $expiredAt = Carbon::parse($cust->tier_expired_at);
+                $now = Carbon::now();
+
+                // ✅ คำนวณเวลาคงเหลือ (วัน ชั่วโมง นาที)
+                $remainingDays = $now->diffInDays($expiredAt, false);
+                $remainingHours = $now->diffInHours($expiredAt, false);
+                $remainingText = $remainingDays > 0
+                    ? "{$remainingDays} วัน"
+                    : ($remainingHours > 0
+                        ? "{$remainingHours} ชั่วโมง"
+                        : "หมดอายุแล้ว");
+
+                Log::info("📊 Tier Check: ลูกค้าเข้าสู่ระบบ", [
+                    'cust_uid' => $cust->cust_uid,
+                    'tier' => $cust->tier_key,
+                    'expired_at' => $expiredAt->format('Y-m-d H:i:s'),
+                    'remaining' => $remainingText,
+                    'point' => $cust->point,
+                ]);
+
+                if ($now->greaterThan($expiredAt)) {
+                    Log::info("🔄 Tier หมดอายุแล้ว ทำการรีเซ็ตใหม่", [
+                        'cust_uid' => $cust->cust_uid,
+                        'old_tier' => $cust->tier_key,
+                        'expired_at' => $cust->tier_expired_at,
+                    ]);
+
+                    // ✅ คำนวณ Tier ใหม่จาก point ปัจจุบัน
+                    $point = (int) $cust->point;
+                    $newTier = match (true) {
+                        $point >= 3000 => 'platinum',
+                        $point >= 1000 => 'gold',
+                        default        => 'silver',
+                    };
+
+                    // ✅ ต่ออายุ Tier ใหม่อีก 2 ปี
+                    $cust->update([
+                        'tier_key'        => $newTier,
+                        'tier_updated_at' => $now,
+                        'tier_expired_at' => $now->copy()->addYears(2),
+                    ]);
+
+                    Log::info("✅ อัปเดต Tier ใหม่สำเร็จ", [
+                        'new_tier' => $newTier,
+                        'new_expired_at' => $cust->tier_expired_at,
+                    ]);
+                }
+            }
+
+            // === แจกแต้มสมัครสมาชิกครั้งแรก ===
+            try {
+                DB::beginTransaction();
+
+                $hasRegisterPoint = PointTransaction::where('line_id', $lineId)
+                    ->where('process_code', 'REGISTER')
+                    ->exists();
+
+                if (!$hasRegisterPoint) {
+                    $process = TypeProcessPoint::where('process_code', 'REGISTER')->where('is_active', 1)->first();
+                    $initialPoint = $process?->default_point ?? 50;
+                    $pointBefore  = (int) $cust->point;
+                    $pointAfter   = $pointBefore + $initialPoint;
+
+                    // ✅ อัปเดตแต้มลูกค้า
+                    $cust->update([
+                        'point'            => $pointAfter,
+                        'tier_key'         => $cust->tier_key ?? 'silver',
+                        'tier_updated_at'  => $cust->tier_updated_at ?? now(),
+                        'tier_expired_at'  => $cust->tier_expired_at ?? now()->addYears(2),
+                        'last_earn_at'     => now(),
+                    ]);
+
+                    // ✅ บันทึกธุรกรรมแต้ม
+                    PointTransaction::create([
+                        'line_id'           => $lineId,
+                        'transaction_type'  => 'earn',
+                        'process_code'      => 'REGISTER',
+                        'reference_id'      => uniqid('TXN-'),
+                        'pid'               => null,
+                        'pname'             => 'สมัครสมาชิกครั้งแรก',
+                        'point_before'      => $pointBefore,
+                        'point_tran'        => $initialPoint,
+                        'point_after'       => $pointAfter,
+                        'tier'              => 'silver',
+                        'docdate'           => now()->toDateString(),
+                        // 'docno'             => 'REG-' . now()->format('YmdHis'),
+                        'docno'             => sprintf('REG-%05d-%s', $cust->id ?? 0, now()->format('YmdHis')),
+                        'trandate'          => now()->toDateString(),
+                        'created_at'        => now(),
+                        'expired_at'        => now()->addYears(2)->toDateString(),
+                    ]);
+
+                    Log::info("✅ สมัครสมาชิกครั้งแรก: เพิ่มแต้ม {$initialPoint} Points ให้ {$cust->cust_firstname}");
+                } else {
+                    Log::info("⚠️ สมาชิก {$cust->cust_firstname} เคยได้รับแต้มสมัครสมาชิกแล้ว");
+                }
+
+                DB::commit();
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                Log::error('❌ สมัครสมาชิกครั้งแรกเพิ่มแต้มไม่สำเร็จ', ['error' => $e->getMessage()]);
+            }
+
             Auth::login($user);
             session([
                 'line_avatar' => $avatar,

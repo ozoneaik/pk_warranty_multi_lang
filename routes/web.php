@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\SendOtpController;
 use App\Http\Controllers\CustomerProfileController;
+use App\Http\Controllers\Privilege\PrivilegeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Privilege\RedeemController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Warranty\WarrantyFormController;
@@ -46,6 +48,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+
+        Route::get('/privilege', [PrivilegeController::class, 'index'])
+            ->name('customer.profile.privilege');
+
         Route::get('/score/point', [ScoreController::class, 'getPoint']);
         Route::get('/info/pdpa', function () {
             $user = Auth::user();
@@ -63,6 +69,9 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('Profile/Customer/InfoTerm');
         })->name('customer.profile.info.term');
     });
+
+    Route::post('/redeem', [RedeemController::class, 'store'])->name('redeem.store');
+    Route::get('/redeem/history', [RedeemController::class, 'history'])->name('redeem.history');
 
     Route::get('/home', function () {})->name('home');
 
@@ -87,7 +96,7 @@ Route::middleware('auth')->group(function () {
         })->name('add.phone');
         Route::post('/', [UserController::class, 'updatePhone'])->name('add.phone.store');
     });
-    
+
     Route::post('/api/verify-otp', [SendOtpController::class, 'verify'])->name('verify.otp');
     Route::post('/api/send-otp', [SendOtpController::class, 'send'])->name('send.otp');
 });

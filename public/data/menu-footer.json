@@ -13,12 +13,18 @@
     },
     {
         "id": 3,
+        "label": "Privilege",
+        "route": "customer.profile.privilege",
+        "icon": "WorkspacePremium"
+    },
+    {
+        "id": 4,
         "label": "History",
         "route": "warranty.history",
         "icon": "History"
     },
     {
-        "id": 4,
+        "id": 5,
         "label": "Profile",
         "route": "customer.profile.welcome",
         "icon": "SupervisedUserCircle"

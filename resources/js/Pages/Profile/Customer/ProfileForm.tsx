@@ -280,17 +280,22 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
             if (confirm.isConfirmed) {
                 patch(route("customer.profile.update"), {
                     onFinish: () => {
-                        Swal.fire({
-                            title: 'บันทึกข้อมูลเสร็จสิ้น',
-                            icon: 'success',
-                            timer: 2000,
-                            confirmButtonColor: 'green',
-                        });
+                        if (Object.keys(errors).length === 0) {
+                            Swal.fire({
+                                title: 'บันทึกข้อมูลเสร็จสิ้น',
+                                icon: 'success',
+                                timer: 2000,
+                                confirmButtonColor: 'green',
+                            });
+                        }
                     },
-                    onError: () => {
+                    onError: (err) => {
+                        console.error("❌ Validation error:", err);
                         Swal.fire({
                             title: 'บันทึกข้อมูลผิดพลาด',
+                            html: Object.values(err).join('<br>'),
                             icon: 'error',
+                            confirmButtonColor: '#F54927',
                         });
                     },
                 });

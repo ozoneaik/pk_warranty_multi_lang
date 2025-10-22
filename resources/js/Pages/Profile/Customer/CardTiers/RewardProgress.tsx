@@ -1,68 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { Box, Card, CardContent, Typography, Stack } from "@mui/material";
-import axios from "axios";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 import dayjs from "dayjs";
 
 interface RewardProgressProps {
     cardColors: Record<string, string>;
     point?: number;
     joined_at?: string;
+    tier_expired_at?: string;
+    tier?: string; // ✅ เพิ่ม tier ปัจจุบันจาก backend
 }
 
-export default function RewardProgress({ cardColors, point = 0, joined_at }: RewardProgressProps) {
-    const [level, setLevel] = useState<string>("Silver");
+export default function RewardProgress({
+    cardColors,
+    point = 0,
+    joined_at,
+    tier = "silver",
+    tier_expired_at,
+}: RewardProgressProps) {
+    const [level, setLevel] = useState<string>(tier);
 
     useEffect(() => {
-        if (point === null) return;
+        // ✅ ถ้ามี tier จาก backend ให้ใช้เลย ไม่ต้องคำนวณเอง
+        setLevel(tier.charAt(0).toUpperCase() + tier.slice(1));
 
-        const state = {
-            current: point,
-            tiers: [
-                { key: "silver", name: "Silver", min: 0, max: 1000 },
-                { key: "gold", name: "Gold", min: 1001, max: 3000 },
-                { key: "platinum", name: "Platinum", min: 3001, max: Infinity },
-            ],
-        };
+        const now = dayjs();
+        const expiredAt = tier_expired_at ? dayjs(tier_expired_at) : null;
 
-        let currentTier = state.tiers[0];
-        for (let t of state.tiers) {
-            if (point >= t.min && point <= t.max) {
-                currentTier = t;
-                break;
+        // ✅ ตรวจวันหมดอายุ — แต่ไม่ downgrade
+        if (expiredAt) {
+            const remainingDays = expiredAt.diff(now, "day");
+            if (remainingDays < 0) {
+                console.log(`⚠️ Tier ${tier} หมดอายุแล้ว (Expired ${expiredAt.format("YYYY-MM-DD")})`);
+            } else {
+                console.log(
+                    `📅 Tier ${tier} จะหมดอายุอีก ${remainingDays} วัน (${expiredAt.format("YYYY-MM-DD")})`
+                );
             }
         }
-        setLevel(currentTier.name);
 
+        // === วงกลมด้านบน ===
         const fmt = (n: number) => Number(n || 0).toLocaleString("th-TH");
-
+        const r = 52,
+            C = 2 * Math.PI * r;
+        const pctAll = Math.min(100, (point / 3000) * 100);
+        const dash = (pctAll / 100) * C;
         const arc = document.getElementById("arc");
         const pctText = document.getElementById("pctText");
         const centerText = document.getElementById("centerText");
         const linearBar = document.getElementById("linearBar");
 
-        // === วงกลมด้านบน ===
-        const r = 52,
-            C = 2 * Math.PI * r;
-        const pctAll = Math.min(100, (point / 3000) * 100);
-        const dash = (pctAll / 100) * C;
         if (arc) arc.setAttribute("stroke-dasharray", `${dash} ${C}`);
         if (pctText) pctText.textContent = `${Math.round(pctAll)}%`;
         if (centerText) centerText.textContent = `${fmt(point)} คะแนน`;
 
         // === Linear Progress ของระดับปัจจุบัน ===
-        const span =
-            currentTier.max === Infinity ? 1000 : currentTier.max - currentTier.min;
+        const tiers = [
+            { key: "silver", min: 0, max: 1000 },
+            { key: "gold", min: 1001, max: 3000 },
+            { key: "platinum", min: 3001, max: Infinity },
+        ];
+        const currentTier = tiers.find((t) => t.key === tier) || tiers[0];
+        const span = currentTier.max === Infinity ? 1000 : currentTier.max - currentTier.min;
         const base = Math.max(0, point - currentTier.min);
         const pct = Math.min(100, (base / span) * 100);
 
         if (linearBar) {
             linearBar.style.setProperty("--pct", pct + "%");
             linearBar.style.animation = "none";
-            void linearBar.offsetWidth; 
-            linearBar.style.animation =
-                "grow .9s cubic-bezier(.2,.7,.2,1) forwards";
+            void linearBar.offsetWidth;
+            linearBar.style.animation = "grow .9s cubic-bezier(.2,.7,.2,1) forwards";
         }
-    }, [point]);
+    }, [point, tier, tier_expired_at]);
 
     return (
         <Card
@@ -120,15 +128,7 @@ export default function RewardProgress({ cardColors, point = 0, joined_at }: Rew
                                 strokeDasharray="0 999"
                                 transform="rotate(-90 60 60)"
                             />
-                            <text
-                                id="pctText"
-                                x="60"
-                                y="60"
-                                textAnchor="middle"
-                                dominantBaseline="central"
-                                fontSize="20"
-                                fontWeight="700"
-                            >
+                            <text id="pctText" x="60" y="60" textAnchor="middle" dominantBaseline="central" fontSize="20" fontWeight="700">
                                 0%
                             </text>
                             <text id="centerText" x="60" y="78" textAnchor="middle" fontSize="8" fill="#666">
@@ -147,15 +147,14 @@ export default function RewardProgress({ cardColors, point = 0, joined_at }: Rew
                         </Typography>
 
                         <Box className="tiers">
-                            {["silver", "gold", "platinum"].map((tier) => (
-                                <div key={tier} className="tier">
-                                    {/* === ใช้ Card แทน icon เดิม === */}
+                            {["silver", "gold", "platinum"].map((t) => (
+                                <div key={t} className={`tier ${t === tier ? "active" : ""}`}>
                                     <Box>
                                         <Card
                                             sx={{
                                                 width: 80,
                                                 height: 50,
-                                                background: cardColors[tier],
+                                                background: cardColors[t],
                                                 borderRadius: 2,
                                                 color: "#333",
                                                 display: "flex",
@@ -169,7 +168,6 @@ export default function RewardProgress({ cardColors, point = 0, joined_at }: Rew
                                                 position: "relative",
                                             }}
                                         >
-                                            {/* 🟠 โลโก้ Pumpkin มุมบนขวา */}
                                             <Box
                                                 component="img"
                                                 src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
@@ -182,55 +180,26 @@ export default function RewardProgress({ cardColors, point = 0, joined_at }: Rew
                                                     opacity: 0.9,
                                                 }}
                                             />
-
-                                            {/* 🟢 เนื้อหาในบัตร */}
-                                            {/* <CardContent
-                                                sx={{
-                                                    p: 0,
-                                                    width: "100%",
-                                                    height: "100%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                }}
-                                            >
-                                                <Typography
-                                                    sx={{
-                                                        fontSize: "0.65rem",
-                                                        fontWeight: 600,
-                                                        color: "#fff",
-                                                        textShadow: "0 0 2px rgba(0,0,0,0.3)",
-                                                    }}
-                                                >
-                                                    {tier === "silver"
-                                                        ? "Silver Member"
-                                                        : tier === "gold"
-                                                            ? "Gold Member"
-                                                            : "Platinum Member"}
-                                                </Typography>
-                                            </CardContent> */}
                                         </Card>
                                     </Box>
 
-
-                                    {/* ข้อมูล tier */}
                                     <div>
                                         <div className="name">
-                                            {tier === "silver"
+                                            {t === "silver"
                                                 ? "Silver Member"
-                                                : tier === "gold"
+                                                : t === "gold"
                                                     ? "Gold Member"
                                                     : "Platinum Member"}
                                         </div>
                                         <div className="need">
-                                            {tier === "silver" && "Point 0 - 1,000 แต้ม"}
-                                            {tier === "gold" && "Point 1,001 - 3,000 แต้ม"}
-                                            {tier === "platinum" && "Point 3,001 แต้มขึ้นไป"}
+                                            {t === "silver" && "Point 0 - 1,000 แต้ม"}
+                                            {t === "gold" && "Point 1,001 - 3,000 แต้ม"}
+                                            {t === "platinum" && "Point 3,001 แต้มขึ้นไป"}
                                         </div>
                                     </div>
 
                                     <div className="muted" style={{ textAlign: "right", minWidth: 80 }}>
-                                        {tier === level.toLowerCase() ? "ปัจจุบัน" : ""}
+                                        {t === tier ? "ปัจจุบัน" : ""}
                                     </div>
                                 </div>
                             ))}
