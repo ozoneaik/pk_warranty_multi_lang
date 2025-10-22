@@ -36,7 +36,5 @@ class AppServiceProvider extends ServiceProvider
             'line_avatar' => fn() => session('line_avatar'),
             'line_email' => fn() => session('line_email'),
         ]);
-
-        TblHistoryProd::observe(TblHistoryProdObserver::class);
     }
 }

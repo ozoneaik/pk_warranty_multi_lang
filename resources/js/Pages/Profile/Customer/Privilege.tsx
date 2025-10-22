@@ -1,5 +1,5 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import {
     Box,
     Card,
@@ -228,14 +228,12 @@ export default function PrivilegePage() {
 
             if (res.data.success) {
                 Swal.fire("สำเร็จ!", res.data.message, "success").then(() => {
-                    // ✅ ไปแท็บประวัติ (index 3)
                     setTab(3);
-
-                    // ✅ โหลดข้อมูลประวัติใหม่
                     axios
                         .get(route("redeem.history"))
                         .then((res) => setRedeemHistory(res.data.data))
                         .catch(() => setRedeemHistory([]));
+                    router.reload({ only: ["auth", "point"] });
                 });
             }
         } catch (err: any) {

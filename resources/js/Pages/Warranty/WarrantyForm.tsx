@@ -1368,7 +1368,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                     required
                                     // disabled={processing || checking || snVerified}
                                     disabled
-                                    placeholder="กรอกรหัสรุ่นสินค้า"
+                                    placeholder="รหัสรุ่นสินค้า"
                                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                                 />
                             </FormControl>

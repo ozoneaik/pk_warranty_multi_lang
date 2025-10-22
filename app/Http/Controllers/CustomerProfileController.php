@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MasterWaaranty\MembershipTier;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblCustomerProdVat;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +52,7 @@ class CustomerProfileController extends Controller
             ->select('cust_firstname', 'cust_lastname', 'point', 'tier_key', 'tier_expired_at', 'datetime')
             ->first();
 
+        // ❌ ถ้ายังไม่เคยลงทะเบียนเลย → ให้ค่าเริ่มต้น
         if (!$customer) {
             return Inertia::render('Profile/Customer/Score', [
                 'point' => 0,
@@ -60,31 +63,33 @@ class CustomerProfileController extends Controller
         }
 
         $now = now();
-        $tier = $customer->tier_key ?? 'silver';
-        $isExpired = !$customer->tier_expired_at || $now->greaterThan($customer->tier_expired_at);
+        $point = (int)($customer->point ?? 0);
 
-        // ✅ ถ้าหมดอายุ — downgrade
-        if ($isExpired) {
-            $tier = match (true) {
-                $customer->point >= 3000 => 'platinum',
-                $customer->point >= 1000 => 'gold',
-                default => 'silver',
-            };
+        // ✅ ใช้ tier จากฐานข้อมูลก่อน
+        $tierKey = $customer->tier_key ?? 'silver';
+        $tierExpiredAt = $customer->tier_expired_at ? Carbon::parse($customer->tier_expired_at) : null;
 
-            $tierExpiredAt = $now->copy()->addYears(2);
+        // ✅ ถ้า tier หมดอายุ → คำนวณใหม่จากตาราง membership_tiers
+        if (!$tierExpiredAt || $now->greaterThan($tierExpiredAt)) {
+            $currentTier = MembershipTier::orderByDesc('min_point')
+                ->where('min_point', '<=', $point)
+                ->first();
+
+            $tierKey = $currentTier?->key ?? 'silver';
+            $tierExpiredAt = $now->copy()->addYears($currentTier?->duration_years ?? 2);
+
             $customer->update([
-                'tier_key' => $tier,
+                'tier_key'        => $tierKey,
                 'tier_updated_at' => $now,
                 'tier_expired_at' => $tierExpiredAt,
             ]);
-        } else {
-            $tierExpiredAt = $customer->tier_expired_at;
         }
 
+        // ✅ ส่งค่ากลับให้ frontend
         return Inertia::render('Profile/Customer/Score', [
-            'point' => $customer->point ?? 0,
+            'point' => $point,
             'joined_at' => $customer->datetime ?? now(),
-            'tier' => $tier,
+            'tier' => $tierKey,
             'tier_expired_at' => $tierExpiredAt,
         ]);
     }
