@@ -78,6 +78,10 @@ function ProductList({
                             boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
                             overflow: "hidden",
                             transition: "transform 0.2s",
+                            height: 250,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
                             "&:hover": { transform: "translateY(-3px)" },
                         }}
                     >
@@ -95,6 +99,7 @@ function ProductList({
                         <CardContent
                             sx={{
                                 p: 1.5,
+                                flexGrow: 1,
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "space-between",
@@ -107,6 +112,11 @@ function ProductList({
                                     color: "#333",
                                     minHeight: 40,
                                     lineHeight: 1.3,
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
                                 }}
                             >
                                 {item.pname}
@@ -321,7 +331,7 @@ export default function PrivilegePage() {
                                                 }}
                                             >
                                                 <span>
-                                                    +{fmt.format(remainingPoints)} คะแนน ภายใน{" "}
+                                                    คุณต้องเพิ่มอีก {fmt.format(remainingPoints)} คะแนน ภายใน{" "}
                                                     {dayjs().endOf("year").format("DD/MM/YYYY")}
                                                 </span>
                                                 <span>เพื่อเลื่อนสถานะเป็น {nextTier}</span>
@@ -330,13 +340,13 @@ export default function PrivilegePage() {
                                             <Typography
                                                 variant="body2"
                                                 sx={{
-                                                    mt: 0.5,
+                                                    mt: 1,
                                                     color: "#444",
                                                     fontSize: 13,
                                                     lineHeight: 1.4,
                                                 }}
                                             >
-                                                คุณอยู่ในระดับสูงสุดแล้ว 🎉
+                                                คุณอยู่ในระดับสูงสุดแล้ว 🎉🎉
                                             </Typography>
                                         )}
                                     </Box>

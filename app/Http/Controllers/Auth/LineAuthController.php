@@ -280,26 +280,86 @@ class LineAuthController extends Controller
                 }
             }
 
+            // // === แจกแต้มสมัครสมาชิกครั้งแรก ===
+            // try {
+            //     DB::beginTransaction();
+
+            //     $hasRegisterPoint = PointTransaction::where('line_id', $lineId)
+            //         ->where('process_code', 'REGISTER')
+            //         ->exists();
+
+            //     if (!$hasRegisterPoint) {
+            //         $process = TypeProcessPoint::where('process_code', 'REGISTER')->where('is_active', 1)->first();
+            //         $initialPoint = $process?->default_point ?? 50;
+            //         $pointBefore  = (int) $cust->point;
+            //         $pointAfter   = $pointBefore + $initialPoint;
+
+            //         // ✅ อัปเดตแต้มลูกค้า
+            //         $cust->update([
+            //             'point'            => $pointAfter,
+            //             'tier_key'         => $cust->tier_key ?? 'silver',
+            //             'tier_updated_at'  => $cust->tier_updated_at ?? now(),
+            //             'tier_expired_at'  => $cust->tier_expired_at ?? now()->addYears(2),
+            //             'last_earn_at'     => now(),
+            //         ]);
+
+            //         // ✅ บันทึกธุรกรรมแต้ม
+            //         PointTransaction::create([
+            //             'line_id'           => $lineId,
+            //             'transaction_type'  => 'earn',
+            //             'process_code'      => 'REGISTER',
+            //             'reference_id'      => uniqid('TXN-'),
+            //             'pid'               => null,
+            //             'pname'             => 'สมัครสมาชิกครั้งแรก',
+            //             'point_before'      => $pointBefore,
+            //             'point_tran'        => $initialPoint,
+            //             'point_after'       => $pointAfter,
+            //             'tier'              => 'silver',
+            //             'docdate'           => now()->toDateString(),
+            //             // 'docno'             => 'REG-' . now()->format('YmdHis'),
+            //             'docno'             => sprintf('REG-%05d-%s', $cust->id ?? 0, now()->format('YmdHis')),
+            //             'trandate'          => now()->toDateString(),
+            //             'created_at'        => now(),
+            //             'expired_at'        => now()->addYears(2)->toDateString(),
+            //         ]);
+
+            //         Log::info("✅ สมัครสมาชิกครั้งแรก: เพิ่มแต้ม {$initialPoint} Points ให้ {$cust->cust_firstname}");
+            //     } else {
+            //         Log::info("⚠️ สมาชิก {$cust->cust_firstname} เคยได้รับแต้มสมัครสมาชิกแล้ว");
+            //     }
+
+            //     DB::commit();
+            // } catch (\Throwable $e) {
+            //     DB::rollBack();
+            //     Log::error('❌ สมัครสมาชิกครั้งแรกเพิ่มแต้มไม่สำเร็จ', ['error' => $e->getMessage()]);
+            // }
+
             // === แจกแต้มสมัครสมาชิกครั้งแรก ===
             try {
                 DB::beginTransaction();
 
-                $hasRegisterPoint = PointTransaction::where('line_id', $lineId)
-                    ->where('process_code', 'REGISTER')
-                    ->exists();
+                // ✅ แจกแต้มเฉพาะลูกค้าใหม่เท่านั้น
+                if (!$cust->exists || !$cust->id) {
+                    $process = TypeProcessPoint::where('process_code', 'REGISTER')
+                        ->where('is_active', 1)
+                        ->first();
 
-                if (!$hasRegisterPoint) {
-                    $process = TypeProcessPoint::where('process_code', 'REGISTER')->where('is_active', 1)->first();
                     $initialPoint = $process?->default_point ?? 50;
-                    $pointBefore  = (int) $cust->point;
-                    $pointAfter   = $pointBefore + $initialPoint;
+                    $pointBefore  = 0;
+                    $pointAfter   = $initialPoint;
 
-                    // ✅ อัปเดตแต้มลูกค้า
+                    // ✅ กำหนด tier เริ่มต้นจากคะแนน
+                    $newTier = match (true) {
+                        $pointAfter >= 3000 => 'platinum',
+                        $pointAfter >= 1000 => 'gold',
+                        default             => 'silver',
+                    };
+
                     $cust->update([
                         'point'            => $pointAfter,
-                        'tier_key'         => $cust->tier_key ?? 'silver',
-                        'tier_updated_at'  => $cust->tier_updated_at ?? now(),
-                        'tier_expired_at'  => $cust->tier_expired_at ?? now()->addYears(2),
+                        'tier_key'         => $newTier,
+                        'tier_updated_at'  => now(),
+                        'tier_expired_at'  => now()->addYears(2),
                         'last_earn_at'     => now(),
                     ]);
 
@@ -314,24 +374,23 @@ class LineAuthController extends Controller
                         'point_before'      => $pointBefore,
                         'point_tran'        => $initialPoint,
                         'point_after'       => $pointAfter,
-                        'tier'              => 'silver',
+                        'tier'              => $newTier,
                         'docdate'           => now()->toDateString(),
-                        // 'docno'             => 'REG-' . now()->format('YmdHis'),
                         'docno'             => sprintf('REG-%05d-%s', $cust->id ?? 0, now()->format('YmdHis')),
                         'trandate'          => now()->toDateString(),
                         'created_at'        => now(),
                         'expired_at'        => now()->addYears(2)->toDateString(),
                     ]);
 
-                    Log::info("✅ สมัครสมาชิกครั้งแรก: เพิ่มแต้ม {$initialPoint} Points ให้ {$cust->cust_firstname}");
+                    Log::info("✅ สมัครสมาชิกใหม่: เพิ่มแต้ม {$initialPoint} Points ให้ {$cust->cust_firstname}");
                 } else {
-                    Log::info("⚠️ สมาชิก {$cust->cust_firstname} เคยได้รับแต้มสมัครสมาชิกแล้ว");
+                    Log::info("ℹ️ ลูกค้า {$cust->cust_firstname} มีอยู่แล้ว — ไม่แจกแต้มสมัครสมาชิก");
                 }
 
                 DB::commit();
             } catch (\Throwable $e) {
                 DB::rollBack();
-                Log::error('❌ สมัครสมาชิกครั้งแรกเพิ่มแต้มไม่สำเร็จ', ['error' => $e->getMessage()]);
+                Log::error('❌ แจกแต้มสมัครสมาชิกไม่สำเร็จ', ['error' => $e->getMessage()]);
             }
 
             Auth::login($user);

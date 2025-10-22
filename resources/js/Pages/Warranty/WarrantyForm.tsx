@@ -986,14 +986,13 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             setData((prev: any) => ({
                 ...prev,
                 serial_number: value,
-                model_code: '', // ✅ ล้างรหัสสินค้า
+                model_code: '', 
                 model_name: '',
                 product_name: '',
             }));
             return; 
         }
 
-        // ✅ ถ้าผู้ใช้แก้ model_code (กรณีไม่ disable) ก็รีเซ็ตเหมือนกัน
         if (name === 'model_code') {
             setShowProduct(false);
             setShowForm(false);
