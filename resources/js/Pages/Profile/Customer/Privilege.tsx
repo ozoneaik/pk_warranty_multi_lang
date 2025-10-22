@@ -136,7 +136,7 @@ function ProductList({
                                 </Box>
                                 <Typography
                                     variant="body2"
-                                    fontWeight={800}
+                                    fontWeight={900}
                                     sx={{ color: "#444" }}
                                 >
                                     {item.redeem_point.toLocaleString("th-TH")} คะแนน
@@ -284,7 +284,7 @@ export default function PrivilegePage() {
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                                         {/* 🟠 คะแนนรวม */}
-                                        <Typography variant="body2" sx={{ color: "#F55014", fontWeight: 800, mb: 0.5 }}>
+                                        <Typography variant="body2" sx={{ color: "#F55014", fontWeight: 800, mb: 0.5, fontSize: 18, }}>
                                             {fmt.format(point)} คะแนน
                                         </Typography>
 

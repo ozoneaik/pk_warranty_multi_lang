@@ -956,10 +956,45 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     }, []);
 
     // ✅ รีเซ็ตเฉพาะตอนผู้ใช้ “พิมพ์แก้”
+    // const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { name, value } = e.target;
+
+    //     if (name === 'serial_number' || name === 'model_code') {
+    //         setShowProduct(false);
+    //         setShowForm(false);
+    //         setSnVerified(false);
+    //         setProductDetail(null);
+    //         setPreview(null);
+    //         setFileName('');
+    //     }
+
+    //     setData(name, value);
+    // };
+
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        if (name === 'serial_number' || name === 'model_code') {
+        // ✅ ถ้าผู้ใช้แก้ S/N → reset ทุกอย่างรวมถึง model_code
+        if (name === 'serial_number') {
+            setShowProduct(false);
+            setShowForm(false);
+            setSnVerified(false);
+            setProductDetail(null);
+            setPreview(null);
+            setFileName('');
+
+            setData((prev: any) => ({
+                ...prev,
+                serial_number: value,
+                model_code: '', // ✅ ล้างรหัสสินค้า
+                model_name: '',
+                product_name: '',
+            }));
+            return; 
+        }
+
+        // ✅ ถ้าผู้ใช้แก้ model_code (กรณีไม่ disable) ก็รีเซ็ตเหมือนกัน
+        if (name === 'model_code') {
             setShowProduct(false);
             setShowForm(false);
             setSnVerified(false);
@@ -979,8 +1014,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         }
     };
 
-    // ✅ ตรวจสอบสินค้า: โชว์ ProductDetail แม้จะเป็นรายการซ้ำ
-    // ✅ ตรวจสอบสินค้า: อนุญาตให้กรอกอย่างใดอย่างหนึ่ง (SN หรือ รหัสสินค้า) ก็ได้
     const handleCheckProduct = async () => {
         const serial = data.serial_number.trim();
         const model = data.model_code.trim();
@@ -988,7 +1021,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         // ต้องมีอย่างน้อยหนึ่งอย่าง
         if (!serial && !model) {
             Swal.fire({
-                title: 'กรุณากรอก S/N หรือ รหัสสินค้า อย่างน้อยหนึ่งอย่าง',
+                title: 'กรุณากรอกหมายเลขเครื่อง (S/N)',
                 icon: 'warning',
                 confirmButtonColor: '#F54927',
             });
