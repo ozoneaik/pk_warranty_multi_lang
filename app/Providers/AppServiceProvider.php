@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\MasterWaaranty\TblHistoryProd;
 use App\Observers\HistoryProdObserver;
+use App\Observers\TblHistoryProdObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -35,5 +36,7 @@ class AppServiceProvider extends ServiceProvider
             'line_avatar' => fn() => session('line_avatar'),
             'line_email' => fn() => session('line_email'),
         ]);
+
+        TblHistoryProd::observe(TblHistoryProdObserver::class);
     }
 }
