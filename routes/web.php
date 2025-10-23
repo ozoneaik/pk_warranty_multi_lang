@@ -53,12 +53,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 
-        Route::get('/privilege', [PrivilegeController::class, 'index'])
-            ->name('customer.profile.privilege');
-
         Route::get('/privilege/blank', function () {
             return Inertia::render('Profile/Customer/PrivilegeBlank');
         })->name('customer.profile.privilege.blank');
+
+        // Route::get('/privilege', [PrivilegeController::class, 'index'])
+        //     ->name('customer.profile.privilege');
 
         Route::get('/score/point', [ScoreController::class, 'getPoint']);
         Route::get('/info/pdpa', function () {
