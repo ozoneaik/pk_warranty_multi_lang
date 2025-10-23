@@ -27,6 +27,14 @@ import type { PageProps } from "@inertiajs/core";
 
 type Tier = "silver" | "gold" | "platinum";
 
+interface MembershipTier {
+    key: string;          // เช่น "gold", "platinum"
+    name: string;         // ชื่อเต็ม
+    min_point: number;    // เกณฑ์ขั้นต่ำของ tier
+    level: number;
+    duration_years: number;
+}
+
 interface ProductItem {
     pid: string;
     pname: string;
@@ -49,6 +57,8 @@ interface PrivilegeProps extends PageProps {
     tier: Tier;
     line_avatar?: string | null;
     products: ProductsByType;
+    tier_expired_at?: string;
+    tiers: MembershipTier[];
 }
 
 function ProductList({
@@ -69,7 +79,7 @@ function ProductList({
     }
 
     return (
-        <Grid container spacing={1.5} sx={{ mt: 3, px: 2 }}>
+        <Grid container spacing={1.5} sx={{ mt: 3, px: 2 }} alignItems="stretch">
             {products.map((item) => (
                 <Grid key={item.pid} size={{ xs: 6, sm: 4, md: 6 }}>
                     <Card
@@ -78,7 +88,7 @@ function ProductList({
                             boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
                             overflow: "hidden",
                             transition: "transform 0.2s",
-                            height: 250,
+                            height: "100%",
                             display: "flex",
                             flexDirection: "column",
                             justifyContent: "space-between",
@@ -191,8 +201,16 @@ function ProductList({
 export default function PrivilegePage() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const { display_name, point, joined_at, tier, line_avatar, products } =
+    const { display_name, point, joined_at, tier, line_avatar, products, tier_expired_at, tiers = [], } =
         usePage<PrivilegeProps>().props;
+
+    const currentTierInfo = tiers?.find((t: any) => t.key === tier);
+    const currentMinPoint = currentTierInfo?.min_point || 0;
+
+    // ✅ ตรวจว่าตกจาก tier เดิมหรือยัง
+    const isHighTier = tier === "platinum" || tier === "gold";
+    const isBelowThreshold = isHighTier && point < currentMinPoint;
+    const isNotExpired = tier_expired_at && dayjs().isBefore(dayjs(tier_expired_at));
 
     const fmt = new Intl.NumberFormat("th-TH");
     const [tab, setTab] = React.useState(0);
@@ -291,12 +309,12 @@ export default function PrivilegePage() {
                             <Grid size={{ xs: 9, sm: 9 }}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                        {/* 🟠 คะแนนรวม */}
+                                        {/* คะแนนรวม */}
                                         <Typography variant="body2" sx={{ color: "#F55014", fontWeight: 800, mb: 0.5, fontSize: 18, }}>
                                             {fmt.format(point)} คะแนน
                                         </Typography>
 
-                                        {/* 🟢 ชื่อ + tier */}
+                                        {/* ชื่อ + tier */}
                                         <Typography
                                             variant="subtitle1"
                                             fontWeight={800}
@@ -318,7 +336,7 @@ export default function PrivilegePage() {
                                         </Typography>
 
                                         {/* 🟣 ข้อความอธิบายเลื่อน Tier */}
-                                        {nextTier ? (
+                                        {/* {nextTier ? (
                                             <Typography
                                                 variant="body2"
                                                 sx={{
@@ -332,7 +350,7 @@ export default function PrivilegePage() {
                                             >
                                                 <span>
                                                     คุณต้องเพิ่มอีก {fmt.format(remainingPoints)} คะแนน ภายใน{" "}
-                                                    {dayjs().endOf("year").format("DD/MM/YYYY")}
+                                                    {dayjs(tier_expired_at).format("DD/MM/YYYY")}
                                                 </span>
                                                 <span>เพื่อเลื่อนสถานะเป็น {nextTier}</span>
                                             </Typography>
@@ -346,7 +364,46 @@ export default function PrivilegePage() {
                                                     lineHeight: 1.4,
                                                 }}
                                             >
-                                                คุณอยู่ในระดับสูงสุดแล้ว 🎉🎉
+                                                สถานะสมาชิกของคุณอยู่ในระดับสูงสุด
+                                            </Typography>
+                                        )} */}
+
+                                        {nextTier ? (
+                                            <Typography variant="body2" sx={{ mt: 0.7, color: "#444", fontSize: 13, lineHeight: 1.4 }}>
+                                                <span>
+                                                    คุณสามารถเพิ่มอีก {fmt.format(remainingPoints)} คะแนน ภายใน {" "}
+                                                    {dayjs(tier_expired_at).format("DD/MM/YYYY")}
+                                                </span> <br />
+                                                <span> เพื่อเลื่อนสถานะเป็น {nextTier}</span>
+                                            </Typography>
+                                        ) : isBelowThreshold && isNotExpired ? (
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    mt: 1,
+                                                    color: "#C62828",
+                                                    fontWeight: 600,
+                                                    fontSize: 13,
+                                                    lineHeight: 1.6,
+                                                }}
+                                            >
+                                                <span>สถานะสมาชิกของคุณอยู่ในระดับสูงสุดแล้ว</span> <br />
+                                                <span>
+                                                    คุณสามารถลงทะเบียนสินค้าเพื่อรักษาระดับแต้มสมาชิก ภายใน{" "}
+                                                    {dayjs(tier_expired_at).format("DD/MM/YYYY")}
+                                                </span>
+                                            </Typography>
+                                        ) : (
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    mt: 1,
+                                                    color: "#444",
+                                                    fontSize: 13,
+                                                    lineHeight: 1.4,
+                                                }}
+                                            >
+                                                สถานะสมาชิกของคุณอยู่ในระดับสูงสุด
                                             </Typography>
                                         )}
                                     </Box>

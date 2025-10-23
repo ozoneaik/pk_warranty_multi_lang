@@ -15,24 +15,72 @@ use Inertia\Inertia;
 
 class WarrantyFormController extends Controller
 {
+
+    // public function form()
+    // {
+    //     try {
+    //         $uri = env('ROCKET_GET_CHANEL_BUY_URI');
+    //         $response = Http::timeout(30)->withOptions(['verify' => false])->get($uri, [
+    //             'name' => 'ช่องทางการซื้อ',
+    //         ]);
+
+    //         if ($response->successful() && $response->status() === 200) {
+    //             $response_json = $response->json();
+    //             $response_json = $response_json['data'];
+    //         } else {
+    //             $response_json = [];
+    //         }
+    //         return Inertia::render('Warranty/WarrantyForm', ['channel_list' => $response_json]);
+    //     } catch (\Exception $e) {
+    //         return Inertia::render('Warranty/WarrantyForm', ['channel_list' => []]);
+    //     }
+    // }
+
     public function form()
     {
+        $channel_list = [];
+
         try {
             $uri = env('ROCKET_GET_CHANEL_BUY_URI');
-            $response = Http::timeout(30)->withOptions(['verify' => false])->get($uri, [
+
+            Log::info('🛰 [WarrantyFormController] เริ่มโหลด channel_list', ['uri' => $uri]);
+
+            $response = Http::timeout(15)->withOptions(['verify' => false])->get($uri, [
                 'name' => 'ช่องทางการซื้อ',
             ]);
 
-            if ($response->successful() && $response->status() === 200) {
-                $response_json = $response->json();
-                $response_json = $response_json['data'];
+            if ($response->successful()) {
+                $data = $response->json();
+
+                Log::info('📬 [WarrantyFormController] ตอบกลับจาก Rocket', [
+                    'status' => $response->status(),
+                    'preview' => mb_substr(json_encode($data), 0, 200),
+                ]);
+
+                // ✅ ปลอดภัยขึ้น: ตรวจ key ให้แน่ชัด
+                if (isset($data['data']) && is_array($data['data'])) {
+                    $channel_list = $data['data'];
+                } elseif (isset($data['list']) && is_array($data['list'])) {
+                    $channel_list = $data['list'];
+                } else {
+                    Log::warning('⚠️ [WarrantyFormController] ไม่มี key data/list ใน response');
+                    $channel_list = [];
+                }
             } else {
-                $response_json = [];
+                Log::error('❌ [WarrantyFormController] Rocket API ไม่สำเร็จ', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
             }
-            return Inertia::render('Warranty/WarrantyForm', ['channel_list' => $response_json]);
-        } catch (\Exception $e) {
-            return Inertia::render('Warranty/WarrantyForm', ['channel_list' => []]);
+        } catch (\Throwable $e) {
+            Log::error('💥 [WarrantyFormController] ดึงช่องทางการซื้อไม่สำเร็จ', [
+                'message' => $e->getMessage(),
+            ]);
         }
+
+        return Inertia::render('Warranty/WarrantyForm', [
+            'channel_list' => $channel_list,
+        ]);
     }
 
     public function get_store_name($store_name)
@@ -41,7 +89,11 @@ class WarrantyFormController extends Controller
             $merchant_id = env('MERCHANT_ID_ROCKET');
             $accessToken = env('ACCESS_TOKEN_ROCKET');
             $uri = env('ROCKET_GET_CHANEL_BUY_URI_DETAIL');
-
+            Log::info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้า', [
+                'store_name'   => $store_name,
+                'uri'          => $uri,
+                'merchant_id'  => $merchant_id,
+            ]);
             $response = Http::timeout(30)->withOptions([
                 'verify' => false, // ✅ ปิดตรวจสอบ SSL
             ])->withHeaders([
@@ -53,8 +105,20 @@ class WarrantyFormController extends Controller
                 'name' => $store_name,
             ]);
 
+            Log::info('📡 [get_store_name] ตอบกลับจาก Rocket API', [
+                'status' => $response->status(),
+                'successful' => $response->successful(),
+                'body_preview' => mb_substr($response->body(), 0, 300) . '...',
+            ]);
+
+
             if ($response->successful() && $response->status() === 200) {
                 $response_json = $response->json();
+
+                Log::info('✅ [get_store_name] เนื้อหาที่ได้จาก Rocket', [
+                    'response_json' => $response_json,
+                ]);
+
                 return response()->json([
                     'message' => 'ดึงรายการสำเร็จ',
                     'list' => $response_json
@@ -208,7 +272,7 @@ class WarrantyFormController extends Controller
             //         ],
             //     ], 200);
             // }
-            
+
             if ($check_form_history) {
                 Log::info('🟠 [WarrantyFormController] พบสินค้าซ้ำในระบบ', [
                     'serial_number' => $sn,
@@ -258,7 +322,7 @@ class WarrantyFormController extends Controller
                 // ✅ รวมข้อมูลทั้งหมด (จากฐานข้อมูล + จาก API)
                 return response()->json([
                     'status' => 'duplicate',
-                    'message' => 'หมายเลขสินค้านี้ถูกลงทะเบียนแล้ว',
+                    'message' => 'สินค้านี้ถูกลงทะเบียนแล้ว',
                     'data' => [
                         'duplicate' => true,
                         'product_detail' => [

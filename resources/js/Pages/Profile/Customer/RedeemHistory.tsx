@@ -59,7 +59,7 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
         );
     }
 
-    // ✅ Filter ตาม tab
+    // Filter ตาม tab
     const filteredByType =
         tab === 1
             ? data.filter((d) => d.point_tran > 0)
@@ -67,7 +67,7 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
                 ? data.filter((d) => d.point_tran < 0)
                 : data;
 
-    // ✅ Filter ตามปี
+    // Filter ตามปี
     const filteredByYear =
         year === "ทั้งหมด"
             ? filteredByType
@@ -75,19 +75,19 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
                 (d) => dayjs(d.trandate).year().toString() === year
             );
 
-    // ✅ Sort ตามวันที่
+    // Sort ตามวันที่
     const sorted = [...filteredByYear].sort((a, b) => {
         const da = dayjs(a.trandate);
         const db = dayjs(b.trandate);
         return sort === "desc" ? db.diff(da) : da.diff(db);
     });
 
-    // ✅ Pagination slice
+    // Pagination slice
     const totalPages = Math.ceil(sorted.length / rowsPerPage);
     const startIndex = (currentPage - 1) * rowsPerPage;
     const visibleItems = sorted.slice(startIndex, startIndex + rowsPerPage);
 
-    // ✅ Reset หน้าเมื่อเปลี่ยน filter
+    // Reset หน้าเมื่อเปลี่ยน filter
     const resetPage = () => setCurrentPage(1);
 
     // เมื่อเปลี่ยน tab, ปี หรือ sort ให้กลับไปหน้าแรก
@@ -153,7 +153,7 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
                 <Tab label="ใช้ไป" />
             </Tabs>
 
-            {/* 🔸 Filter */}
+            {/* Filter */}
             <Stack
                 direction={isMobile ? "column" : "row"}
                 alignItems="center"
@@ -232,7 +232,7 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
                 </Stack>
             </Stack>
 
-            {/* 🔹 ส่วนหัว */}
+            {/* ส่วนหัว */}
             {!isMobile && (
                 <Stack
                     direction="row"
@@ -253,7 +253,7 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
             )}
             <Divider sx={{ mb: 1.5 }} />
 
-            {/* 🔸 แสดงรายการ */}
+            {/* แสดงรายการ */}
             {visibleItems.map((item, index) => {
                 const isRedeem = item.point_tran < 0;
                 const dateText = dayjs(item.trandate).format("DD/MM/YYYY");
@@ -328,7 +328,7 @@ export default function RedeemHistory({ data }: RedeemHistoryProps) {
                 );
             })}
 
-            {/* 🔻 Pagination */}
+            {/* Pagination */}
             <Stack alignItems="center" sx={{ mt: 2, mb: 2 }}>
                 <Pagination
                     count={totalPages}

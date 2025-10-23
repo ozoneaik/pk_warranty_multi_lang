@@ -35,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share([
             'line_avatar' => fn() => session('line_avatar'),
             'line_email' => fn() => session('line_email'),
+
+            'app_env' => config('app.env'),
+            'app_debug' => config('app.debug'),
+            // 'is_dev_mode' => app()->environment('local') || config('app.debug') === true,
+            'is_dev_mode' => config('app.debug') === true,
         ]);
     }
 }

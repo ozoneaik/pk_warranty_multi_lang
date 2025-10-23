@@ -21,6 +21,7 @@ export default function InfoTerm() {
                 }}
                 onClick={() => router.get(route("customer.profile.score"))}
             >
+                กลับ
             </Button>
 
             <Head title="ข้อกำหนดและเงื่อนไข (Terms & Conditions)" />

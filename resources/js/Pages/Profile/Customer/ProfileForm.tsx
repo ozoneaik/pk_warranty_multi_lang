@@ -279,15 +279,13 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
         }).then((confirm) => {
             if (confirm.isConfirmed) {
                 patch(route("customer.profile.update"), {
-                    onFinish: () => {
-                        if (Object.keys(errors).length === 0) {
-                            Swal.fire({
-                                title: 'บันทึกข้อมูลเสร็จสิ้น',
-                                icon: 'success',
-                                timer: 2000,
-                                confirmButtonColor: 'green',
-                            });
-                        }
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'บันทึกข้อมูลเสร็จสิ้น',
+                            icon: 'success',
+                            timer: 2000,
+                            confirmButtonColor: 'green',
+                        });
                     },
                     onError: (err) => {
                         console.error("❌ Validation error:", err);

@@ -974,7 +974,6 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        // ✅ ถ้าผู้ใช้แก้ S/N → reset ทุกอย่างรวมถึง model_code
         if (name === 'serial_number') {
             setShowProduct(false);
             setShowForm(false);
@@ -986,11 +985,11 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             setData((prev: any) => ({
                 ...prev,
                 serial_number: value,
-                model_code: '', 
+                model_code: '',
                 model_name: '',
                 product_name: '',
             }));
-            return; 
+            return;
         }
 
         if (name === 'model_code') {
@@ -1041,7 +1040,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             const response = await axios.post(route('warranty.check.sn'), payload);
             console.log("🔍 API Response:", response.data);
 
-            // ❗ ไม่ว่าซ้ำหรือไม่ ถ้ามี product_detail ให้แสดงกล่องสินค้าได้
+            // ไม่ว่าซ้ำหรือไม่ ถ้ามี product_detail ให้แสดงกล่องสินค้าได้
             const pd = response.data?.data?.product_detail;
             if (pd) {
                 setProductDetail(pd);
@@ -1089,9 +1088,10 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         if (!serial) {
             return Swal.fire({ title: 'กรุณากรอก Serial Number', icon: 'warning', confirmButtonColor: '#F54927' });
         }
-        if (!model) {
-            return Swal.fire({ title: 'กรุณากรอกรหัสสินค้า', icon: 'warning', confirmButtonColor: '#F54927' });
-        }
+
+        // if (!model) {
+        //     return Swal.fire({ title: 'กรุณากรอกรหัสสินค้า', icon: 'warning', confirmButtonColor: '#F54927' });
+        // }
 
         try {
             setChecking(true);
@@ -1157,6 +1157,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
     };
 
     const handleBuyFromChange = useCallback((value: string) => {
+        console.log("🟠 [handleBuyFromChange] เริ่มทำงาน", { value });
         setData('buy_from', value);
         setLoadingBuyFrom(true);
         setData('store_name', '');
@@ -1171,19 +1172,28 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
             "ฮาร์ดแวร์เฮาส์",
         ];
         const isBigStore = requireReferral.includes(value);
+        console.log("🔍 ตรวจสอบร้านค้า:", { value, isBigStore });
 
         setStoreLabel(isBigStore ? "Branch Name (ชื่อสาขา)" : t.Warranty.Form.store_name);
         setShowReferralField(isBigStore);
 
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => { handleChangeStoreName(value); }, 500);
+
+        console.log("✅ [handleBuyFromChange] ตั้งค่าครบแล้ว", {
+            buy_from: value,
+            storeLabel: isBigStore ? "Branch Name (ชื่อสาขา)" : t.Warranty.Form.store_name,
+            showReferralField: isBigStore,
+        });
     }, [setData]);
 
     const handleChangeStoreName = async (buy_from: string) => {
+        console.log("📦 [handleChangeStoreName] เริ่มโหลดร้าน:", buy_from);
         if (!buy_from || buy_from === 'เลือก') { setLoadingBuyFrom(false); return; }
 
         try {
             const response = await axios.get(route('warranty.get_store_name', { store_name: buy_from }));
+            console.log("✅ [handleChangeStoreName] ตอบกลับจาก API:", response.data);
             setStoreList(response.data.list.value || []);
         } catch (error) {
             console.error('Error fetching store names:', error);
@@ -1241,6 +1251,7 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
+
                         {/* File Upload Section */}
                         {showForm && (
                             <Grid size={12}>
@@ -1319,7 +1330,13 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                                         required
                                         disabled={processing || checking || snVerified}
                                         placeholder={t.Warranty.Placeholder.serial_number}
-                                        onKeyDown={(e) => { if (e.key === 'Enter' && !snVerified) { e.preventDefault(); handleCheckSn(); } }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !snVerified) {
+                                                e.preventDefault();
+                                                // handleCheckSn();
+                                                handleCheckProduct();
+                                            }
+                                        }}
                                         sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                                     />
                                     {snVerified && (
@@ -1354,24 +1371,25 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         </Grid>
 
                         {/* Model Code */}
-                        <Grid size={12}>
-                            <FormControl fullWidth>
-                                <FormLabel htmlFor="model_code" required sx={{ mb: 1, fontWeight: 'medium' }}>
-                                    รหัสสินค้า
-                                </FormLabel>
-                                <TextField
-                                    id="model_code"
-                                    name="model_code"
-                                    value={data.model_code}
-                                    onChange={handleOnChange}
-                                    required
-                                    // disabled={processing || checking || snVerified}
-                                    disabled
-                                    placeholder="รหัสรุ่นสินค้า"
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                                />
-                            </FormControl>
-                        </Grid>
+                        {showProduct && (
+                            <Grid size={12}>
+                                <FormControl fullWidth>
+                                    <FormLabel htmlFor="model_code" required sx={{ mb: 1, fontWeight: 'medium' }}>
+                                        รหัสสินค้า
+                                    </FormLabel>
+                                    <TextField
+                                        id="model_code"
+                                        name="model_code"
+                                        value={data.model_code}
+                                        onChange={handleOnChange}
+                                        required
+                                        disabled
+                                        placeholder="รหัสรุ่นสินค้า"
+                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                    />
+                                </FormControl>
+                            </Grid>
+                        )}
 
                         {/* ปุ่มตรวจสอบสินค้า */}
                         {!showProduct && !snVerified && (

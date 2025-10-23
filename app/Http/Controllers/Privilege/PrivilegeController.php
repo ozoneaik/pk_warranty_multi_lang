@@ -160,11 +160,11 @@ class PrivilegeController extends Controller
         $joined_at = $customer->datetime ?? now();
         $now = Carbon::now();
 
-        // ✅ ใช้ tier จากฐานข้อมูลก่อน
+        // ใช้ tier จากฐานข้อมูลก่อน
         $tierKey = $customer->tier_key ?? 'silver';
         $tierExpiredAt = $customer->tier_expired_at ? Carbon::parse($customer->tier_expired_at) : null;
 
-        // ✅ ถ้า tier หมดอายุ → คำนวณใหม่ตามคะแนน
+        // ถ้า tier หมดอายุ → คำนวณใหม่ตามคะแนน
         if (!$tierExpiredAt || $now->greaterThan($tierExpiredAt)) {
             $currentTier = MembershipTier::orderByDesc('min_point')
                 ->where('min_point', '<=', $point)
@@ -180,11 +180,11 @@ class PrivilegeController extends Controller
             ]);
         }
 
-        // ✅ ใช้ tier ปัจจุบันจาก DB เพื่อดึงสินค้าตามระดับ
+        // ใช้ tier ปัจจุบันจาก DB เพื่อดึงสินค้าตามระดับ
         $currentTierLevel = MembershipTier::where('key', $tierKey)->value('level') ?? 1;
 
-        // ✅ ดึงสินค้าตาม tier level
-        $allProducts = ProductTier::visibleFor($currentTierLevel)
+        // ดึงสินค้าตาม tier level
+        $allProducts = ProductTier::visibleFor($currentTierLevel)->where('is_active', 1)
             ->orderBy('tier_level')
             ->get(['pid', 'pname', 'image_url', 'tier_level', 'redeem_point', 'product_type']);
 

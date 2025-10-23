@@ -220,7 +220,7 @@ class WarrantyHistoryController extends Controller
 
             $response = Http::timeout(10)
                 ->withOptions(['verify' => false])
-                ->post(env('VITE_SEARCH_SN'), [
+                ->post(env('VITE_R_MAIN_PRODUCT'), [
                     'pid'   => $model_code,
                     'views' => 'single',
                 ]);
@@ -263,8 +263,7 @@ class WarrantyHistoryController extends Controller
             $asset = null;
             if (is_array($assets) && array_is_list($assets)) {
                 $asset = $assets[0] ?? null;
-            }
-            elseif (is_array($assets)) {
+            } elseif (is_array($assets)) {
                 if (is_array($skuset) && !empty($skuset)) {
                     $firstKey = $skuset[0];
                     if (isset($assets[$firstKey])) {
@@ -287,6 +286,16 @@ class WarrantyHistoryController extends Controller
                 Cache::put($cacheKey, $data, now()->addHours(6));
                 return response()->json(['success' => true, 'data' => $data], 200);
             }
+
+            Log::info('[historyDetail] 🟢 Asset data from API', [
+                'model_code' => $model_code,
+                'has_asset' => $asset !== null,
+                'warrantyperiod' => $asset['warrantyperiod'] ?? null,
+                'warrantycondition' => $asset['warrantycondition'] ?? null,
+                'warrantynote' => $asset['warrantynote'] ?? null,
+                'keys' => array_keys($asset ?? []),
+            ]);
+            
             $data = [
                 'warrantyperiod'    => $asset['warrantyperiod']    ?? null,
                 'warrantycondition' => $asset['warrantycondition'] ?? null,

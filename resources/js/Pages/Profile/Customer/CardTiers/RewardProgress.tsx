@@ -207,14 +207,14 @@ export default function RewardProgress({
                     </Box>
 
                     {/* Linear Progress */}
-                    <Box mt={3}>
+                    {/* <Box mt={3}>
                         <Typography variant="body2" color="text.secondary" mb={1}>
                             ความคืบหน้าในระดับปัจจุบัน
                         </Typography>
                         <Box className="progress">
                             <div id="linearBar" className="bar"></div>
                         </Box>
-                    </Box>
+                    </Box> */}
                 </Box>
             </CardContent>
         </Card>

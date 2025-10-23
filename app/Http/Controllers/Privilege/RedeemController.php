@@ -163,7 +163,7 @@ class RedeemController extends Controller
         try {
             $customer = TblCustomerProd::where('cust_line', $user->line_id)->firstOrFail();
 
-            // ✅ ตรวจสอบคะแนนเพียงพอหรือไม่
+            // ตรวจสอบคะแนนเพียงพอหรือไม่
             if ($customer->point < $request->redeem_point) {
                 return response()->json([
                     'success' => false,
@@ -175,11 +175,11 @@ class RedeemController extends Controller
             $pointAfter  = $pointBefore - $request->redeem_point;
             $now = Carbon::now();
 
-            // ✅ ใช้ tier เดิมของลูกค้าก่อน
+            // ใช้ tier เดิมของลูกค้าก่อน
             $tierKey = $customer->tier_key;
             $tierExpiredAt = $customer->tier_expired_at;
 
-            // ✅ ถ้า tier หมดอายุ → คำนวณ tier ใหม่จากคะแนนปัจจุบัน
+            // ถ้า tier หมดอายุ → คำนวณ tier ใหม่จากคะแนนปัจจุบัน
             if (!$tierExpiredAt || $now->greaterThan(Carbon::parse($tierExpiredAt))) {
                 $currentTier = MembershipTier::orderByDesc('min_point')
                     ->where('min_point', '<=', $pointAfter)
@@ -189,18 +189,18 @@ class RedeemController extends Controller
                 $tierExpiredAt = $now->copy()->addYears($currentTier?->duration_years ?? 2);
             }
 
-            // ✅ ประเภทสินค้า
+            // ประเภทสินค้า
             $productType = ProductTier::where('is_active', 1)
                 ->where('pid', $request->pid)
                 ->value('product_type') ?? 'reward';
 
-            // ✅ ดึง process_code จาก type_process_points
+            // ดึง process_code จาก type_process_points
             $processCode = TypeProcessPoint::where('transaction_type', 'redeem')
                 ->where('process_code', 'REDEEM')
                 ->where('is_active', 1)
                 ->value('process_code') ?? 'REDEEM';
 
-            // ✅ อัปเดตคะแนนและ tier (ไม่ downgrade ก่อนหมดอายุ)
+            // อัปเดตคะแนนและ tier (ไม่ downgrade ก่อนหมดอายุ)
             $customer->update([
                 'point'           => $pointAfter,
                 'tier_key'        => $tierKey,
@@ -209,7 +209,7 @@ class RedeemController extends Controller
                 'last_redeem_at'  => $now,
             ]);
 
-            // ✅ บันทึกธุรกรรม
+            // บันทึกธุรกรรม
             $transaction = PointTransaction::create([
                 'line_id'           => $user->line_id,
                 'transaction_type'  => 'redeem',
@@ -233,7 +233,7 @@ class RedeemController extends Controller
 
             return response()->json([
                 'success'   => true,
-                'message'   => 'แลกรางวัลสำเร็จ 🎁',
+                'message'   => 'แลกรางวัลสำเร็จ',
                 'new_point' => $pointAfter,
                 'new_tier'  => $tierKey,
                 'tier_expired_at' => $tierExpiredAt,
@@ -246,13 +246,14 @@ class RedeemController extends Controller
         }
     }
 
-    // ✅ ประวัติการแลก
+    // ประวัติการแลก
     public function history()
     {
         $user = Auth::user();
 
         $histories = PointTransaction::where('line_id', $user->line_id)
             ->orderByDesc('trandate')
+            ->orderByDesc('created_at')
             ->get([
                 'pid',
                 'pname',

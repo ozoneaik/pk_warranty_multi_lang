@@ -52,7 +52,7 @@ class CustomerProfileController extends Controller
             ->select('cust_firstname', 'cust_lastname', 'point', 'tier_key', 'tier_expired_at', 'datetime')
             ->first();
 
-        // ❌ ถ้ายังไม่เคยลงทะเบียนเลย → ให้ค่าเริ่มต้น
+        // ถ้ายังไม่เคยลงทะเบียนเลย → ให้ค่าเริ่มต้น
         if (!$customer) {
             return Inertia::render('Profile/Customer/Score', [
                 'point' => 0,
@@ -85,7 +85,6 @@ class CustomerProfileController extends Controller
             ]);
         }
 
-        // ✅ ส่งค่ากลับให้ frontend
         return Inertia::render('Profile/Customer/Score', [
             'point' => $point,
             'joined_at' => $customer->datetime ?? now(),
@@ -247,7 +246,6 @@ class CustomerProfileController extends Controller
     {
         $user = User::find(Auth::id());
 
-        // ✅ Validate ข้อมูลลูกค้า
         $validatedCustomer = $request->validate([
             'cust_firstname'    => 'required|string|max:255',
             'cust_lastname'     => 'required|string|max:255',

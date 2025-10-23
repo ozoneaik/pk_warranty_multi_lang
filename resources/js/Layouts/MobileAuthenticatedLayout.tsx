@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction,
-    IconButton, Menu, MenuItem, Select
+    IconButton, Menu, MenuItem, Select,
+    Fade
 } from '@mui/material';
 import {
     Home, Assignment, History, SupervisedUserCircle, Menu as MenuIcon
@@ -25,7 +26,8 @@ export default function MobileAuthenticatedLayout({
 }: MobileAuthenticatedLayoutProps) {
 
     const { t, setLanguage, language } = useLanguage();
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const { is_dev_mode, app_env }: any = props;
     const [scrolled, setScrolled] = useState(false);
     const isWarrantyHome = url.includes('/warranty/home');
 
@@ -71,96 +73,53 @@ export default function MobileAuthenticatedLayout({
         "&.Mui-selected": { color: "white" },
     };
 
-    return (
-        // <Box
-        //     sx={{
-        //         display: 'flex',
-        //         justifyContent: 'center',
-        //         alignItems: 'center',
-        //         minHeight: '100vh',
-        //         backgroundColor: '#f5f5f5',
-        //     }}
-        // >
-        //     {/* ✅ กรอบจำลองจอมือถือ */}
-        //     <Box
-        //         sx={{
-        //             position: 'relative',
-        //             width: '100%',
-        //             maxWidth: 500,
-        //             height: '100vh',
-        //             backgroundColor: '#fff',
-        //             boxShadow: {
-        //                 xs: 'none',
-        //                 md: '0 0 20px rgba(0,0,0,0.15)',
-        //             },
-        //             display: 'flex',
-        //             flexDirection: 'column',
-        //             overflow: 'hidden',
-        //             borderRadius: { xs: 0, md: '25px' },
-        //         }}
-        //     >
-        //         {/* ✅ Navbar */}
-        //         <AppBar
-        //             position="fixed"
-        //             sx={{
-        //                 top: 0,
-        //                 backgroundColor: 'transparent',
-        //                 boxShadow: 'none',
-        //                 zIndex: (theme) => theme.zIndex.drawer + 1,
-        //                 backdropFilter: 'blur(0px)',
-        //                 width: '100%',
-        //                 maxWidth: 500,
-        //                 left: '50%',
-        //                 transform: 'translateX(-50%)',
-        //             }}
-        //         >
-        //             <Toolbar>
-        //                 <Box
-        //                     component="img"
-        //                     src={PumpkinLogo}
-        //                     alt="Pumpkin Logo"
-        //                     sx={{
-        //                         height: 35,
-        //                         mr: 1.5,
-        //                         ml: -1,
-        //                     }}
-        //                     onClick={() => router.get('/warranty/home')}
-        //                 />
+    // Display maintenance page in dev mode
+    // if (is_dev_mode) {
+    //     return (
+    //         <Box
+    //             sx={{
+    //                 display: "flex",
+    //                 flexDirection: "column",
+    //                 alignItems: "center",
+    //                 justifyContent: "center",
+    //                 height: "100vh",
+    //                 width: "100%",
+    //                 bgcolor: "#FFF3E0",
+    //                 color: "#8D3200",
+    //                 textAlign: "center",
+    //                 p: 3,
+    //             }}
+    //         >
+    //             <Box
+    //                 sx={{
+    //                     width: 90,
+    //                     height: 90,
+    //                     borderRadius: "50%",
+    //                     bgcolor: "#FFB74D",
+    //                     display: "grid",
+    //                     placeItems: "center",
+    //                     fontSize: 40,
+    //                     color: "white",
+    //                     mb: 3,
+    //                     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    //                 }}
+    //             >
+    //                 🚧
+    //             </Box>
+    //             <Typography variant="h6" fontWeight={700}>
+    //                 ระบบกำลังอยู่ในช่วงพัฒนา
+    //             </Typography>
+    //             <Typography sx={{ mt: 1, color: "#5D4037", fontSize: 14 }}>
+    //                 ขณะนี้ระบบกำลังปรับปรุง กรุณากลับมาใหม่ภายหลัง
+    //             </Typography>
+    //             <Typography sx={{ mt: 3, fontSize: 13, color: "#9E7E57" }}>
+    //                 Environment: {app_env}
+    //             </Typography>
+    //         </Box>
+    //     );
+    // }
 
-        //                 <IconButton edge="start" onClick={handleMenu} sx={{ mr: -0.5, color: '#000' }}>
-        //                     <MenuIcon />
-        //                 </IconButton>
-        //                 <Typography
-        //                     variant="h6"
-        //                     sx={{
-        //                         flexGrow: 1,
-        //                         fontWeight: 600,
-        //                         fontSize: '1rem',
-        //                         color: '#000',
-        //                     }}
-        //                 >
-        //                     {title}
-        //                 </Typography>
-        //                 <Select
-        //                     value={language}
-        //                     onChange={(e) => handleChangeLang(e.target.value)}
-        //                     size="small"
-        //                     variant="outlined"
-        //                     sx={{
-        //                         color: '#000',
-        //                         '& .MuiSvgIcon-root': { color: '#000' },
-        //                         minWidth: 80,
-        //                         border: 'none',
-        //                         '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-        //                     }}
-        //                 >
-        //                     <MenuItem value={'en'}>EN</MenuItem>
-        //                     <MenuItem value={'th'}>ไทย</MenuItem>
-        //                     <MenuItem value={'lao'}>ລາວ</MenuItem>
-        //                     <MenuItem value={'myanmar'}>မြန်မာ</MenuItem>
-        //                 </Select>
-        //             </Toolbar>
-        //         </AppBar>
+    return (
         <Box
             sx={{
                 display: 'flex',
@@ -188,6 +147,58 @@ export default function MobileAuthenticatedLayout({
                     borderRadius: { xs: 0, md: '25px' },
                 }}
             >
+
+                {/* ⚠️ Dev Mode Banner */}
+                {is_dev_mode && (
+                    <Fade in timeout={600}>
+                        <Box
+                            sx={{
+                                position: "fixed",
+                                top: 65,
+                                maxWidth: 500,
+                                width: "100%",
+                                overflow: "hidden",
+                                bgcolor: "linear-gradient(90deg, #FFF1E0 0%, #FFE4C4 100%)",
+                                borderBottom: "1px solid #FFD180",
+                                color: "#8D3200",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-start",
+                                fontWeight: 700,
+                                py: 0.5,
+                                fontSize: 12,
+                                boxShadow: "0 2px 5px rgba(255, 152, 0, 0.25)",
+                                backdropFilter: "blur(4px)",
+                                zIndex: 3000,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "inline-block",
+                                    whiteSpace: "nowrap",
+                                    animation: "marquee 8s linear infinite",
+                                    "@keyframes marquee": {
+                                        "0%": { transform: "translateX(100%)" },
+                                        "100%": { transform: "translateX(-100%)" },
+                                    },
+                                }}
+                            >
+                                <Typography
+                                    component="span"
+                                    sx={{
+                                        fontWeight: 700,
+                                        color: "#5D2600",
+                                        textShadow: "0 1px 1px rgba(255,255,255,0.5)",
+                                        fontSize: "0.9rem",
+                                    }}
+                                >
+                                    🚧 ระบบกำลังอยู่ในช่วงพัฒนา 🚧
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Fade>
+                )}
+
                 {/* ✅ Navbar */}
                 <AppBar
                     position="fixed"
