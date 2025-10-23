@@ -14,7 +14,7 @@
     {
         "id": 3,
         "label": "Privilege",
-        "route": "customer.profile.privilege.blank",
+        "route": "customer.profile.blank.privilege.blank",
         "icon": "WorkspacePremium"
     },
     {
