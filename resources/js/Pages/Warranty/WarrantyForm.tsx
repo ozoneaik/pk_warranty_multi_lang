@@ -1133,14 +1133,14 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         if (!data.warranty_file) {
             Swal.fire(t.Warranty.Validate.AlertMessage.file, '', 'warning'); return;
         }
-        if (!data.buy_date) {
-            Swal.fire(t.Warranty.Validate.AlertMessage.buy_date, '', 'warning'); return;
+        if (!data.buy_from || data.buy_from === 'เลือก') {
+            Swal.fire(t.Warranty.Validate.AlertMessage.buy_from, '', 'warning'); return;
         }
         if (!data.store_name?.trim()) {
             Swal.fire(t.Warranty.Validate.AlertMessage.store_name, '', 'warning'); return;
         }
-        if (!data.buy_from || data.buy_from === 'เลือก') {
-            Swal.fire(t.Warranty.Validate.AlertMessage.buy_from, '', 'warning'); return;
+        if (!data.buy_date) {
+            Swal.fire(t.Warranty.Validate.AlertMessage.buy_date, '', 'warning'); return;
         }
 
         post(route('warranty.form.store'), {

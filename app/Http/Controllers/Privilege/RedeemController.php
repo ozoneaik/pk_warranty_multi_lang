@@ -127,7 +127,7 @@ class RedeemController extends Controller
     //     }
     // }
 
-    // //โชว์หน้าประวัติการแลกของรางวัล
+    // โชว์หน้าประวัติการแลกของรางวัล
     // public function history()
     // {
     //     $user = Auth::user();

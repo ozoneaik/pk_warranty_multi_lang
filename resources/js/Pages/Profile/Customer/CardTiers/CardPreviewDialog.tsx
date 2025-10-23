@@ -79,123 +79,272 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
         touchRef.current.x = null;
     };
 
-    const TierCard = (tierKey: Tier) => (
-        <Card
-            sx={{
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 3,
-                border: "1px solid #d9d9d9",
-                background: cardColors[tierKey],
-                color: "#111",
-                boxShadow: "0 12px 28px rgba(0,0,0,0.25)",
-                transform: "translateZ(0)",
-                willChange: "transform, filter",
+    // const TierCard = (tierKey: Tier) => (
+    //     <Card
+    //         sx={{
+    //             position: "relative",
+    //             overflow: "hidden",
+    //             borderRadius: 3,
+    //             border: "1px solid #d9d9d9",
+    //             background: cardColors[tierKey],
+    //             color: "#111",
+    //             boxShadow: "0 12px 28px rgba(0,0,0,0.25)",
+    //             transform: "translateZ(0)",
+    //             willChange: "transform, filter",
 
-                // --- แสงวิ้งหนึ่งครั้งหลังเปิด ---
-                "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    width: "35%",
-                    background:
-                        "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%)",
-                    mixBlendMode: "screen",
-                    pointerEvents: "none",
-                    animation: `${sheenMove} 1850ms ease-in-out 450ms`, // run once
-                },
+    //             // --- แสงวิ้งหนึ่งครั้งหลังเปิด ---
+    //             "&::before": {
+    //                 content: '""',
+    //                 position: "absolute",
+    //                 top: 0,
+    //                 bottom: 0,
+    //                 left: 0,
+    //                 width: "35%",
+    //                 background:
+    //                     "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%)",
+    //                 mixBlendMode: "screen",
+    //                 pointerEvents: "none",
+    //                 animation: `${sheenMove} 1850ms ease-in-out 450ms`, // run once
+    //             },
 
-                // --- ถ้า hover/focus ให้วิ่ง loop ตลอด ---
-                "&:hover::before, &:focus-within::before": {
-                    animation: `${sheenMove} 1600ms linear 0ms infinite`,
+    //             // --- ถ้า hover/focus ให้วิ่ง loop ตลอด ---
+    //             "&:hover::before, &:focus-within::before": {
+    //                 animation: `${sheenMove} 1600ms linear 0ms infinite`,
 
-                },
-            }}
-        >
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="flex-start"
-                    sx={{ pb: { xs: 2, sm: 4 } }}
-                    color={"white"}
-                >
-                    <Box>
-                        <Stack direction="row" alignItems="center" spacing={0.5}>
-                            <Box
-                                sx={{
-                                    width: 22,
-                                    height: 22,
-                                    borderRadius: "50%",
-                                    background: "radial-gradient(#FFF, #FFF6B4)",
-                                    border: "2px solid #FFE970",
-                                    display: "grid",
-                                    placeItems: "center",
-                                    color: "#8A8200",
-                                    fontWeight: 900,
-                                    fontSize: 12,
-                                }}
-                            >
-                                <Typography
-                                    variant="caption"
-                                    fontWeight={900}
+    //             },
+    //         }}
+    //     >
+    //         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+    //             <Stack
+    //                 direction="row"
+    //                 justifyContent="space-between"
+    //                 alignItems="flex-start"
+    //                 sx={{ pb: { xs: 2, sm: 4 } }}
+    //                 color={"white"}
+    //             >
+    //                 <Box>
+    //                     <Stack direction="row" alignItems="center" spacing={0.5}>
+    //                         <Box
+    //                             sx={{
+    //                                 width: 22,
+    //                                 height: 22,
+    //                                 borderRadius: "50%",
+    //                                 background: "radial-gradient(#FFF, #FFF6B4)",
+    //                                 border: "2px solid #FFE970",
+    //                                 display: "grid",
+    //                                 placeItems: "center",
+    //                                 color: "#8A8200",
+    //                                 fontWeight: 900,
+    //                                 fontSize: 12,
+    //                             }}
+    //                         >
+    //                             <Typography
+    //                                 variant="caption"
+    //                                 fontWeight={900}
+    //                                 sx={{
+    //                                     color: "black",
+    //                                     fontSize: { xs: "0.9rem", sm: "0.9rem" },
+    //                                     lineHeight: 1,
+    //                                 }}
+    //                             >
+    //                                 P
+    //                             </Typography>
+    //                         </Box>
+    //                         <Typography
+    //                             fontSize={{ xs: "1rem", sm: "1rem" }}
+    //                             fontWeight={800}
+    //                             sx={{
+    //                                 color: "#fff",
+    //                                 textShadow:
+    //                                     "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+    //                             }}
+    //                         >
+    //                             {point ?? 0}
+    //                         </Typography>
+    //                     </Stack>
+
+    //                     <Typography
+    //                         fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
+    //                         sx={{ color: "#222", mt: 0.5 }}
+    //                     >
+    //                         Member Since : {dayjs(joined_at).format("D MMM YYYY")}
+    //                     </Typography>
+
+    //                     <Typography
+    //                         mt={1}
+    //                         fontWeight={800}
+    //                         sx={{
+    //                             color: "#fff",
+    //                             textShadow: "0 1px 2px rgba(0,0,0,.6)",
+    //                         }}
+    //                     >
+    //                         {tierKey === "silver"
+    //                             ? "Silver Member"
+    //                             : tierKey === "gold"
+    //                                 ? "Gold Member"
+    //                                 : "Platinum Member"}
+    //                     </Typography>
+    //                 </Box>
+
+    //                 <Box
+    //                     component="img"
+    //                     src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
+    //                     alt="Pumpkin"
+    //                     sx={{ height: { xs: 34, sm: 40 }, opacity: 1, mt: { xs: 10, sm: 12 } }}
+    //                 />
+    //             </Stack>
+    //         </CardContent>
+    //     </Card>
+    // );
+
+    const TierCard = (tierKey: Tier) => {
+        const isOwnTier = tierKey === activeTier;
+
+        // Mock point ถ้าไม่ใช่ tier ตัวเอง
+        const displayPoint = isOwnTier
+            ? point
+            : tierKey === "silver"
+                ? Math.floor(Math.random() * 1000) + 1              // 1 - 1000
+                : tierKey === "gold"
+                    ? Math.floor(Math.random() * 2000) + 1001        // 1001 - 3000
+                    : Math.floor(Math.random() * 3000) + 3001;       // 3001 - 6000
+
+        return (
+            <Card
+                sx={{
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: 3,
+                    border: "1px solid #d9d9d9",
+                    background: cardColors[tierKey],
+                    color: "#111",
+                    boxShadow: "0 12px 28px rgba(0,0,0,0.25)",
+                    transform: "translateZ(0)",
+                    willChange: "transform, filter",
+                    "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        width: "35%",
+                        background:
+                            "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%)",
+                        mixBlendMode: "screen",
+                        pointerEvents: "none",
+                        animation: `${sheenMove} 1850ms ease-in-out 450ms`,
+                    },
+                    "&:hover::before, &:focus-within::before": {
+                        animation: `${sheenMove} 1600ms linear 0ms infinite`,
+                    },
+                }}
+            >
+                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                    <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        sx={{ pb: { xs: 2, sm: 4 } }}
+                        color={"white"}
+                    >
+                        <Box>
+                            {/* ✅ คะแนน */}
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                                <Box
                                     sx={{
-                                        color: "black",
-                                        fontSize: { xs: "0.9rem", sm: "0.9rem" },
-                                        lineHeight: 1,
+                                        width: 22,
+                                        height: 22,
+                                        borderRadius: "50%",
+                                        background: "radial-gradient(#FFF, #FFF6B4)",
+                                        border: "2px solid #FFE970",
+                                        display: "grid",
+                                        placeItems: "center",
+                                        color: "#8A8200",
+                                        fontWeight: 900,
+                                        fontSize: 12,
                                     }}
                                 >
-                                    P
+                                    <Typography
+                                        variant="caption"
+                                        fontWeight={900}
+                                        sx={{
+                                            color: "black",
+                                            fontSize: { xs: "0.9rem", sm: "0.9rem" },
+                                            lineHeight: 1,
+                                        }}
+                                    >
+                                        P
+                                    </Typography>
+                                </Box>
+                                <Typography
+                                    fontSize={{ xs: "1rem", sm: "1rem" }}
+                                    fontWeight={800}
+                                    sx={{
+                                        color: "#fff",
+                                        textShadow:
+                                            "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                                    }}
+                                >
+                                    {displayPoint.toLocaleString()}
                                 </Typography>
-                            </Box>
+                            </Stack>
+
+                            {/* ✅ วันที่สมัคร */}
                             <Typography
-                                fontSize={{ xs: "1rem", sm: "1rem" }}
+                                fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
+                                sx={{ color: "#222", mt: 0.5 }}
+                            >
+                                Member Since : {dayjs(joined_at).format("D MMM YYYY")}
+                            </Typography>
+
+                            {/* ✅ แสดง tier + สถานะ */}
+                            <Typography
+                                mt={1}
                                 fontWeight={800}
                                 sx={{
                                     color: "#fff",
-                                    textShadow:
-                                        "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                                    textShadow: "0 1px 2px rgba(0,0,0,.6)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
                                 }}
                             >
-                                {point ?? 0}
+                                {tierKey === "silver"
+                                    ? "Silver Member"
+                                    : tierKey === "gold"
+                                        ? "Gold Member"
+                                        : "Platinum Member"}
+
+                                {/* ✅ ป้ายบอกสถานะ */}
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        fontSize: "0.7rem",
+                                        fontWeight: 600,
+                                        color: isOwnTier ? "#00e676" : "#ffe082",
+                                        background: "rgba(0,0,0,0.35)",
+                                        px: 1,
+                                        py: 0.2,
+                                        borderRadius: 1,
+                                        textTransform: "uppercase",
+                                    }}
+                                >
+                                    {isOwnTier ? "Your current level" : "Example"}
+                                </Box>
                             </Typography>
-                        </Stack>
+                        </Box>
 
-                        <Typography
-                            fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
-                            sx={{ color: "#222", mt: 0.5 }}
-                        >
-                            Member Since : {dayjs(joined_at).format("D MMM YYYY")}
-                        </Typography>
-
-                        <Typography
-                            mt={1}
-                            fontWeight={800}
-                            sx={{
-                                color: "#fff",
-                                textShadow: "0 1px 2px rgba(0,0,0,.6)",
-                            }}
-                        >
-                            {tierKey === "silver"
-                                ? "Silver Member"
-                                : tierKey === "gold"
-                                    ? "Gold Member"
-                                    : "Platinum Member"}
-                        </Typography>
-                    </Box>
-
-                    <Box
-                        component="img"
-                        src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
-                        alt="Pumpkin"
-                        sx={{ height: { xs: 34, sm: 40 }, opacity: 1, mt: { xs: 10, sm: 12 } }}
-                    />
-                </Stack>
-            </CardContent>
-        </Card>
-    );
+                        <Box
+                            component="img"
+                            src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
+                            alt="Pumpkin"
+                            sx={{ height: { xs: 34, sm: 40 }, opacity: 1, mt: { xs: 10, sm: 12 } }}
+                        />
+                    </Stack>
+                </CardContent>
+            </Card>
+        );
+    };
 
     return (
         <Dialog

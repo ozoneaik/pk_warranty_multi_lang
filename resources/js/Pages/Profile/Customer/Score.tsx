@@ -205,6 +205,17 @@ export default function ScorePage() {
                                         Member Since :{" "}
                                         {dayjs(joined_at).format("D MMM YYYY")}
                                     </Typography>
+                                    <Typography
+                                        fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
+                                        sx={{
+                                            color: "#333",
+                                            mt: 0.3,
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        Expire Date :{" "}
+                                        {tier_expired_at ? dayjs(tier_expired_at).format("D MMM YYYY") : "-"}
+                                    </Typography>
                                     {/* <Typography
                                         mt={1}
                                         fontWeight={700}

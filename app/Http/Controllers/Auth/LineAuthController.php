@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterWaaranty\MembershipTierHistory;
 use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TypeProcessPoint;
@@ -251,6 +252,34 @@ class LineAuthController extends Controller
                     'point' => $cust->point,
                 ]);
 
+                // if ($now->greaterThan($expiredAt)) {
+                //     Log::info("🔄 Tier หมดอายุแล้ว ทำการรีเซ็ตใหม่", [
+                //         'cust_uid' => $cust->cust_uid,
+                //         'old_tier' => $cust->tier_key,
+                //         'expired_at' => $cust->tier_expired_at,
+                //     ]);
+
+                //     // ✅ คำนวณ Tier ใหม่จาก point ปัจจุบัน
+                //     $point = (int) $cust->point;
+                //     $newTier = match (true) {
+                //         $point >= 3000 => 'platinum',
+                //         $point >= 1000 => 'gold',
+                //         default        => 'silver',
+                //     };
+
+                //     // ✅ ต่ออายุ Tier ใหม่อีก 2 ปี
+                //     $cust->update([
+                //         'tier_key'        => $newTier,
+                //         'tier_updated_at' => $now,
+                //         'tier_expired_at' => $now->copy()->addYears(2),
+                //     ]);
+
+                //     Log::info("✅ อัปเดต Tier ใหม่สำเร็จ", [
+                //         'new_tier' => $newTier,
+                //         'new_expired_at' => $cust->tier_expired_at,
+                //     ]);
+                // }
+
                 if ($now->greaterThan($expiredAt)) {
                     Log::info("🔄 Tier หมดอายุแล้ว ทำการรีเซ็ตใหม่", [
                         'cust_uid' => $cust->cust_uid,
@@ -258,7 +287,11 @@ class LineAuthController extends Controller
                         'expired_at' => $cust->tier_expired_at,
                     ]);
 
-                    // ✅ คำนวณ Tier ใหม่จาก point ปัจจุบัน
+                    // เก็บ tier เดิมไว้ก่อนอัปเดต
+                    $oldTier = $cust->tier_key;
+                    $oldExpired = $cust->tier_expired_at;
+
+                    // คำนวณ Tier ใหม่จาก point ปัจจุบัน
                     $point = (int) $cust->point;
                     $newTier = match (true) {
                         $point >= 3000 => 'platinum',
@@ -266,79 +299,52 @@ class LineAuthController extends Controller
                         default        => 'silver',
                     };
 
-                    // ✅ ต่ออายุ Tier ใหม่อีก 2 ปี
+                    // ต่ออายุ Tier ใหม่อีก 2 ปี
+                    $newExpired = $now->copy()->addYears(2);
                     $cust->update([
                         'tier_key'        => $newTier,
                         'tier_updated_at' => $now,
-                        'tier_expired_at' => $now->copy()->addYears(2),
+                        'tier_expired_at' => $newExpired,
                     ]);
 
                     Log::info("✅ อัปเดต Tier ใหม่สำเร็จ", [
                         'new_tier' => $newTier,
-                        'new_expired_at' => $cust->tier_expired_at,
+                        'new_expired_at' => $newExpired,
                     ]);
+
+                    // บันทึกประวัติการเปลี่ยน tier
+                    try {
+                        MembershipTierHistory::create([
+                            'user_id'       => $user->id,
+                            'cust_line'     => $cust->cust_line,
+                            'cust_tel'      => $cust->cust_tel,
+                            'tier_old'      => $oldTier,
+                            'tier_new'      => $newTier,
+                            'expired_at'    => $oldExpired,
+                            'changed_at'    => $now,
+                            'reason'        => 'expired',
+                            'point_at_time' => $point,
+                        ]);
+
+                        Log::info("🗂 บันทึกประวัติการหมดอายุ tier สำเร็จ", [
+                            'user_id' => $user->id,
+                            'tier_old' => $oldTier,
+                            'tier_new' => $newTier,
+                        ]);
+                    } catch (\Throwable $e) {
+                        Log::error('❌ บันทึกประวัติ tier ไม่สำเร็จ', [
+                            'error' => $e->getMessage(),
+                            'user_id' => $user->id,
+                        ]);
+                    }
                 }
             }
-
-            // // === แจกแต้มสมัครสมาชิกครั้งแรก ===
-            // try {
-            //     DB::beginTransaction();
-
-            //     $hasRegisterPoint = PointTransaction::where('line_id', $lineId)
-            //         ->where('process_code', 'REGISTER')
-            //         ->exists();
-
-            //     if (!$hasRegisterPoint) {
-            //         $process = TypeProcessPoint::where('process_code', 'REGISTER')->where('is_active', 1)->first();
-            //         $initialPoint = $process?->default_point ?? 50;
-            //         $pointBefore  = (int) $cust->point;
-            //         $pointAfter   = $pointBefore + $initialPoint;
-
-            //         // ✅ อัปเดตแต้มลูกค้า
-            //         $cust->update([
-            //             'point'            => $pointAfter,
-            //             'tier_key'         => $cust->tier_key ?? 'silver',
-            //             'tier_updated_at'  => $cust->tier_updated_at ?? now(),
-            //             'tier_expired_at'  => $cust->tier_expired_at ?? now()->addYears(2),
-            //             'last_earn_at'     => now(),
-            //         ]);
-
-            //         // ✅ บันทึกธุรกรรมแต้ม
-            //         PointTransaction::create([
-            //             'line_id'           => $lineId,
-            //             'transaction_type'  => 'earn',
-            //             'process_code'      => 'REGISTER',
-            //             'reference_id'      => uniqid('TXN-'),
-            //             'pid'               => null,
-            //             'pname'             => 'สมัครสมาชิกครั้งแรก',
-            //             'point_before'      => $pointBefore,
-            //             'point_tran'        => $initialPoint,
-            //             'point_after'       => $pointAfter,
-            //             'tier'              => 'silver',
-            //             'docdate'           => now()->toDateString(),
-            //             // 'docno'             => 'REG-' . now()->format('YmdHis'),
-            //             'docno'             => sprintf('REG-%05d-%s', $cust->id ?? 0, now()->format('YmdHis')),
-            //             'trandate'          => now()->toDateString(),
-            //             'created_at'        => now(),
-            //             'expired_at'        => now()->addYears(2)->toDateString(),
-            //         ]);
-
-            //         Log::info("✅ สมัครสมาชิกครั้งแรก: เพิ่มแต้ม {$initialPoint} Points ให้ {$cust->cust_firstname}");
-            //     } else {
-            //         Log::info("⚠️ สมาชิก {$cust->cust_firstname} เคยได้รับแต้มสมัครสมาชิกแล้ว");
-            //     }
-
-            //     DB::commit();
-            // } catch (\Throwable $e) {
-            //     DB::rollBack();
-            //     Log::error('❌ สมัครสมาชิกครั้งแรกเพิ่มแต้มไม่สำเร็จ', ['error' => $e->getMessage()]);
-            // }
 
             // === แจกแต้มสมัครสมาชิกครั้งแรก ===
             try {
                 DB::beginTransaction();
 
-                // ✅ แจกแต้มเฉพาะลูกค้าใหม่เท่านั้น
+                // แจกแต้มเฉพาะลูกค้าใหม่เท่านั้น
                 if (!$cust->exists || !$cust->id) {
                     $process = TypeProcessPoint::where('process_code', 'REGISTER')
                         ->where('is_active', 1)
@@ -348,7 +354,7 @@ class LineAuthController extends Controller
                     $pointBefore  = 0;
                     $pointAfter   = $initialPoint;
 
-                    // ✅ กำหนด tier เริ่มต้นจากคะแนน
+                    // กำหนด tier เริ่มต้นจากคะแนน
                     $newTier = match (true) {
                         $pointAfter >= 3000 => 'platinum',
                         $pointAfter >= 1000 => 'gold',
@@ -363,7 +369,7 @@ class LineAuthController extends Controller
                         'last_earn_at'     => now(),
                     ]);
 
-                    // ✅ บันทึกธุรกรรมแต้ม
+                    // บันทึกธุรกรรมแต้ม
                     PointTransaction::create([
                         'line_id'           => $lineId,
                         'transaction_type'  => 'earn',
@@ -384,7 +390,7 @@ class LineAuthController extends Controller
 
                     Log::info("✅ สมัครสมาชิกใหม่: เพิ่มแต้ม {$initialPoint} Points ให้ {$cust->cust_firstname}");
                 } else {
-                    Log::info("ℹ️ ลูกค้า {$cust->cust_firstname} มีอยู่แล้ว — ไม่แจกแต้มสมัครสมาชิก");
+                    Log::info(" ลูกค้า {$cust->cust_firstname} มีอยู่แล้ว — ไม่แจกแต้มสมัครสมาชิก");
                 }
 
                 DB::commit();

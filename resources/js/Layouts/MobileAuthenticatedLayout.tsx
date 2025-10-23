@@ -154,7 +154,7 @@ export default function MobileAuthenticatedLayout({
                         <Box
                             sx={{
                                 position: "fixed",
-                                top: 65,
+                                top: 62,
                                 maxWidth: 500,
                                 width: "100%",
                                 overflow: "hidden",
