@@ -16,7 +16,7 @@ export default function WelComeProFile() {
     const user = auth.user;
     const { t } = useLanguage();
 
-    const handleShowScore = () => router.get(route("customer.profile.score"));
+    const handleShowScore = () => router.get(route("customer.profile.score.blank"));
 
     return (
         <MobileAuthenticatedLayout title={t.ProfileWelcome.title}>
