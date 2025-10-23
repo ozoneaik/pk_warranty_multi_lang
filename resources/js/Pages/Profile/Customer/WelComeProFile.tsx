@@ -71,12 +71,12 @@ export default function WelComeProFile() {
                                     {user.name}
                                 </Box>
                             </Typography>
-                            <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
+                            {/* <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
                                 <WorkspacePremium sx={{ color: "#F5B301" }} />
                                 <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
                                     {point ?? 0} P
                                 </Typography>
-                            </Box>
+                            </Box> */}
                         </Box>
                         <Edit
                             sx={{ color: "#F54927", cursor: "pointer" }}
