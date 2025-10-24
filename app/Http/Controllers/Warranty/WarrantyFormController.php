@@ -134,7 +134,6 @@ class WarrantyFormController extends Controller
         }
     }
 
-    //เช๊คซ้ำจาก Serial Number อย่างเดียว
     public function checkSn(Request $request)
     {
         $sn = $request->input('sn');
@@ -178,7 +177,7 @@ class WarrantyFormController extends Controller
                 throw new \Exception('หมายเลขซีเรียลนี้เคยลงทะเบียนรับประกันไปแล้ว');
             }
 
-            // ถ้า SN ใช้งานได้ → ตรวจในฐานข้อมูลของเรา
+            //ถ้า pass ตรวจในฐานข้อมูลของเรา
             $check_form_history = TblHistoryProd::query()
                 ->where('serial_number', $sn)
                 ->select('serial_number', 'model_code', 'product_name', 'model_name')

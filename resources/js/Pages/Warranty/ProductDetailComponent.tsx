@@ -417,7 +417,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                             {warrantyNote}
                         </Typography>
 
-                        {warrantyDetail.sp_warranty?.length ? (
+                        {/* {warrantyDetail.sp_warranty?.length ? (
                             <>
                                 <Divider sx={{ my: 1.2 }} />
                                 <Typography variant="subtitle2" fontWeight={700}>
@@ -433,7 +433,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
                                     ))}
                                 </Stack>
                             </>
-                        ) : null}
+                        ) : null} */}
                     </Stack>
                 </DialogContent>
             </Dialog>

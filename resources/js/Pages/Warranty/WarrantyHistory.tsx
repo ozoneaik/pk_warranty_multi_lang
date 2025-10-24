@@ -175,7 +175,7 @@ function WarrantyDetail({ model_code }: { model_code: string }) {
                     </Box>
                 </Stack>
 
-                {Array.isArray(detail.sp_warranty) && detail.sp_warranty.length > 0 && (
+                {/* {Array.isArray(detail.sp_warranty) && detail.sp_warranty.length > 0 && (
                     <Accordion
                         sx={{
                             mt: 2,
@@ -225,7 +225,7 @@ function WarrantyDetail({ model_code }: { model_code: string }) {
                             </List>
                         </AccordionDetails>
                     </Accordion>
-                )}
+                )} */}
             </AccordionDetails>
         </Accordion>
     );
