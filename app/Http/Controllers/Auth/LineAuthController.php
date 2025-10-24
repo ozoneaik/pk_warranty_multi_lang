@@ -86,9 +86,12 @@ class LineAuthController extends Controller
 
             $cleanName = $this->removeEmoji($user->name ?? $name);
             $user->save();
-            $cust = TblCustomerProd::firstOrNew(['cust_uid' => $lineId]);
 
-            if (!$cust->exists) {
+
+            $cust = TblCustomerProd::firstOrNew(['cust_uid' => $lineId]);
+            $isNewCustomer = !$cust->exists;
+
+            if ($isNewCustomer) {
                 $cust->status              = 'enabled';
                 $cust->cust_type           = 'line';
                 $cust->cust_prefix         = 'mr';
@@ -237,7 +240,7 @@ class LineAuthController extends Controller
                 DB::beginTransaction();
 
                 // แจกแต้มเฉพาะลูกค้าใหม่เท่านั้น
-                if (!$cust->exists || !$cust->id) {
+                if ($isNewCustomer) {
                     $process = TypeProcessPoint::where('process_code', 'REGISTER')
                         ->where('is_active', 1)
                         ->first();

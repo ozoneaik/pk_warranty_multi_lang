@@ -56,7 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('customer-profile')->group(function () {
         Route::get('/', [CustomerProfileController::class, 'welcome'])->name('customer.profile.welcome');
-        Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
+        // Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
         Route::get('/score/blank', function () {
             return Inertia::render('Profile/Customer/ScoreBlank');
         })->name('customer.profile.score.blank');
@@ -68,8 +68,8 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('Profile/Customer/Blank/PrivilegeBlank');
         })->name('customer.profile.blank.privilege.blank');
 
-        Route::get('/privilege', [PrivilegeController::class, 'index'])
-            ->name('customer.profile.privilege');
+        // Route::get('/privilege', [PrivilegeController::class, 'index'])
+        //     ->name('customer.profile.privilege');
 
         Route::get('/score/point', [ScoreController::class, 'getPoint']);
         Route::get('/info/pdpa', function () {
