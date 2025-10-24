@@ -276,8 +276,8 @@ class LineAuthController extends Controller
 
             $redirect = session('after_login_redirect');
             session()->forget('after_login_redirect');
-            if ($redirect === 'warranty.form') {
-                return redirect()->route('warranty.form');
+            if (!empty($redirect)) {
+                return redirect()->to($redirect);
             }
             return redirect()->intended('dashboard');
 

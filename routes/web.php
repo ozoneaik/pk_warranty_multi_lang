@@ -35,10 +35,12 @@ Route::get('/', function () {
 
 Route::get('/warranty/form/entry', function (Request $request) {
     if (!Auth::check()) {
-        return redirect()->route('login', [
+        return redirect()->route('line.login', [
             'redirect' => route('warranty.form')
         ]);
     }
+
+    return redirect()->route('warranty.form');
 })->name('warranty.form.entry');
 
 Route::get('/dashboard', function () {
