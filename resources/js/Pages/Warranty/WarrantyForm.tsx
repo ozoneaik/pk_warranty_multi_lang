@@ -900,7 +900,7 @@ interface StoreItemProps {
     branch: string;
 }
 
-export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
+export default function WarrantyForm({ channel_list, has_phone, current_phone }: { channel_list: []; has_phone: boolean; current_phone: string }) {
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
     // @ts-ignore
@@ -921,7 +921,8 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
         warranty_file: '',
         serial_number: '',
         // @ts-ignore
-        phone: user.phone,
+        // phone: user.phone,
+        phone: current_phone,
         model_code: '',
         model_name: '',
         product_name: '',
@@ -1130,17 +1131,30 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
         if (!data.warranty_file) {
-            Swal.fire(t.Warranty.Validate.AlertMessage.file, '', 'warning'); return;
+            Swal.fire(t.Warranty.Validate.AlertMessage.file, '', 'warning');
+            return;
         }
         if (!data.buy_from || data.buy_from === 'เลือก') {
-            Swal.fire(t.Warranty.Validate.AlertMessage.buy_from, '', 'warning'); return;
+            Swal.fire(t.Warranty.Validate.AlertMessage.buy_from, '', 'warning');
+            return;
         }
         if (!data.store_name?.trim()) {
-            Swal.fire(t.Warranty.Validate.AlertMessage.store_name, '', 'warning'); return;
+            Swal.fire(t.Warranty.Validate.AlertMessage.store_name, '', 'warning');
+            return;
         }
         if (!data.buy_date) {
-            Swal.fire(t.Warranty.Validate.AlertMessage.buy_date, '', 'warning'); return;
+            Swal.fire(t.Warranty.Validate.AlertMessage.buy_date, '', 'warning');
+            return;
+        }
+
+        // ✅ เช็คเบอร์โทร (ถ้าไม่มีในระบบ ต้องกรอก)
+        if (!has_phone) {
+            if (!data.phone || data.phone.length !== 10) {
+                Swal.fire('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก', '', 'warning');
+                return;
+            }
         }
 
         post(route('warranty.form.store'), {
@@ -1442,6 +1456,71 @@ export default function WarrantyForm({ channel_list }: { channel_list: [] }) {
                         {/* ฟิลด์ลงทะเบียน */}
                         {showForm && (
                             <>
+                                {!has_phone && (
+                                    <Grid size={{ xs: 12, md: 12 }} sx={{ mt: 0 }}>
+                                        <FormControl fullWidth>
+                                            <FormLabel htmlFor="phone" required sx={{ mb: 1, fontWeight: "medium" }}>
+                                                {t.Warranty.Form.phone}
+                                            </FormLabel>
+
+                                            <TextField
+                                                id="phone"
+                                                name="phone"
+                                                type="tel"
+                                                value={data.phone}
+                                                onChange={(e) => {
+                                                    const onlyDigits = e.target.value.replace(/\D/g, "");
+                                                    setData("phone", onlyDigits);
+                                                }}
+                                                inputProps={{
+                                                    maxLength: 10,
+                                                    pattern: "[0-9]*",
+                                                    inputMode: "numeric",
+                                                }}
+                                                required
+                                                disabled={processing}
+                                                // placeholder="เช่น 0812345678"
+                                                error={!!errors.phone || ((data.phone ?? '').length > 0 && (data.phone ?? '').length < 10)}
+                                                helperText={
+                                                    errors.phone
+                                                        ? errors.phone
+                                                        : (data.phone ?? '').length > 0 && (data.phone ?? '').length < 10
+                                                            ? "กรุณากรอกเบอร์โทรให้ครบ 10 หลัก"
+                                                            : " "
+                                                }
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                                                }}
+                                                slotProps={{
+                                                    input: {
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    sx={{
+                                                                        color: "text.secondary",
+                                                                        fontWeight: 500,
+                                                                        mr: 0.5,
+                                                                    }}
+                                                                >
+                                                                </Typography>
+                                                            </InputAdornment>
+                                                        ),
+                                                    },
+                                                }}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                )}
+
+                                {/* {has_phone && (
+                                    <Grid size={12}>
+                                        <Typography fontWeight="bold" color="success.main">
+                                            ✅ ใช้เบอร์ในระบบแล้ว: {current_phone}
+                                        </Typography>
+                                    </Grid>
+                                )} */}
+
                                 <Grid size={12}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_from" required sx={{ mb: 1, fontWeight: 'medium' }}>

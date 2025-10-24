@@ -38,7 +38,7 @@ class LineAuthController extends Controller
         }
 
         return Socialite::driver('line')
-            ->scopes(['profile', 'openid', 'email'])
+            ->scopes(['profile', 'openid', 'email', 'phone'])
             ->redirect();
     }
 
@@ -60,6 +60,7 @@ class LineAuthController extends Controller
             $email  = $lineUser->getEmail() ?? $lineId . '@line.local';
             $avatar = $lineUser->getAvatar();
 
+            // dd($lineUser);
             Log::info('LINE Login Response', [
                 'lineId' => $lineId,
                 'name'   => $name,

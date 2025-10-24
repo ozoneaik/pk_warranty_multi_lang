@@ -15,6 +15,20 @@ class PhoneAccess
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+
+    // public function handle(Request $request, Closure $next): Response
+    // {
+    //     if (Auth::check()) {
+    //         if (!isset(Auth::user()->phone)) {
+    //             return redirect()->route('add.phone');
+    //         } else {
+    //             return $next($request);
+    //         }
+    //     } else {
+    //         dd('ไม่ได้ login');
+    //     }
+    // }
+
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {

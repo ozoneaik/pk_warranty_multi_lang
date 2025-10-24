@@ -24,7 +24,8 @@ class WrFormRequest extends FormRequest
         return [
             'warranty_file' => 'required',
             'serial_number' => 'required',
-            'phone' => 'required',
+            // 'phone' => 'required',
+            'phone' => 'nullable|digits:10',
             'model_code' => 'required',
             'model_name' => 'nullable',
             'product_name' => 'required',
