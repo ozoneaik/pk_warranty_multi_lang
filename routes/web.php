@@ -33,12 +33,24 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/warranty/form/entry', function () {
+// Route::get('/warranty/form/entry', function () {
+//     if (!Auth::check()) {
+//         return redirect()->route('line.login', [
+//             'redirect' => '/warranty/form'
+//         ]);
+//     }
+//     return redirect('/warranty/form');
+// })->name('warranty.form.entry');
+
+Route::get('/warranty/form/entry', function (Request $request) {
+    // ถ้ายังไม่ล็อกอิน → ให้ Login ผ่าน LINE พร้อมส่ง redirect
     if (!Auth::check()) {
         return redirect()->route('line.login', [
             'redirect' => '/warranty/form'
         ]);
     }
+
+    // ถ้าล็อกอินแล้ว → ไปหน้าฟอร์มเลย
     return redirect('/warranty/form');
 })->name('warranty.form.entry');
 
