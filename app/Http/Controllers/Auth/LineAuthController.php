@@ -269,17 +269,16 @@ class LineAuthController extends Controller
             }
 
             Auth::login($user);
+
+            $redirect = session('after_login_redirect') ?? '/dashboard';
+            session()->forget('after_login_redirect');
+
             session([
                 'line_avatar' => $avatar,
                 'line_email'  => $email,
             ]);
 
-            $redirect = session('after_login_redirect');
-            session()->forget('after_login_redirect');
-            if (!empty($redirect)) {
-                return redirect()->to($redirect);
-            }
-            return redirect()->intended('dashboard');
+            return redirect()->to($redirect);
 
             Log::info('LINE Login Success', [
                 'user_id' => $user->id,

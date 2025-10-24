@@ -33,14 +33,13 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/warranty/form/entry', function (Request $request) {
+Route::get('/warranty/form/entry', function () {
     if (!Auth::check()) {
         return redirect()->route('line.login', [
-            'redirect' => route('warranty.form')
+            'redirect' => '/warranty/form'
         ]);
     }
-
-    return redirect()->route('warranty.form');
+    return redirect('/warranty/form');
 })->name('warranty.form.entry');
 
 Route::get('/dashboard', function () {
