@@ -31,7 +31,6 @@ export default function WarrantyHome() {
     // const { user } = usePage().props.auth;
     const { auth, line_avatar, point } = usePage().props as any;
     const user = auth.user;
-    console.log("userrrrrrr", user);
 
     // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ
     const navigateTo = (route: string) => {
