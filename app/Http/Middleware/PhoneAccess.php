@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +18,8 @@ class PhoneAccess
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {
-            if (!isset(Auth::user()->phone)) {
-                return redirect()->route('add.phone');
+            if (!isset(Auth::user()->line_id)) {
+                return redirect()->route('dashboard');
             } else {
                 return $next($request);
             }

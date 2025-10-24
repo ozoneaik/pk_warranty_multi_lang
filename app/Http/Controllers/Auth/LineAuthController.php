@@ -19,10 +19,24 @@ use Laravel\Socialite\Facades\Socialite;
 class LineAuthController extends Controller
 {
 
+    // public function redirectToLine()
+    // {
+    //     session(['after_login_redirect' => request()->query('redirect')]);
+    //     // return Socialite::driver('line')->redirect();
+    //     return Socialite::driver('line')
+    //         ->scopes(['profile', 'openid', 'email'])
+    //         ->redirect();
+    // }
+
     public function redirectToLine()
     {
-        session(['after_login_redirect' => request()->query('redirect')]);
-        // return Socialite::driver('line')->redirect();
+        $redirectUrl = request()->query('redirect');
+
+        if ($redirectUrl) {
+            session(['after_login_redirect' => $redirectUrl]);
+            Log::info('🔗 Saving redirect URL to session', ['url' => $redirectUrl]);
+        }
+
         return Socialite::driver('line')
             ->scopes(['profile', 'openid', 'email'])
             ->redirect();
@@ -31,6 +45,14 @@ class LineAuthController extends Controller
     public function handleLineCallback()
     {
         try {
+
+            Log::info('📥 LINE Callback Start', [
+                'session_redirect' => session('after_login_redirect'),
+                'session_id' => session()->getId(),
+                'state_param' => request()->query('state'),
+                'all_session' => session()->all(),
+            ]);
+
             $lineUser = Socialite::driver('line')->user();
 
             $lineId = $lineUser->getId();
@@ -99,12 +121,12 @@ class LineAuthController extends Controller
             }
             $cust->save();
 
-            // ✅ ตรวจสอบวันหมดอายุของ Tier ทุกครั้งที่ Login
+            // ตรวจสอบวันหมดอายุของ Tier ทุกครั้งที่ Login
             if (!empty($cust->tier_expired_at)) {
                 $expiredAt = Carbon::parse($cust->tier_expired_at);
                 $now = Carbon::now();
 
-                // ✅ คำนวณเวลาคงเหลือ (วัน ชั่วโมง นาที)
+                // คำนวณเวลาคงเหลือ (วัน ชั่วโมง นาที)
                 $remainingDays = $now->diffInDays($expiredAt, false);
                 $remainingHours = $now->diffInHours($expiredAt, false);
                 $remainingText = $remainingDays > 0
@@ -272,6 +294,11 @@ class LineAuthController extends Controller
 
             $redirect = session('after_login_redirect') ?? '/dashboard';
             session()->forget('after_login_redirect');
+
+            Log::info('🚀 Redirecting after LINE login', [
+                'redirect_to' => $redirect,
+                'user_id' => $user->id
+            ]);
 
             session([
                 'line_avatar' => $avatar,

@@ -62,7 +62,7 @@ class SendOtpController extends Controller
         $user = Auth::user();
         $phone = $request->phone;
 
-        // ✅ ตรวจสอบว่าเข้าสู่ระบบหรือไม่
+        // ตรวจสอบว่าเข้าสู่ระบบหรือไม่
         if (!$user) {
             return response()->json([
                 'success' => false,
