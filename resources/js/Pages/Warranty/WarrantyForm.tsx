@@ -1256,7 +1256,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                 </DialogContent>
             </Dialog>
 
-            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
+            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 4, mb: 7, px: 2, py: 2 }}>
                 {qrScanSuccess && (
                     <Alert severity="success" sx={{ mb: 2 }} onClose={() => setQrScanSuccess(false)}>
                         สแกน QR Code สำเร็จแล้ว! รหัสลูกค้าถูกเพิ่มเข้าฟอร์มอัตโนมัติ
@@ -1267,7 +1267,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                     <Grid container spacing={2}>
 
                         {/* File Upload Section */}
-                        {showForm && (
+                        {/* {showForm && (
                             <Grid size={12}>
                                 <Box
                                     sx={{
@@ -1327,7 +1327,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                     </Button>
                                 </Box>
                             </Grid>
-                        )}
+                        )} */}
 
                         {/* Serial Number */}
                         <Grid size={12}>
@@ -1513,13 +1513,67 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                     </Grid>
                                 )}
 
-                                {/* {has_phone && (
+                                {showForm && (
                                     <Grid size={12}>
-                                        <Typography fontWeight="bold" color="success.main">
-                                            ✅ ใช้เบอร์ในระบบแล้ว: {current_phone}
-                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                border: "2px dashed",
+                                                borderColor: preview ? "primary.main" : "#ccc",
+                                                borderRadius: 2,
+                                                p: 3,
+                                                textAlign: "center",
+                                                cursor: "pointer",
+                                                bgcolor: preview ? "primary.50" : "#fafafa",
+                                                transition: "all 0.3s ease",
+                                                "&:hover": { bgcolor: preview ? "primary.100" : "#f0f0f0", borderColor: "primary.main" },
+                                            }}
+                                        >
+                                            <label htmlFor="warranty_file" style={{ cursor: "pointer" }}>
+                                                {preview ? (
+                                                    <Stack spacing={2}>
+                                                        <Box
+                                                            component="img"
+                                                            src={preview}
+                                                            alt="Warranty Preview"
+                                                            sx={{ maxHeight: 120, objectFit: "contain", borderRadius: 1, mx: "auto" }}
+                                                            onClick={(e) => { e.stopPropagation(); setOpenModal(true); }}
+                                                        />
+                                                        <Typography variant="body2" color="text.secondary" noWrap sx={{ fontStyle: "italic", textAlign: "center" }}>
+                                                            {fileName || "ยังไม่ได้เลือกไฟล์"}
+                                                        </Typography>
+                                                        <Chip label="เปลี่ยนไฟล์ใหม่" color="primary" variant="outlined" size="small" />
+                                                    </Stack>
+                                                ) : (
+                                                    <Stack spacing={1}>
+                                                        <FileUpload fontSize="large" color="primary" />
+                                                        <Typography color="text.secondary" fontWeight="medium">{t.Warranty.Form.file}</Typography>
+                                                        <Typography variant="caption" color="text.secondary">{t.Warranty.Form.validateFile}</Typography>
+                                                    </Stack>
+                                                )}
+                                            </label>
+                                            <input
+                                                id="warranty_file"
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        setData("warranty_file", file);
+                                                        setPreview(URL.createObjectURL(file));
+                                                        setFileName(file.name);
+                                                    }
+                                                }}
+                                                ref={fileInputRef}
+                                            />
+                                        </Box>
+                                        <Box mt={2}>
+                                            <Button fullWidth variant="outlined" onClick={() => setOpenExampleFile(true)} sx={{ py: 1.5 }}>
+                                                {t.Warranty.Form.example_file}
+                                            </Button>
+                                        </Box>
                                     </Grid>
-                                )} */}
+                                )}
 
                                 <Grid size={12}>
                                     <FormControl fullWidth>

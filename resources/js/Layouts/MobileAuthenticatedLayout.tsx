@@ -2,14 +2,21 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction,
     IconButton, Menu, MenuItem, Select,
-    Fade
+    Fade,
+    DialogContent,
+    DialogActions,
+    Button,
+    Dialog
 } from '@mui/material';
 import {
     Home, Assignment, History, SupervisedUserCircle, Menu as MenuIcon
 } from '@mui/icons-material';
+import CloseIcon from "@mui/icons-material/Close";
 import { router, usePage } from '@inertiajs/react';
 import { useLanguage } from '@/context/LanguageContext';
 import PumpkinLogo from '../assets/logo/PumpkinLogo.png';
+import PopupImage from '../assets/images/popup_session60.jpg';
+
 import * as MuiIcons from '@mui/icons-material';
 import FooterCarousel from '@/Components/FooterCarousel';
 
@@ -30,6 +37,30 @@ export default function MobileAuthenticatedLayout({
     const { is_dev_mode, app_env }: any = props;
     const [scrolled, setScrolled] = useState(false);
     const isWarrantyHome = url.includes('/warranty/home');
+
+    const isDashboard = url.includes('/warranty/home');
+    const [openPopup, setOpenPopup] = useState(false);
+
+    useEffect(() => {
+        if (!isDashboard) return;
+        const lastShown = sessionStorage.getItem("popup_last_shown");
+        const now = Date.now();
+        const oneHour = 60 * 60 * 1000; // 1 ชั่วโมง
+
+        if (!lastShown || now - parseInt(lastShown, 10) > oneHour) {
+            setOpenPopup(true);
+            sessionStorage.setItem("popup_last_shown", now.toString());
+        }
+    }, [isDashboard]);
+
+    // useEffect(() => {
+    //     if (!isDashboard) return;
+    //     setOpenPopup(true);
+    // }, [isDashboard]);
+
+    const handleClosePopup = () => {
+        setOpenPopup(false);
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -129,6 +160,56 @@ export default function MobileAuthenticatedLayout({
                 backgroundColor: '#f5f5f5',
             }}
         >
+            <Dialog
+                open={openPopup}
+                onClose={handleClosePopup}
+                maxWidth="xs"
+                fullWidth
+                sx={{
+                    "& .MuiDialog-paper": {
+                        background: "transparent",
+                        boxShadow: "none",
+                        overflow: "visible",
+                    },
+                    // พื้นหลังเทาโปร่งๆ
+                    "& .MuiBackdrop-root": {
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        backdropFilter: "blur(2px)",
+                    },
+
+                    "& .HoverEffect:hover": {
+                        transform: "scale(1.02)",
+                        transition: "transform 0.3s ease-in-out",
+                    },
+                }}
+            >
+                {/* ปุ่มกากบาทปิด */}
+                <IconButton
+                    onClick={handleClosePopup}
+                    sx={{
+                        position: "absolute",
+                        top: -18,
+                        right: -15,
+                        // boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                        zIndex: 10,
+                    }}
+                >
+                    <CloseIcon sx={{ color: "white" }} />
+                </IconButton>
+
+                {/* 🖼️ รูปภาพ popup */}
+                <Box
+                    component="img"
+                    src={PopupImage}
+                    alt="popup"
+                    sx={{
+                        width: "100%",
+                        borderRadius: 2,
+                        display: "block",
+                    }}
+                />
+            </Dialog>
+
             {/* ✅ กรอบจำลองจอมือถือ */}
             <Box
                 sx={{

@@ -243,6 +243,7 @@ import {
     Slide,
 } from "@mui/material";
 import { InfoOutlined, ExpandMore, Close } from "@mui/icons-material";
+import { theme } from "@/ThemeCustom";
 
 const Transition = forwardRef(function Transition(props: any, ref: Ref<unknown>) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -262,7 +263,8 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
     const imgSrc = warrantyDetail.image || warrantyDetail.p_path || defaultImage;
     const name = warrantyDetail.pname || warrantyDetail.p_name || "-";
     const model = warrantyDetail.fac_model || "-";
-    const bgColor = warrantyDetail.warranty_status ? "#e8f5e9" : "#ffebee";
+    // const bgColor = warrantyDetail.warranty_status ? "#e8f5e9" : "#ffebee";
+    const bgColor = '#E8F5E9'
 
     // ✅ รองรับหลายรูปแบบ key เช่น warrantyPeriod / warranty_period
     const warrantyPeriod =

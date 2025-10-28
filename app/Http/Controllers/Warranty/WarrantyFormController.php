@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Warranty\WrFormRequest;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblHistoryProd;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -514,7 +515,129 @@ class WarrantyFormController extends Controller
                 'customer_name' => $req['customer_name'] ?? null,
             ]);
 
+            try {
+                $rocketUrl = env('ROCKET_URL_API');
+                $merchantId = env('MERCHANT_ID_ROCKET_NEW');
+                $apiKey = env('API_KEY_ROCKET_NEW');
+                $productImage = env('VITE_PRODUCT_IMAGE_URI');
+                $userId = $user->id;
+                $sellerId = 'SELLER-' . ($user->id ?? 0);
+
+                $payload = [
+                    'merchant_id' => $merchantId,
+                    'user_id' => (string)$userId,
+                    'user_phone_number' => '+66' . ltrim($phone, '0'),
+                    'warranty_id' => 'WARRANTY-' . $store->id,
+                    'product_name' => $store->product_name,
+                    'product_code' => $store->model_code,
+                    'product_model' => $store->model_name,
+                    'product_image' => $productImage . '/' . $store->model_code . '.jpg',
+                    'warranty_image' => $full_path,
+                    'serial_number' => $store->serial_number,
+                    'channel' => $store->buy_from,
+                    'store' => $store->store_name,
+                    'seller_id' => $sellerId,
+                    'condition' => [],
+                    'remark' => [],
+                    'expire_warranty_date' => now()->addYears(2)->toIso8601String(),
+                    'purchase_date' => $store->buy_date
+                        ? Carbon::parse($store->buy_date)->toIso8601String()
+                        : now()->toIso8601String(),
+                ];
+
+                // ดึงข้อมูล condition / remark จาก request
+                if (!empty($req['warrantycondition'])) {
+                    $payload['condition'] = preg_split('/[\n\r]+/', trim($req['warrantycondition']));
+                }
+                if (!empty($req['warrantynote'])) {
+                    $payload['remark'] = preg_split('/[\n\r]+/', trim($req['warrantynote']));
+                }
+
+                // ถ้าไม่มีข้อมูล warrantycondition/warrantynote ใน request → ดึงจาก API
+                if (empty($req['warrantycondition']) || empty($req['warrantynote'])) {
+                    try {
+                        $response = Http::timeout(10)
+                            ->withOptions(['verify' => false])
+                            ->post(env('VITE_R_MAIN_PRODUCT'), [
+                                'pid' => $store->model_code,
+                                'views' => 'single',
+                            ]);
+
+                        if ($response->successful()) {
+                            $raw = $response->body();
+                            $clean = preg_replace('/<br\s*\/?>\s*<b>.*?<\/b>.*?<br\s*\/?>/s', '', $raw);
+                            $clean = preg_replace('/^.*?(\{.*\})$/s', '$1', $clean);
+                            $json = json_decode($clean, true);
+
+                            if (($json['status'] ?? '') === 'SUCCESS') {
+                                $assets = $json['assets'] ?? [];
+                                $skuset = $json['skuset'] ?? [];
+
+                                $asset = null;
+                                if (is_array($assets) && array_is_list($assets)) {
+                                    $asset = $assets[0] ?? null;
+                                } elseif (is_array($assets)) {
+                                    if (is_array($skuset) && !empty($skuset)) {
+                                        $firstKey = $skuset[0];
+                                        if (isset($assets[$firstKey])) {
+                                            $asset = $assets[$firstKey];
+                                        }
+                                    }
+                                    if ($asset === null && !empty($assets)) {
+                                        $asset = reset($assets);
+                                    }
+                                }
+
+                                if ($asset) {
+                                    if (empty($req['warrantycondition']) && !empty($asset['warrantycondition'])) {
+                                        $payload['condition'] = preg_split('/[\n\r]+/', trim($asset['warrantycondition']));
+                                    }
+
+                                    if (empty($req['warrantynote']) && !empty($asset['warrantynote'])) {
+                                        $payload['remark'] = preg_split('/[\n\r]+/', trim($asset['warrantynote']));
+                                    }
+
+                                    Log::info('[WarrantyFormController] เติมข้อมูล condition/remark จาก API สำเร็จ', [
+                                        'model_code' => $store->model_code,
+                                        'cond_count' => count($payload['condition']),
+                                        'remark_count' => count($payload['remark']),
+                                    ]);
+                                }
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning('[WarrantyFormController] ดึง condition/remark จาก API ล้มเหลว', [
+                            'model_code' => $store->model_code,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+
+                $rocketResponse = Http::timeout(20)
+                    ->withOptions(['verify' => false])
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'rocket-merchant-id' => $merchantId,
+                        'X-API-KEY' => $apiKey,
+                    ])
+                    ->post($rocketUrl, $payload);
+
+                Log::info(
+                    "🚀 [Warranty Sync] ส่งข้อมูลลงทะเบียนไป Rocket API:\n" .
+                        "URL: {$rocketUrl}\n" .
+                        "STATUS: {$rocketResponse->status()}\n" .
+                        "SUCCESS: " . ($rocketResponse->successful() ? '✅ TRUE' : '❌ FALSE') . "\n" .
+                        "PAYLOAD:\n" . json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n" .
+                        "RESPONSE:\n" . json_encode(json_decode($rocketResponse->body(), true), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                );
+            } catch (\Exception $e) {
+                Log::error('❌ [Warranty Sync] ส่งข้อมูลไป Rocket API ไม่สำเร็จ', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             DB::commit();
+
             try {
                 $lineUid = $store->lineid;
                 $token = env('LINE_CHANNEL_ACCESS_TOKEN');
@@ -576,9 +699,6 @@ class WarrantyFormController extends Controller
                     'lineid' => $store->lineid,
                 ]);
             }
-
-            // ✅ ส่งข้อความหาลูกค้า
-            // $this->sendLineNotify($store);
 
             return redirect()->route('warranty.history');
         } catch (\Exception $e) {
