@@ -900,7 +900,12 @@ interface StoreItemProps {
     branch: string;
 }
 
-export default function WarrantyForm({ channel_list, has_phone, current_phone }: { channel_list: []; has_phone: boolean; current_phone: string }) {
+interface Channel {
+    id: number;
+    name: string;
+}
+
+export default function WarrantyForm({ channel_list, has_phone, current_phone }: { channel_list: Channel[]; has_phone: boolean; current_phone: string }) {
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
     console.log("📦 [WarrantyForm] channel_list:", channel_list);
     // @ts-ignore
