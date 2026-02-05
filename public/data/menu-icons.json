@@ -46,5 +46,29 @@
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184436674-Layer_1-1%201%20%281%29.png",
         "link": "https://linktr.ee/pumpkintoolschannel",
         "color": "#e91e63"
+    },
+    {
+        "id": 5,
+        "title": {
+            "th": "เช็คอิน",
+            "en": "Check in",
+            "lao": "",
+            "myanmar":""
+        },
+        "icon_url": "https://cdn-icons-png.flaticon.com/512/15537/15537663.png",
+        "link": "https://pumpkin.co.th/checkin/",
+        "color": "#e91e63"
+    },
+    {
+        "id": 6,
+        "title":{
+            "th": "Feferral",
+            "en": "Feferral",
+            "lao": "",
+            "myanmar":""
+        },
+        "icon_url": "https://cdn-icons-png.flaticon.com/512/2559/2559028.png",
+        "link": "/customer-profile/referral",
+        "color": "#e91e63"
     }
 ]

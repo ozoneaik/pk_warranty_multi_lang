@@ -9,7 +9,7 @@ class TblCustomerProd extends Model
     protected $connection = 'mysql_slip';
     protected $table = 'tbl_customer_prod';
     protected $fillable = [
-        
+
         // พื้นฐานลูกค้า
         'cust_tel',
         'cust_prefix',
@@ -34,6 +34,9 @@ class TblCustomerProd extends Model
         'cust_code',
         'cust_uid',
 
+        'referral_code',
+        'referred_by',
+        
         // การยินยอม/การตลาด
         'accept_news',
         'accept_policy',
@@ -50,7 +53,7 @@ class TblCustomerProd extends Model
         'datetime',
         'status',
         'cust_type',
-        
+
         'point_rocket',
         'point',
 

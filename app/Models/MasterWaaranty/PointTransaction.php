@@ -28,6 +28,7 @@ class PointTransaction extends Model
         'trandate',
         'created_at',
         'expired_at',
+        'is_shown',
     ];
 
     protected $casts = [

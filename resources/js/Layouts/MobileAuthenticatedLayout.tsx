@@ -1,23 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box, AppBar, Toolbar, Typography, BottomNavigation, BottomNavigationAction,
+    Box, AppBar, Toolbar, Typography,
     IconButton, Menu, MenuItem, Select,
-    Fade,
-    DialogContent,
-    DialogActions,
-    Button,
-    Dialog
+    Fade
 } from '@mui/material';
-import {
-    Home, Assignment, History, SupervisedUserCircle, Menu as MenuIcon
-} from '@mui/icons-material';
-import CloseIcon from "@mui/icons-material/Close";
+import { Menu as MenuIcon } from '@mui/icons-material';
 import { router, usePage } from '@inertiajs/react';
 import { useLanguage } from '@/context/LanguageContext';
 import PumpkinLogo from '../assets/logo/PumpkinLogo.png';
-import PopupImage from '../assets/images/popup_session60.jpg';
-
-import * as MuiIcons from '@mui/icons-material';
 import FooterCarousel from '@/Components/FooterCarousel';
 
 type Language = "en" | "th" | "lao" | "myanmar";
@@ -36,31 +26,9 @@ export default function MobileAuthenticatedLayout({
     const { url, props } = usePage();
     const { is_dev_mode, app_env }: any = props;
     const [scrolled, setScrolled] = useState(false);
+
+    // ใช้เช็คเพื่อเปลี่ยนสี Navbar
     const isWarrantyHome = url.includes('/warranty/home');
-
-    const isDashboard = url.includes('/warranty/home');
-    const [openPopup, setOpenPopup] = useState(false);
-
-    useEffect(() => {
-        if (!isDashboard) return;
-        const lastShown = sessionStorage.getItem("popup_last_shown");
-        const now = Date.now();
-        const oneHour = 60 * 60 * 1000; // 1 ชั่วโมง
-
-        if (!lastShown || now - parseInt(lastShown, 10) > oneHour) {
-            setOpenPopup(true);
-            sessionStorage.setItem("popup_last_shown", now.toString());
-        }
-    }, [isDashboard]);
-
-    // useEffect(() => {
-    //     if (!isDashboard) return;
-    //     setOpenPopup(true);
-    // }, [isDashboard]);
-
-    const handleClosePopup = () => {
-        setOpenPopup(false);
-    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -90,66 +58,6 @@ export default function MobileAuthenticatedLayout({
     const handleLogout = () => router.post(route('logout'));
     const handleChangeLang = (value: string) => setLanguage(value as Language);
 
-    const navStyle = {
-        color: "rgba(255,255,255,0.9)",
-        minWidth: "auto",
-        flexDirection: "column",
-        gap: "1px",
-        "& .MuiSvgIcon-root": { fontSize: "1.6rem" },
-        "& .MuiBottomNavigationAction-label": {
-            fontSize: "0.72rem",
-            fontWeight: 500,
-            marginTop: "2px !important",
-        },
-        "&.Mui-selected": { color: "white" },
-    };
-
-    // Display maintenance page in dev mode
-    // if (is_dev_mode) {
-    //     return (
-    //         <Box
-    //             sx={{
-    //                 display: "flex",
-    //                 flexDirection: "column",
-    //                 alignItems: "center",
-    //                 justifyContent: "center",
-    //                 height: "100vh",
-    //                 width: "100%",
-    //                 bgcolor: "#FFF3E0",
-    //                 color: "#8D3200",
-    //                 textAlign: "center",
-    //                 p: 3,
-    //             }}
-    //         >
-    //             <Box
-    //                 sx={{
-    //                     width: 90,
-    //                     height: 90,
-    //                     borderRadius: "50%",
-    //                     bgcolor: "#FFB74D",
-    //                     display: "grid",
-    //                     placeItems: "center",
-    //                     fontSize: 40,
-    //                     color: "white",
-    //                     mb: 3,
-    //                     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-    //                 }}
-    //             >
-    //                 🚧
-    //             </Box>
-    //             <Typography variant="h6" fontWeight={700}>
-    //                 ระบบกำลังอยู่ในช่วงพัฒนา
-    //             </Typography>
-    //             <Typography sx={{ mt: 1, color: "#5D4037", fontSize: 14 }}>
-    //                 ขณะนี้ระบบกำลังปรับปรุง กรุณากลับมาใหม่ภายหลัง
-    //             </Typography>
-    //             <Typography sx={{ mt: 3, fontSize: 13, color: "#9E7E57" }}>
-    //                 Environment: {app_env}
-    //             </Typography>
-    //         </Box>
-    //     );
-    // }
-
     return (
         <Box
             sx={{
@@ -158,57 +66,9 @@ export default function MobileAuthenticatedLayout({
                 alignItems: 'center',
                 minHeight: '100vh',
                 backgroundColor: '#f5f5f5',
+                overflow: 'hidden',
             }}
         >
-            <Dialog
-                open={openPopup}
-                onClose={handleClosePopup}
-                maxWidth="xs"
-                fullWidth
-                sx={{
-                    "& .MuiDialog-paper": {
-                        background: "transparent",
-                        boxShadow: "none",
-                        overflow: "visible",
-                    },
-                    // พื้นหลังเทาโปร่งๆ
-                    "& .MuiBackdrop-root": {
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        backdropFilter: "blur(2px)",
-                    },
-
-                    "& .HoverEffect:hover": {
-                        transform: "scale(1.02)",
-                        transition: "transform 0.3s ease-in-out",
-                    },
-                }}
-            >
-                {/* ปุ่มกากบาทปิด */}
-                <IconButton
-                    onClick={handleClosePopup}
-                    sx={{
-                        position: "absolute",
-                        top: -18,
-                        right: -15,
-                        // boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                        zIndex: 10,
-                    }}
-                >
-                    <CloseIcon sx={{ color: "white" }} />
-                </IconButton>
-
-                {/* 🖼️ รูปภาพ popup */}
-                <Box
-                    component="img"
-                    src={PopupImage}
-                    alt="popup"
-                    sx={{
-                        width: "100%",
-                        borderRadius: 2,
-                        display: "block",
-                    }}
-                />
-            </Dialog>
 
             {/* ✅ กรอบจำลองจอมือถือ */}
             <Box
@@ -216,7 +76,7 @@ export default function MobileAuthenticatedLayout({
                     position: 'relative',
                     width: '100%',
                     maxWidth: 500,
-                    height: '100vh',
+                    minHeight: '100dvh',
                     backgroundColor: '#fff',
                     boxShadow: {
                         xs: 'none',
@@ -228,7 +88,6 @@ export default function MobileAuthenticatedLayout({
                     borderRadius: { xs: 0, md: '25px' },
                 }}
             >
-
                 {/* ⚠️ Dev Mode Banner */}
                 {is_dev_mode && (
                     <Fade in timeout={600}>
@@ -373,11 +232,13 @@ export default function MobileAuthenticatedLayout({
                         <Typography>{t.homePage.logout}</Typography>
                     </MenuItem>
                 </Menu>
+
+                {/* Content Area */}
                 <Box
                     sx={{
-                        flexGrow: 1,
-                        mt: '64px',
-                        mb: '65px',
+                        flex: 1,
+                        pt: '64px',        // ความสูง AppBar
+                        pb: '65px',        // FooterCarousel
                         overflowY: 'auto',
                         WebkitOverflowScrolling: 'touch',
                         px: 2,

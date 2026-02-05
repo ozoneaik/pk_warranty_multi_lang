@@ -268,6 +268,77 @@ const getWarrantyStatus = (item: HistoryProps, t: any) => {
     };
 };
 
+interface SearchBarProps {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+    label: string;
+}
+
+/* 📱 Mobile Search Bar */
+function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
+    return (
+        <Box
+            sx={{
+                position: "sticky",
+                top: -8,
+                zIndex: 30,
+                bgcolor: "white",
+                mt: 3,
+                pt: 2,
+                pb: 1,
+            }}
+        >
+            <Container maxWidth="sm">
+                <TextField
+                    fullWidth
+                    size="small"
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </Container>
+        </Box>
+    );
+}
+
+/* 🖥 Desktop Search Bar */
+function SearchBarDesktop({ value, onChange, placeholder, label }: SearchBarProps) {
+    return (
+        <Box
+            sx={{
+                position: "sticky", top: -8, // อยู่ด้านบนสุด 
+                zIndex: 30, bgcolor: "white", borderColor: "divider", mt: 7, pt: 2, pb: 1,
+            }}
+        >
+            <Container maxWidth="lg">
+                <TextField
+                    fullWidth
+                    size="medium"
+                    label={label}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </Container>
+        </Box>
+    );
+}
+
 export default function WarrantyHistory({ histories }: { histories: HistoryProps[] }) {
     const { t } = useLanguage();
     const theme = useTheme();
@@ -376,42 +447,21 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
             <Head title={t.History.title} />
 
             {/* 🔍 Search Bar - fixed ด้านบน */}
-            <Box
-                sx={{
-                    position: "sticky",
-                    top: -8,              // อยู่ด้านบนสุด
-                    zIndex: 30,
-                    bgcolor: "white",
-                    borderColor: "divider",
-                    pt: 2,
-                    pb: 1,
-                }}
-            >
-                <Container maxWidth={isMobile ? "sm" : "lg"}>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        placeholder={t.History.Filter.Input.Placeholder}
-                        label={t.History.Filter.Input.Label}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        sx={{
-                            backgroundColor: "white",
-                            borderRadius: 2,
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: 2,
-                            },
-                        }}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Search />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                </Container>
-            </Box>
+            {isMobile ? (
+                <SearchBarMobile
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder={t.History.Filter.Input.Placeholder}
+                    label={t.History.Filter.Input.Label}
+                />
+            ) : (
+                <SearchBarDesktop
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder={t.History.Filter.Input.Placeholder}
+                    label={t.History.Filter.Input.Label}
+                />
+            )}
 
             {/* Tabs (sticky แยกออกมา) */}
             <Box

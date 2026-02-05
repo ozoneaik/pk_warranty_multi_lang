@@ -17,28 +17,6 @@ use Inertia\Inertia;
 
 class WarrantyFormController extends Controller
 {
-
-    // public function form()
-    // {
-    //     try {
-    //         $uri = env('ROCKET_GET_CHANEL_BUY_URI');
-    //         $response = Http::timeout(30)->withOptions(['verify' => false])->get($uri, [
-    //             'name' => 'ช่องทางการซื้อ',
-    //         ]);
-
-    //         if ($response->successful() && $response->status() === 200) {
-    //             $response_json = $response->json();
-    //             $response_json = $response_json['data'];
-    //         } else {
-    //             $response_json = [];
-    //         }
-    //         return Inertia::render('Warranty/WarrantyForm', ['channel_list' => $response_json]);
-    //     } catch (\Exception $e) {
-    //         return Inertia::render('Warranty/WarrantyForm', ['channel_list' => []]);
-    //     }
-    // }
-
-
     //อันใหม่
     // public function form()
     // {
@@ -103,16 +81,18 @@ class WarrantyFormController extends Controller
 
         try {
             $uri = env('ROCKET_GET_CHANEL_BUY_URI');
+            // if (!$uri) dd("ไม่พบ ENV: ROCKET_GET_CHANEL_BUY_URI");
             $response = Http::timeout(15)->withOptions(['verify' => false])->get($uri, ['name' => 'ช่องทางการซื้อ']);
 
             if ($response->successful()) {
                 $data = $response->json();
-                $channel_list = $data['data'] ?? $data['list'] ?? [];
+                // dd($data);
+                // $channel_list = $data['data'] ?? $data['list'] ?? [];
+                $channel_list = $data;
             }
         } catch (\Throwable $e) {
             Log::error('Load channel list failed', ['error' => $e->getMessage()]);
         }
-
         return Inertia::render('Warranty/WarrantyForm', [
             'channel_list'   => $channel_list,
             'has_phone'      => $has_phone,
@@ -120,50 +100,93 @@ class WarrantyFormController extends Controller
         ]);
     }
 
-    public function get_store_name($store_name)
+    // public function get_store_name($store_name)
+    // {
+    //     try {
+    //         $merchant_id = env('MERCHANT_ID_ROCKET');
+    //         $accessToken = env('ACCESS_TOKEN_ROCKET');
+    //         // $uri = env('ROCKET_GET_CHANEL_BUY_URI_DETAIL');
+    //         $uri = 'https://uat-api.rocket-tech.app/api/rewarding/assets/pumpkin/store';
+
+    //         Log::info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้า', [
+    //             'store_name'   => $store_name,
+    //             'uri'          => $uri,
+    //             'merchant_id'  => $merchant_id,
+    //         ]);
+    //         $response = Http::timeout(30)->withOptions([
+    //             'verify' => false, // ✅ ปิดตรวจสอบ SSL
+    //         ])->withHeaders([
+    //             'access-token' => $accessToken,
+    //             'merchant-id'  => $merchant_id,
+    //             'charset'      => 'utf-8',
+    //             'Content-Type' => 'application/json',
+    //         ])->get($uri, [
+    //             'name' => $store_name,
+    //         ]);
+
+    //         Log::info('📡 [get_store_name] ตอบกลับจาก Rocket API', [
+    //             'status' => $response->status(),
+    //             'successful' => $response->successful(),
+    //             'body_preview' => mb_substr($response->body(), 0, 300) . '...',
+    //         ]);
+
+
+    //         if ($response->successful() && $response->status() === 200) {
+    //             $response_json = $response->json();
+
+    //             Log::info('✅ [get_store_name] เนื้อหาที่ได้จาก Rocket', [
+    //                 'response_json' => $response_json,
+    //             ]);
+
+    //             return response()->json([
+    //                 'message' => 'ดึงรายการสำเร็จ',
+    //                 'list' => $response_json
+    //             ]);
+    //         } else {
+    //             throw new \Exception('ไม่สามารถดึงรายการช่องทางการซื้อได้ (HTTP ' . $response->status() . ')');
+    //         }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'message' => $e->getMessage(),
+    //             'list' => []
+    //         ], 400);
+    //     }
+    // }
+
+    public function get_store_name($id)
     {
         try {
-            $merchant_id = env('MERCHANT_ID_ROCKET');
-            $accessToken = env('ACCESS_TOKEN_ROCKET');
-            $uri = env('ROCKET_GET_CHANEL_BUY_URI_DETAIL');
-            Log::info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้า', [
-                'store_name'   => $store_name,
-                'uri'          => $uri,
-                'merchant_id'  => $merchant_id,
-            ]);
-            $response = Http::timeout(30)->withOptions([
-                'verify' => false, // ✅ ปิดตรวจสอบ SSL
-            ])->withHeaders([
-                'access-token' => $accessToken,
-                'merchant-id'  => $merchant_id,
-                'charset'      => 'utf-8',
-                'Content-Type' => 'application/json',
-            ])->get($uri, [
-                'name' => $store_name,
+            // เส้น API ใหม่ที่ต้องการใช้
+            $uri = "https://pk-api.pumpkin-th.com/api/get-store-name/{$id}";
+
+            Log::info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้าจาก Pumpkin API', [
+                'id'  => $id,
+                'uri' => $uri,
             ]);
 
-            Log::info('📡 [get_store_name] ตอบกลับจาก Rocket API', [
+            // ยิง Request (ปกติโดเมนนี้ไม่ต้องใช้ Header พิเศษแบบ Rocket)
+            $response = Http::timeout(30)->withOptions([
+                'verify' => false, // ✅ ปิดตรวจสอบ SSL (ถ้าจำเป็น)
+            ])->get($uri);
+
+            Log::info('📡 [get_store_name] ตอบกลับจาก API', [
                 'status' => $response->status(),
                 'successful' => $response->successful(),
-                'body_preview' => mb_substr($response->body(), 0, 300) . '...',
             ]);
 
-
-            if ($response->successful() && $response->status() === 200) {
+            if ($response->successful()) {
                 $response_json = $response->json();
-
-                Log::info('✅ [get_store_name] เนื้อหาที่ได้จาก Rocket', [
-                    'response_json' => $response_json,
-                ]);
 
                 return response()->json([
                     'message' => 'ดึงรายการสำเร็จ',
-                    'list' => $response_json
+                    'list' => $response_json // ส่ง array กลับไปให้ frontend
                 ]);
             } else {
-                throw new \Exception('ไม่สามารถดึงรายการช่องทางการซื้อได้ (HTTP ' . $response->status() . ')');
+                throw new \Exception('ไม่สามารถดึงข้อมูลร้านค้าได้ (HTTP ' . $response->status() . ')');
             }
         } catch (\Exception $e) {
+            Log::error('❌ [get_store_name] Error', ['message' => $e->getMessage()]);
+
             return response()->json([
                 'message' => $e->getMessage(),
                 'list' => []
@@ -182,39 +205,6 @@ class WarrantyFormController extends Controller
                 throw new \Exception('กรุณากรอกหมายเลขซีเรียล');
             }
 
-            Log::info('🛰 [WarrantyFormController] เริ่มตรวจสอบหมายเลขซีเรียลจาก API', ['sn' => $sn]);
-
-            // ตรวจจาก API ก่อน (VITE_R_MAIN_SERIAL)
-            $response = Http::timeout(30)
-                ->withOptions(['verify' => false])
-                ->post(env('VITE_R_MAIN_SERIAL'), [
-                    'sn' => $sn,
-                    'view' => 'sigle',
-                ]);
-
-            if (!$response->successful()) {
-                throw new \Exception('ไม่สามารถเชื่อมต่อ API ได้ (HTTP ' . $response->status() . ')');
-            }
-
-            $response_json = $response->json();
-
-            Log::info('📡 [WarrantyFormController] ตอบกลับจาก API VITE_R_MAIN_SERIAL', [
-                'status' => $response_json['status'] ?? null,
-                'warrantyexpire' => $response_json['warrantyexpire'] ?? null,
-                'skuset' => $response_json['skuset'] ?? [],
-            ]);
-
-            // ถ้า API ไม่ตอบ SUCCESS
-            if (($response_json['status'] ?? '') !== 'SUCCESS') {
-                throw new \Exception('ไม่พบหมายเลขซีเรียลนี้ในระบบ');
-            }
-
-            // ถ้าสินค้าหมดประกันแล้ว
-            if ($response_json['warrantyexpire'] === true || $response_json['warrantyexpire'] === 'true') {
-                throw new \Exception('หมายเลขซีเรียลนี้เคยลงทะเบียนรับประกันไปแล้ว');
-            }
-
-            //ถ้า pass ตรวจในฐานข้อมูลของเรา
             $check_form_history = TblHistoryProd::query()
                 ->where('serial_number', $sn)
                 ->select('serial_number', 'model_code', 'product_name', 'model_name')
@@ -224,62 +214,101 @@ class WarrantyFormController extends Controller
                 throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
             }
 
-            // ถ้า SN ใช้งานได้ → ดึงรายละเอียดสินค้าเพิ่มเติมจาก API VITE_R_MAIN_PRODUCT
-            $assetKey = $response_json['skuset'][0] ?? null;
-            $asset = $response_json['assets'][$assetKey] ?? null;
+            Log::info('🛰 [WarrantyFormController] เริ่มตรวจสอบ SN จาก API ใหม่', ['sn' => $sn]);
 
-            if (!$asset) {
-                throw new \Exception('ไม่พบข้อมูลสินค้าใน API Serial Response');
-            }
+            $apiUrl = 'https://warranty-sn.pumpkin.tools/api/getdata';
 
-            $model_code = $asset['pid'] ?? null;
-            Log::info('🧩 [WarrantyFormController] เตรียมดึงข้อมูล Product Detail', ['model_code' => $model_code]);
-
-            $productResponse = Http::timeout(30)
+            $response = Http::timeout(30)
                 ->withOptions(['verify' => false])
-                ->post(env('VITE_R_MAIN_PRODUCT'), [
-                    'pid' => $model_code,
-                    'views' => 'single',
+                ->get($apiUrl, [
+                    'search' => $sn
                 ]);
 
-            $productDetail = [];
-            if ($productResponse->successful()) {
-                $product_json = $productResponse->json();
-                if (($product_json['status'] ?? '') === 'SUCCESS' && !empty($product_json['assets'][0])) {
-                    $pd = $product_json['assets'][0];
-                    $productDetail = [
-                        'pid' => $pd['pid'] ?? '',
-                        'pname' => $pd['pname'] ?? '',
-                        'fac_model' => $pd['facmodel'] ?? '',
-                        'image' => $pd['imagesku'] ?? '',
-                        'warrantyperiod' => $pd['warrantyperiod'] ?? '',
-                        'warrantycondition' => $pd['warrantycondition'] ?? '',
-                        'warrantynote' => $pd['warrantynote'] ?? '',
-                        'sp_warranty' => $pd['sp_warranty'] ?? [],
-                    ];
-                }
+            if (!$response->successful()) {
+                throw new \Exception('ไม่สามารถเชื่อมต่อ API ตรวจสอบสินค้าได้ (HTTP ' . $response->status() . ')');
             }
 
-            // รวมข้อมูลทั้งหมด (จาก Serial API + Product API)
+            $apiData = $response->json();
+
+            Log::info('📡 [WarrantyFormController] ผลลัพธ์จาก API', [
+                'status' => $apiData['status'] ?? 'N/A',
+                'is_combo' => $apiData['is_combo'] ?? false,
+                'skuset' => $apiData['skuset'] ?? []
+            ]);
+
+            if (($apiData['status'] ?? '') !== 'SUCCESS') {
+                throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
+            }
+
+            $isExpired = $apiData['warrantyexpire'] ?? false;
+            if ($isExpired === true || $isExpired === 'true') {
+                throw new \Exception('หมายเลขซีเรียลนี้หมดอายุรับประกัน หรือถูกใช้งานไปแล้ว');
+            }
+
+            $assets = $apiData['assets'] ?? [];
+            if (empty($assets)) {
+                throw new \Exception('พบ Serial Number แต่ไม่พบข้อมูลสินค้า (Assets Empty)');
+            }
+
+            $targetSku = $apiData['skumain'] ?? null;
+
+            if (!$targetSku && !empty($apiData['skuset'])) {
+                $targetSku = $apiData['skuset'][0];
+            }
+
+            // ดึง Object สินค้าออกมา
+            $productData = null;
+            if ($targetSku && isset($assets[$targetSku])) {
+                $productData = $assets[$targetSku];
+            } else {
+                // กรณีหา key ไม่เจอ ให้หยิบตัวแรกสุดใน assets มาใช้เลย
+                $productData = reset($assets);
+            }
+
+            if (!$productData) {
+                throw new \Exception('ไม่สามารถดึงรายละเอียดสินค้าได้');
+            }
+
+            $imageUrl = '';
+            if (!empty($productData['imagesku']) && is_array($productData['imagesku'])) {
+                $imageUrl = $productData['imagesku'][0] ?? '';
+            } elseif (!empty($productData['imagesku']) && is_string($productData['imagesku'])) {
+                $imageUrl = $productData['imagesku'];
+            }
+
+            $mappedProductDetail = [
+                'pid'               => $productData['pid'] ?? '',          // รหัสสินค้า (เช่น TX-8241)
+                'pname'             => $productData['pname'] ?? '',        // ชื่อสินค้า
+                'fac_model'         => $productData['facmodel'] ?? '',     // รุ่น
+                'image'             => $imageUrl,                          // URL รูปภาพ
+                'warrantyperiod'    => $productData['warrantyperiod'] ?? '',
+                'warrantycondition' => $productData['warrantycondition'] ?? '',
+                'warrantynote'      => $productData['warrantynote'] ?? '',
+
+                'is_combo'          => $apiData['is_combo'] ?? false,
+                'skumain'           => $apiData['skumain'] ?? '',
+                'combo_skus'        => $apiData['skuset'] ?? [],
+            ];
+
             $data_response = [
-                'serial_info' => $response_json,
-                'product_detail' => $productDetail,
+                'serial_info'    => ['status' => 'SUCCESS', 'sn' => $sn],
+                'product_detail' => $mappedProductDetail,
             ];
 
             return response()->json([
-                'message' => "ดึงข้อมูลหมายเลข S/N: {$sn} สำเร็จ",
-                'data' => $data_response
+                'message' => "ตรวจสอบข้อมูลสำเร็จ",
+                'data'    => $data_response
             ], 200);
         } catch (\Exception $e) {
-            Log::error('❌ [WarrantyFormController] ตรวจสอบหมายเลขซีเรียลล้มเหลว', [
-                'sn' => $sn,
+            Log::error('❌ [WarrantyFormController] Check SN Error', [
+                'sn'    => $sn,
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'message' => $e->getMessage(),
-                'data' => $data_response ?? [],
-            ], $status ?? 400);
+                'data'    => []
+            ], 400);
         }
     }
 
@@ -433,14 +462,14 @@ class WarrantyFormController extends Controller
             $user = Auth::user();
             $req = $request->validated();
 
-            // ✅ เลือกเบอร์โทรตามลำดับ
+            // เลือกเบอร์โทรตามลำดับ
             $phone = $req['phone'] ?? $user->phone ?? null;
 
             if (!$phone) {
                 return back()->withErrors(['phone' => 'กรุณากรอกเบอร์โทรศัพท์'])->withInput();
             }
 
-            // ✅ อัปโหลดไฟล์ใบเสร็จ
+            // อัปโหลดไฟล์ใบเสร็จ
             $full_path = null;
             if ($request->hasFile('warranty_file')) {
                 $file = $request->file('warranty_file');
@@ -450,18 +479,18 @@ class WarrantyFormController extends Controller
                 $full_path = Storage::disk('s3')->url($path);
             }
 
-            // ✅ หา customer ถ้ามีแล้วใช้เลย
+            // หา customer ถ้ามีแล้วใช้เลย
             $customer = TblCustomerProd::where('cust_line', $user->line_id)
                 ->orWhere('cust_tel', $phone)
                 ->first();
 
             if (!$customer) {
-                // ✅ gen unlockkey ไม่ซ้ำ
+                // gen unlockkey ไม่ซ้ำ
                 do {
                     $unlockkey = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
                 } while (TblCustomerProd::where('unlockkey', $unlockkey)->exists());
 
-                // ✅ สร้าง customer ใหม่
+                // สร้าง customer ใหม่
                 $customer = TblCustomerProd::create([
                     'cust_tel'          => $phone,
                     'cust_prefix'       => 'mr',
@@ -483,18 +512,18 @@ class WarrantyFormController extends Controller
                     'datetime'          => now(),
                 ]);
             } else {
-                // ✅ ถ้ามี customer แต่ไม่มีเบอร์ → อัปเดตเบอร์
+                // ถ้ามี customer แต่ไม่มีเบอร์ → อัปเดตเบอร์
                 if (empty($customer->cust_tel)) {
                     $customer->update(['cust_tel' => $phone]);
                 }
             }
 
-            // ✅ อัปเดตเบอร์ลง users ถ้ายังไม่มี
+            // อัปเดตเบอร์ลง users ถ้ายังไม่มี
             if (empty($user->phone)) {
                 $user->update(['phone' => $phone]);
             }
 
-            // ✅ บันทึกประวัติการลงทะเบียน
+            // บันทึกประวัติการลงทะเบียน
             $store = TblHistoryProd::create([
                 'approval' => '',
                 'lineid' => $user->line_id ?? null,

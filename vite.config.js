@@ -12,3 +12,22 @@ export default defineConfig({
         react(),
     ],
 });
+
+// export default defineConfig({
+//     server: {
+//         host: '0.0.0.0',
+//         port: 5174,
+//         strictPort: true,
+//         cors: true,
+//         hmr: {
+//             host: '192.168.9.32',
+//         },
+//     },
+//     plugins: [
+//         laravel({
+//             input: 'resources/js/app.tsx',
+//             refresh: true,
+//         }),
+//         react(),
+//     ],
+// });

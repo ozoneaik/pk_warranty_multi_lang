@@ -13,6 +13,11 @@ export default function Authenticated({
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
+    const isUrlAdmin = route().current('admin.*');
+    console.log('isUrlAdmin:', isUrlAdmin);
+    const logoutRoute = isUrlAdmin ? 'admin.logout' : 'logout';
+    const dashboardRoute = isUrlAdmin ? 'admin.dashboard' : 'dashboard';
+    const profileRoute = isUrlAdmin ? 'admin.profile.edit' : 'profile.edit';
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -27,8 +32,8 @@ export default function Authenticated({
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
+                                    href={route(dashboardRoute)}
+                                    active={route().current(dashboardRoute)}
                                 >
                                     Dashboard
                                 </NavLink>
@@ -64,12 +69,12 @@ export default function Authenticated({
 
                                     <Dropdown.Content>
                                         <Dropdown.Link
-                                            href={route('profile.edit')}
+                                            href={route(profileRoute)}
                                         >
                                             Profile
                                         </Dropdown.Link>
                                         <Dropdown.Link
-                                            href={route('logout')}
+                                            href={route(logoutRoute)}
                                             method="post"
                                             as="button"
                                         >
@@ -131,8 +136,8 @@ export default function Authenticated({
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            href={route(dashboardRoute)}
+                            active={route().current(dashboardRoute)}
                         >
                             Dashboard
                         </ResponsiveNavLink>
@@ -154,7 +159,7 @@ export default function Authenticated({
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
-                                href={route('logout')}
+                                href={route(logoutRoute)}
                                 as="button"
                             >
                                 Log Out

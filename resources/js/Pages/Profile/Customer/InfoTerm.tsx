@@ -29,7 +29,7 @@ export default function InfoTerm() {
             <Container
                 maxWidth="md"
                 sx={{
-                    mt: 0,
+                    mt: 3,
                     mb: 8,
                     py: 2,
                     lineHeight: 1.8,

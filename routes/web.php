@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\PointPopupController;
 use App\Http\Controllers\Api\SendOtpController;
+use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\Privilege\PrivilegeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Privilege\RedeemController;
+use App\Http\Controllers\Referral\ReferralController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Warranty\WarrantyFormController;
@@ -56,7 +59,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('customer-profile')->group(function () {
         Route::get('/', [CustomerProfileController::class, 'welcome'])->name('customer.profile.welcome');
-        // Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
+        Route::get('/score', [CustomerProfileController::class, 'score'])->name('customer.profile.score');
         Route::get('/score/blank', function () {
             return Inertia::render('Profile/Customer/ScoreBlank');
         })->name('customer.profile.score.blank');
@@ -64,12 +67,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 
-        Route::get('/privilege/blank', function () {
-            return Inertia::render('Profile/Customer/Blank/PrivilegeBlank');
-        })->name('customer.profile.blank.privilege.blank');
+        // Route::get('/privilege/blank', function () {
+        //     return Inertia::render('Profile/Customer/Blank/PrivilegeBlank');
+        // })->name('customer.profile.blank.privilege.blank');
 
-        // Route::get('/privilege', [PrivilegeController::class, 'index'])
-        //     ->name('customer.profile.privilege');
+        Route::get('/privilege', [PrivilegeController::class, 'index'])
+            ->name('customer.profile.privilege');
+        Route::get('/privilege/orders', [PrivilegeController::class, 'myOrders'])->name('privilege.orders');
 
         Route::get('/score/point', [ScoreController::class, 'getPoint']);
         Route::get('/info/pdpa', function () {
@@ -87,6 +91,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/info/term', function () {
             return Inertia::render('Profile/Customer/InfoTerm');
         })->name('customer.profile.info.term');
+
+
+        Route::get('/referral', [ReferralController::class, 'index'])->name('referral.index');
     });
 
     Route::post('/redeem', [RedeemController::class, 'store'])->name('redeem.store');
@@ -102,7 +109,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/home', [WarrantyHomeController::class, 'index'])->name('warranty.home');
             Route::get('/form', [WarrantyFormController::class, 'form'])->name('warranty.form');
             Route::post('/form', [WarrantyFormController::class, 'store'])->name('warranty.form.store');
-            Route::get('/store_name/{store_name}', [WarrantyFormController::class, 'get_store_name'])->name('warranty.get_store_name');
+            // Route::get('/store_name/{store_name}', [WarrantyFormController::class, 'get_store_name'])->name('warranty.get_store_name');
+            Route::get('/get-store-name/{id}', [WarrantyFormController::class, 'get_store_name'])
+                ->name('warranty.get_store_name');
             Route::get('/history', [WarrantyHistoryController::class, 'history'])->name('warranty.history');
             Route::get('/history/detail/{model_code}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
             Route::post('/', function () {});
@@ -118,6 +127,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/api/verify-otp', [SendOtpController::class, 'verify'])->name('verify.otp');
     Route::post('/api/send-otp', [SendOtpController::class, 'send'])->name('send.otp');
+
+    Route::get('/api/checkin/status', [CheckinController::class, 'status']);
+    Route::post('/api/checkin', [CheckinController::class, 'store']);
+
+    Route::get('/api/points/pending', [PointPopupController::class, 'checkPendingPoints']);
+    Route::post('/api/points/ack', [PointPopupController::class, 'acknowledge']);
 });
 
 require __DIR__ . '/auth.php';

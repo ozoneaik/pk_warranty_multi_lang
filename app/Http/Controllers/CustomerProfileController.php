@@ -6,6 +6,7 @@ use App\Models\MasterWaaranty\MembershipTier;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblCustomerProdVat;
 use App\Models\User;
+use App\Services\TierService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,16 +28,107 @@ class CustomerProfileController extends Controller
                     $q->orWhere('cust_tel', $user->phone);
                 }
             })
-            ->select('cust_firstname', 'cust_lastname', 'point', 'datetime')
+            ->select('cust_firstname', 'cust_lastname', 'point', 'datetime', 'referral_code')
             ->first();
         $point = $customer->point ?? 0;
+        $referralCode = $customer->referral_code ?? 'N/A';
+        $referralUrl = $customer->referral_code
+            ? route('line.login', ['ref' => $customer->referral_code])
+            : null;
         return Inertia::render('Profile/Customer/WelComeProFile', [
             'point' => $point,
             'joined_at' => $customer->datetime ?? now(),
+            'referral_code' => $referralCode,
+            'referral_url' => $referralUrl
         ]);
     }
 
-    public function score()
+    // public function score()
+    // {
+    //     $user = Auth::user();
+
+    //     $customer = TblCustomerProd::query()
+    //         ->where(function ($q) use ($user) {
+    //             if (!empty($user->line_id)) {
+    //                 $q->where('cust_line', $user->line_id);
+    //             }
+    //             if (!empty($user->phone)) {
+    //                 $q->orWhere('cust_tel', $user->phone);
+    //             }
+    //         })
+    //         ->select('cust_firstname', 'cust_lastname', 'point', 'tier_key', 'tier_expired_at', 'datetime')
+    //         ->first();
+
+    //     // ถ้ายังไม่เคยลงทะเบียนเลย → ให้ค่าเริ่มต้น
+    //     if (!$customer) {
+    //         return Inertia::render('Profile/Customer/Score', [
+    //             'point' => 0,
+    //             'joined_at' => now(),
+    //             'tier' => 'silver',
+    //             'tier_expired_at' => now()->addYears(2),
+    //         ]);
+    //     }
+
+    //     $now = now();
+    //     $point = (int)($customer->point ?? 0);
+
+    //     // ✅ ใช้ tier จากฐานข้อมูลก่อน
+    //     $tierKey = $customer->tier_key ?? 'silver';
+    //     $tierExpiredAt = $customer->tier_expired_at ? Carbon::parse($customer->tier_expired_at) : null;
+
+    //     // ✅ ถ้า tier หมดอายุ → คำนวณใหม่จากตาราง membership_tiers
+    //     if (!$tierExpiredAt || $now->greaterThan($tierExpiredAt)) {
+    //         $currentTier = MembershipTier::orderByDesc('min_point')
+    //             ->where('min_point', '<=', $point)
+    //             ->first();
+
+    //         $tierKey = $currentTier?->key ?? 'silver';
+    //         $tierExpiredAt = $now->copy()->addYears($currentTier?->duration_years ?? 2);
+
+    //         $customer->update([
+    //             'tier_key'        => $tierKey,
+    //             'tier_updated_at' => $now,
+    //             'tier_expired_at' => $tierExpiredAt,
+    //         ]);
+    //     } else {
+    //         // หา Tier ที่เหมาะสมที่สุดกับคะแนนปัจจุบัน
+    //         $targetTier = MembershipTier::orderByDesc('min_point')
+    //             ->where('min_point', '<=', $point)
+    //             ->first();
+
+    //         $targetTierKey = $targetTier?->key ?? 'silver';
+
+    //         // ถ้า Tier ใหม่ ไม่ตรงกับ Tier ปัจจุบัน
+    //         if ($targetTierKey !== $tierKey) {
+    //             // ดึงข้อมูล Tier ปัจจุบันมาเทียบ Level หรือ MinPoint
+    //             $currentTierInfo = MembershipTier::where('key', $tierKey)->first();
+
+    //             // เช็คว่า Tier ใหม่ สูงกว่า Tier เก่าหรือไม่ (Upgrade)
+    //             // ป้องกันกรณีคะแนนลดแล้ว Tier ตกก่อนหมดอายุ (ถ้า Policy คือห้ามตกก่อนหมดอายุ)
+    //             if ($targetTier && $currentTierInfo && $targetTier->min_point > $currentTierInfo->min_point) {
+
+    //                 $tierKey = $targetTierKey;
+    //                 // การ Upgrade มักจะขยายเวลาหมดอายุไปอีกตามกำหนด
+    //                 $tierExpiredAt = $now->copy()->addYears($targetTier->duration_years ?? 2);
+
+    //                 $customer->update([
+    //                     'tier_key'        => $tierKey,
+    //                     'tier_updated_at' => $now,
+    //                     'tier_expired_at' => $tierExpiredAt,
+    //                 ]);
+    //             }
+    //         }
+    //     }
+
+    //     return Inertia::render('Profile/Customer/Score', [
+    //         'point' => $point,
+    //         'joined_at' => $customer->datetime ?? now(),
+    //         'tier' => $tierKey,
+    //         'tier_expired_at' => $tierExpiredAt,
+    //     ]);
+    // }
+
+    public function score(TierService $tierService) // <--- 2. เพิ่ม TierService เข้ามาในวงเล็บ
     {
         $user = Auth::user();
 
@@ -49,7 +141,7 @@ class CustomerProfileController extends Controller
                     $q->orWhere('cust_tel', $user->phone);
                 }
             })
-            ->select('cust_firstname', 'cust_lastname', 'point', 'tier_key', 'tier_expired_at', 'datetime')
+            ->select('id', 'cust_line', 'cust_tel', 'cust_uid', 'cust_firstname', 'cust_lastname', 'point', 'tier_key', 'tier_expired_at', 'datetime')
             ->first();
 
         // ถ้ายังไม่เคยลงทะเบียนเลย → ให้ค่าเริ่มต้น
@@ -62,29 +154,15 @@ class CustomerProfileController extends Controller
             ]);
         }
 
-        $now = now();
+        // 3. เรียกใช้ Service เพื่อคำนวณ Tier (Upgrade / Expire)
+        $tierService->recalculate($customer);
+
+        // ดึงค่าล่าสุดหลังจากคำนวณเสร็จแล้ว
         $point = (int)($customer->point ?? 0);
-
-        // ✅ ใช้ tier จากฐานข้อมูลก่อน
         $tierKey = $customer->tier_key ?? 'silver';
-        $tierExpiredAt = $customer->tier_expired_at ? Carbon::parse($customer->tier_expired_at) : null;
+        $tierExpiredAt = $customer->tier_expired_at;
 
-        // ✅ ถ้า tier หมดอายุ → คำนวณใหม่จากตาราง membership_tiers
-        if (!$tierExpiredAt || $now->greaterThan($tierExpiredAt)) {
-            $currentTier = MembershipTier::orderByDesc('min_point')
-                ->where('min_point', '<=', $point)
-                ->first();
-
-            $tierKey = $currentTier?->key ?? 'silver';
-            $tierExpiredAt = $now->copy()->addYears($currentTier?->duration_years ?? 2);
-
-            $customer->update([
-                'tier_key'        => $tierKey,
-                'tier_updated_at' => $now,
-                'tier_expired_at' => $tierExpiredAt,
-            ]);
-        }
-
+        Log::info('Point: ' . $point . ', Tier: ' . $tierKey . ', ExpiredAt: ' . $tierExpiredAt);
         return Inertia::render('Profile/Customer/Score', [
             'point' => $point,
             'joined_at' => $customer->datetime ?? now(),

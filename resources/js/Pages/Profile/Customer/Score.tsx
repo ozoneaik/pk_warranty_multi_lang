@@ -44,7 +44,7 @@ export default function ScorePage() {
                     sx={{
                         flexGrow: 1,
                         py: { xs: 1, sm: 1 },
-                        mt: { xs: 0, sm: 1 },
+                        mt: { xs: 8, sm: 8 },
                         borderRadius: 3,
                         px: { xs: 1, sm: 1 },
                     }}

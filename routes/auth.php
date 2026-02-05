@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialRegisterController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,15 @@ Route::middleware('guest')->group(function () {
         Route::get('redirect',[LineAuthController::class,'redirectToLine'])->name('line.login');
         Route::get('callback',[LineAuthController::class,'handleLineCallback'])->name('line.callback');
     });
+
+    Route::get('register/complete-profile', [SocialRegisterController::class, 'showRegistrationForm'])
+        ->name('register.complete_profile');
+        
+    Route::post('register/complete-profile', [SocialRegisterController::class, 'store'])
+        ->name('register.complete_profile.store');
+
+    Route::post('register/send-otp', [SocialRegisterController::class, 'sendOtp'])
+        ->name('register.send_otp');
 
     Route::prefix('facebook')->group(function(){
         Route::get('redirect',[FacebookAuthController::class,'redirectToFacebook'])->name('facebook.login');

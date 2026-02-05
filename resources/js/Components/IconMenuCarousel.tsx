@@ -10,7 +10,7 @@ import {
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface MenuItem {
@@ -25,8 +25,10 @@ interface MenuItem {
   link: string;
   color?: string;
 }
-
-export default function IconMenuCarousel() {
+interface IconMenuCarouselProps {
+  onCheckinClick: () => void;
+}
+export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselProps) {
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { auth } = usePage().props as any;
@@ -49,10 +51,10 @@ export default function IconMenuCarousel() {
   }, []);
 
   const sliderSettings = {
-    dots: false,
+    dots: true,
     infinite: false,
     speed: 400,
-    slidesToShow: 4,
+    slidesToShow: 5.5,
     slidesToScroll: 1,
     swipeToSlide: true,
     arrows: false,
@@ -70,19 +72,30 @@ export default function IconMenuCarousel() {
     <Box sx={{ mt: 1, mb: 0, px: 0 }}>
       <Slider {...sliderSettings}>
         {menus.map((item) => {
+          const isCheckinMenu = item.id === 5 || item.link === "checkin";
           const link = item.link.includes("warranty_check")
             ? `${item.link}${userPhone}`
             : item.link;
 
-          const title = item.title?.[language] || item.title.th; 
+          const title = item.title?.[language] || item.title.th;
 
           return (
             <Box key={item.id} px={0}>
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none" }}
+              <Box
+                onClick={() => {
+                  if (isCheckinMenu) {
+                    onCheckinClick();
+                  }
+                  else if (item.link.startsWith('/')) {
+                    router.visit(item.link);
+                  } else {
+                    const finalLink = item.link.includes("warranty_check")
+                      ? `${item.link}${userPhone}`
+                      : item.link;
+                    window.open(finalLink, "_blank");
+                  }
+                }}
+                sx={{ cursor: "pointer" }}
               >
                 <Card
                   elevation={0}
@@ -98,7 +111,7 @@ export default function IconMenuCarousel() {
                 >
                   <CardContent
                     sx={{
-                      py: 1.6,
+                      py: 1,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
@@ -126,8 +139,8 @@ export default function IconMenuCarousel() {
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: "vertical",
-                        fontSize: "0.73rem",
-                        maxWidth: 80,
+                        fontSize: "0.70rem",
+                        maxWidth: 100,
                         lineHeight: 1.2,
                       }}
                     >
@@ -135,7 +148,7 @@ export default function IconMenuCarousel() {
                     </Typography>
                   </CardContent>
                 </Card>
-              </a>
+              </Box>
             </Box>
           );
         })}

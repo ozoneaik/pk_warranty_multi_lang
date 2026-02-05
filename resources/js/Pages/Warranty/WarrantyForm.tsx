@@ -902,7 +902,7 @@ interface StoreItemProps {
 
 export default function WarrantyForm({ channel_list, has_phone, current_phone }: { channel_list: []; has_phone: boolean; current_phone: string }) {
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
+    console.log("📦 [WarrantyForm] channel_list:", channel_list);
     // @ts-ignore
     const { user } = usePage().props.auth;
     const { t } = useLanguage();
@@ -940,7 +940,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
     const [showForm, setShowForm] = useState(false);
     const [checking, setChecking] = useState(false);
 
-    const [storeList, setStoreList] = useState<StoreItemProps[]>([]);
+    const [storeList, setStoreList] = useState<string[]>([]);
     const [loadingBuyform, setLoadingBuyFrom] = useState(false);
 
     // QR Scanner
@@ -1201,14 +1201,49 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         });
     }, [setData]);
 
+    // const handleChangeStoreName = async (buy_from: string) => {
+    //     console.log("📦 [handleChangeStoreName] เริ่มโหลดร้าน:", buy_from);
+    //     if (!buy_from || buy_from === 'เลือก') { setLoadingBuyFrom(false); return; }
+
+    //     try {
+    //         const response = await axios.get(route('warranty.get_store_name', { store_name: buy_from }));
+    //         console.log("✅ [handleChangeStoreName] ตอบกลับจาก API:", response.data);
+    //         setStoreList(response.data.list.value || []);
+    //     } catch (error) {
+    //         console.error('Error fetching store names:', error);
+    //         setStoreList([]);
+    //     } finally {
+    //         setLoadingBuyFrom(false);
+    //     }
+    // };
     const handleChangeStoreName = async (buy_from: string) => {
         console.log("📦 [handleChangeStoreName] เริ่มโหลดร้าน:", buy_from);
-        if (!buy_from || buy_from === 'เลือก') { setLoadingBuyFrom(false); return; }
+
+        if (!buy_from || buy_from === 'เลือก') {
+            setLoadingBuyFrom(false);
+            return;
+        }
+
+        // ✅ หา ID จาก channel_list โดยเทียบกับชื่อ (buy_from)
+        // channel_list เป็น any[] หรือสร้าง interface ให้ชัดเจนก็ได้
+        const selectedChannel = channel_list.find((c: any) => c.name === buy_from);
+        const channelId = selectedChannel ? selectedChannel.id : null;
+
+        if (!channelId) {
+            console.warn("❌ ไม่พบ ID ของช่องทางนี้:", buy_from);
+            setLoadingBuyFrom(false);
+            return;
+        }
 
         try {
-            const response = await axios.get(route('warranty.get_store_name', { store_name: buy_from }));
+            // ✅ ส่ง ID ไปที่ Controller แทนการส่งชื่อ
+            const response = await axios.get(route('warranty.get_store_name', { id: channelId }));
+
             console.log("✅ [handleChangeStoreName] ตอบกลับจาก API:", response.data);
-            setStoreList(response.data.list.value || []);
+
+            // ✅ setStoreList ตามโครงสร้างที่ API ใหม่ส่งกลับมา (Array of Strings)
+            setStoreList(response.data.list || []);
+
         } catch (error) {
             console.error('Error fetching store names:', error);
             setStoreList([]);
@@ -1256,7 +1291,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                 </DialogContent>
             </Dialog>
 
-            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 4, mb: 7, px: 2, py: 2 }}>
+            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
                 {qrScanSuccess && (
                     <Alert severity="success" sx={{ mb: 2 }} onClose={() => setQrScanSuccess(false)}>
                         สแกน QR Code สำเร็จแล้ว! รหัสลูกค้าถูกเพิ่มเข้าฟอร์มอัตโนมัติ
@@ -1551,10 +1586,11 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                                     </Stack>
                                                 )}
                                             </label>
-                                            <input
+                                            {/* <input
                                                 id="warranty_file"
                                                 type="file"
                                                 accept="image/*"
+                                                capture="environment"
                                                 hidden
                                                 onChange={(e) => {
                                                     const file = e.target.files?.[0];
@@ -1565,7 +1601,49 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                                     }
                                                 }}
                                                 ref={fileInputRef}
+                                            /> */}
+                                            <input
+                                                id="capture_file"
+                                                type="file"
+                                                accept="image/*"
+                                                capture="environment"
+                                                hidden
+                                                onChange={handleFileChange}
                                             />
+                                            <input
+                                                id="browse_file"
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                onChange={handleFileChange}
+                                            />
+                                            <Stack
+                                                direction={isMobile ? "column" : "row"} // มือถือเรียงลง, จอใหญ่เรียงข้าง
+                                                spacing={2}
+                                                sx={{
+                                                    width: '100%',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    mt: 2
+                                                }}
+                                            >
+                                                <Button
+                                                    fullWidth={isMobile} // เต็มจอเมื่อเป็นมือถือ
+                                                    variant="contained"
+                                                    onClick={() => document.getElementById('capture_file')?.click()}
+                                                    startIcon={<CameraAlt />}
+                                                >
+                                                    ถ่ายรูปใหม่
+                                                </Button>
+                                                <Button
+                                                    fullWidth={isMobile}
+                                                    variant="outlined"
+                                                    onClick={() => document.getElementById('browse_file')?.click()}
+                                                    startIcon={<FileUpload />}
+                                                >
+                                                    เลือกจากคลังภาพ
+                                                </Button>
+                                            </Stack>
                                         </Box>
                                         <Box mt={2}>
                                             <Button fullWidth variant="outlined" onClick={() => setOpenExampleFile(true)} sx={{ py: 1.5 }}>
@@ -1590,9 +1668,20 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                             sx={{ borderRadius: 2 }}
                                         >
                                             <MenuItem disabled value={'เลือก'}>{t.Warranty.Form.SelectBuyFrom}</MenuItem>
-                                            {channel_list.map((channel, index) => (
+                                            {/* {channel_list.map((channel, index) => (
                                                 <MenuItem key={index} value={channel}>{channel}</MenuItem>
-                                            ))}
+                                            ))} */}
+                                            {channel_list.map((channel: any, index) => {
+                                                // ตรวจสอบว่า channel เป็น object หรือ string
+                                                // ถ้าเป็น object ให้ดึง .name, ถ้าเป็น string ให้ใช้ค่าตัวมันเอง
+                                                const channelName = typeof channel === 'object' && channel !== null ? channel.name : channel;
+
+                                                return (
+                                                    <MenuItem key={index} value={channelName}>
+                                                        {channelName} {/* แสดงผลเฉพาะชื่อที่เป็น string */}
+                                                    </MenuItem>
+                                                );
+                                            })}
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -1609,7 +1698,9 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                             </Box>
                                         ) : (
                                             <Autocomplete
-                                                options={storeList.map((item) => ` ${item.custname} ${item.branch}`)}
+                                                options={Array.from(new Set(storeList))}
+                                                // ถ้าต้องการมั่นใจว่าไม่มีค่าว่างหลุดมา ให้ใช้แบบนี้แทนก็ได้ครับ
+                                                // options={Array.from(new Set(storeList)).filter(Boolean)}
                                                 value={data.store_name}
                                                 onChange={(_, newValue) => setData('store_name', newValue || '')}
                                                 renderInput={(params) => (

@@ -39,6 +39,7 @@ return [
         'client_secret' => env('LINE_CLIENT_SECRET'),
         'redirect' => env('LINE_REDIRECT_URI'),
         'bot_prompt' => env('LINE_BOT_PROMPT', 'normal'),
+        'scopes'        => ['profile', 'openid', 'email'],
     ],
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),

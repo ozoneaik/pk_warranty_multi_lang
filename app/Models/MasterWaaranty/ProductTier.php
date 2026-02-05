@@ -13,13 +13,22 @@ class ProductTier extends Model
     protected $fillable = [
         'pid',
         'pname',
+        'discount_amount',
+        'point_value_rate',
         'image_url',
         'tier_level',
         'product_type',
+        'type_ref',
         'redeem_point',
         'is_active',
         'stock_qty',
-        'expired_at'
+        'expired_at',
+        'earn_point',
+        'expiry_type',
+        'expiry_days',
+        'usage_limit_type',
+        'usage_limit_amount',
+        'remark',
     ];
 
     protected $casts = [
@@ -34,6 +43,11 @@ class ProductTier extends Model
     public function tier()
     {
         return $this->belongsTo(MembershipTier::class, 'tier_level', 'level');
+    }
+
+    public function pointProcess()
+    {
+        return $this->belongsTo(TypeProcessPoint::class, 'type_ref', 'id');
     }
 
     /**
