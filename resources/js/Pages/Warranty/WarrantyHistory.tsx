@@ -37,6 +37,8 @@ import {
     Warning,
     CalendarToday,
     Inventory,
+    BatteryChargingFull,
+    Power,
 } from "@mui/icons-material";
 import { useLanguage } from "@/context/LanguageContext";
 import dayjs from "dayjs";
@@ -62,20 +64,35 @@ interface HistoryProps {
     insurance_expire?: string | null;
 }
 
+interface PowerAccessoryItem {
+    id: number;
+    accessory_sku: string;
+    product_name: string;
+    warranty_period: string;
+    warranty_condition: string;
+    warranty_note: string;
+    no: number;
+}
+
 const productPathMaster = import.meta.env.VITE_PRODUCT_IMAGE_URI || "";
 const DEFAULT_IMAGE = import.meta.env.VITE_DEFAULT_IMAGE || "";
 
-function WarrantyDetail({ model_code }: { model_code: string }) {
+function WarrantyDetail({ serial_number }: { serial_number: string }) {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [detail, setDetail] = useState<any>(null);
 
     useEffect(() => {
+        if (!serial_number) {
+            setLoading(false);
+            return;
+        }
+
         let mounted = true;
         const loadDetail = async () => {
             setLoading(true);
             try {
-                const res = await axios.get(`/warranty/history/detail/${encodeURIComponent(model_code)}`);
+                const res = await axios.get(`/warranty/history/detail/${encodeURIComponent(serial_number)}`);
                 if (mounted && res.data && res.data.success) {
                     setDetail(res.data.data);
                 }
@@ -89,7 +106,7 @@ function WarrantyDetail({ model_code }: { model_code: string }) {
         return () => {
             mounted = false;
         };
-    }, [model_code]);
+    }, [serial_number]);
 
     if (loading)
         return (
@@ -107,6 +124,10 @@ function WarrantyDetail({ model_code }: { model_code: string }) {
                 {t.History.Information.noData}
             </Typography>
         );
+
+    const hasAccessories =
+        (detail.power_accessories?.battery && detail.power_accessories.battery.length > 0) ||
+        (detail.power_accessories?.charger && detail.power_accessories.charger.length > 0);
 
     return (
         <Accordion
@@ -139,9 +160,6 @@ function WarrantyDetail({ model_code }: { model_code: string }) {
                     <Box display="flex" gap={1} alignItems="flex-start">
                         <CalendarToday sx={{ fontSize: 16, color: "text.secondary", mt: 0.1 }} />
                         <Box flex={1}>
-                            {/* <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                                {t.History.Information.DurationWaranty}: {detail.warrantyperiod ?? "-"} {t.History.Information.month}
-                            </Typography> */}
                             <Typography variant="body2" color="text.secondary" fontSize="0.8rem">
                                 {t.History.Information.DurationWaranty}: {detail.warrantyperiod ?? "-"} {t.History.Information.month}
                             </Typography>
@@ -151,85 +169,99 @@ function WarrantyDetail({ model_code }: { model_code: string }) {
                     <Divider sx={{ my: 0.5 }} />
 
                     <Box>
-                        {/* <Typography variant="body2" color="text.secondary" fontWeight={500} mb={0.5}>
-                            {t.History.Information.condition}:
-                        </Typography>
-                        <Typography variant="body2" color="text.primary" sx={{ whiteSpace: "pre-line", pl: 2 }}>
-                            {detail.warrantycondition ?? "-"}
-                        </Typography> */}
                         <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
                             {t.History.Information.condition}: {detail.warrantycondition ?? "-"}
                         </Typography>
                     </Box>
 
                     <Box>
-                        {/* <Typography variant="body2" color="text.secondary" fontWeight={500} mb={0.5}>
-                            {t.History.Information.noteWaranty}:
-                        </Typography>
-                        <Typography variant="body2" color="text.primary" sx={{ whiteSpace: "pre-line", pl: 2 }}>
-                            {detail.warrantynote ?? "-"}
-                        </Typography> */}
                         <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
                             {t.History.Information.noteWaranty}: {detail.warrantynote ?? "-"}
                         </Typography>
                     </Box>
                 </Stack>
 
-                {/* {Array.isArray(detail.sp_warranty) && detail.sp_warranty.length > 0 && (
-                    <Accordion
-                        sx={{
-                            mt: 2,
-                            bgcolor: "white",
-                            "&:before": { display: "none" },
-                            boxShadow: 0,
-                            border: "1px solid",
-                            borderColor: "divider",
-                        }}
-                    >
-                        <AccordionSummary
-                            expandIcon={<ExpandMore />}
-                            sx={{
-                                minHeight: 48,
-                                "&.Mui-expanded": { minHeight: 48 },
-                            }}
-                        >
-                            <Stack direction="row" spacing={1} alignItems="center">
-                                <BuildOutlined sx={{ fontSize: 20, color: "primary.main" }} />
-                                <Typography variant="body2" fontWeight={600}>
-                                    {t.History.Information.spareWarranty}
-                                </Typography>
-                                <Chip label={detail.sp_warranty.length} size="small" sx={{ height: 20, fontSize: "0.7rem" }} />
-                            </Stack>
-                        </AccordionSummary>
-                        <AccordionDetails sx={{ pt: 0 }}>
-                            <List dense disablePadding>
-                                {detail.sp_warranty.map((sp: SpWarranty, idx: number) => (
-                                    <React.Fragment key={idx}>
-                                        <ListItem sx={{ px: 0 }}>
-                                            <ListItemText
-                                                primary={sp.spname}
-                                                secondary={`${t.History.Information.spareCode}: ${sp.spcode?.pidsp ?? "-"}`}
-                                                primaryTypographyProps={{
-                                                    variant: "body2",
-                                                    fontWeight: 500,
-                                                }}
-                                                secondaryTypographyProps={{
-                                                    variant: "caption",
-                                                    sx: { fontFamily: "monospace", color: "text.secondary" },
-                                                }}
-                                            />
-                                        </ListItem>
-                                        {idx < detail.sp_warranty.length - 1 && <Divider />}
-                                    </React.Fragment>
-                                ))}
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
-                )} */}
+                {hasAccessories && (
+                    <Box mt={2}>
+                        <Divider sx={{ mb: 1, borderStyle: 'dashed' }} />
+                        <Typography variant="subtitle2" sx={{ color: "#F54927", fontWeight: 600, mb: 1, fontSize: '0.85rem' }}>
+                            อุปกรณ์เสริม (Accessories)
+                        </Typography>
+
+                        <List disablePadding dense>
+                            {/* Battery List */}
+                            {detail.power_accessories?.battery?.map((item: PowerAccessoryItem, idx: number) => (
+                                <ListItem key={`bat-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
+                                    <Box mr={1.5} mt={0.5}>
+                                        <BatteryChargingFull fontSize="small" color="action" />
+                                    </Box>
+                                    <ListItemText
+                                        // ✅ เพิ่ม secondaryTypographyProps เพื่อเปลี่ยนจาก <p> เป็น <div>
+                                        secondaryTypographyProps={{ component: "div" }}
+                                        primary={
+                                            <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
+                                                {item.product_name}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Stack component="div" spacing={0.5} mt={0.5}>
+                                                <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                                                    Code: {item.accessory_sku}
+                                                </Typography>
+                                                <Chip
+                                                    label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
+                                                    size="small"
+                                                    color="success"
+                                                    variant="outlined"
+                                                    sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
+                                                />
+                                            </Stack>
+                                        }
+                                    />
+                                </ListItem>
+                            ))}
+
+                            {/* Charger List */}
+                            {detail.power_accessories?.charger?.map((item: PowerAccessoryItem, idx: number) => (
+                                <ListItem key={`chg-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
+                                    <Box mr={1.5} mt={0.5}>
+                                        <Power fontSize="small" color="action" />
+                                    </Box>
+                                    <ListItemText
+                                        // ✅ เพิ่ม secondaryTypographyProps เพื่อเปลี่ยนจาก <p> เป็น <div>
+                                        secondaryTypographyProps={{ component: "div" }}
+                                        primary={
+                                            <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
+                                                {item.product_name}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Stack component="div" spacing={0.5} mt={0.5}>
+                                                <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                                                    Code: {item.accessory_sku}
+                                                </Typography>
+                                                <Chip
+                                                    label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
+                                                    size="small"
+                                                    color="success"
+                                                    variant="outlined"
+                                                    sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
+                                                />
+                                            </Stack>
+                                        }
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Box>
+                )}
             </AccordionDetails>
         </Accordion>
     );
 }
+
+// ... ส่วนที่เหลือ (getWarrantyStatus, SearchBarMobile, SearchBarDesktop, WarrantyHistory) คงเดิม ...
+// คุณสามารถ Copy ส่วนด้านล่างนี้ไปต่อท้ายได้เลยครับ เพื่อให้โค้ดสมบูรณ์
 
 const getWarrantyStatus = (item: HistoryProps, t: any) => {
     if (item.approval === "N") {
@@ -275,7 +307,6 @@ interface SearchBarProps {
     label: string;
 }
 
-/* 📱 Mobile Search Bar */
 function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
     return (
         <Box
@@ -284,7 +315,7 @@ function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
                 top: -8,
                 zIndex: 30,
                 bgcolor: "white",
-                mt: 3,
+                mt: 8,
                 pt: 2,
                 pb: 1,
             }}
@@ -309,12 +340,11 @@ function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
     );
 }
 
-/* 🖥 Desktop Search Bar */
 function SearchBarDesktop({ value, onChange, placeholder, label }: SearchBarProps) {
     return (
         <Box
             sx={{
-                position: "sticky", top: -8, // อยู่ด้านบนสุด 
+                position: "sticky", top: -8,
                 zIndex: 30, bgcolor: "white", borderColor: "divider", mt: 7, pt: 2, pb: 1,
             }}
         >
@@ -347,7 +377,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
     const [page, setPage] = useState(1);
     const itemsPerPage = 5;
 
-    // tabs
     type TabKey = "all" | "pending" | "in" | "expired" | "out";
     const [selectedTab, setSelectedTab] = useState<TabKey>("all");
 
@@ -364,7 +393,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
         setSelectedImage(null);
     };
 
-    // counts for tabs
     const counts = useMemo(() => {
         const total = histories.length;
         const pending = histories.filter((h) => (h.approval ?? "") !== "Y" && (h.approval ?? "") !== "N").length;
@@ -382,14 +410,12 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
         ).length;
         const outOfWarranty = histories.filter(
             (h) =>
-                // explicitly not covered OR approved but missing expiry (treated as not under warranty)
                 (h.approval ?? "") === "N" ||
                 ((h.approval ?? "") === "Y" && (!h.insurance_expire || h.insurance_expire === ""))
         ).length;
         return { total, pending, inWarranty, expired, outOfWarranty };
     }, [histories]);
 
-    // filtered by tab, then apply searchTerm
     const filteredHistories = useMemo(() => {
         const search = searchTerm.trim().toLowerCase();
 
@@ -446,7 +472,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
         <MobileAuthenticatedLayout title={t.History.title}>
             <Head title={t.History.title} />
 
-            {/* 🔍 Search Bar - fixed ด้านบน */}
             {isMobile ? (
                 <SearchBarMobile
                     value={searchTerm}
@@ -463,7 +488,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                 />
             )}
 
-            {/* Tabs (sticky แยกออกมา) */}
             <Box
                 sx={{
                     position: "sticky",
@@ -484,7 +508,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                         scrollButtons
                         allowScrollButtonsMobile
                         sx={{
-                            // ทำให้ flex container ของ Tabs ชิดซ้าย และเพิ่มช่องว่างระหว่างแท็บเล็กน้อย
                             "& .MuiTabs-flexContainer": {
                                 justifyContent: "flex-start",
                                 gap: 1,
@@ -495,7 +518,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                 borderRadius: 3,
                                 backgroundColor: "#F54927",
                             },
-                            // เลื่อนกลุ่มแท็บทั้งก้อนซ้ายขึ้นอีกนิด (ถ้าต้องการ)
                             ml: { xs: -1, sm: -2 },
                         }}
                     >
@@ -516,7 +538,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                             label={
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {/* รออนุมัติ */}
                                         {t.History.Card.Warranty.isChecking}
                                     </Typography>
                                     <Chip label={counts.pending} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
@@ -529,7 +550,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                             label={
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {/* อยู่ในประกัน */}
                                         {t.History.Card.Warranty.isTrue}
                                     </Typography>
                                     <Chip label={counts.inWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
@@ -542,7 +562,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                             label={
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {/* หมดประกัน */}
                                         {t.History.Card.Warranty.expired}
                                     </Typography>
                                     <Chip label={counts.expired} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
@@ -566,19 +585,18 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                 </Container>
             </Box>
 
-            {/* 🧾 History List (scroll ได้เฉพาะส่วนนี้) */}
             <Box
                 sx={{
                     flexGrow: 1,
-                    overflowY: "auto",
-                    maxHeight: "calc(100vh - 150px)",
+                    // overflowY: "auto",
+                    // maxHeight: "calc(100vh - 150px)",
                     mt: 1,
-                    mb: 2,
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
-                    "&::-webkit-scrollbar": {
-                        display: "none",
-                    },
+                    mb: 8,
+                    // scrollbarWidth: "none",
+                    // msOverflowStyle: "none",
+                    // "&::-webkit-scrollbar": {
+                    //     display: "none",
+                    // },
                 }}
             >
                 <Container maxWidth={isMobile ? "sm" : "lg"} sx={{ px: 2, py: 2 }}>
@@ -610,9 +628,8 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                         gap={1}
                                                         flexDirection="row"
                                                         flexWrap="wrap"
-                                                        justifyContent={{ xs: "center", sm: "flex-start" }}
+                                                        justifyContent={{ xs: "left", sm: "flex-start" }}
                                                     >
-                                                        {/* Product Image */}
                                                         <Paper
                                                             elevation={0}
                                                             sx={{
@@ -647,7 +664,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             />
                                                         </Paper>
 
-                                                        {/* Slip Image */}
                                                         <Paper
                                                             elevation={0}
                                                             sx={{
@@ -682,7 +698,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                     </Box>
                                                 </Grid>
 
-                                                {/* Product Info */}
                                                 <Grid size={12}>
                                                     <Stack spacing={1.5}>
                                                         <Box>
@@ -724,7 +739,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             />
                                                         </Box>
 
-                                                        {/* Serial Number */}
                                                         <Paper
                                                             elevation={0}
                                                             sx={{
@@ -759,8 +773,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             </Stack>
                                                         </Paper>
 
-                                                        {/* Warranty Detail Accordion */}
-                                                        <WarrantyDetail model_code={item.model_code} />
+                                                        <WarrantyDetail serial_number={item.serial_number ?? ""} />
                                                     </Stack>
                                                 </Grid>
                                             </Grid>
@@ -799,7 +812,6 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                     )}
                 </Container>
             </Box>
-            {/* ✅ Dialog แสดงภาพขนาดใหญ่ */}
             <Dialog open={openImage} onClose={handleCloseImage} maxWidth="xs" fullWidth>
                 <Box
                     sx={{

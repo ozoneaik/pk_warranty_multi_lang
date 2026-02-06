@@ -40,6 +40,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import PointExpiryModal from "../Partials/PointExpiryModal";
 
 // --- Types ---
 type Tier = "silver" | "gold" | "platinum";
@@ -351,6 +352,7 @@ export default function PrivilegePage() {
     const [tambons, setTambons] = React.useState<Tambon[]>([]);
 
     const [showProfileQr, setShowProfileQr] = React.useState(false);
+    const [openPointModal, setOpenPointModal] = React.useState(false);
 
     // --- Fetch Address Data on Mount ---
     React.useEffect(() => {
@@ -401,7 +403,7 @@ export default function PrivilegePage() {
     }, [addressForm.district, allTambons, amphures]);
 
     React.useEffect(() => {
-        if (tab === 3) {
+        if (tab === 2) {
             axios.get(route("redeem.history")).then((res) => setRedeemHistory(res.data.data)).catch(() => setRedeemHistory([]));
         }
     }, [tab]);
@@ -575,7 +577,7 @@ export default function PrivilegePage() {
                                         <ChevronRightIcon color="#888" size={18} />
                                     </Stack> */}
                                     <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
-                                        <Box sx={{
+                                        {/* <Box sx={{
                                             width: 20,
                                             height: 20,
                                             borderRadius: "50%",
@@ -588,11 +590,29 @@ export default function PrivilegePage() {
                                             fontWeight: "bold"
                                         }}>
                                             P
-                                        </Box>
+                                        </Box> */}
                                         {/* ตัวเลขคะแนน สีส้ม */}
-                                        <Typography variant="h6" fontWeight={900} sx={{ color: "#F55014", lineHeight: 1 }}>
+                                        {/* <Typography variant="h6" fontWeight={900} sx={{ color: "#F55014", lineHeight: 1 }}>
                                             {fmt.format(point)}
-                                        </Typography>
+                                        </Typography> */}
+                                        <Stack
+                                            direction="row"
+                                            alignItems="center"
+                                            spacing={0.5}
+                                            sx={{ mt: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                                            onClick={() => setOpenPointModal(true)} // กดที่คะแนนแล้วเปิด
+                                        >
+                                            <Box sx={{
+                                                width: 20, height: 20, borderRadius: "50%",
+                                                background: "linear-gradient(135deg, #FF8A00 0%, #FF5500 100%)",
+                                                color: "white", display: "flex", alignItems: "center", justifyContent: "center",
+                                                fontSize: 12, fontWeight: "bold"
+                                            }}>P</Box>
+                                            <Typography variant="h6" fontWeight={900} sx={{ color: "#F55014", lineHeight: 1 }}>
+                                                {fmt.format(point)}
+                                            </Typography>
+                                            <ChevronRightIcon size={14} color="#F55014" />
+                                        </Stack>
                                     </Stack>
                                     <Typography variant="caption" sx={{ color: "#999", fontSize: 10, lineHeight: 1.2, display: "block", mt: 0.5 }}>
                                         หมดอายุ {tier_expired_at
@@ -701,8 +721,11 @@ export default function PrivilegePage() {
                 </Box>
 
                 <Box sx={{ mt: 1.5, px: 1 }}>
-                    <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="standard" sx={{ width: "100%", borderBottom: "1px solid #E0E0E0", "& .MuiTabs-flexContainer": { justifyContent: "space-between" }, "& .MuiTab-root": { minHeight: 44, color: "#8C8C8C", fontWeight: 700, fontSize: 16, textTransform: "none" }, "& .Mui-selected": { color: "#FF8A00" }, "& .MuiTabs-indicator": { backgroundColor: "#FF8A00", height: 3, borderRadius: 3 } }}>
-                        <Tab label="รางวัล" /><Tab label="สิทธิพิเศษ" /><Tab label="คูปอง" /><Tab label="ประวัติ" />
+                    <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="standard" sx={{ width: "100%", borderBottom: "1px solid #E0E0E0", "& .MuiTabs-flexContainer": { justifyContent: "space-evenly" }, "& .MuiTab-root": { minHeight: 44, color: "#8C8C8C", fontWeight: 700, fontSize: 16, textTransform: "none" }, "& .Mui-selected": { color: "#FF8A00" }, "& .MuiTabs-indicator": { backgroundColor: "#FF8A00", height: 3, borderRadius: 3 } }}>
+                        <Tab label="รางวัล" />
+                        <Tab label="สิทธิพิเศษ" />
+                        {/* <Tab label="คูปอง" /> */}
+                        <Tab label="ประวัติ" />
                     </Tabs>
                 </Box>
 
@@ -727,7 +750,7 @@ export default function PrivilegePage() {
                         />
                     )
                 }
-                {
+                {/* {
                     tab === 2 && (
                         <CouponList
                             products={products.coupon}
@@ -736,8 +759,8 @@ export default function PrivilegePage() {
                             onRedeem={handleOpenRedeem}
                         />
                     )
-                }
-                {tab === 3 && <RedeemHistory data={redeemHistory} orders={orders} />}
+                } */}
+                {tab === 2 && <RedeemHistory data={redeemHistory} orders={orders} />}
 
                 {/* Main Dialog */}
                 <Dialog
@@ -910,6 +933,10 @@ export default function PrivilegePage() {
                 lineAvatar={line_avatar ?? null}
                 customerCode={customer_code}
                 referralUrl={referral_url}
+            />
+            <PointExpiryModal
+                open={openPointModal}
+                onClose={() => setOpenPointModal(false)}
             />
         </MobileAuthenticatedLayout >
     );

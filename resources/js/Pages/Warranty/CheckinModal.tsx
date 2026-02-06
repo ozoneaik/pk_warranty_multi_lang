@@ -44,7 +44,7 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
     const [successData, setSuccessData] = useState<any>(null);
-
+    const [isRefreshing, setIsRefreshing] = useState(false);
     // 🏆 Milestones: กำหนดเป้าหมายวัน
     const milestones = [10, 20];
 
@@ -282,11 +282,51 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                     +{successData.points} <span style={{ fontSize: '1rem' }}>แต้ม</span>
                                 </Typography> */}
                             </Box>
-                            <Button
-                                fullWidth variant="contained" onClick={onClose}
+                            {/* <Button
+                                fullWidth
+                                variant="contained"
+                                // onClick={onClose}
+                                onClick={() => {
+                                    onClose();
+                                    window.location.reload();
+                                }}
                                 sx={{ borderRadius: 3, py: 1.2, background: 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)' }}
                             >
                                 ตกลง
+                            </Button> */}
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                disabled={isRefreshing} // 1. ห้ามกดซ้ำถ้ารีเฟรชอยู่
+                                onClick={() => {
+                                    setIsRefreshing(true); // 2. เริ่มแสดง Loading
+
+                                    // 3. หน่วงเวลาเล็กน้อยเพื่อให้ User เห็น Loading ก่อนรีเฟรชจริง
+                                    setTimeout(() => {
+                                        onClose();
+                                        window.location.reload();
+                                    }, 500);
+                                }}
+                                sx={{
+                                    borderRadius: 3,
+                                    py: 1.2,
+                                    background: 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)',
+                                    // ปรับสีตอน Disabled ให้ดูจางลง
+                                    '&.Mui-disabled': {
+                                        background: '#e0e0e0',
+                                        color: '#9e9e9e'
+                                    }
+                                }}
+                            >
+                                {/* 4. เงื่อนไขการแสดงผล: ถ้ากำลังรีเฟรช ให้โชว์วงกลมหมุนๆ */}
+                                {isRefreshing ? (
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <CircularProgress size={20} color="inherit" />
+                                        <Typography variant="body2" fontWeight="bold">กำลังโหลด...</Typography>
+                                    </Stack>
+                                ) : (
+                                    'ตกลง'
+                                )}
                             </Button>
                         </Stack>
                     )}

@@ -12,7 +12,7 @@ import {
     useTheme,
     Fade,
 } from "@mui/material";
-import { Close, ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { Close, ChevronLeft, ChevronRight, WorkspacePremium } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { keyframes } from "@mui/system";
 
@@ -251,6 +251,31 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                             {/* ✅ คะแนน */}
                             <Stack direction="row" alignItems="center" spacing={0.5}>
                                 <Box
+                                    sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        fontWeight={900}
+                                        sx={{
+                                            color: "black",
+                                            fontSize: { xs: "0.9rem", sm: "0.9rem" },
+                                            lineHeight: 1,
+                                            userSelect: 'none',
+                                        }}
+                                    >
+                                        <WorkspacePremium sx={{ color: "text.secondary" }} />
+                                    </Typography>
+
+                                    <Typography
+                                        color="text.secondary"
+                                        fontSize={{ xs: "1rem", sm: "1rem" }}
+                                        fontWeight={800}
+                                    >
+                                        {point ?? 0}
+                                    </Typography>
+                                </Box>
+
+                                {/* <Box
                                     sx={{
                                         width: 22,
                                         height: 22,
@@ -275,7 +300,8 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                                     >
                                         P
                                     </Typography>
-                                </Box>
+                                </Box> */}
+                                {/* 
                                 <Typography
                                     fontSize={{ xs: "1rem", sm: "1rem" }}
                                     fontWeight={800}
@@ -286,13 +312,13 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                                     }}
                                 >
                                     {displayPoint.toLocaleString()}
-                                </Typography>
+                                </Typography> */}
                             </Stack>
 
                             {/* ✅ วันที่สมัคร */}
                             <Typography
-                                fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
-                                sx={{ color: "#222", mt: 0.5 }}
+                                fontSize={{ xs: "0.70rem", sm: "0.9rem" }}
+                                sx={{ color: "#222", mt: 1 }}
                             >
                                 Member Since : {dayjs(joined_at).format("D MMM YYYY")}
                             </Typography>
@@ -327,6 +353,7 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                                         py: 0.2,
                                         borderRadius: 1,
                                         textTransform: "uppercase",
+                                        mt: 1
                                     }}
                                 >
                                     {isOwnTier ? "Your current level" : "Example"}

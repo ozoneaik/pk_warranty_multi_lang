@@ -120,7 +120,6 @@ export default function WelComeProFile() {
                         />
                         <Box
                             sx={{
-                                // display: "flex",
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 width: "100%",
@@ -132,34 +131,68 @@ export default function WelComeProFile() {
                                     {user.name}
                                 </Box>
                             </Typography>
-                            <Typography variant="body2" sx={{ mb: 0.5, color: '#555' }}>
-                                รหัสแนะนำเพื่อน <span style={{ fontWeight: 'bold', color: '#333' }}>{myReferralCode}</span>
-                            </Typography>
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                startIcon={<ContentCopy sx={{ fontSize: 10 }} />}
-                                onClick={handleCopy}
+
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={1}
                                 sx={{
-                                    borderRadius: 20,
-                                    px: 1,
-                                    py: 0.2,
-                                    fontSize: '0.70rem',
-                                    borderColor: '#F54927',
-                                    color: '#F54927',
-                                    bgcolor: '#fff',
-                                    textTransform: 'none',
-                                    '&:hover': { bgcolor: '#FFF3E0' }
+                                    mt: 0.5,
+                                    flexWrap: 'nowrap', // บังคับห้ามตัดบรรทัด
+                                    overflow: 'hidden'  // ป้องกันส่วนเกินล้น
                                 }}
                             >
-                                คัดลอก
-                            </Button>
-                            {/* <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
-                                <WorkspacePremium sx={{ color: "#F5B301" }} />
-                                <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
-                                    {point ?? 0} P
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: '#555',
+                                        fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                        whiteSpace: 'nowrap',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                >
+                                    {isMobile ? "รหัสแนะนำ" : "รหัสแนะนำเพื่อน"}
+                                    &nbsp;
+                                    <span style={{ fontWeight: 'bold', color: '#333' }}>
+                                        {myReferralCode}
+                                    </span>
                                 </Typography>
-                            </Box> */}
+
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    // ปรับขนาดไอคอนตามหน้าจอ
+                                    // startIcon={<ContentCopy sx={{ fontSize: isMobile ? 10 : 12 }} />}
+                                    onClick={handleCopy}
+                                    sx={{
+                                        borderRadius: 20,
+                                        px: 1,
+                                        py: 0,
+                                        height: 24,
+                                        minWidth: 'auto',
+                                        // ปรับขนาดฟอนต์ปุ่มให้เล็กลงบนมือถือ
+                                        fontSize: isMobile ? '0.65rem' : '0.70rem',
+                                        borderColor: '#F54927',
+                                        color: '#F54927',
+                                        bgcolor: '#fff',
+                                        textTransform: 'none',
+                                        flexShrink: 0, // ❌ สำคัญ: ห้ามปุ่มหดตัวเมื่อพื้นที่น้อย
+                                        whiteSpace: 'nowrap',
+                                        '&:hover': { bgcolor: '#FFF3E0' }
+                                    }}
+                                >
+                                    คัดลอก
+                                </Button>
+                            </Stack>
+                            {/* จบส่วนแก้ไข */}
+
+                            {/* <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
+        <WorkspacePremium sx={{ color: "#F5B301" }} />
+        <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
+            {point ?? 0} P
+        </Typography>
+    </Box> */}
                         </Box>
                         <Edit
                             sx={{ color: "#F54927", cursor: "pointer" }}

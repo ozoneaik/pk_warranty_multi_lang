@@ -382,7 +382,7 @@ import {
     Box, Card, CardContent, Grid, Typography, Stack,
     Avatar, Paper, Container, useTheme, useMediaQuery
 } from "@mui/material";
-import { Assignment, History, Edit } from "@mui/icons-material";
+import { Assignment, History, Edit, WorkspacePremium } from "@mui/icons-material";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import backgroundHome from '../../assets/images/bigBanner_20251016-161220.jpg'
@@ -391,13 +391,15 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import IconMenuCarousel from "@/Components/IconMenuCarousel";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CheckinModal from "./CheckinModal";
 import dayjs from "dayjs";
 import EarnPointModal from "./EarnPointModal";
 import ImagePopupModal from "./ImagePopupModal";
 import ProfileQrModal from "./ProfileQrModal";
+import { ChevronRightIcon } from "lucide-react";
+import PointExpiryModal from "../Profile/Partials/PointExpiryModal";
 
 const bannerHeight = { xs: 250, sm: 220, md: 260 };
 
@@ -427,6 +429,8 @@ export default function WarrantyHome() {
     const [checkedDays, setCheckedDays] = useState<string[]>([]);
     const [earnedData, setEarnedData] = useState({ points: 0, ids: [], message: '', items: [], });
     const [popupImages, setPopupImages] = useState<string[]>([]);
+
+    const [openPointModal, setOpenPointModal] = React.useState(false);
 
     const defaultBackground = backgroundHome;
 
@@ -609,26 +613,45 @@ export default function WarrantyHome() {
                                 onClick={() => setShowProfileQr(true)}
                                 sx={{
                                     bgcolor: "rgba(255,255,255,0.2)",
-                                    width: 60, height: 60
+                                    width: 60, height: 60,
+                                    cursor: "pointer",
+                                    border: "2px solid #fff",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
                                 }}
                             />
 
-                            <Box
-                                sx={{
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    width: "100%",
-                                }}
-                            >
+                            {/* ใช้ flexGrow เพื่อให้พื้นที่ตรงกลางยืดออก */}
+                            <Box sx={{ flexGrow: 1 }}>
                                 <Typography fontWeight="bold">
                                     {t.homePage.menu_list.welcome + " "}
                                     <Box component="span" sx={{ color: "#F54927" }}>
                                         {user.name}
                                     </Box>
                                 </Typography>
+
+                                {/* ส่วนแสดงคะแนนแบบ Stack แนวนอน */}
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={0.5}
+                                    sx={{
+                                        mt: 0.5,
+                                        cursor: 'pointer',
+                                        width: 'fit-content',
+                                        '&:active': { opacity: 0.6 }
+                                    }}
+                                    onClick={() => setOpenPointModal(true)}
+                                >
+                                    <WorkspacePremium sx={{ color: "#F5B301", fontSize: 20 }} />
+                                    <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
+                                        {point ?? 0} P
+                                    </Typography>
+                                    <ChevronRightIcon size={14} color="#F5B301" />
+                                </Stack>
                             </Box>
+
                             <Link href={route('customer.profile.welcome')}>
-                                <Edit />
+                                <Edit sx={{ color: "#F54927" }} />
                             </Link>
                         </Stack>
                     </Paper>
@@ -808,6 +831,10 @@ export default function WarrantyHome() {
                 lineAvatar={line_avatar}
                 customerCode={customer_code}
                 referralUrl={referral_url}
+            />
+            <PointExpiryModal
+                open={openPointModal}
+                onClose={() => setOpenPointModal(false)}
             />
         </MobileAuthenticatedLayout>
     )

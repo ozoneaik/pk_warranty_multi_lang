@@ -19,7 +19,7 @@
     },
     {
         "id": 4,
-        "label": "History",
+        "label": "Tools",
         "route": "warranty.history",
         "icon": "History"
     },

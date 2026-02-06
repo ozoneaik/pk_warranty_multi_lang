@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\PointPopupController;
 use App\Http\Controllers\Api\SendOtpController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\CustomerProfileController;
+use App\Http\Controllers\Privilege\PointDetailController;
 use App\Http\Controllers\Privilege\PrivilegeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Privilege\RedeemController;
@@ -74,6 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/privilege', [PrivilegeController::class, 'index'])
             ->name('customer.profile.privilege');
         Route::get('/privilege/orders', [PrivilegeController::class, 'myOrders'])->name('privilege.orders');
+        Route::get('/privilege/point-expiry', [PointDetailController::class, 'getPointExpiry'])->name('privilege.point-expiry');
 
         Route::get('/score/point', [ScoreController::class, 'getPoint']);
         Route::get('/info/pdpa', function () {
@@ -113,7 +115,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/get-store-name/{id}', [WarrantyFormController::class, 'get_store_name'])
                 ->name('warranty.get_store_name');
             Route::get('/history', [WarrantyHistoryController::class, 'history'])->name('warranty.history');
-            Route::get('/history/detail/{model_code}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
+            // Route::get('/history/detail/{model_code}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
+            Route::get('/history/detail/{serial_number}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
             Route::post('/', function () {});
         });
     });

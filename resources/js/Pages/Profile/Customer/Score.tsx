@@ -3,19 +3,21 @@ import {
     Box, Typography, Stack, Button, Container, Grid, Card, List,
     ListItemButton, ListItemIcon, ListItemText, Divider, CardContent, Avatar, Link
 } from "@mui/material";
-import { ChevronRight, Gavel, Logout, Shield, Edit } from "@mui/icons-material";
+import { ChevronRight, Gavel, Logout, Shield, Edit, WorkspacePremium } from "@mui/icons-material";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import dayjs from "dayjs";
 import RewardProgress from "./CardTiers/RewardProgress";
 import CardPreviewDialog from "./CardTiers/CardPreviewDialog";
 import React from "react";
+import PointExpiryModal from "../Partials/PointExpiryModal";
+import { ChevronRightIcon } from "lucide-react";
 export default function ScorePage() {
     const { t } = useLanguage();
     const { auth, line_avatar, point, joined_at, tier, tier_expired_at } = usePage().props as any;
     const user = auth.user;
     const [openPreview, setOpenPreview] = React.useState(false);
-
+    const [openPointModal, setOpenPointModal] = React.useState(false);
     const cardColors: Record<string, string> = {
         silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
         gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)",
@@ -77,21 +79,11 @@ export default function ScorePage() {
                                 alignItems="center"
                                 spacing={0.5}
                                 ml={1}
+                                onClick={() => setOpenPointModal(true)}
                             >
                                 {/* วงกลม P พร้อม Gradient */}
                                 <Box
-                                    sx={{
-                                        width: 22,
-                                        height: 22,
-                                        borderRadius: "50%",
-                                        background: "radial-gradient(#FFF, #FFF6B4)",
-                                        border: "2px solid #FFE970",
-                                        display: "grid",
-                                        placeItems: "center",
-                                        color: "#8A8200",
-                                        fontWeight: 900,
-                                        fontSize: 12,
-                                    }}
+                                    sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
                                 >
                                     <Typography
                                         variant="caption"
@@ -104,18 +96,18 @@ export default function ScorePage() {
                                             userSelect: 'none',
                                         }}
                                     >
-                                        P
+                                        <WorkspacePremium sx={{ color: "#F5B301" }} />
                                     </Typography>
+                                    {/* คะแนน */}
+                                    <Typography
+                                        sx={{ color: "#F5B301" }}
+                                        fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                                        fontWeight={800}
+                                    >
+                                        {point ?? 0}
+                                    </Typography>
+                                    <ChevronRightIcon size={14} color="#F55014" />
                                 </Box>
-
-                                {/* คะแนน */}
-                                <Typography
-                                    color="text.secondary"
-                                    fontSize={{ xs: "0.9rem", sm: "1rem" }}
-                                    fontWeight={800}
-                                >
-                                    {point ?? 0}
-                                </Typography>
                             </Stack>
                         </Box>
                     </Stack>
@@ -154,36 +146,32 @@ export default function ScorePage() {
                                     >
                                         {/* วงกลม P พร้อม Gradient */}
                                         <Box
-                                            sx={{
-                                                width: 22,
-                                                height: 22,
-                                                borderRadius: "50%",
-                                                background: "radial-gradient(#FFF, #FFF6B4)",
-                                                border: "2px solid #FFE970",
-                                                display: "grid",
-                                                placeItems: "center",
-                                                color: "#8A8200",
-                                                fontWeight: 900,
-                                                fontSize: 12,
-                                            }}
+                                            sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
                                         >
                                             <Typography
                                                 variant="caption"
                                                 fontWeight={900}
                                                 sx={{
-                                                    // color: '#fff',
                                                     color: "black",
                                                     fontSize: { xs: "0.9rem", sm: "0.9rem" },
                                                     lineHeight: 1,
                                                     userSelect: 'none',
                                                 }}
                                             >
-                                                P
+                                                <WorkspacePremium sx={{ color: "text.secondary" }} />
+                                            </Typography>
+
+                                            <Typography
+                                                color="text.secondary"
+                                                fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                                                fontWeight={800}
+                                            >
+                                                {point ?? 0}
                                             </Typography>
                                         </Box>
 
                                         {/* คะแนน */}
-                                        <Typography
+                                        {/* <Typography
                                             color="text.secondary"
                                             fontSize={{ xs: "1rem", sm: "1rem" }}
                                             fontWeight={800}
@@ -193,13 +181,15 @@ export default function ScorePage() {
                                             }}
                                         >
                                             {point ?? 0}
-                                        </Typography>
+                                        </Typography> */}
                                     </Stack>
+                                    
                                     <Typography
                                         fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
                                         color="text.secondary"
                                         sx={{
                                             color: '#333',
+                                            mt: 1
                                         }}
                                     >
                                         Member Since :{" "}
@@ -342,6 +332,10 @@ export default function ScorePage() {
                 point={point ?? 0}
                 joined_at={joined_at}
                 cardColors={cardColors}
+            />
+            <PointExpiryModal
+                open={openPointModal}
+                onClose={() => setOpenPointModal(false)}
             />
         </MobileAuthenticatedLayout>
     );

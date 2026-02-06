@@ -157,7 +157,7 @@
 
             <hr class="mb-6 border-gray-300">
 
-            <h3 class="text-lg font-bold text-gray-800 mb-4">ข้อมูลที่อยู่</h3>
+            {{-- <h3 class="text-lg font-bold text-gray-800 mb-4">ข้อมูลที่อยู่</h3>
 
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">ที่อยู่ (เลขที่, หมู่บ้าน, ซอย, ถนน) *</label>
@@ -196,9 +196,9 @@
                     value="{{ old('cust_zipcode', $data['cust_zipcode'] ?? '') }}"
                     class="w-full px-3 py-2 border rounded bg-gray-100 focus:outline-none cursor-not-allowed" readonly
                     required>
-            </div>
+            </div> --}}
 
-            <hr class="mb-6 border-gray-300">
+            {{-- <hr class="mb-6 border-gray-300"> --}}
             <h3 class="text-lg font-bold text-gray-800 mb-4">ยืนยันหมายเลขโทรศัพท์</h3>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">เบอร์โทรศัพท์ *</label>
@@ -234,7 +234,7 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-    <script>
+    {{-- <script>
         // Setup TomSelect
         const tsConfig = {
             create: false,
@@ -495,6 +495,207 @@
             btnSubmit.classList.add('opacity-75', 'cursor-not-allowed');
 
             // แสดง Spinner และเปลี่ยนข้อความ
+            btnSpinner.classList.remove('hidden');
+            btnText.innerText = 'กำลังบันทึกข้อมูล...';
+        });
+    </script> --}}
+
+    <script>
+        // --- 1. Global Variables ---
+        let iti;
+        let provTS, distTS, subTS;
+        let provincesData = [],
+            districtsData = [],
+            subDistrictsData = [];
+        let countdownTimer;
+
+        // --- 2. Initialize on Load ---
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // Setup TomSelect (Only if elements exist)
+            const provEl = document.getElementById('province');
+            if (provEl) {
+                const tsConfig = {
+                    create: false,
+                    sortField: {
+                        field: "text",
+                        direction: "asc"
+                    },
+                    placeholder: "พิมพ์เพื่อค้นหา...",
+                    closeAfterSelect: true
+                };
+
+                provTS = new TomSelect('#province', tsConfig);
+                distTS = new TomSelect('#district', {
+                    ...tsConfig,
+                    placeholder: "กรุณาเลือกจังหวัดก่อน"
+                });
+                subTS = new TomSelect('#subdistrict', {
+                    ...tsConfig,
+                    placeholder: "กรุณาเลือกอำเภอก่อน"
+                });
+
+                distTS.disable();
+                subTS.disable();
+
+                // Setup Address Events (เหมือนเดิม)
+                provTS.on('change', function(value) {
+                    distTS.clear();
+                    distTS.clearOptions();
+                    distTS.disable();
+                    subTS.clear();
+                    subTS.clearOptions();
+                    subTS.disable();
+                    document.getElementById('zipcode').value = '';
+                    if (value) {
+                        const selectedProv = provincesData.find(p => p.name_th === value);
+                        if (selectedProv) {
+                            const filtered = districtsData.filter(d => d.province_id == selectedProv.id);
+                            distTS.addOption(filtered.map(d => ({
+                                value: d.name_th,
+                                text: d.name_th,
+                                id: d.id
+                            })));
+                            distTS.enable();
+                        }
+                    }
+                });
+
+                distTS.on('change', function(value) {
+                    subTS.clear();
+                    subTS.clearOptions();
+                    subTS.disable();
+                    document.getElementById('zipcode').value = '';
+                    if (value) {
+                        const pObj = provincesData.find(x => x.name_th === provTS.getValue());
+                        const selectedOption = districtsData.find(d => d.name_th === value && d
+                            .province_id == pObj?.id);
+                        if (selectedOption) {
+                            const filtered = subDistrictsData.filter(s => s.district_id == selectedOption
+                                .id);
+                            subTS.addOption(filtered.map(s => ({
+                                value: s.name_th,
+                                text: s.name_th,
+                                zip: s.zip_code
+                            })));
+                            subTS.enable();
+                        }
+                    }
+                });
+
+                subTS.on('change', function(value) {
+                    const selectedOption = subTS.options[value];
+                    document.getElementById('zipcode').value = selectedOption ? selectedOption.zip : '';
+                });
+
+                loadAddressData();
+            }
+
+            // Phone Input Setup
+            const input = document.querySelector("#phone_input");
+            const hiddenInput = document.querySelector("#cust_tel_hidden");
+            if (input) {
+                iti = window.intlTelInput(input, {
+                    initialCountry: "th",
+                    preferredCountries: ["th", "la", "mm", "kh", "my", "cn", "us", "jp"],
+                    separateDialCode: true,
+                    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+                });
+                input.addEventListener('input', () => {
+                    hiddenInput.value = iti.getNumber();
+                });
+            }
+        });
+
+        // --- 3. Functions ---
+        async function loadAddressData() {
+            try {
+                const [p, d, s] = await Promise.all([
+                    fetch(
+                        "https://raw.githubusercontent.com/kongvut/thai-province-data/master/api/latest/province.json"
+                        ),
+                    fetch(
+                        "https://raw.githubusercontent.com/kongvut/thai-province-data/master/api/latest/district.json"
+                        ),
+                    fetch(
+                        "https://raw.githubusercontent.com/kongvut/thai-province-data/master/api/latest/sub_district.json"
+                        )
+                ]);
+                provincesData = await p.json();
+                districtsData = await d.json();
+                subDistrictsData = await s.json();
+
+                provTS.clearOptions();
+                provTS.addOption(provincesData.map(p => ({
+                    value: p.name_th,
+                    text: p.name_th,
+                    id: p.id
+                })));
+            } catch (e) {
+                console.error("Address error", e);
+            }
+        }
+
+        async function sendOtp() {
+            const btnSend = document.getElementById('btnSendOtp');
+            const msgArea = document.getElementById('otpMessage');
+            const hiddenInput = document.getElementById('cust_tel_hidden');
+
+            if (!iti || !iti.isValidNumber()) {
+                alert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง');
+                return;
+            }
+
+            const fullPhone = iti.getNumber();
+            hiddenInput.value = fullPhone;
+            btnSend.disabled = true;
+            btnSend.innerText = 'กำลังส่ง...';
+
+            try {
+                const response = await axios.post("{{ route('register.send_otp') }}", {
+                    phone: fullPhone
+                });
+                if (response.data.success) {
+                    msgArea.innerText = 'ส่งรหัส OTP สำเร็จแล้ว';
+                    msgArea.className = 'text-xs mt-1 text-green-600';
+                    startCountdown(60);
+                }
+            } catch (error) {
+                msgArea.innerText = error.response?.data?.message || 'เกิดข้อผิดพลาดในการส่ง OTP';
+                msgArea.className = 'text-xs mt-1 text-red-600';
+                btnSend.disabled = false;
+                btnSend.innerText = 'ขอรหัส OTP';
+            }
+        }
+
+        function startCountdown(seconds) {
+            const btnSend = document.getElementById('btnSendOtp');
+            let counter = seconds;
+            btnSend.disabled = true;
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                btnSend.innerText = `รอส่งใหม่ (${counter})`;
+                if (counter-- <= 0) {
+                    clearInterval(countdownTimer);
+                    btnSend.disabled = false;
+                    btnSend.innerText = 'ขอรหัส OTP อีกครั้ง';
+                }
+            }, 1000);
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            if (!iti || !iti.isValidNumber()) {
+                e.preventDefault();
+                alert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง');
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-75', 'cursor-not-allowed');
             btnSpinner.classList.remove('hidden');
             btnText.innerText = 'กำลังบันทึกข้อมูล...';
         });

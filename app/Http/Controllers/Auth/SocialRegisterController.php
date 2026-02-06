@@ -225,11 +225,11 @@ class SocialRegisterController extends Controller
             'cust_email'     => 'required|email|max:255',
             'cust_birthdate' => 'required|date',
             'cust_tel'       => 'required',
-            'cust_address'     => 'required|string|max:255',
-            'cust_province'    => 'required|string',
-            'cust_district'    => 'required|string',
-            'cust_subdistrict' => 'required|string',
-            'cust_zipcode'     => 'required|string',
+            // 'cust_address'     => 'required|string|max:255',
+            // 'cust_province'    => 'required|string',
+            // 'cust_district'    => 'required|string',
+            // 'cust_subdistrict' => 'required|string',
+            // 'cust_zipcode'     => 'required|string',
         ];
 
         if ($isThailand  && $this->isOtpVerificationEnabled()) {
@@ -299,12 +299,18 @@ class SocialRegisterController extends Controller
             $cust->cust_email     = $request->cust_email;
             $cust->cust_birthdate = $request->cust_birthdate;
             $cust->cust_tel       = $phoneToSave;
-            $cust->cust_address     = $request->cust_address;
-            $cust->cust_province    = $request->cust_province;
-            $cust->cust_district    = $request->cust_district;
-            $cust->cust_subdistrict = $request->cust_subdistrict;
-            $cust->cust_zipcode     = $request->cust_zipcode;
-            $cust->cust_full_address = "{$request->cust_address} แขวง/ตำบล {$request->cust_subdistrict} เขต/อำเภอ {$request->cust_district} จังหวัด {$request->cust_province} {$request->cust_zipcode}";
+            // $cust->cust_full_address = "{$request->cust_address} แขวง/ตำบล {$request->cust_subdistrict} เขต/อำเภอ {$request->cust_district} จังหวัด {$request->cust_province} {$request->cust_zipcode}";
+            // $cust->cust_address     = $request->cust_address;
+            // $cust->cust_subdistrict = $request->cust_subdistrict;
+            // $cust->cust_district    = $request->cust_district;
+            // $cust->cust_province    = $request->cust_province;
+            // $cust->cust_zipcode     = $request->cust_zipcode;
+            $cust->cust_full_address = '';
+            $cust->cust_address     = '';
+            $cust->cust_subdistrict = '';
+            $cust->cust_district    = '';
+            $cust->cust_province    = '';
+            $cust->cust_zipcode     = '';
 
             $cust->cust_line = $lineId;
             $cust->cust_type = 'line';

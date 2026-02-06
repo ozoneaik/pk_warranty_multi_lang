@@ -5,6 +5,40 @@ import { PageProps as AppPageProps } from './';
 
 declare global {
 
+    interface PowerAccessoriesData {
+        battery?: PowerAccessoryItem[];
+        charger?: PowerAccessoryItem[];
+    }
+
+    interface ProductDetail {
+        pid?: string;
+        p_name?: string;
+        pname?: string;
+        warranty_status?: boolean;
+        fac_model?: string;
+        p_path?: string;
+        image?: string;
+        warrantyperiod?: string;
+        warrantycondition?: string;
+        warrantynote?: string;
+        sp_warranty?: {
+            spname: string;
+            spcode?: { pidsp: string };
+        }[];
+        // เพิ่มตรงนี้
+        power_accessories?: PowerAccessoriesData | null;
+    }
+
+    interface PowerAccessoryItem {
+        id: number;
+        accessory_sku: string;
+        product_name: string;
+        warranty_period: string;
+        warranty_condition: string;
+        warranty_note: string;
+        no: number;
+    }
+
     /* eslint-disable no-var */
     var route: typeof ziggyRoute;
 
