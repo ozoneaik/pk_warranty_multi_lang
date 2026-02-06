@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
-use Pest\Support\Str;
+use Illuminate\Support\Str;
 
 class RedeemController extends Controller
 {

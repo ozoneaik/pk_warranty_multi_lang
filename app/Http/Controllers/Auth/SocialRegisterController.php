@@ -9,6 +9,7 @@ use App\Models\MasterWaaranty\ReferralHistory;
 use App\Models\MasterWaaranty\TypeProcessPoint;
 use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\LoginLog;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -477,6 +478,7 @@ class SocialRegisterController extends Controller
                 'trandate'         => now()->toDateString(),
                 'docno'            => 'REF-' . now()->format('YmdHis'),
                 'created_at'       => now(),
+                'expired_at'       => Carbon::now()->addYears(2),
             ]);
 
             $refHistory->update(['status_referrer' => 'rewarded', 'points_referrer' => $pointEarn]);
