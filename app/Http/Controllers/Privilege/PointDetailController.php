@@ -22,7 +22,8 @@ class PointDetailController extends Controller
                 $q->whereNull('expired_at')
                     ->orWhereDate('expired_at', '>=', $today);
             })
-            ->orderBy('expired_at', 'desc')
+            // ->orderBy('expired_at', 'desc')
+            ->orderBy('id', 'desc')
             ->get()
             ->map(function ($tran) {
                 $daysLeft = $tran->expired_at
