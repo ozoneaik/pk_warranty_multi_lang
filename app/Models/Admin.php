@@ -86,4 +86,9 @@ class Admin extends Authenticatable
             ->orderBy('order')
             ->get();
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\Admin::class, 'created_by');
+    }
 }

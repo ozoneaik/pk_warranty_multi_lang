@@ -182,20 +182,23 @@ class AdminRewardController extends Controller
 
         unset($validated['image_file']);
 
-        $user = Auth::user();
+        // $user = Auth::user();
 
-        // ค้นหาลูกค้าที่ข้อมูลตรงกับ Admin ที่ Login (เช็คจาก Line ID หรือ เบอร์โทร)
-        $customer = TblCustomerProd::where(function ($query) use ($user) {
-            if ($user->line_id) {
-                $query->where('cust_line', $user->line_id);
-            }
-            if ($user->phone) {
-                $query->orWhere('cust_tel', $user->phone);
-            }
-        })->first();
+        // // ค้นหาลูกค้าที่ข้อมูลตรงกับ Admin ที่ Login (เช็คจาก Line ID หรือ เบอร์โทร)
+        // $customer = TblCustomerProd::where(function ($query) use ($user) {
+        //     if ($user->line_id) {
+        //         $query->where('cust_line', $user->line_id);
+        //     }
+        //     if ($user->phone) {
+        //         $query->orWhere('cust_tel', $user->phone);
+        //     }
+        // })->first();
 
-        // ถ้าเจอให้ใช้ ID ของ TblCustomerProd, ถ้าไม่เจอให้เป็น null
-        $validated['created_by'] = $customer ? $customer->id : null;
+        // // ถ้าเจอให้ใช้ ID ของ TblCustomerProd, ถ้าไม่เจอให้เป็น null
+        // $validated['created_by'] = $customer ? $customer->id : null;
+
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
+        $validated['created_by'] = $adminId;
 
         // 4. บันทึกข้อมูล
         Reward::create($validated);
@@ -288,6 +291,9 @@ class AdminRewardController extends Controller
         }
 
         unset($validated['image_file']);
+
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
+        $validated['updated_by'] = $adminId;
 
         // อัปเดตข้อมูล
         $reward->update($validated);

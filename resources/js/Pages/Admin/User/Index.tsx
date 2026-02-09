@@ -24,6 +24,7 @@ export default function UserIndex({ users, filters }: any) {
         }
     };
 
+
     return (
         <AuthenticatedLayout
             header={
@@ -73,7 +74,7 @@ export default function UserIndex({ users, filters }: any) {
                             </form>
 
                             {/* create user */}
-                            {auth.user.role === 'super_admin' && (
+                            {(auth.user.role === 'super_admin' || auth.user.role === 'admin') && (
                                 <div className="mb-4">
                                     <Link
                                         href={route('admin.users.create')}

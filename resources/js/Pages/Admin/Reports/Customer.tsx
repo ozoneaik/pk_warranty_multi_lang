@@ -20,7 +20,7 @@ import {
 } from '@mui/icons-material';
 
 // Lucide Icons
-import { ArrowLeft, Calendar, Award, Crown } from 'lucide-react';
+import { ArrowLeft, Calendar, Award, Crown, DownloadIcon } from 'lucide-react';
 
 // Recharts
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
@@ -207,6 +207,16 @@ export default function CustomerReport({ stats, customers, history, filters, age
         router.get(route('admin.reports.index'));
     };
 
+    const handleExport = () => {
+        // สร้าง Query String จาก searchValues
+        const params = new URLSearchParams(
+            Object.fromEntries(Object.entries(searchValues).filter(([_, v]) => v !== ''))
+        ).toString();
+
+        // ยิงไปที่ route export ตรงๆ (ไม่ใช่ผ่าน router.get ของ inertia เพราะเป็นไฟล์ download)
+        window.location.href = route('admin.reports.customers.export') + '?' + params;
+    };
+
     return (
         <AuthenticatedLayout header={
             <div className="flex items-center space-x-4">
@@ -287,13 +297,20 @@ export default function CustomerReport({ stats, customers, history, filters, age
                                     </select>
                                 </div>
 
-                                <div className="flex items-end">
+                                <div className="flex flex-col md:flex-row gap-2 items-end">
                                     <button
                                         type="submit"
                                         className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2.5 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
                                     >
                                         <MagnifyingGlassIcon style={{ fontSize: '20px' }} />
                                         ค้นหา
+                                    </button>
+                                    <button
+                                        type="button" 
+                                        onClick={handleExport}
+                                        className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all"
+                                    >
+                                        <DownloadIcon /> Export
                                     </button>
                                 </div>
                             </div>

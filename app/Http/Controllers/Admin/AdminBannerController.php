@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\Banner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -34,13 +35,15 @@ class AdminBannerController extends Controller
         // Upload to S3
         $path = $request->file('image')->store('banners', 's3');
         $url = Storage::disk('s3')->url($path);
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
 
         Banner::create([
             'title' => $request->title,
             'image_path' => $url,
             'sort_order' => $request->sort_order ?? 0,
             'is_active' => true,
-            'type' => $request->type
+            'type' => $request->type,
+            'created_by' => $adminId
         ]);
 
         return redirect()->back();
@@ -61,8 +64,8 @@ class AdminBannerController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string',
             'sort_order' => 'nullable|integer',
-            'type' => 'required|in:slider,background',
-            'is_active' => 'boolean',
+            'type' => 'sometimes|required|in:slider,background',
+            'is_active' => 'sometimes|boolean',
             'image' => 'nullable|image|max:2048', // รูปเป็น nullable ตอน edit
         ]);
 
@@ -82,6 +85,9 @@ class AdminBannerController extends Controller
 
         // ลบ field image ออกจาก array เพราะใน DB ไม่มี column ชื่อ image
         unset($validated['image']);
+
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
+        $validated['updated_by'] = $adminId;
 
         $banner->update($validated);
 

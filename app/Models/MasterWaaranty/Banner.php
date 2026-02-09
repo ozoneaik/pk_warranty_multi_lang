@@ -15,7 +15,9 @@ class Banner extends Model
         'image_path',
         'sort_order',
         'is_active',
-        'type'
+        'type',
+        'created_by',
+        'updated_by'
     ];
 
     // แปลงค่าอัตโนมัติเมื่อดึงข้อมูลออกมาใช้งาน

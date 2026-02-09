@@ -21,6 +21,180 @@ use Laravel\Socialite\Facades\Socialite;
 class LineAuthController extends Controller
 {
 
+
+    public function redirectToLine()
+    {
+        $redirectUrl = request()->query('redirect');
+        $ref = request()->query('ref');
+
+        if ($redirectUrl) {
+            session(['after_login_redirect' => $redirectUrl]);
+        }
+
+        if ($ref) {
+            session(['referrer_code' => $ref]);
+        }
+
+        return Socialite::driver('line')->redirect();
+    }
+
+    public function handleLineCallback(Request $request)
+    {
+        try {
+            $lineUser = Socialite::driver('line')->user();
+            $lineId   = $lineUser->getId();
+            $email    = $lineUser->getEmail();
+            $avatar   = $lineUser->getAvatar();
+            $name     = $lineUser->getName();
+
+            $cust = TblCustomerProd::where('cust_uid', $lineId)->first();
+
+            if ($cust) {
+                $lastLogin = LoginLog::where('line_id', $lineId)
+                    ->where('status', 'success')
+                    ->latest('login_at')
+                    ->first();
+
+                // เช็คว่าไม่ได้เข้านานเกินกำหนด (ตัวอย่างใช้ 30 วัน)
+                if ($lastLogin && $lastLogin->login_at->diffInDays(now()) > 30) {
+
+                    Log::warning("⏳ User {$lineId} inactive > 30 days. Redirecting to Update Profile.");
+
+                    // ดึงข้อมูลจาก $cust ใส่ Session ให้ครบ
+                    session([
+                        'social_register_data' => [
+                            // ข้อมูลพื้นฐานจาก LINE
+                            'provider' => 'line',
+                            'line_id'  => $lineId,
+                            'email'    => $cust->cust_email ?? $email, // ใช้จาก DB ก่อน ถ้าไม่มีค่อยใช้จาก LINE
+                            'avatar'   => $avatar,
+                            'name'     => $name,
+                            'is_update_mode' => true, // ตัวบอก View ว่านี่คือการ Update (เปลี่ยนหัวข้อ)
+
+                            // ข้อมูลเดิมจาก Database (สำคัญมาก! ถ้าไม่ใส่ตรงนี้ ฟอร์มจะโล่ง)
+                            'cust_firstname'   => $cust->cust_firstname,
+                            'cust_lastname'    => $cust->cust_lastname,
+                            'cust_tel'         => $cust->cust_tel,
+                            'cust_gender'      => $cust->cust_gender,
+                            'cust_birthdate'   => $cust->cust_birthdate,
+
+                            // ข้อมูลที่อยู่
+                            'cust_address'     => $cust->cust_address,
+                            'cust_province'    => $cust->cust_province,
+                            'cust_district'    => $cust->cust_district,
+                            'cust_subdistrict' => $cust->cust_subdistrict,
+                            'cust_zipcode'     => $cust->cust_zipcode,
+                        ]
+                    ]);
+
+                    return redirect()->route('register.complete_profile')
+                        ->with('error', 'คุณไม่ได้เข้าใช้งานนานเกิน 30 วัน กรุณาตรวจสอบข้อมูลและยืนยันตัวตน');
+                }
+
+                return $this->loginExistingUser($lineUser, $cust);
+            }
+
+            session([
+                'social_register_data' => [
+                    'provider' => 'line',
+                    'line_id'  => $lineId,
+                    'name'     => $name,
+                    'email'    => $email,
+                    'avatar'   => $avatar,
+                ]
+            ]);
+
+            return redirect()->route('register.complete_profile');
+        } catch (\Exception $e) {
+            Log::error('LINE Login Error', ['msg' => $e->getMessage()]);
+            return redirect()->route('login')->with('error', 'Login Failed');
+        }
+    }
+
+    // ฟังก์ชั่นสำหรับ Login คนเก่า (Extract มาจาก Logic เดิมของคุณ)
+    private function loginExistingUser($lineUser, $cust)
+    {
+        $lineId = $lineUser->getId();
+
+        // Update User Model (Laravel Auth)
+        $user = User::firstOrNew(['line_id' => $lineId]);
+        if (!$user->exists) {
+            $user->name = trim($cust->cust_firstname . ' ' . $cust->cust_lastname);
+            $user->email = $cust->cust_email ?? $lineUser->getEmail();
+            $user->password = bcrypt($lineId);
+            $user->save();
+        }
+
+        // Update Customer Data บางส่วน
+        $cust->cust_line  = $lineId;
+        $cust->cust_email = $cust->cust_email ?: $lineUser->getEmail();
+        $cust->save();
+
+        // Check Tier Expiry (Logic เดิม)
+        $this->checkTierExpiry($cust, $user);
+
+        // Login Log
+        LoginLog::create([
+            'user_id' => $user->id,
+            'line_id' => $lineId,
+            'status'  => 'success',
+            'login_at' => now(),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        Auth::login($user);
+
+        // Redirect
+        $redirect = session('after_login_redirect') ?? '/dashboard';
+        session()->forget(['referrer_code', 'after_login_redirect']);
+        session(['line_avatar' => $lineUser->getAvatar(), 'line_email' => $user->email]);
+
+        return redirect()->to($redirect);
+    }
+
+    private function checkTierExpiry($cust, $user)
+    {
+        if (empty($cust->tier_expired_at)) return;
+
+        $expiredAt = Carbon::parse($cust->tier_expired_at);
+        $now = Carbon::now();
+
+        if ($now->greaterThan($expiredAt)) {
+            $oldTier = $cust->tier_key;
+            $oldExpired = $cust->tier_expired_at;
+            $point = (int) $cust->point;
+
+            $newTier = match (true) {
+                $point >= 3000 => 'platinum',
+                $point >= 1000 => 'gold',
+                default        => 'silver',
+            };
+
+            $cust->update([
+                'tier_key'        => $newTier,
+                'tier_updated_at' => $now,
+                'tier_expired_at' => $now->copy()->addYears(2),
+            ]);
+
+            try {
+                MembershipTierHistory::create([
+                    'user_id'       => $user->id,
+                    'cust_line'     => $cust->cust_line,
+                    'cust_tel'      => $cust->cust_tel,
+                    'tier_old'      => $oldTier,
+                    'tier_new'      => $newTier,
+                    'expired_at'    => $oldExpired,
+                    'changed_at'    => $now,
+                    'reason'        => 'expired',
+                    'point_at_time' => $point,
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('❌ Tier History Error', ['msg' => $e->getMessage()]);
+            }
+        }
+    }
+
     // public function redirectToLine()
     // {
     //     $redirectUrl = request()->query('redirect');
@@ -648,176 +822,4 @@ class LineAuthController extends Controller
     //     );
     // }
 
-    public function redirectToLine()
-    {
-        $redirectUrl = request()->query('redirect');
-        $ref = request()->query('ref');
-
-        if ($redirectUrl) {
-            session(['after_login_redirect' => $redirectUrl]);
-        }
-
-        if ($ref) {
-            session(['referrer_code' => $ref]);
-        }
-
-        return Socialite::driver('line')->redirect();
-    }
-
-    public function handleLineCallback(Request $request)
-    {
-        try {
-            $lineUser = Socialite::driver('line')->user();
-            $lineId   = $lineUser->getId();
-            $email    = $lineUser->getEmail();
-            $avatar   = $lineUser->getAvatar();
-            $name     = $lineUser->getName();
-
-            $cust = TblCustomerProd::where('cust_uid', $lineId)->first();
-
-            if ($cust) {
-                $lastLogin = LoginLog::where('line_id', $lineId)
-                    ->where('status', 'success')
-                    ->latest('login_at')
-                    ->first();
-
-                // เช็คว่าไม่ได้เข้านานเกินกำหนด (ตัวอย่างใช้ 30 วัน)
-                if ($lastLogin && $lastLogin->login_at->diffInDays(now()) > 30) {
-
-                    Log::warning("⏳ User {$lineId} inactive > 30 days. Redirecting to Update Profile.");
-
-                    // ดึงข้อมูลจาก $cust ใส่ Session ให้ครบ
-                    session([
-                        'social_register_data' => [
-                            // ข้อมูลพื้นฐานจาก LINE
-                            'provider' => 'line',
-                            'line_id'  => $lineId,
-                            'email'    => $cust->cust_email ?? $email, // ใช้จาก DB ก่อน ถ้าไม่มีค่อยใช้จาก LINE
-                            'avatar'   => $avatar,
-                            'name'     => $name,
-                            'is_update_mode' => true, // ตัวบอก View ว่านี่คือการ Update (เปลี่ยนหัวข้อ)
-
-                            // ข้อมูลเดิมจาก Database (สำคัญมาก! ถ้าไม่ใส่ตรงนี้ ฟอร์มจะโล่ง)
-                            'cust_firstname'   => $cust->cust_firstname,
-                            'cust_lastname'    => $cust->cust_lastname,
-                            'cust_tel'         => $cust->cust_tel,
-                            'cust_gender'      => $cust->cust_gender,
-                            'cust_birthdate'   => $cust->cust_birthdate,
-
-                            // ข้อมูลที่อยู่
-                            'cust_address'     => $cust->cust_address,
-                            'cust_province'    => $cust->cust_province,
-                            'cust_district'    => $cust->cust_district,
-                            'cust_subdistrict' => $cust->cust_subdistrict,
-                            'cust_zipcode'     => $cust->cust_zipcode,
-                        ]
-                    ]);
-
-                    return redirect()->route('register.complete_profile')
-                        ->with('error', 'คุณไม่ได้เข้าใช้งานนานเกิน 30 วัน กรุณาตรวจสอบข้อมูลและยืนยันตัวตน');
-                }
-
-                return $this->loginExistingUser($lineUser, $cust);
-            }
-
-            session([
-                'social_register_data' => [
-                    'provider' => 'line',
-                    'line_id'  => $lineId,
-                    'name'     => $name,
-                    'email'    => $email,
-                    'avatar'   => $avatar,
-                ]
-            ]);
-
-            return redirect()->route('register.complete_profile');
-        } catch (\Exception $e) {
-            Log::error('LINE Login Error', ['msg' => $e->getMessage()]);
-            return redirect()->route('login')->with('error', 'Login Failed');
-        }
-    }
-
-    // ฟังก์ชั่นสำหรับ Login คนเก่า (Extract มาจาก Logic เดิมของคุณ)
-    private function loginExistingUser($lineUser, $cust)
-    {
-        $lineId = $lineUser->getId();
-
-        // Update User Model (Laravel Auth)
-        $user = User::firstOrNew(['line_id' => $lineId]);
-        if (!$user->exists) {
-            $user->name = trim($cust->cust_firstname . ' ' . $cust->cust_lastname);
-            $user->email = $cust->cust_email ?? $lineUser->getEmail();
-            $user->password = bcrypt($lineId);
-            $user->save();
-        }
-
-        // Update Customer Data บางส่วน
-        $cust->cust_line  = $lineId;
-        $cust->cust_email = $cust->cust_email ?: $lineUser->getEmail();
-        $cust->save();
-
-        // Check Tier Expiry (Logic เดิม)
-        $this->checkTierExpiry($cust, $user);
-
-        // Login Log
-        LoginLog::create([
-            'user_id' => $user->id,
-            'line_id' => $lineId,
-            'status'  => 'success',
-            'login_at' => now(),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-        ]);
-
-        Auth::login($user);
-
-        // Redirect
-        $redirect = session('after_login_redirect') ?? '/dashboard';
-        session()->forget(['referrer_code', 'after_login_redirect']);
-        session(['line_avatar' => $lineUser->getAvatar(), 'line_email' => $user->email]);
-
-        return redirect()->to($redirect);
-    }
-
-    private function checkTierExpiry($cust, $user)
-    {
-        if (empty($cust->tier_expired_at)) return;
-
-        $expiredAt = Carbon::parse($cust->tier_expired_at);
-        $now = Carbon::now();
-
-        if ($now->greaterThan($expiredAt)) {
-            $oldTier = $cust->tier_key;
-            $oldExpired = $cust->tier_expired_at;
-            $point = (int) $cust->point;
-
-            $newTier = match (true) {
-                $point >= 3000 => 'platinum',
-                $point >= 1000 => 'gold',
-                default        => 'silver',
-            };
-
-            $cust->update([
-                'tier_key'        => $newTier,
-                'tier_updated_at' => $now,
-                'tier_expired_at' => $now->copy()->addYears(2),
-            ]);
-
-            try {
-                MembershipTierHistory::create([
-                    'user_id'       => $user->id,
-                    'cust_line'     => $cust->cust_line,
-                    'cust_tel'      => $cust->cust_tel,
-                    'tier_old'      => $oldTier,
-                    'tier_new'      => $newTier,
-                    'expired_at'    => $oldExpired,
-                    'changed_at'    => $now,
-                    'reason'        => 'expired',
-                    'point_at_time' => $point,
-                ]);
-            } catch (\Throwable $e) {
-                Log::error('❌ Tier History Error', ['msg' => $e->getMessage()]);
-            }
-        }
-    }
 }

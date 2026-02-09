@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 // ปรับ path นี้ตาม Layout จริงของคุณ
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
@@ -54,6 +54,8 @@ export default function Create() {
         password_confirmation: '',
         role: 'user', // ค่า Default
     });
+
+    const { auth } = usePage().props as any;
 
     // 2. ฟังก์ชัน Submit Form
     const submit = (e: FormEvent) => {
@@ -167,10 +169,12 @@ export default function Create() {
                                             value={data.role}
                                             onChange={(e) => setData('role', e.target.value)}
                                         >
-                                            <option value="user">User (ทั่วไป)</option>
+                                            {/* <option value="user">User (ทั่วไป)</option> */}
                                             <option value="staff">Staff (พนักงาน)</option>
-                                            <option value="admin">Admin (ผู้ดูแลระบบ)</option>
-                                            <option value="super_admin">Super Admin (สูงสุด)</option>
+                                            <option value="admin">Admin (ผู้ดูแล)</option>
+                                            {auth.user.role === 'super_admin' && (
+                                                <option value="super_admin">Super Admin (สูงสุด)</option>
+                                            )}
                                         </select>
                                         {errors.role && <div className="text-red-500 text-sm mt-1">{errors.role}</div>}
                                     </div>

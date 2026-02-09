@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\Popup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -29,6 +30,7 @@ class AdminPopupController extends Controller
         // แก้ไข: บันทึกลง S3
         $path = $request->file('image')->store('popups', 's3');
         $url = Storage::disk('s3')->url($path);
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
 
         // ถ้าต้องการให้ Active ได้แค่อันเดียว ให้ปิดอันอื่นก่อน (Option)
         // Popup::where('is_active', true)->update(['is_active' => false]);
@@ -37,7 +39,8 @@ class AdminPopupController extends Controller
             'title' => $request->title,
             'image_path' => $url, // เก็บ URL ของ S3
             'is_active' => true,
-            'sort_order' => $request->sort_order ?? 0
+            'sort_order' => $request->sort_order ?? 0,
+            'created_by' => $adminId
         ]);
 
         return redirect()->back();
@@ -47,11 +50,16 @@ class AdminPopupController extends Controller
     {
         $popup = Popup::findOrFail($id);
         $data = $request->only(['is_active', 'sort_order']);
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
+
         // Toggle Active Status
         if ($request->has('is_active')) {
             // (เอา logic ปิดตัวอื่นออกแล้ว เพื่อให้โชว์หลายตัว)
             $data['is_active'] = $request->is_active;
         }
+        
+        $data['updated_by'] = $adminId;
+
         $popup->update($data);
         return redirect()->back();
     }

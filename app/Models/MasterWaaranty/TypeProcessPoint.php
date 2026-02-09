@@ -19,6 +19,8 @@ class TypeProcessPoint extends Model
         'point_platinum',
         'description',
         'is_active',
+        'created_by',
+        'updated_by'
     ];
 
     protected $casts = [

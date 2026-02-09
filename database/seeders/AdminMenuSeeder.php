@@ -159,6 +159,22 @@ class AdminMenuSeeder extends Seeder
                 'key' => 'reports.orders',
             ]
         );
+
+        AdminMenu::updateOrCreate(
+            ['route_name' => 'admin.reports.pc-ranking'],
+            [
+                'title' => 'รายงานอันดับ PC',
+                'description' => 'จัดลำดับยอดสะสมของการเชิญเพื่อน PC',
+                'icon_type' => 'sub_report',
+                'color_class' => 'bg-gray-50 hover:bg-gray-100',
+                'icon_color' => 'text-gray-500',
+                'order' => 3,
+                'parent_id' => $reportParent->id,
+                'is_active' => true,
+                'key' => 'reports.pc-ranking',
+            ]
+        );
+
         AdminMenu::updateOrCreate(
             ['route_name' => 'admin.reports.customers'],
             [

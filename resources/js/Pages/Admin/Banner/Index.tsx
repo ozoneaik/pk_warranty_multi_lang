@@ -5,7 +5,8 @@ import {
     Box, Button, Container, Grid, Typography, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper, Switch, IconButton,
     Dialog, DialogTitle, DialogContent, TextField, DialogActions,
-    MenuItem
+    MenuItem,
+    Chip
 } from '@mui/material';
 import { Delete, AddPhotoAlternate, CloudUpload } from '@mui/icons-material';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -35,8 +36,16 @@ export default function BannerIndex({ banners }: { banners: any[] }) {
     const toggleActive = (id: number, currentStatus: boolean) => {
         router.put(
             route('admin.banners.update', id),
-            { is_active: !currentStatus }, // Data
-            { preserveScroll: true }       // Options
+            {
+                is_active: currentStatus ? 0 : 1, // ส่งเป็น 1/0 แทน Boolean
+                type: banners.find(b => b.id === id)?.type // ส่ง type กลับไปด้วยเพื่อป้องกัน validation error
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // คุณสามารถใส่ Toast แจ้งเตือนตรงนี้ได้
+                }
+            }
         );
     };
 
@@ -84,143 +93,167 @@ export default function BannerIndex({ banners }: { banners: any[] }) {
         >
             <Head title="Manage Banners" />
             {/* <Container maxWidth="lg" sx={{ mt: 4 }}> */}
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-3">
-                    <Grid container spacing={3}>
-                        <Grid size={12} display="flex" justifyContent="flex-end" alignItems="center">
-                            {/* <Typography variant="h4" fontWeight="bold">Banner Management</Typography> */}
-                            <Button
-                                variant="contained"
-                                startIcon={<AddPhotoAlternate />}
-                                onClick={() => setOpenDialog(true)}
-                                color="primary"
-                            >
-                                Add Banner
-                            </Button>
-                        </Grid>
-
-                        <Grid size={12}>
-                            <TableContainer component={Paper}>
-                                <Table>
-                                    <TableHead sx={{ bgcolor: '#f5f5f5' }}>
-                                        <TableRow>
-                                            <TableCell>Image</TableCell>
-                                            <TableCell>Title</TableCell>
-                                            <TableCell>Sort Order</TableCell>
-                                            <TableCell>Status</TableCell>
-                                            <TableCell>Type</TableCell>
-                                            <TableCell align="center">Actions</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {banners.map((banner) => (
-                                            <TableRow key={banner.id}>
-                                                <TableCell>
-                                                    <Box
-                                                        component="img"
-                                                        src={banner.image_path}
-                                                        sx={{ width: 150, borderRadius: 2, boxShadow: 1 }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>{banner.title || '-'}</TableCell>
-                                                <TableCell>
-                                                    <TextField
-                                                        type="number"
-                                                        size="small"
-                                                        defaultValue={banner.sort_order}
-                                                        // เรียกฟังก์ชันที่แก้แล้ว
-                                                        onBlur={(e) => handleSortUpdate(banner.id, e.target.value)}
-                                                        sx={{ width: 80 }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Switch
-                                                        checked={!!banner.is_active}
-                                                        // เรียกฟังก์ชันที่แก้แล้ว
-                                                        onChange={() => toggleActive(banner.id, !!banner.is_active)}
-                                                        color="success"
-                                                    />
-                                                </TableCell>
-                                                <TableCell>{banner.type}</TableCell>
-                                                <TableCell align="center">
-                                                    <IconButton color="error" onClick={() => handleDelete(banner.id)}>
-                                                        <Delete />
-                                                    </IconButton>
-                                                    <IconButton color="error" onClick={() => handleEdit(banner.id)}>
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                </TableCell>
-
-                                            </TableRow>
-                                        ))}
-                                        {banners.length === 0 && (
-                                            <TableRow>
-                                                <TableCell colSpan={5} align="center">No banners found.</TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Grid>
+            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-3">
+                <Grid container spacing={3}>
+                    <Grid size={12} display="flex" justifyContent="flex-end" alignItems="center">
+                        {/* <Typography variant="h4" fontWeight="bold">Banner Management</Typography> */}
+                        <Button
+                            variant="contained"
+                            startIcon={<AddPhotoAlternate />}
+                            onClick={() => setOpenDialog(true)}
+                            color="primary"
+                        >
+                            Add Banner
+                        </Button>
                     </Grid>
 
-                    {/* Create Modal - เหมือนเดิม */}
-                    <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-                        <form onSubmit={handleSubmit}>
-                            <DialogTitle>Add New Banner</DialogTitle>
-                            <DialogContent dividers>
-                                <TextField
-                                    select
-                                    label="Banner Type"
-                                    fullWidth
-                                    margin="normal"
-                                    value={data.type}
-                                    onChange={(e) => setData('type', e.target.value)}
-                                >
-                                    <MenuItem value="slider">Slider (รูปเลื่อนด้านล่าง)</MenuItem>
-                                    <MenuItem value="background">Background (รูปหัวเว็บ)</MenuItem>
-                                </TextField>
-                                <TextField
-                                    label="Title (Optional)"
-                                    fullWidth
-                                    margin="normal"
-                                    value={data.title}
-                                    onChange={(e) => setData('title', e.target.value)}
-                                />
-                                <TextField
-                                    label="Sort Order"
-                                    type="number"
-                                    fullWidth
-                                    margin="normal"
-                                    value={data.sort_order}
-                                    onChange={(e) => setData('sort_order', parseInt(e.target.value) || 0)}
-                                    helperText="Lower numbers appear first"
-                                />
-                                <Box sx={{ mt: 2, border: '1px dashed grey', p: 2, textAlign: 'center' }}>
-                                    <input
-                                        accept="image/*"
-                                        type="file"
-                                        id="banner-upload"
-                                        style={{ display: 'none' }}
-                                        onChange={(e) => e.target.files && setData('image', e.target.files[0])}
-                                    />
-                                    <label htmlFor="banner-upload">
-                                        <Button variant="outlined" component="span" startIcon={<CloudUpload />}>
-                                            Upload Image
-                                        </Button>
-                                    </label>
-                                    {data.image && <Typography sx={{ mt: 1 }}>{data.image.name}</Typography>}
-                                    {errors.image && <Typography color="error">{errors.image}</Typography>}
-                                </Box>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                                <Button type="submit" variant="contained" disabled={processing}>Save</Button>
-                            </DialogActions>
-                        </form>
-                    </Dialog>
-                </div>
+                    <Grid size={12}>
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                                    <TableRow>
+                                        <TableCell>Image</TableCell>
+                                        <TableCell>Title</TableCell>
+                                        <TableCell>Sort Order</TableCell>
+                                        <TableCell>Status</TableCell>
+                                        <TableCell>Type</TableCell>
+                                        <TableCell align="center">Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {banners.map((banner) => (
+                                        <TableRow key={banner.id}>
+                                            <TableCell>
+                                                <Box
+                                                    component="img"
+                                                    src={banner.image_path}
+                                                    sx={{ width: 150, borderRadius: 2, boxShadow: 1 }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {banner.title ? (
+                                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{banner.title}</Typography>
+                                                ) : (
+                                                    <Chip label="None" size="small" variant="outlined" sx={{ color: '#ccc', borderStyle: 'dashed' }} />
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    type="number"
+                                                    size="small"
+                                                    defaultValue={banner.sort_order}
+                                                    // เรียกฟังก์ชันที่แก้แล้ว
+                                                    onBlur={(e) => handleSortUpdate(banner.id, e.target.value)}
+                                                    sx={{ width: 80 }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Switch
+                                                    checked={!!banner.is_active}
+                                                    // เรียกฟังก์ชันที่แก้แล้ว
+                                                    onChange={() => toggleActive(banner.id, !!banner.is_active)}
+                                                    color="success"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {(() => {
+                                                    const typeConfig: Record<string, { label: string; color: "primary" | "secondary" | "default" | "error" | "info" | "success" | "warning" }> = {
+                                                        slider: { label: 'Slider', color: 'info' },
+                                                        background: { label: 'Background', color: 'warning' },
+                                                    };
 
-                {/* <button
+                                                    const config = typeConfig[banner.type] || { label: banner.type, color: 'default' };
+
+                                                    return (
+                                                        <Chip
+                                                            label={config.label}
+                                                            color={config.color}
+                                                            size="small"
+                                                            sx={{ fontWeight: 500 }}
+                                                        />
+                                                    );
+                                                })()}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <IconButton color="error" onClick={() => handleDelete(banner.id)}>
+                                                    <Delete />
+                                                </IconButton>
+                                                <IconButton color="error" onClick={() => handleEdit(banner.id)}>
+                                                    <EditIcon />
+                                                </IconButton>
+                                            </TableCell>
+
+                                        </TableRow>
+                                    ))}
+                                    {banners.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={5} align="center">No banners found.</TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Grid>
+                </Grid>
+
+                {/* Create Modal - เหมือนเดิม */}
+                <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+                    <form onSubmit={handleSubmit}>
+                        <DialogTitle>Add New Banner</DialogTitle>
+                        <DialogContent dividers>
+                            <TextField
+                                select
+                                label="Banner Type"
+                                fullWidth
+                                margin="normal"
+                                value={data.type}
+                                onChange={(e) => setData('type', e.target.value)}
+                            >
+                                <MenuItem value="slider">Slider (รูปเลื่อนด้านล่าง)</MenuItem>
+                                <MenuItem value="background">Background (รูปหัวเว็บ)</MenuItem>
+                            </TextField>
+                            <TextField
+                                label="Title (Optional)"
+                                fullWidth
+                                margin="normal"
+                                value={data.title}
+                                onChange={(e) => setData('title', e.target.value)}
+                            />
+                            <TextField
+                                label="Sort Order"
+                                type="number"
+                                fullWidth
+                                margin="normal"
+                                value={data.sort_order}
+                                onChange={(e) => setData('sort_order', parseInt(e.target.value) || 0)}
+                                helperText="Lower numbers appear first"
+                            />
+                            <Box sx={{ mt: 2, border: '1px dashed grey', p: 2, textAlign: 'center' }}>
+                                <input
+                                    accept="image/*"
+                                    type="file"
+                                    id="banner-upload"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => e.target.files && setData('image', e.target.files[0])}
+                                />
+                                <label htmlFor="banner-upload">
+                                    <Button variant="outlined" component="span" startIcon={<CloudUpload />}>
+                                        Upload Image
+                                    </Button>
+                                </label>
+                                {data.image && <Typography sx={{ mt: 1 }}>{data.image.name}</Typography>}
+                                {errors.image && <Typography color="error">{errors.image}</Typography>}
+                            </Box>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+                            <Button type="submit" variant="contained" disabled={processing}>Save</Button>
+                        </DialogActions>
+                    </form>
+                </Dialog>
+            </div>
+
+            {/* <button
                     onClick={goBack}
                     className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition"
                 >

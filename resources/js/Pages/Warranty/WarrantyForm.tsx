@@ -229,6 +229,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         buy_date: '',
         store_name: '',
         customer_code: '',
+        pc_code: '',
     });
 
     const [preview, setPreview] = useState<string | null>(null);
@@ -248,6 +249,8 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
 
     const [showReferralField, setShowReferralField] = useState(false);
     const [storeLabel, setStoreLabel] = useState<string>(t.Warranty.Form.store_name);
+
+    const [openPcQrScanner, setOpenPcQrScanner] = useState(false);
 
     useEffect(() => {
         return () => {
@@ -560,6 +563,13 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
 
     const handleOpenQrScanner = () => setOpenQrScanner(true);
     const handleCloseQrScanner = () => setOpenQrScanner(false);
+
+
+    const handlePcQrSuccess = (decodedText: string) => {
+        setData('pc_code', decodedText); // ใส่ค่าลงใน form data
+        setOpenPcQrScanner(false); // ปิดกล้อง
+        // Swal.fire('สแกนสำเร็จ', `รหัส PC: ${decodedText}`, 'success'); // (Optional: แสดงแจ้งเตือน)
+    };
 
     return (
         <MobileAuthenticatedLayout title={t.Warranty.title}>
@@ -1062,6 +1072,41 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
 
                                 <Grid size={12}>
                                     <FormControl fullWidth>
+                                        <FormLabel htmlFor="pc_code" sx={{ mb: 1, fontWeight: "medium" }}>
+                                            รหัสพนักงาน PC (ถ้ามี)
+                                        </FormLabel>
+                                        <TextField
+                                            id="pc_code"
+                                            name="pc_code"
+                                            value={data.pc_code}
+                                            onChange={handleOnChange}
+                                            disabled={processing}
+                                            placeholder="ระบุรหัสพนักงานขาย"
+                                            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                                            slotProps={{
+                                                input: {
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton
+                                                                onClick={() => setOpenPcQrScanner(true)}
+                                                                color="primary"
+                                                                sx={{
+                                                                    bgcolor: "primary.50",
+                                                                    "&:hover": { bgcolor: "primary.100" }
+                                                                }}
+                                                            >
+                                                                <QrCode />
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    ),
+                                                },
+                                            }}
+                                        />
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid size={12}>
+                                    <FormControl fullWidth>
                                         <FormLabel htmlFor="buy_date" required sx={{ mb: 1, fontWeight: 'medium' }}>
                                             {t.Warranty.Form.buy_date}
                                         </FormLabel>
@@ -1093,6 +1138,57 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                     </Grid>
                 </form>
             </Container>
+            {/* --- PC QR Scanner Dialog --- */}
+            <Dialog
+                open={openPcQrScanner}
+                onClose={() => setOpenPcQrScanner(false)}
+                maxWidth="sm"
+                fullWidth
+                fullScreen={isMobile} // ✅ 1. สั่งให้เต็มจอเมื่อเป็นมือถือ
+                sx={{
+                    '& .MuiDialog-paper': {
+                        m: 0, // ลบขอบ
+                        bgcolor: 'black' // พื้นหลังสีดำเหมือนแอปกล้อง
+                    }
+                }}
+            >
+                {/* ส่วนหัว (ทำเป็น Overlay ซ้อนบนกล้อง หรือแถบด้านบน) */}
+                <Box sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 10,
+                    p: 2,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)'
+                }}>
+                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                        สแกนรหัส PC
+                    </Typography>
+                    <IconButton onClick={() => setOpenPcQrScanner(false)} sx={{ color: 'white' }}>
+                        <Close />
+                    </IconButton>
+                </Box>
+
+                <DialogContent sx={{ p: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'black' }}>
+                    <Box width="100%">
+                        {/* กล้องจะเปิดอัตโนมัติเมื่อ Component นี้ถูกโหลด */}
+                        <Html5QrcodePlugin
+                            defaultCamera="back"
+                            fps={10}
+                            qrbox={250}
+                            disableFlip={false}
+                            qrCodeSuccessCallback={handlePcQrSuccess}
+                        />
+                        <Typography variant="body2" sx={{ color: '#ccc', textAlign: 'center', mt: 2 }}>
+                            วาง QR Code ให้อยู่ในกรอบเพื่อสแกน
+                        </Typography>
+                    </Box>
+                </DialogContent>
+            </Dialog>
         </MobileAuthenticatedLayout>
     );
 }

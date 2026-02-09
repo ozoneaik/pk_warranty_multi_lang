@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminFGFReportController;
 use App\Http\Controllers\Admin\AdminOrderReportController;
 use App\Http\Controllers\Admin\AdminCustomerReportController;
+use App\Http\Controllers\Admin\AdminPcRankingReportController;
 use App\Http\Controllers\Admin\AdminPopupController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminProfileController;
@@ -153,6 +154,10 @@ Route::middleware('auth:admin')->group(function () {
         Route::middleware('check_menu:reports.customers')->group(function () {
             Route::get('/customers', [AdminCustomerReportController::class, 'index'])->name('customers');
         });
+
+        Route::middleware('check_menu:reports.pc-ranking')->group(function () {
+            Route::get('/pc-ranking', [AdminPcRankingReportController::class, 'index'])->name('pc-ranking');
+        });
     });
 
     Route::prefix('reward-management')
@@ -175,3 +180,6 @@ Route::middleware('auth:admin')->group(function () {
             })->name('index');
         });
 });
+
+Route::get('/admin/reports/customers/export', [AdminCustomerReportController::class, 'exportExcel'])
+    ->name('reports.customers.export');

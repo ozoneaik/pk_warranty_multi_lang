@@ -54,6 +54,7 @@ declare global {
             phone?: string,
             store_name: string,
             customer_code?: string,
+            pc_code: string;
         },
         setData: any,
         processing: boolean,

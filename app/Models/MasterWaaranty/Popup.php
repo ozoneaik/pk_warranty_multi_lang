@@ -14,6 +14,8 @@ class Popup extends Model
         'image_path',
         'is_active',
         'sort_order',
+        'created_by',
+        'updated_by'
     ];
 
     // แปลงค่า is_active ให้เป็น true/false อัตโนมัติ (สะดวกตอนไปใช้ใน React)

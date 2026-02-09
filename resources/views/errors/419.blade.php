@@ -12,7 +12,7 @@
     </div>
 @endsection --}}
 
-<div
+{{-- <div
     style="
     display: flex;
     flex-direction: column;
@@ -30,6 +30,43 @@
         กรุณารีเฟรชหน้า หรือล็อกอินใหม่เพื่อดำเนินการต่อ
     </p>
     <a href="{{ route('login') }}"
+        style="padding:10px 24px; background:#F54927; color:white; border-radius:6px; text-decoration:none; font-weight:600;">
+        เข้าสู่ระบบใหม่
+    </a>
+</div> --}}
+
+@php
+    // ตรวจสอบว่า URL ก่อนหน้าที่ส่งมามีคำว่า 'admin' อยู่หรือไม่
+    $previousUrl = url()->previous();
+    $loginRoute = route('login'); // ค่าเริ่มต้น (User Login)
+
+    if (str_contains($previousUrl, '/admin')) {
+        // เปลี่ยนเป็น route login ของ admin ตามที่คุณตั้งชื่อไว้ใน Web.php
+        // เช่น 'admin.login'
+        $loginRoute = route('admin.login');
+    }
+@endphp
+
+<div
+    style="
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f8fafc;
+    text-align: center;
+    font-family: 'Sarabun', sans-serif;
+">
+    <h2 style="font-size: 1.5rem; font-weight: 700; color: #333; margin-bottom: 10px;">
+        ⚠️ Session หมดอายุแล้ว
+    </h2>
+    <p style="color: #555; margin-bottom: 25px;">
+        กรุณารีเฟรชหน้า หรือล็อกอินใหม่เพื่อดำเนินการต่อ
+    </p>
+
+    {{-- ใช้ตัวแปร $loginRoute ที่เราเช็คมาแล้ว --}}
+    <a href="{{ $loginRoute }}"
         style="padding:10px 24px; background:#F54927; color:white; border-radius:6px; text-decoration:none; font-weight:600;">
         เข้าสู่ระบบใหม่
     </a>

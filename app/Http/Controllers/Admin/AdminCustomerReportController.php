@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\CustomerReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminCustomerReportController extends Controller
 {
@@ -173,5 +175,46 @@ class AdminCustomerReportController extends Controller
             'age_chart' => $formattedAgeData,
             'tier_chart' => $tierChartData,
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $status = $request->input('status');
+        $tier = $request->input('tier');
+
+        $queryStart = $startDate . ' 00:00:00';
+        $queryEnd = $endDate . ' 23:59:59';
+
+        // 1. ดึง Stats ทั้งหมด
+        $stats = [
+            'total_customers' => TblCustomerProd::count(),
+            'new_customers' => TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count(),
+            'total_registrations' => TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])->count(),
+            'total_points_given' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'earn')->sum('point_tran'),
+            'total_points_redeemed' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'redeem')->sum('point_tran'),
+            'count_rewards' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'redeem')->where('product_type', 'reward')->count(),
+            'count_privileges' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'redeem')->where('product_type', 'privilege')->count(),
+            'count_coupons' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'redeem')->where('product_type', 'coupon')->count(),
+        ];
+
+        // 2. ดึงข้อมูลลูกค้า (เลือกเฉพาะ Column ที่ต้องการ)
+        $customers = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($tier, fn($q) => $q->where('tier_key', $tier))
+            ->select('cust_firstname', 'cust_lastname', 'cust_tel', 'cust_email', 'datetime', 'tier_key', 'status')
+            ->orderBy('datetime', 'desc')->get();
+
+        // 3. ดึงประวัติสินค้า
+        $history = TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])
+            ->select('id', 'model_code', 'serial_number', 'buy_date')
+            ->orderBy('buy_date', 'desc')->get();
+
+        return Excel::download(new CustomerReportExport([
+            'stats' => $stats,
+            'customers' => $customers,
+            'history' => $history
+        ]), 'Full_Customer_Report_' . date('Ymd') . '.xlsx');
     }
 }

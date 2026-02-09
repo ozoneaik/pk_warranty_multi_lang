@@ -1,5 +1,5 @@
 // resources/js/Pages/Admin/User/UserPermissions.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
 import Swal from 'sweetalert2';
@@ -10,6 +10,9 @@ interface UserPermissionsData {
 }
 
 export default function UserPermissions({ auth, targetUser, menus, currentPermissions, availableRoles, rolePermissionsMap }: any) {
+
+    const isFirstRender = useRef(true);
+
     // เพิ่ม field 'role' ใน useForm
     const { data, setData, post, processing } = useForm<UserPermissionsData>({
         role: targetUser.role || 'staff',
@@ -17,12 +20,16 @@ export default function UserPermissions({ auth, targetUser, menus, currentPermis
     });
 
     useEffect(() => {
-        // ถ้ามีการเปลี่ยน Role และมีข้อมูลใน Map
+        // ถ้าเป็นการโหลดครั้งแรก ให้ข้ามการทำงานในนี้ไปก่อน 
+        // เพื่อให้ menu_ids ใช้ค่าที่ส่งมาจาก Controller (currentPermissions)
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        // ถ้ามีการเปลี่ยน Role จริงๆ (หลังจากโหลดหน้าเสร็จแล้ว)
         if (rolePermissionsMap && rolePermissionsMap[data.role]) {
             const defaultMenuIds = rolePermissionsMap[data.role];
-
-            // อัปเดต checkbox ให้เป็นไปตาม Role ใหม่ทันที
-            // (คุณอาจจะเลือกวิธีรวมกับของเก่า หรือ ทับใหม่หมดก็ได้ อันนี้เลือกทับใหม่หมดตาม Role)
             setData('menu_ids', defaultMenuIds);
         }
     }, [data.role]);

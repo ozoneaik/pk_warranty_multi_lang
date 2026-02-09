@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\TypeProcessPoint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AdminPointProcessController extends Controller
@@ -42,6 +43,9 @@ class AdminPointProcessController extends Controller
             'is_active' => 'boolean'
         ]);
 
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
+        $validated['created_by'] = $adminId;
+
         TypeProcessPoint::create($validated);
 
         return redirect()->route('admin.points.index')
@@ -74,6 +78,9 @@ class AdminPointProcessController extends Controller
             'description' => 'nullable|string',
             'is_active' => 'boolean'
         ]);
+
+        $adminId = Auth::guard('admin')->id() ?? Auth::id();
+        $validated['updated_by'] = $adminId;
 
         $process->update($validated);
 

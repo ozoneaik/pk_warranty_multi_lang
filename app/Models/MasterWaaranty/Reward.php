@@ -57,6 +57,7 @@ class Reward extends Model
         'end_date',
         'is_active',
         'created_by',
+        'updated_by'
     ];
 
     /**
