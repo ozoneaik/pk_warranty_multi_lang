@@ -1070,7 +1070,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                     </Grid>
                                 )}
 
-                                <Grid size={12}>
+                                {/* <Grid size={12}>
                                     <FormControl fullWidth>
                                         <FormLabel htmlFor="pc_code" sx={{ mb: 1, fontWeight: "medium" }}>
                                             รหัสพนักงาน PC (ถ้ามี)
@@ -1103,7 +1103,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                             }}
                                         />
                                     </FormControl>
-                                </Grid>
+                                </Grid> */}
 
                                 <Grid size={12}>
                                     <FormControl fullWidth>
