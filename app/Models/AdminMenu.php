@@ -16,7 +16,8 @@ class AdminMenu extends Model
         'icon_color',
         'order',
         'is_active',
-        'parent_id'
+        'parent_id',
+        'key'
     ];
 
     public function index()
