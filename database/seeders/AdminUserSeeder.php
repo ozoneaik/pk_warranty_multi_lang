@@ -13,7 +13,7 @@ class AdminUserSeeder extends Seeder
     {
         // ตรวจสอบว่ามีอีเมลนี้หรือยัง ถ้ายังให้สร้างใหม่
         Admin::firstOrCreate(
-            ['email' => 'admin@example.com'], // เงื่อนไขการเช็ค (ป้องกันซ้ำ)
+            ['email' => 'admin@warranty.pumpkin.com'], // เงื่อนไขการเช็ค (ป้องกันซ้ำ)
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('Pumpkin@1689'), // <--- รหัสผ่าน (ต้อง Hash)
