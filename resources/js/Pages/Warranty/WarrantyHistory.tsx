@@ -1,3 +1,875 @@
+// import React, { useState, useMemo, useEffect } from "react";
+// import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
+// import {
+//     Box,
+//     Card,
+//     CardContent,
+//     Stack,
+//     Typography,
+//     Chip,
+//     Grid,
+//     TextField,
+//     InputAdornment,
+//     Container,
+//     useTheme,
+//     useMediaQuery,
+//     Accordion,
+//     AccordionSummary,
+//     AccordionDetails,
+//     Divider,
+//     List,
+//     ListItem,
+//     ListItemText,
+//     CircularProgress,
+//     Paper,
+//     Pagination,
+//     Dialog,
+//     Tabs,
+//     Tab,
+// } from "@mui/material";
+// import {
+//     CheckCircle,
+//     Search,
+//     InfoOutlined,
+//     ExpandMore,
+//     BuildOutlined,
+//     WarningAmber,
+//     Warning,
+//     CalendarToday,
+//     Inventory,
+//     BatteryChargingFull,
+//     Power,
+// } from "@mui/icons-material";
+// import { useLanguage } from "@/context/LanguageContext";
+// import dayjs from "dayjs";
+// import { Head } from "@inertiajs/react";
+// import axios from "axios";
+
+// interface SpWarranty {
+//     spcode?: {
+//         pidsp?: string;
+//         pnamesp?: string;
+//     };
+//     spname?: string;
+// }
+
+// interface HistoryProps {
+//     id: number;
+//     serial_number?: string;
+//     model_code: string;
+//     model_name?: string;
+//     approval?: string;
+//     product_name?: string;
+//     slip?: string | null;
+//     insurance_expire?: string | null;
+// }
+
+// interface PowerAccessoryItem {
+//     id: number;
+//     accessory_sku: string;
+//     product_name: string;
+//     warranty_period: string;
+//     warranty_condition: string;
+//     warranty_note: string;
+//     no: number;
+// }
+
+// const productPathMaster = import.meta.env.VITE_PRODUCT_IMAGE_URI || "";
+// const DEFAULT_IMAGE = import.meta.env.VITE_DEFAULT_IMAGE || "";
+
+// // function WarrantyDetail({ serial_number }: { serial_number: string }) {
+// function WarrantyDetail({ id }: { id: number }) {
+//     const { t } = useLanguage();
+//     const [loading, setLoading] = useState(true);
+//     const [detail, setDetail] = useState<any>(null);
+
+//     /*
+//     useEffect(() => {
+//         if (!serial_number) {
+//             setLoading(false);
+//             return;
+//         }
+
+//         let mounted = true;
+//         const loadDetail = async () => {
+//             setLoading(true);
+//             try {
+//                 const res = await axios.get(`/warranty/history/detail/${encodeURIComponent(serial_number)}`);
+//                 if (mounted && res.data && res.data.success) {
+//                     setDetail(res.data.data);
+//                 }
+//             } catch (err) {
+//                 console.error("Load detail failed:", err);
+//             } finally {
+//                 if (mounted) setLoading(false);
+//             }
+//         };
+//         loadDetail();
+//         return () => {
+//             mounted = false;
+//         };
+//     }, [serial_number]);
+//     */
+
+//     useEffect(() => {
+//         if (!id) {
+//             setLoading(false);
+//             return;
+//         }
+
+//         let mounted = true;
+//         const loadDetail = async () => {
+//             setLoading(true);
+//             try {
+//                 const res = await axios.get(`/warranty/history/detail/${encodeURIComponent(id)}`);
+//                 if (mounted && res.data && res.data.success) {
+//                     setDetail(res.data.data);
+//                 }
+//             } catch (err) {
+//                 console.error("Load detail failed:", err);
+//             } finally {
+//                 if (mounted) setLoading(false);
+//             }
+//         };
+//         loadDetail();
+//         return () => {
+//             mounted = false;
+//         };
+//     }, [id]);
+
+//     if (loading)
+//         return (
+//             <Box display="flex" alignItems="center" gap={1} mt={2}>
+//                 <CircularProgress size={16} />
+//                 <Typography variant="caption" color="text.secondary">
+//                     {t.History.Information.loading}
+//                 </Typography>
+//             </Box>
+//         );
+
+//     if (!detail)
+//         return (
+//             <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
+//                 {t.History.Information.noData}
+//             </Typography>
+//         );
+
+//     const hasAccessories =
+//         (detail.power_accessories?.battery && detail.power_accessories.battery.length > 0) ||
+//         (detail.power_accessories?.charger && detail.power_accessories.charger.length > 0);
+
+//     return (
+//         <Accordion
+//             sx={{
+//                 mt: 2,
+//                 bgcolor: "#fff8f6",
+//                 border: "1px solid rgba(245, 73, 39, 0.2)",
+//                 borderRadius: 2,
+//                 "&:before": { display: "none" },
+//                 boxShadow: "none",
+//             }}
+//         >
+//             <AccordionSummary
+//                 expandIcon={<ExpandMore sx={{ color: "#F54927" }} />}
+//                 sx={{
+//                     "& .MuiAccordionSummary-content": { my: 0 },
+//                     "&.Mui-expanded": { minHeight: 48 },
+//                 }}
+//             >
+//                 <Stack direction="row" alignItems="center" spacing={1}>
+//                     <InfoOutlined sx={{ color: "#F54927", fontSize: 22 }} />
+//                     <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+//                         {t.History.Information.warrantyInfo}
+//                     </Typography>
+//                 </Stack>
+//             </AccordionSummary>
+
+//             <AccordionDetails sx={{ pt: 0, px: 1.5, pb: 1 }}>
+//                 <Stack spacing={1}>
+//                     <Box display="flex" gap={1} alignItems="flex-start">
+//                         <CalendarToday sx={{ fontSize: 16, color: "text.secondary", mt: 0.1 }} />
+//                         <Box flex={1}>
+//                             <Typography variant="body2" color="text.secondary" fontSize="0.8rem">
+//                                 {t.History.Information.DurationWaranty}: {detail.warrantyperiod ?? "-"} {t.History.Information.month}
+//                             </Typography>
+//                         </Box>
+//                     </Box>
+
+//                     <Divider sx={{ my: 0.5 }} />
+
+//                     <Box>
+//                         <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
+//                             {t.History.Information.condition}: {detail.warrantycondition ?? "-"}
+//                         </Typography>
+//                     </Box>
+
+//                     <Box>
+//                         <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
+//                             {t.History.Information.noteWaranty}: {detail.warrantynote ?? "-"}
+//                         </Typography>
+//                     </Box>
+//                 </Stack>
+
+//                 {hasAccessories && (
+//                     <Box mt={2}>
+//                         <Divider sx={{ mb: 1, borderStyle: 'dashed' }} />
+//                         <Typography variant="subtitle2" sx={{ color: "#F54927", fontWeight: 600, mb: 1, fontSize: '0.85rem' }}>
+//                             อุปกรณ์เสริม (Accessories)
+//                         </Typography>
+
+//                         <List disablePadding dense>
+//                             {/* Battery List */}
+//                             {detail.power_accessories?.battery?.map((item: PowerAccessoryItem, idx: number) => (
+//                                 <ListItem key={`bat-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
+//                                     <Box mr={1.5} mt={0.5}>
+//                                         <BatteryChargingFull fontSize="small" color="action" />
+//                                     </Box>
+//                                     <ListItemText
+//                                         // ✅ เพิ่ม secondaryTypographyProps เพื่อเปลี่ยนจาก <p> เป็น <div>
+//                                         secondaryTypographyProps={{ component: "div" }}
+//                                         primary={
+//                                             <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
+//                                                 {item.product_name}
+//                                             </Typography>
+//                                         }
+//                                         secondary={
+//                                             <Stack component="div" spacing={0.5} mt={0.5}>
+//                                                 <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+//                                                     Code: {item.accessory_sku}
+//                                                 </Typography>
+//                                                 <Chip
+//                                                     label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
+//                                                     size="small"
+//                                                     color="success"
+//                                                     variant="outlined"
+//                                                     sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
+//                                                 />
+//                                             </Stack>
+//                                         }
+//                                     />
+//                                 </ListItem>
+//                             ))}
+
+//                             {/* Charger List */}
+//                             {detail.power_accessories?.charger?.map((item: PowerAccessoryItem, idx: number) => (
+//                                 <ListItem key={`chg-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
+//                                     <Box mr={1.5} mt={0.5}>
+//                                         <Power fontSize="small" color="action" />
+//                                     </Box>
+//                                     <ListItemText
+//                                         // ✅ เพิ่ม secondaryTypographyProps เพื่อเปลี่ยนจาก <p> เป็น <div>
+//                                         secondaryTypographyProps={{ component: "div" }}
+//                                         primary={
+//                                             <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
+//                                                 {item.product_name}
+//                                             </Typography>
+//                                         }
+//                                         secondary={
+//                                             <Stack component="div" spacing={0.5} mt={0.5}>
+//                                                 <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+//                                                     Code: {item.accessory_sku}
+//                                                 </Typography>
+//                                                 <Chip
+//                                                     label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
+//                                                     size="small"
+//                                                     color="success"
+//                                                     variant="outlined"
+//                                                     sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
+//                                                 />
+//                                             </Stack>
+//                                         }
+//                                     />
+//                                 </ListItem>
+//                             ))}
+//                         </List>
+//                     </Box>
+//                 )}
+//             </AccordionDetails>
+//         </Accordion>
+//     );
+// }
+
+// // ... ส่วนที่เหลือ (getWarrantyStatus, SearchBarMobile, SearchBarDesktop, WarrantyHistory) คงเดิม ...
+// // คุณสามารถ Copy ส่วนด้านล่างนี้ไปต่อท้ายได้เลยครับ เพื่อให้โค้ดสมบูรณ์
+
+// const getWarrantyStatus = (item: HistoryProps, t: any) => {
+//     if (item.approval === "N") {
+//         return {
+//             icon: <WarningAmber />,
+//             label: t.History.Card.Warranty.isFalse,
+//             color: "error" as const,
+//         };
+//     }
+//     if (item.approval !== "Y") {
+//         return {
+//             icon: <Warning />,
+//             label: t.History.Card.Warranty.isChecking,
+//             color: "warning" as const,
+//         };
+//     }
+//     if (!item.insurance_expire) {
+//         return {
+//             icon: <WarningAmber />,
+//             label: t.History.Card.Warranty.NotFound,
+//             color: "default" as const,
+//         };
+//     }
+
+//     const isExpired = dayjs(item.insurance_expire).isBefore(dayjs(), "day");
+//     return {
+//         icon: isExpired ? <WarningAmber /> : <CheckCircle />,
+//         label: isExpired
+//             ? `${t.History.Card.Warranty.expired}\n${t.History.Card.Warranty.dayWaranty}: ${dayjs(
+//                 item.insurance_expire
+//             ).format("YYYY-MM-DD")}`
+//             : `${t.History.Card.Warranty.isTrue}\n${t.History.Card.Warranty.warrantyTo}: ${dayjs(
+//                 item.insurance_expire
+//             ).format("YYYY-MM-DD")}`,
+//         color: isExpired ? ("error" as const) : ("success" as const),
+//     };
+// };
+
+// interface SearchBarProps {
+//     value: string;
+//     onChange: (value: string) => void;
+//     placeholder: string;
+//     label: string;
+// }
+
+// function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
+//     return (
+//         <Box
+//             sx={{
+//                 position: "sticky",
+//                 top: -8,
+//                 zIndex: 30,
+//                 bgcolor: "white",
+//                 mt: 8,
+//                 pt: 2,
+//                 pb: 1,
+//             }}
+//         >
+//             <Container maxWidth="sm">
+//                 <TextField
+//                     fullWidth
+//                     size="small"
+//                     placeholder={placeholder}
+//                     value={value}
+//                     onChange={(e) => onChange(e.target.value)}
+//                     InputProps={{
+//                         startAdornment: (
+//                             <InputAdornment position="start">
+//                                 <Search />
+//                             </InputAdornment>
+//                         ),
+//                     }}
+//                 />
+//             </Container>
+//         </Box>
+//     );
+// }
+
+// function SearchBarDesktop({ value, onChange, placeholder, label }: SearchBarProps) {
+//     return (
+//         <Box
+//             sx={{
+//                 position: "sticky", top: -8,
+//                 zIndex: 30, bgcolor: "white", borderColor: "divider", mt: 7, pt: 2, pb: 1,
+//             }}
+//         >
+//             <Container maxWidth="lg">
+//                 <TextField
+//                     fullWidth
+//                     size="medium"
+//                     label={label}
+//                     placeholder={placeholder}
+//                     value={value}
+//                     onChange={(e) => onChange(e.target.value)}
+//                     InputProps={{
+//                         startAdornment: (
+//                             <InputAdornment position="start">
+//                                 <Search />
+//                             </InputAdornment>
+//                         ),
+//                     }}
+//                 />
+//             </Container>
+//         </Box>
+//     );
+// }
+
+// export default function WarrantyHistory({ histories }: { histories: HistoryProps[] }) {
+//     const { t } = useLanguage();
+//     const theme = useTheme();
+//     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+//     const [searchTerm, setSearchTerm] = useState("");
+//     const [page, setPage] = useState(1);
+//     const itemsPerPage = 5;
+
+//     type TabKey = "all" | "pending" | "in" | "expired" | "out";
+//     const [selectedTab, setSelectedTab] = useState<TabKey>("all");
+
+//     const [openImage, setOpenImage] = useState(false);
+//     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+//     const handleOpenImage = (url: string) => {
+//         setSelectedImage(url);
+//         setOpenImage(true);
+//     };
+
+//     const handleCloseImage = () => {
+//         setOpenImage(false);
+//         setSelectedImage(null);
+//     };
+
+//     const counts = useMemo(() => {
+//         const total = histories.length;
+//         const pending = histories.filter((h) => (h.approval ?? "") !== "Y" && (h.approval ?? "") !== "N").length;
+//         const inWarranty = histories.filter(
+//             (h) =>
+//                 (h.approval ?? "") === "Y" &&
+//                 h.insurance_expire &&
+//                 !dayjs(h.insurance_expire).isBefore(dayjs(), "day")
+//         ).length;
+//         const expired = histories.filter(
+//             (h) =>
+//                 (h.approval ?? "") === "Y" &&
+//                 h.insurance_expire &&
+//                 dayjs(h.insurance_expire).isBefore(dayjs(), "day")
+//         ).length;
+//         const outOfWarranty = histories.filter(
+//             (h) =>
+//                 (h.approval ?? "") === "N" ||
+//                 ((h.approval ?? "") === "Y" && (!h.insurance_expire || h.insurance_expire === ""))
+//         ).length;
+//         return { total, pending, inWarranty, expired, outOfWarranty };
+//     }, [histories]);
+
+//     const filteredHistories = useMemo(() => {
+//         const search = searchTerm.trim().toLowerCase();
+
+//         const byTab = histories.filter((item) => {
+//             if (selectedTab === "all") return true;
+//             if (selectedTab === "pending") return (item.approval ?? "") !== "Y" && (item.approval ?? "") !== "N";
+//             if (selectedTab === "in")
+//                 return (
+//                     (item.approval ?? "") === "Y" &&
+//                     item.insurance_expire &&
+//                     !dayjs(item.insurance_expire).isBefore(dayjs(), "day")
+//                 );
+//             if (selectedTab === "expired")
+//                 return (
+//                     (item.approval ?? "") === "Y" &&
+//                     item.insurance_expire &&
+//                     dayjs(item.insurance_expire).isBefore(dayjs(), "day")
+//                 );
+//             if (selectedTab === "out")
+//                 return (
+//                     (item.approval ?? "") === "N" ||
+//                     ((item.approval ?? "") === "Y" && (!item.insurance_expire || item.insurance_expire === ""))
+//                 );
+//             return true;
+//         });
+
+//         if (!search) return byTab;
+
+//         return byTab.filter((item) =>
+//             [item.serial_number ?? "", item.model_code ?? "", item.model_name ?? "", item.product_name ?? ""].some((f) =>
+//                 f.toLowerCase().includes(search)
+//             )
+//         );
+//     }, [searchTerm, histories, selectedTab]);
+
+//     const paginatedHistories = useMemo(() => {
+//         const startIndex = (page - 1) * itemsPerPage;
+//         return filteredHistories.slice(startIndex, startIndex + itemsPerPage);
+//     }, [filteredHistories, page]);
+
+//     useEffect(() => {
+//         setPage(1);
+//     }, [searchTerm, selectedTab]);
+
+//     const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+//         setPage(value);
+//     };
+
+//     const handleTabChange = (_: React.SyntheticEvent, newValue: TabKey) => {
+//         setSelectedTab(newValue);
+//     };
+
+//     return (
+//         <MobileAuthenticatedLayout title={t.History.title}>
+//             <Head title={t.History.title} />
+
+//             {isMobile ? (
+//                 <SearchBarMobile
+//                     value={searchTerm}
+//                     onChange={setSearchTerm}
+//                     placeholder={t.History.Filter.Input.Placeholder}
+//                     label={t.History.Filter.Input.Label}
+//                 />
+//             ) : (
+//                 <SearchBarDesktop
+//                     value={searchTerm}
+//                     onChange={setSearchTerm}
+//                     placeholder={t.History.Filter.Input.Placeholder}
+//                     label={t.History.Filter.Input.Label}
+//                 />
+//             )}
+
+//             <Box
+//                 sx={{
+//                     position: "sticky",
+//                     top: "50px",
+//                     zIndex: 25,
+//                     background: `white`,
+//                     backdropFilter: "blur(2px)",
+//                     bgcolor: "white",
+//                     borderBottom: "1px solid",
+//                     borderColor: "divider",
+//                 }}
+//             >
+//                 <Container maxWidth={isMobile ? "sm" : "lg"} sx={{ py: 0 }}>
+//                     <Tabs
+//                         value={selectedTab}
+//                         onChange={handleTabChange}
+//                         variant="scrollable"
+//                         scrollButtons
+//                         allowScrollButtonsMobile
+//                         sx={{
+//                             "& .MuiTabs-flexContainer": {
+//                                 justifyContent: "flex-start",
+//                                 gap: 1,
+//                                 paddingLeft: 0,
+//                             },
+//                             "& .MuiTabs-indicator": {
+//                                 height: 3,
+//                                 borderRadius: 3,
+//                                 backgroundColor: "#F54927",
+//                             },
+//                             ml: { xs: -1, sm: -2 },
+//                         }}
+//                     >
+//                         <Tab
+//                             value="all"
+//                             label={
+//                                 <Stack direction="row" spacing={1} alignItems="center">
+//                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
+//                                         ทั้งหมด
+//                                     </Typography>
+//                                     <Chip label={counts.total} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
+//                                 </Stack>
+//                             }
+//                             sx={{ textTransform: "none", minWidth: 110 }}
+//                         />
+//                         <Tab
+//                             value="pending"
+//                             label={
+//                                 <Stack direction="row" spacing={1} alignItems="center">
+//                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
+//                                         {t.History.Card.Warranty.isChecking}
+//                                     </Typography>
+//                                     <Chip label={counts.pending} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
+//                                 </Stack>
+//                             }
+//                             sx={{ textTransform: "none", minWidth: 120 }}
+//                         />
+//                         <Tab
+//                             value="in"
+//                             label={
+//                                 <Stack direction="row" spacing={1} alignItems="center">
+//                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
+//                                         {t.History.Card.Warranty.isTrue}
+//                                     </Typography>
+//                                     <Chip label={counts.inWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
+//                                 </Stack>
+//                             }
+//                             sx={{ textTransform: "none", minWidth: 140 }}
+//                         />
+//                         <Tab
+//                             value="expired"
+//                             label={
+//                                 <Stack direction="row" spacing={1} alignItems="center">
+//                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
+//                                         {t.History.Card.Warranty.expired}
+//                                     </Typography>
+//                                     <Chip label={counts.expired} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
+//                                 </Stack>
+//                             }
+//                             sx={{ textTransform: "none", minWidth: 120 }}
+//                         />
+//                         <Tab
+//                             value="out"
+//                             label={
+//                                 <Stack direction="row" spacing={1} alignItems="center">
+//                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
+//                                         {t.History.Card.Warranty.isFalse}
+//                                     </Typography>
+//                                     <Chip label={counts.outOfWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
+//                                 </Stack>
+//                             }
+//                             sx={{ textTransform: "none", minWidth: 160 }}
+//                         />
+//                     </Tabs>
+//                 </Container>
+//             </Box>
+
+//             <Box
+//                 sx={{
+//                     flexGrow: 1,
+//                     // overflowY: "auto",
+//                     // maxHeight: "calc(100vh - 150px)",
+//                     mt: 1,
+//                     mb: 8,
+//                     // scrollbarWidth: "none",
+//                     // msOverflowStyle: "none",
+//                     // "&::-webkit-scrollbar": {
+//                     //     display: "none",
+//                     // },
+//                 }}
+//             >
+//                 <Container maxWidth={isMobile ? "sm" : "lg"} sx={{ px: 2, py: 2 }}>
+//                     <Stack spacing={2}>
+//                         {paginatedHistories.length > 0 ? (
+//                             paginatedHistories.map((item) => {
+//                                 const status = getWarrantyStatus(item, t);
+//                                 return (
+//                                     <Card
+//                                         key={item.id}
+//                                         elevation={0}
+//                                         sx={{
+//                                             borderRadius: 2,
+//                                             border: "1px solid",
+//                                             borderColor: "divider",
+//                                             transition: "all 0.2s ease-in-out",
+//                                             "&:hover": {
+//                                                 transform: "translateY(-2px)",
+//                                                 boxShadow: 2,
+//                                                 borderColor: "primary.light",
+//                                             },
+//                                         }}
+//                                     >
+//                                         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+//                                             <Grid container spacing={1.5}>
+//                                                 <Grid size={12}>
+//                                                     <Box
+//                                                         display="flex"
+//                                                         gap={1}
+//                                                         flexDirection="row"
+//                                                         flexWrap="wrap"
+//                                                         justifyContent={{ xs: "left", sm: "flex-start" }}
+//                                                     >
+//                                                         <Paper
+//                                                             elevation={0}
+//                                                             sx={{
+//                                                                 borderRadius: 2,
+//                                                                 overflow: "hidden",
+//                                                                 border: "1px solid",
+//                                                                 borderColor: "divider",
+//                                                                 width: { xs: 70, sm: 80, md: 90 },
+//                                                                 height: { xs: 70, sm: 80, md: 90 },
+//                                                                 display: "flex",
+//                                                                 alignItems: "center",
+//                                                                 justifyContent: "center",
+//                                                             }}
+//                                                         >
+//                                                             <img
+//                                                                 src={`${productPathMaster}/${item.model_code}.jpg`}
+//                                                                 onError={(e: any) => {
+//                                                                     e.target.onerror = null;
+//                                                                     e.target.src = DEFAULT_IMAGE;
+//                                                                 }}
+//                                                                 alt={`${item.model_name ?? ""} ${item.product_name ?? ""}`}
+//                                                                 style={{
+//                                                                     width: "100%",
+//                                                                     height: "100%",
+//                                                                     objectFit: "cover",
+//                                                                     display: "block",
+//                                                                     cursor: "pointer",
+//                                                                 }}
+//                                                                 onClick={() =>
+//                                                                     handleOpenImage(`${productPathMaster}/${item.model_code}.jpg`)
+//                                                                 }
+//                                                             />
+//                                                         </Paper>
+
+//                                                         <Paper
+//                                                             elevation={0}
+//                                                             sx={{
+//                                                                 borderRadius: 2,
+//                                                                 overflow: "hidden",
+//                                                                 border: "1px solid",
+//                                                                 borderColor: "divider",
+//                                                                 width: { xs: 70, sm: 80, md: 90 },
+//                                                                 height: { xs: 70, sm: 80, md: 90 },
+//                                                                 display: "flex",
+//                                                                 alignItems: "center",
+//                                                                 justifyContent: "center",
+//                                                             }}
+//                                                         >
+//                                                             <img
+//                                                                 src={item.slip || DEFAULT_IMAGE}
+//                                                                 alt="Receipt"
+//                                                                 onError={(e: any) => {
+//                                                                     e.target.onerror = null;
+//                                                                     e.target.src = DEFAULT_IMAGE;
+//                                                                 }}
+//                                                                 style={{
+//                                                                     width: "100%",
+//                                                                     height: "100%",
+//                                                                     objectFit: "cover",
+//                                                                     display: "block",
+//                                                                     cursor: "pointer",
+//                                                                 }}
+//                                                                 onClick={() => handleOpenImage(item.slip || DEFAULT_IMAGE)}
+//                                                             />
+//                                                         </Paper>
+//                                                     </Box>
+//                                                 </Grid>
+
+//                                                 <Grid size={12}>
+//                                                     <Stack spacing={1.5}>
+//                                                         <Box>
+//                                                             <Typography
+//                                                                 variant="h6"
+//                                                                 sx={{
+//                                                                     fontWeight: 600,
+//                                                                     fontSize: "1rem",
+//                                                                     mb: 0.5,
+//                                                                     color: "text.primary",
+//                                                                 }}
+//                                                             >
+//                                                                 {item.model_code} {item.model_name ?? ""}
+//                                                             </Typography>
+//                                                             <Typography
+//                                                                 variant="body2"
+//                                                                 color="text.secondary"
+//                                                                 sx={{ mb: 1, fontSize: "0.8rem" }}
+//                                                             >
+//                                                                 {item.product_name ?? ""}
+//                                                             </Typography>
+
+//                                                             <Chip
+//                                                                 icon={status.icon}
+//                                                                 label={status.label}
+//                                                                 color={status.color}
+//                                                                 size="small"
+//                                                                 sx={{
+//                                                                     fontWeight: 600,
+//                                                                     fontSize: "0.7rem",
+//                                                                     height: "auto",
+//                                                                     py: 0.5,
+//                                                                     whiteSpace: "pre-line",
+//                                                                     "& .MuiChip-label": {
+//                                                                         display: "block",
+//                                                                         whiteSpace: "pre-line",
+//                                                                     },
+//                                                                 }}
+//                                                             />
+//                                                         </Box>
+
+//                                                         <Paper
+//                                                             elevation={0}
+//                                                             sx={{
+//                                                                 p: 1,
+//                                                                 bgcolor: "grey.50",
+//                                                                 border: "1px solid",
+//                                                                 borderColor: "divider",
+//                                                                 borderRadius: 1.5,
+//                                                             }}
+//                                                         >
+//                                                             <Stack direction="row" spacing={1} alignItems="center">
+//                                                                 <Inventory sx={{ fontSize: 16, color: "text.secondary" }} />
+//                                                                 <Typography
+//                                                                     variant="body2"
+//                                                                     color="text.secondary"
+//                                                                     fontWeight="500"
+//                                                                     sx={{ fontSize: "0.8rem" }}
+//                                                                 >
+//                                                                     หมายเลขเครื่อง (S/N):
+//                                                                 </Typography>
+//                                                                 <Typography
+//                                                                     variant="body2"
+//                                                                     sx={{
+//                                                                         fontFamily: "monospace",
+//                                                                         fontWeight: 600,
+//                                                                         color: "primary.main",
+//                                                                         fontSize: "0.8rem",
+//                                                                     }}
+//                                                                 >
+//                                                                     {item.serial_number ?? "-"}
+//                                                                 </Typography>
+//                                                             </Stack>
+//                                                         </Paper>
+
+//                                                         {/* <WarrantyDetail serial_number={item.serial_number ?? ""} /> */}
+//                                                         <WarrantyDetail id={item.id} />
+//                                                     </Stack>
+//                                                 </Grid>
+//                                             </Grid>
+//                                         </CardContent>
+//                                     </Card>
+//                                 );
+//                             })
+//                         ) : (
+//                             <Paper
+//                                 elevation={0}
+//                                 sx={{
+//                                     p: 6,
+//                                     textAlign: "center",
+//                                     border: "1px solid",
+//                                     borderColor: "divider",
+//                                     borderRadius: 2,
+//                                 }}
+//                             >
+//                                 <Typography variant="body1" color="text.secondary">
+//                                     {t.History.NotMatchFound} "{searchTerm}"
+//                                 </Typography>
+//                             </Paper>
+//                         )}
+//                     </Stack>
+//                     {filteredHistories.length > itemsPerPage && (
+//                         <Box display="flex" justifyContent="center" mt={3}>
+//                             <Pagination
+//                                 count={Math.ceil(filteredHistories.length / itemsPerPage)}
+//                                 page={page}
+//                                 onChange={handlePageChange}
+//                                 color="primary"
+//                                 shape="rounded"
+//                                 size="small"
+//                             />
+//                         </Box>
+//                     )}
+//                 </Container>
+//             </Box>
+//             <Dialog open={openImage} onClose={handleCloseImage} maxWidth="xs" fullWidth>
+//                 <Box
+//                     sx={{
+//                         position: "relative",
+//                         bgcolor: "black",
+//                         display: "flex",
+//                         justifyContent: "center",
+//                         alignItems: "center",
+//                         py: 2,
+//                     }}
+//                 >
+//                     {selectedImage && (
+//                         <img
+//                             src={selectedImage}
+//                             alt="preview"
+//                             style={{
+//                                 maxWidth: "100%",
+//                                 maxHeight: "80vh",
+//                                 borderRadius: 8,
+//                             }}
+//                         />
+//                     )}
+//                 </Box>
+//             </Dialog>
+//         </MobileAuthenticatedLayout>
+//     );
+// }
+
 import React, { useState, useMemo, useEffect } from "react";
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
 import {
@@ -26,13 +898,13 @@ import {
     Dialog,
     Tabs,
     Tab,
+    Skeleton, // เพิ่ม Skeleton
 } from "@mui/material";
 import {
     CheckCircle,
     Search,
     InfoOutlined,
     ExpandMore,
-    BuildOutlined,
     WarningAmber,
     Warning,
     CalendarToday,
@@ -45,14 +917,7 @@ import dayjs from "dayjs";
 import { Head } from "@inertiajs/react";
 import axios from "axios";
 
-interface SpWarranty {
-    spcode?: {
-        pidsp?: string;
-        pnamesp?: string;
-    };
-    spname?: string;
-}
-
+// --- Interfaces ---
 interface HistoryProps {
     id: number;
     serial_number?: string;
@@ -74,63 +939,51 @@ interface PowerAccessoryItem {
     no: number;
 }
 
+// --- Constants ---
 const productPathMaster = import.meta.env.VITE_PRODUCT_IMAGE_URI || "";
 const DEFAULT_IMAGE = import.meta.env.VITE_DEFAULT_IMAGE || "";
 
-function WarrantyDetail({ serial_number }: { serial_number: string }) {
+// ----------------------------------------------------------------------
+// 1. WarrantyDetail Component (Refactored)
+// ----------------------------------------------------------------------
+function WarrantyDetail({ id }: { id: number }) {
     const { t } = useLanguage();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [detail, setDetail] = useState<any>(null);
+    const [expanded, setExpanded] = useState(false);
 
-    useEffect(() => {
-        if (!serial_number) {
-            setLoading(false);
-            return;
-        }
+    // ฟังก์ชันจัดการการเปิด/ปิด Accordion และโหลดข้อมูลแบบ Lazy Load
+    const handleAccordionChange = (_event: React.SyntheticEvent, isExpanded: boolean) => {
+        setExpanded(isExpanded);
 
-        let mounted = true;
-        const loadDetail = async () => {
+        // ถ้าเปิดและยังไม่มีข้อมูล ให้โหลด
+        if (isExpanded && !detail && !loading) {
             setLoading(true);
-            try {
-                const res = await axios.get(`/warranty/history/detail/${encodeURIComponent(serial_number)}`);
-                if (mounted && res.data && res.data.success) {
-                    setDetail(res.data.data);
-                }
-            } catch (err) {
-                console.error("Load detail failed:", err);
-            } finally {
-                if (mounted) setLoading(false);
-            }
-        };
-        loadDetail();
-        return () => {
-            mounted = false;
-        };
-    }, [serial_number]);
+            // ใช้ ID ในการดึงข้อมูล
+            axios.get(`/warranty/history/detail/${encodeURIComponent(id)}`)
+                .then((res) => {
+                    if (res.data && res.data.success) {
+                        setDetail(res.data.data);
+                    }
+                })
+                .catch((err) => {
+                    console.error("Load detail failed:", err);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    };
 
-    if (loading)
-        return (
-            <Box display="flex" alignItems="center" gap={1} mt={2}>
-                <CircularProgress size={16} />
-                <Typography variant="caption" color="text.secondary">
-                    {t.History.Information.loading}
-                </Typography>
-            </Box>
-        );
-
-    if (!detail)
-        return (
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
-                {t.History.Information.noData}
-            </Typography>
-        );
-
-    const hasAccessories =
+    const hasAccessories = detail && (
         (detail.power_accessories?.battery && detail.power_accessories.battery.length > 0) ||
-        (detail.power_accessories?.charger && detail.power_accessories.charger.length > 0);
+        (detail.power_accessories?.charger && detail.power_accessories.charger.length > 0)
+    );
 
     return (
         <Accordion
+            expanded={expanded}
+            onChange={handleAccordionChange}
             sx={{
                 mt: 2,
                 bgcolor: "#fff8f6",
@@ -156,113 +1009,126 @@ function WarrantyDetail({ serial_number }: { serial_number: string }) {
             </AccordionSummary>
 
             <AccordionDetails sx={{ pt: 0, px: 1.5, pb: 1 }}>
-                <Stack spacing={1}>
-                    <Box display="flex" gap={1} alignItems="flex-start">
-                        <CalendarToday sx={{ fontSize: 16, color: "text.secondary", mt: 0.1 }} />
-                        <Box flex={1}>
-                            <Typography variant="body2" color="text.secondary" fontSize="0.8rem">
-                                {t.History.Information.DurationWaranty}: {detail.warrantyperiod ?? "-"} {t.History.Information.month}
-                            </Typography>
-                        </Box>
-                    </Box>
+                {loading ? (
+                    // แสดง Skeleton ระหว่างโหลด (Layout ไม่กระตุก)
+                    <Stack spacing={1} sx={{ mt: 1 }}>
+                        <Skeleton variant="text" width="60%" height={24} />
+                        <Divider sx={{ my: 0.5 }} />
+                        <Skeleton variant="text" width="90%" height={20} />
+                        <Skeleton variant="text" width="80%" height={20} />
+                    </Stack>
+                ) : detail ? (
+                    // แสดงข้อมูลเมื่อโหลดเสร็จ
+                    <>
+                        <Stack spacing={1}>
+                            <Box display="flex" gap={1} alignItems="flex-start">
+                                <CalendarToday sx={{ fontSize: 16, color: "text.secondary", mt: 0.1 }} />
+                                <Box flex={1}>
+                                    <Typography variant="body2" color="text.secondary" fontSize="0.8rem">
+                                        {t.History.Information.DurationWaranty}: {detail.warrantyperiod ?? "-"} {t.History.Information.month}
+                                    </Typography>
+                                </Box>
+                            </Box>
 
-                    <Divider sx={{ my: 0.5 }} />
+                            <Divider sx={{ my: 0.5 }} />
 
-                    <Box>
-                        <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
-                            {t.History.Information.condition}: {detail.warrantycondition ?? "-"}
-                        </Typography>
-                    </Box>
+                            <Box>
+                                <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
+                                    {t.History.Information.condition}: {detail.warrantycondition ?? "-"}
+                                </Typography>
+                            </Box>
 
-                    <Box>
-                        <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
-                            {t.History.Information.noteWaranty}: {detail.warrantynote ?? "-"}
-                        </Typography>
-                    </Box>
-                </Stack>
+                            <Box>
+                                <Typography variant="body2" fontSize="0.8rem" color="text.secondary">
+                                    {t.History.Information.noteWaranty}: {detail.warrantynote ?? "-"}
+                                </Typography>
+                            </Box>
+                        </Stack>
 
-                {hasAccessories && (
-                    <Box mt={2}>
-                        <Divider sx={{ mb: 1, borderStyle: 'dashed' }} />
-                        <Typography variant="subtitle2" sx={{ color: "#F54927", fontWeight: 600, mb: 1, fontSize: '0.85rem' }}>
-                            อุปกรณ์เสริม (Accessories)
-                        </Typography>
+                        {hasAccessories && (
+                            <Box mt={2}>
+                                <Divider sx={{ mb: 1, borderStyle: 'dashed' }} />
+                                <Typography variant="subtitle2" sx={{ color: "#F54927", fontWeight: 600, mb: 1, fontSize: '0.85rem' }}>
+                                    อุปกรณ์เสริม (Accessories)
+                                </Typography>
 
-                        <List disablePadding dense>
-                            {/* Battery List */}
-                            {detail.power_accessories?.battery?.map((item: PowerAccessoryItem, idx: number) => (
-                                <ListItem key={`bat-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
-                                    <Box mr={1.5} mt={0.5}>
-                                        <BatteryChargingFull fontSize="small" color="action" />
-                                    </Box>
-                                    <ListItemText
-                                        // ✅ เพิ่ม secondaryTypographyProps เพื่อเปลี่ยนจาก <p> เป็น <div>
-                                        secondaryTypographyProps={{ component: "div" }}
-                                        primary={
-                                            <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
-                                                {item.product_name}
-                                            </Typography>
-                                        }
-                                        secondary={
-                                            <Stack component="div" spacing={0.5} mt={0.5}>
-                                                <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
-                                                    Code: {item.accessory_sku}
-                                                </Typography>
-                                                <Chip
-                                                    label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
-                                                    size="small"
-                                                    color="success"
-                                                    variant="outlined"
-                                                    sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
-                                                />
-                                            </Stack>
-                                        }
-                                    />
-                                </ListItem>
-                            ))}
+                                <List disablePadding dense>
+                                    {/* Battery List */}
+                                    {detail.power_accessories?.battery?.map((item: PowerAccessoryItem, idx: number) => (
+                                        <ListItem key={`bat-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
+                                            <Box mr={1.5} mt={0.5}>
+                                                <BatteryChargingFull fontSize="small" color="action" />
+                                            </Box>
+                                            <ListItemText
+                                                secondaryTypographyProps={{ component: "div" }}
+                                                primary={
+                                                    <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
+                                                        {item.product_name}
+                                                    </Typography>
+                                                }
+                                                secondary={
+                                                    <Stack component="div" spacing={0.5} mt={0.5}>
+                                                        <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                                                            Code: {item.accessory_sku}
+                                                        </Typography>
+                                                        <Chip
+                                                            label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
+                                                            size="small"
+                                                            color="success"
+                                                            variant="outlined"
+                                                            sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
+                                                        />
+                                                    </Stack>
+                                                }
+                                            />
+                                        </ListItem>
+                                    ))}
 
-                            {/* Charger List */}
-                            {detail.power_accessories?.charger?.map((item: PowerAccessoryItem, idx: number) => (
-                                <ListItem key={`chg-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
-                                    <Box mr={1.5} mt={0.5}>
-                                        <Power fontSize="small" color="action" />
-                                    </Box>
-                                    <ListItemText
-                                        // ✅ เพิ่ม secondaryTypographyProps เพื่อเปลี่ยนจาก <p> เป็น <div>
-                                        secondaryTypographyProps={{ component: "div" }}
-                                        primary={
-                                            <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
-                                                {item.product_name}
-                                            </Typography>
-                                        }
-                                        secondary={
-                                            <Stack component="div" spacing={0.5} mt={0.5}>
-                                                <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
-                                                    Code: {item.accessory_sku}
-                                                </Typography>
-                                                <Chip
-                                                    label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
-                                                    size="small"
-                                                    color="success"
-                                                    variant="outlined"
-                                                    sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
-                                                />
-                                            </Stack>
-                                        }
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Box>
+                                    {/* Charger List */}
+                                    {detail.power_accessories?.charger?.map((item: PowerAccessoryItem, idx: number) => (
+                                        <ListItem key={`chg-${idx}`} sx={{ px: 0, py: 0.5, alignItems: 'flex-start' }}>
+                                            <Box mr={1.5} mt={0.5}>
+                                                <Power fontSize="small" color="action" />
+                                            </Box>
+                                            <ListItemText
+                                                secondaryTypographyProps={{ component: "div" }}
+                                                primary={
+                                                    <Typography variant="body2" fontWeight={500} fontSize="0.8rem">
+                                                        {item.product_name}
+                                                    </Typography>
+                                                }
+                                                secondary={
+                                                    <Stack component="div" spacing={0.5} mt={0.5}>
+                                                        <Typography component="span" variant="caption" display="block" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                                                            Code: {item.accessory_sku}
+                                                        </Typography>
+                                                        <Chip
+                                                            label={`${t.History.Information.DurationWaranty}: ${item.warranty_period} ${t.History.Information.month}`}
+                                                            size="small"
+                                                            color="success"
+                                                            variant="outlined"
+                                                            sx={{ height: 20, fontSize: "0.65rem", width: 'fit-content' }}
+                                                        />
+                                                    </Stack>
+                                                }
+                                            />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Box>
+                        )}
+                    </>
+                ) : (
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                        {t.History.Information.noData}
+                    </Typography>
                 )}
             </AccordionDetails>
         </Accordion>
     );
 }
 
-// ... ส่วนที่เหลือ (getWarrantyStatus, SearchBarMobile, SearchBarDesktop, WarrantyHistory) คงเดิม ...
-// คุณสามารถ Copy ส่วนด้านล่างนี้ไปต่อท้ายได้เลยครับ เพื่อให้โค้ดสมบูรณ์
-
+// Helper Functions & Sub-components
 const getWarrantyStatus = (item: HistoryProps, t: any) => {
     if (item.approval === "N") {
         return {
@@ -309,17 +1175,7 @@ interface SearchBarProps {
 
 function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
     return (
-        <Box
-            sx={{
-                position: "sticky",
-                top: -8,
-                zIndex: 30,
-                bgcolor: "white",
-                mt: 8,
-                pt: 2,
-                pb: 1,
-            }}
-        >
+        <Box sx={{ position: "sticky", top: -8, zIndex: 30, bgcolor: "white", mt: 8, pt: 2, pb: 1 }}>
             <Container maxWidth="sm">
                 <TextField
                     fullWidth
@@ -342,12 +1198,7 @@ function SearchBarMobile({ value, onChange, placeholder }: SearchBarProps) {
 
 function SearchBarDesktop({ value, onChange, placeholder, label }: SearchBarProps) {
     return (
-        <Box
-            sx={{
-                position: "sticky", top: -8,
-                zIndex: 30, bgcolor: "white", borderColor: "divider", mt: 7, pt: 2, pb: 1,
-            }}
-        >
+        <Box sx={{ position: "sticky", top: -8, zIndex: 30, bgcolor: "white", borderColor: "divider", mt: 7, pt: 2, pb: 1 }}>
             <Container maxWidth="lg">
                 <TextField
                     fullWidth
@@ -369,6 +1220,7 @@ function SearchBarDesktop({ value, onChange, placeholder, label }: SearchBarProp
     );
 }
 
+// 2. Main Component: WarrantyHistory
 export default function WarrantyHistory({ histories }: { histories: HistoryProps[] }) {
     const { t } = useLanguage();
     const theme = useTheme();
@@ -397,48 +1249,25 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
         const total = histories.length;
         const pending = histories.filter((h) => (h.approval ?? "") !== "Y" && (h.approval ?? "") !== "N").length;
         const inWarranty = histories.filter(
-            (h) =>
-                (h.approval ?? "") === "Y" &&
-                h.insurance_expire &&
-                !dayjs(h.insurance_expire).isBefore(dayjs(), "day")
+            (h) => (h.approval ?? "") === "Y" && h.insurance_expire && !dayjs(h.insurance_expire).isBefore(dayjs(), "day")
         ).length;
         const expired = histories.filter(
-            (h) =>
-                (h.approval ?? "") === "Y" &&
-                h.insurance_expire &&
-                dayjs(h.insurance_expire).isBefore(dayjs(), "day")
+            (h) => (h.approval ?? "") === "Y" && h.insurance_expire && dayjs(h.insurance_expire).isBefore(dayjs(), "day")
         ).length;
         const outOfWarranty = histories.filter(
-            (h) =>
-                (h.approval ?? "") === "N" ||
-                ((h.approval ?? "") === "Y" && (!h.insurance_expire || h.insurance_expire === ""))
+            (h) => (h.approval ?? "") === "N" || ((h.approval ?? "") === "Y" && (!h.insurance_expire || h.insurance_expire === ""))
         ).length;
         return { total, pending, inWarranty, expired, outOfWarranty };
     }, [histories]);
 
     const filteredHistories = useMemo(() => {
         const search = searchTerm.trim().toLowerCase();
-
         const byTab = histories.filter((item) => {
             if (selectedTab === "all") return true;
             if (selectedTab === "pending") return (item.approval ?? "") !== "Y" && (item.approval ?? "") !== "N";
-            if (selectedTab === "in")
-                return (
-                    (item.approval ?? "") === "Y" &&
-                    item.insurance_expire &&
-                    !dayjs(item.insurance_expire).isBefore(dayjs(), "day")
-                );
-            if (selectedTab === "expired")
-                return (
-                    (item.approval ?? "") === "Y" &&
-                    item.insurance_expire &&
-                    dayjs(item.insurance_expire).isBefore(dayjs(), "day")
-                );
-            if (selectedTab === "out")
-                return (
-                    (item.approval ?? "") === "N" ||
-                    ((item.approval ?? "") === "Y" && (!item.insurance_expire || item.insurance_expire === ""))
-                );
+            if (selectedTab === "in") return (item.approval ?? "") === "Y" && item.insurance_expire && !dayjs(item.insurance_expire).isBefore(dayjs(), "day");
+            if (selectedTab === "expired") return (item.approval ?? "") === "Y" && item.insurance_expire && dayjs(item.insurance_expire).isBefore(dayjs(), "day");
+            if (selectedTab === "out") return (item.approval ?? "") === "N" || ((item.approval ?? "") === "Y" && (!item.insurance_expire || item.insurance_expire === ""));
             return true;
         });
 
@@ -473,225 +1302,60 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
             <Head title={t.History.title} />
 
             {isMobile ? (
-                <SearchBarMobile
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder={t.History.Filter.Input.Placeholder}
-                    label={t.History.Filter.Input.Label}
-                />
+                <SearchBarMobile value={searchTerm} onChange={setSearchTerm} placeholder={t.History.Filter.Input.Placeholder} label={t.History.Filter.Input.Label} />
             ) : (
-                <SearchBarDesktop
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder={t.History.Filter.Input.Placeholder}
-                    label={t.History.Filter.Input.Label}
-                />
+                <SearchBarDesktop value={searchTerm} onChange={setSearchTerm} placeholder={t.History.Filter.Input.Placeholder} label={t.History.Filter.Input.Label} />
             )}
 
-            <Box
-                sx={{
-                    position: "sticky",
-                    top: "50px",
-                    zIndex: 25,
-                    background: `white`,
-                    backdropFilter: "blur(2px)",
-                    bgcolor: "white",
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                }}
-            >
+            {/* Tabs Section */}
+            <Box sx={{ position: "sticky", top: "50px", zIndex: 25, background: `white`, backdropFilter: "blur(2px)", bgcolor: "white", borderBottom: "1px solid", borderColor: "divider" }}>
                 <Container maxWidth={isMobile ? "sm" : "lg"} sx={{ py: 0 }}>
-                    <Tabs
-                        value={selectedTab}
-                        onChange={handleTabChange}
-                        variant="scrollable"
-                        scrollButtons
-                        allowScrollButtonsMobile
+                    <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable" scrollButtons allowScrollButtonsMobile
                         sx={{
-                            "& .MuiTabs-flexContainer": {
-                                justifyContent: "flex-start",
-                                gap: 1,
-                                paddingLeft: 0,
-                            },
-                            "& .MuiTabs-indicator": {
-                                height: 3,
-                                borderRadius: 3,
-                                backgroundColor: "#F54927",
-                            },
+                            "& .MuiTabs-flexContainer": { justifyContent: "flex-start", gap: 1, paddingLeft: 0 },
+                            "& .MuiTabs-indicator": { height: 3, borderRadius: 3, backgroundColor: "#F54927" },
                             ml: { xs: -1, sm: -2 },
                         }}
                     >
-                        <Tab
-                            value="all"
-                            label={
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        ทั้งหมด
-                                    </Typography>
-                                    <Chip label={counts.total} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
-                                </Stack>
-                            }
-                            sx={{ textTransform: "none", minWidth: 110 }}
-                        />
-                        <Tab
-                            value="pending"
-                            label={
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {t.History.Card.Warranty.isChecking}
-                                    </Typography>
-                                    <Chip label={counts.pending} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
-                                </Stack>
-                            }
-                            sx={{ textTransform: "none", minWidth: 120 }}
-                        />
-                        <Tab
-                            value="in"
-                            label={
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {t.History.Card.Warranty.isTrue}
-                                    </Typography>
-                                    <Chip label={counts.inWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
-                                </Stack>
-                            }
-                            sx={{ textTransform: "none", minWidth: 140 }}
-                        />
-                        <Tab
-                            value="expired"
-                            label={
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {t.History.Card.Warranty.expired}
-                                    </Typography>
-                                    <Chip label={counts.expired} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
-                                </Stack>
-                            }
-                            sx={{ textTransform: "none", minWidth: 120 }}
-                        />
-                        <Tab
-                            value="out"
-                            label={
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                        {t.History.Card.Warranty.isFalse}
-                                    </Typography>
-                                    <Chip label={counts.outOfWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} />
-                                </Stack>
-                            }
-                            sx={{ textTransform: "none", minWidth: 160 }}
-                        />
+                        <Tab value="all" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>ทั้งหมด</Typography><Chip label={counts.total} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 110 }} />
+                        <Tab value="pending" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.isChecking}</Typography><Chip label={counts.pending} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 120 }} />
+                        <Tab value="in" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.isTrue}</Typography><Chip label={counts.inWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 140 }} />
+                        <Tab value="expired" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.expired}</Typography><Chip label={counts.expired} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 120 }} />
+                        <Tab value="out" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.isFalse}</Typography><Chip label={counts.outOfWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 160 }} />
                     </Tabs>
                 </Container>
             </Box>
 
-            <Box
-                sx={{
-                    flexGrow: 1,
-                    // overflowY: "auto",
-                    // maxHeight: "calc(100vh - 150px)",
-                    mt: 1,
-                    mb: 8,
-                    // scrollbarWidth: "none",
-                    // msOverflowStyle: "none",
-                    // "&::-webkit-scrollbar": {
-                    //     display: "none",
-                    // },
-                }}
-            >
+            {/* Content Section */}
+            <Box sx={{ flexGrow: 1, mt: 1, mb: 8 }}>
                 <Container maxWidth={isMobile ? "sm" : "lg"} sx={{ px: 2, py: 2 }}>
                     <Stack spacing={2}>
                         {paginatedHistories.length > 0 ? (
                             paginatedHistories.map((item) => {
                                 const status = getWarrantyStatus(item, t);
                                 return (
-                                    <Card
-                                        key={item.id}
-                                        elevation={0}
-                                        sx={{
-                                            borderRadius: 2,
-                                            border: "1px solid",
-                                            borderColor: "divider",
-                                            transition: "all 0.2s ease-in-out",
-                                            "&:hover": {
-                                                transform: "translateY(-2px)",
-                                                boxShadow: 2,
-                                                borderColor: "primary.light",
-                                            },
-                                        }}
-                                    >
+                                    <Card key={item.id} elevation={0} sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider", transition: "all 0.2s ease-in-out", "&:hover": { transform: "translateY(-2px)", boxShadow: 2, borderColor: "primary.light" } }}>
                                         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
                                             <Grid container spacing={1.5}>
                                                 <Grid size={12}>
-                                                    <Box
-                                                        display="flex"
-                                                        gap={1}
-                                                        flexDirection="row"
-                                                        flexWrap="wrap"
-                                                        justifyContent={{ xs: "left", sm: "flex-start" }}
-                                                    >
-                                                        <Paper
-                                                            elevation={0}
-                                                            sx={{
-                                                                borderRadius: 2,
-                                                                overflow: "hidden",
-                                                                border: "1px solid",
-                                                                borderColor: "divider",
-                                                                width: { xs: 70, sm: 80, md: 90 },
-                                                                height: { xs: 70, sm: 80, md: 90 },
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                            }}
-                                                        >
+                                                    <Box display="flex" gap={1} flexDirection="row" flexWrap="wrap" justifyContent={{ xs: "left", sm: "flex-start" }}>
+                                                        {/* Product Image */}
+                                                        <Paper elevation={0} sx={{ borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider", width: { xs: 70, sm: 80, md: 90 }, height: { xs: 70, sm: 80, md: 90 }, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                                             <img
                                                                 src={`${productPathMaster}/${item.model_code}.jpg`}
-                                                                onError={(e: any) => {
-                                                                    e.target.onerror = null;
-                                                                    e.target.src = DEFAULT_IMAGE;
-                                                                }}
+                                                                onError={(e: any) => { e.target.onerror = null; e.target.src = DEFAULT_IMAGE; }}
                                                                 alt={`${item.model_name ?? ""} ${item.product_name ?? ""}`}
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "100%",
-                                                                    objectFit: "cover",
-                                                                    display: "block",
-                                                                    cursor: "pointer",
-                                                                }}
-                                                                onClick={() =>
-                                                                    handleOpenImage(`${productPathMaster}/${item.model_code}.jpg`)
-                                                                }
+                                                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "pointer" }}
+                                                                onClick={() => handleOpenImage(`${productPathMaster}/${item.model_code}.jpg`)}
                                                             />
                                                         </Paper>
-
-                                                        <Paper
-                                                            elevation={0}
-                                                            sx={{
-                                                                borderRadius: 2,
-                                                                overflow: "hidden",
-                                                                border: "1px solid",
-                                                                borderColor: "divider",
-                                                                width: { xs: 70, sm: 80, md: 90 },
-                                                                height: { xs: 70, sm: 80, md: 90 },
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                            }}
-                                                        >
+                                                        {/* Receipt Image */}
+                                                        <Paper elevation={0} sx={{ borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider", width: { xs: 70, sm: 80, md: 90 }, height: { xs: 70, sm: 80, md: 90 }, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                                             <img
                                                                 src={item.slip || DEFAULT_IMAGE}
                                                                 alt="Receipt"
-                                                                onError={(e: any) => {
-                                                                    e.target.onerror = null;
-                                                                    e.target.src = DEFAULT_IMAGE;
-                                                                }}
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "100%",
-                                                                    objectFit: "cover",
-                                                                    display: "block",
-                                                                    cursor: "pointer",
-                                                                }}
+                                                                onError={(e: any) => { e.target.onerror = null; e.target.src = DEFAULT_IMAGE; }}
+                                                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "pointer" }}
                                                                 onClick={() => handleOpenImage(item.slip || DEFAULT_IMAGE)}
                                                             />
                                                         </Paper>
@@ -701,79 +1365,29 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                 <Grid size={12}>
                                                     <Stack spacing={1.5}>
                                                         <Box>
-                                                            <Typography
-                                                                variant="h6"
-                                                                sx={{
-                                                                    fontWeight: 600,
-                                                                    fontSize: "1rem",
-                                                                    mb: 0.5,
-                                                                    color: "text.primary",
-                                                                }}
-                                                            >
+                                                            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: "1rem", mb: 0.5, color: "text.primary" }}>
                                                                 {item.model_code} {item.model_name ?? ""}
                                                             </Typography>
-                                                            <Typography
-                                                                variant="body2"
-                                                                color="text.secondary"
-                                                                sx={{ mb: 1, fontSize: "0.8rem" }}
-                                                            >
+                                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontSize: "0.8rem" }}>
                                                                 {item.product_name ?? ""}
                                                             </Typography>
-
-                                                            <Chip
-                                                                icon={status.icon}
-                                                                label={status.label}
-                                                                color={status.color}
-                                                                size="small"
-                                                                sx={{
-                                                                    fontWeight: 600,
-                                                                    fontSize: "0.7rem",
-                                                                    height: "auto",
-                                                                    py: 0.5,
-                                                                    whiteSpace: "pre-line",
-                                                                    "& .MuiChip-label": {
-                                                                        display: "block",
-                                                                        whiteSpace: "pre-line",
-                                                                    },
-                                                                }}
-                                                            />
+                                                            <Chip icon={status.icon} label={status.label} color={status.color} size="small" sx={{ fontWeight: 600, fontSize: "0.7rem", height: "auto", py: 0.5, whiteSpace: "pre-line", "& .MuiChip-label": { display: "block", whiteSpace: "pre-line" } }} />
                                                         </Box>
 
-                                                        <Paper
-                                                            elevation={0}
-                                                            sx={{
-                                                                p: 1,
-                                                                bgcolor: "grey.50",
-                                                                border: "1px solid",
-                                                                borderColor: "divider",
-                                                                borderRadius: 1.5,
-                                                            }}
-                                                        >
+                                                        <Paper elevation={0} sx={{ p: 1, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}>
                                                             <Stack direction="row" spacing={1} alignItems="center">
                                                                 <Inventory sx={{ fontSize: 16, color: "text.secondary" }} />
-                                                                <Typography
-                                                                    variant="body2"
-                                                                    color="text.secondary"
-                                                                    fontWeight="500"
-                                                                    sx={{ fontSize: "0.8rem" }}
-                                                                >
+                                                                <Typography variant="body2" color="text.secondary" fontWeight="500" sx={{ fontSize: "0.8rem" }}>
                                                                     หมายเลขเครื่อง (S/N):
                                                                 </Typography>
-                                                                <Typography
-                                                                    variant="body2"
-                                                                    sx={{
-                                                                        fontFamily: "monospace",
-                                                                        fontWeight: 600,
-                                                                        color: "primary.main",
-                                                                        fontSize: "0.8rem",
-                                                                    }}
-                                                                >
+                                                                <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 600, color: "primary.main", fontSize: "0.8rem" }}>
                                                                     {item.serial_number ?? "-"}
                                                                 </Typography>
                                                             </Stack>
                                                         </Paper>
 
-                                                        <WarrantyDetail serial_number={item.serial_number ?? ""} />
+                                                        {/* ✅ เรียกใช้ WarrantyDetail โดยส่ง ID แทน Serial */}
+                                                        <WarrantyDetail id={item.id} />
                                                     </Stack>
                                                 </Grid>
                                             </Grid>
@@ -782,16 +1396,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                 );
                             })
                         ) : (
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    p: 6,
-                                    textAlign: "center",
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                    borderRadius: 2,
-                                }}
-                            >
+                            <Paper elevation={0} sx={{ p: 6, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
                                 <Typography variant="body1" color="text.secondary">
                                     {t.History.NotMatchFound} "{searchTerm}"
                                 </Typography>
@@ -800,40 +1405,14 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                     </Stack>
                     {filteredHistories.length > itemsPerPage && (
                         <Box display="flex" justifyContent="center" mt={3}>
-                            <Pagination
-                                count={Math.ceil(filteredHistories.length / itemsPerPage)}
-                                page={page}
-                                onChange={handlePageChange}
-                                color="primary"
-                                shape="rounded"
-                                size="small"
-                            />
+                            <Pagination count={Math.ceil(filteredHistories.length / itemsPerPage)} page={page} onChange={handlePageChange} color="primary" shape="rounded" size="small" />
                         </Box>
                     )}
                 </Container>
             </Box>
             <Dialog open={openImage} onClose={handleCloseImage} maxWidth="xs" fullWidth>
-                <Box
-                    sx={{
-                        position: "relative",
-                        bgcolor: "black",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        py: 2,
-                    }}
-                >
-                    {selectedImage && (
-                        <img
-                            src={selectedImage}
-                            alt="preview"
-                            style={{
-                                maxWidth: "100%",
-                                maxHeight: "80vh",
-                                borderRadius: 8,
-                            }}
-                        />
-                    )}
+                <Box sx={{ position: "relative", bgcolor: "black", display: "flex", justifyContent: "center", alignItems: "center", py: 2 }}>
+                    {selectedImage && <img src={selectedImage} alt="preview" style={{ maxWidth: "100%", maxHeight: "80vh", borderRadius: 8 }} />}
                 </Box>
             </Dialog>
         </MobileAuthenticatedLayout>

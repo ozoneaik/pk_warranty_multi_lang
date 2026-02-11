@@ -116,7 +116,8 @@ Route::middleware('auth')->group(function () {
                 ->name('warranty.get_store_name');
             Route::get('/history', [WarrantyHistoryController::class, 'history'])->name('warranty.history');
             // Route::get('/history/detail/{model_code}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
-            Route::get('/history/detail/{serial_number}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
+            // Route::get('/history/detail/{serial_number}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
+            Route::get('/history/detail/{id}', [WarrantyHistoryController::class, 'historyDetail'])->name('warranty.history.detail');
             Route::post('/', function () {});
         });
     });

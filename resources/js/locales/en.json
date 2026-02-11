@@ -165,6 +165,8 @@
     "ProfileWelcome": {
         "title": "My Profile",
         "hello": "Hello",
+        "referralCode": "Referral Code",
+        "ShortreferralCode": "Referral Code",
         "manageTitle": "Manage Your Profile",
         "menu": {
             "edit": {
@@ -185,5 +187,6 @@
         "title": "Reward Points",
         "MyPointTitle": "My Reward Points",
         "FeatureIsDeveloping": "This feature is currently under development"
-    }
+    },
+    "copy": "Copy"
 }

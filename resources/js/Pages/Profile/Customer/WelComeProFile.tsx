@@ -152,7 +152,7 @@ export default function WelComeProFile() {
                                         alignItems: 'center'
                                     }}
                                 >
-                                    {isMobile ? "รหัสแนะนำ" : "รหัสแนะนำเพื่อน"}
+                                    {isMobile ? t.ProfileWelcome.ShortreferralCode : t.ProfileWelcome.referralCode}
                                     &nbsp;
                                     <span style={{ fontWeight: 'bold', color: '#333' }}>
                                         {myReferralCode}
@@ -182,7 +182,7 @@ export default function WelComeProFile() {
                                         '&:hover': { bgcolor: '#FFF3E0' }
                                     }}
                                 >
-                                    คัดลอก
+                                    {t.copy}
                                 </Button>
                             </Stack>
                             {/* จบส่วนแก้ไข */}

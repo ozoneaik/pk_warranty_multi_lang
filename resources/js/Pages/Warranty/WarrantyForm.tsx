@@ -31,176 +31,133 @@ interface Channel {
     name: string;
 }
 
-const AccessoryItem = ({ item, type }: { item: PowerAccessoryItem, type: 'battery' | 'charger' }) => {
-    const [showCondition, setShowCondition] = useState(false);
+const mapAccessoryToProductDetail = (item: PowerAccessoryItem): ProductDetail => {
+    // ดึง base url ของรูปภาพจาก env
+    const productPathMaster = import.meta.env.VITE_PRODUCT_IMAGE_URI || "";
 
-    // เช็คว่ามีข้อมูลให้แสดงหรือไม่ (จะได้รู้ว่าควรโชว์ปุ่ม i ไหม)
-    const hasInfo = Boolean(item.warranty_condition || item.warranty_note);
-
-    return (
-        <Box sx={{
-            p: 1.5,
-            mb: 1,
-            borderRadius: 2,
-            bgcolor: 'background.paper',
-            border: '1px solid #eee',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-        }}>
-            <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                {/* Icon ซ้ายสุด */}
-                <Box sx={{
-                    mt: 0.5,
-                    p: 0.5,
-                    borderRadius: '50%',
-                    bgcolor: type === 'battery' ? 'success.50' : 'warning.50',
-                    color: type === 'battery' ? 'success.main' : 'warning.main'
-                }}>
-                    {type === 'battery' ? <BatteryChargingFull fontSize="small" /> : <Power fontSize="small" />}
-                </Box>
-
-                {/* รายละเอียดสินค้า */}
-                <Box flex={1}>
-                    <Typography variant="subtitle2" fontWeight="bold" sx={{ lineHeight: 1.3 }}>
-                        {item.product_name}
-                    </Typography>
-                    <Stack direction="row" alignItems="center" spacing={1} mt={0.5} flexWrap="wrap" gap={0.5}>
-                        <Chip
-                            label={`SKU: ${item.accessory_sku}`}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '0.7rem', height: 20 }}
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                            ประกัน {item.warranty_period} เดือน
-                        </Typography>
-                    </Stack>
-                </Box>
-
-                {/* ✅ ปุ่ม Info (แสดงเมื่อมี condition หรือ note อย่างใดอย่างหนึ่ง) */}
-                {hasInfo && (
-                    <IconButton
-                        size="small"
-                        onClick={() => setShowCondition(!showCondition)}
-                        sx={{
-                            mt: -0.5,
-                            mr: -0.5,
-                            color: showCondition ? 'info.main' : 'action.active',
-                            bgcolor: showCondition ? 'info.50' : 'transparent',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <InfoOutlined fontSize="small" />
-                    </IconButton>
-                )}
-            </Stack>
-
-            {/* ✅ ส่วนเนื้อหาที่ซ่อนอยู่ */}
-            <Collapse in={showCondition} timeout="auto" unmountOnExit>
-                <Box sx={{
-                    mt: 1.5,
-                    p: 1.5,
-                    bgcolor: 'info.50',
-                    borderRadius: 1,
-                    border: '1px dashed',
-                    borderColor: 'info.200'
-                }}>
-                    {/* แสดงเงื่อนไขการรับประกัน */}
-                    {item.warranty_condition && (
-                        <Box mb={item.warranty_note ? 1 : 0}>
-                            <Typography variant="caption" fontWeight="bold" color="info.main" display="block" gutterBottom>
-                                เงื่อนไขการรับประกัน:
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.5, display: 'block' }}>
-                                {item.warranty_condition}
-                            </Typography>
-                        </Box>
-                    )}
-
-                    {/* แสดงหมายเหตุ (ถ้ามี) */}
-                    {item.warranty_note && (
-                        <Box>
-                            <Typography variant="caption" fontWeight="bold" color="info.main" display="block" gutterBottom>
-                                หมายเหตุ:
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.5, display: 'block' }}>
-                                {item.warranty_note}
-                            </Typography>
-                        </Box>
-                    )}
-                </Box>
-            </Collapse>
-        </Box>
-    );
+    return {
+        pid: item.accessory_sku,
+        pname: item.product_name,
+        fac_model: item.accessory_sku, // ใช SKU เป็นชื่อรุ่นแทน
+        // สร้าง URL รูปภาพเอง: path/sku.jpg
+        image: `${productPathMaster}/${item.accessory_sku}.jpg`,
+        warrantyperiod: item.warranty_period,
+        warrantycondition: item.warranty_condition,
+        warrantynote: item.warranty_note,
+        power_accessories: null,
+        is_combo: false
+    };
 };
 
 const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesData | null | undefined }) => {
-    const [expanded, setExpanded] = useState(true);
+    const [expanded, setExpanded] = useState(false);
 
     if (!accessories) return null;
 
-    const hasBattery = accessories.battery && accessories.battery.length > 0;
-    const hasCharger = accessories.charger && accessories.charger.length > 0;
+    const batteryList = accessories.battery || [];
+    const chargerList = accessories.charger || [];
+    const totalCount = batteryList.length + chargerList.length;
 
-    if (!hasBattery && !hasCharger) return null;
+    if (totalCount === 0) return null;
 
     return (
-        <Box sx={{ mt: 2, mb: 2 }}>
-            {/* Header: คลิกเพื่อเปิด/ปิดทั้งกล่องใหญ่ */}
-            <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
+        <Box sx={{
+            mt: 2,
+            mb: 1,
+        }}>
+            {/* Header: สไตล์เดียวกับ Combo Set */}
+            <Box
                 onClick={() => setExpanded(!expanded)}
                 sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    px: 1,
+                    py: 1,
                     mb: 1,
+                    bgcolor: 'primary.50',
+                    borderRadius: 2,
+                    // border: '1px dashed',
+                    borderColor: 'primary.200',
                     cursor: 'pointer',
                     userSelect: 'none',
-                    '&:hover': { opacity: 0.8 }
+                    transition: 'all 0.2s',
+                    '&:hover': { bgcolor: 'primary.100' }
                 }}
             >
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckCircleOutline color="primary" fontSize="small" />
-                    อุปกรณ์เสริม 
-                </Typography>
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}>
+                <Box display="flex" alignItems="center" gap={1}>
+                    <CheckCircleOutline color="primary" />
+                    <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
+                        power accessories ({totalCount} รายการ)
+                    </Typography>
+                </Box>
+                <IconButton size="small" sx={{ color: 'primary.main', p: 0.5 }}>
                     {expanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                 </IconButton>
-            </Stack>
+            </Box>
 
-            {/* ส่วนรายการสินค้า */}
+            {/* ส่วนรายการสินค้า (แสดงเหมือน Product Detail) */}
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <Box sx={{ bgcolor: '#f9f9f9', p: 2, borderRadius: 2 }}>
-
-                    {hasBattery && (
-                        <Box sx={{ mb: hasCharger ? 2 : 0 }}>
-                            <Typography variant="caption" fontWeight="bold" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                                แบตเตอรี่ (Battery)
-                            </Typography>
-                            {accessories.battery?.map(item => (
-                                <AccessoryItem key={item.id} item={item} type="battery" />
-                            ))}
+                <Stack spacing={1} sx={{ mt: 0 }}>
+                    {/* วนลูป Battery */}
+                    {batteryList.map((item, index) => (
+                        <Box key={`bat-${item.id}-${index}`} sx={{ position: 'relative' }}>
+                            {/* (Optional) ใส่ Label บอกว่าเป็นแบตเตอรี่ ถ้าต้องการ */}
+                            <Chip label="Battery" size="small" color="success" variant="outlined" sx={{ mb: 1 }} />
+                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} />
                         </Box>
-                    )}
+                    ))}
 
-                    {hasCharger && (
-                        <Box>
-                            <Typography variant="caption" fontWeight="bold" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                                แท่นชาร์จ (Charger)
-                            </Typography>
-                            {accessories.charger?.map(item => (
-                                <AccessoryItem key={item.id} item={item} type="charger" />
-                            ))}
+                    {/* วนลูป Charger */}
+                    {chargerList.map((item, index) => (
+                        <Box key={`chg-${item.id}-${index}`} sx={{ position: 'relative' }}>
+                            {/* (Optional) ใส่ Label บอกว่าเป็นแท่นชาร์จ ถ้าต้องการ */}
+                            <Chip label="Charger" size="small" color="warning" variant="outlined" sx={{ mb: 1 }} />
+                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} />
                         </Box>
-                    )}
-
-                </Box>
+                    ))}
+                </Stack>
             </Collapse>
         </Box>
     );
 };
 
+const getComboItemDetail = (sku: string, mainDetail: ProductDetail) => {
+    // @ts-ignore : assets อาจจะเป็น dynamic key
+    const asset = mainDetail.assets?.[sku];
+    if (!asset) return null;
+
+    return {
+        pid: asset.pid,
+        pname: asset.pname,
+        fac_model: asset.fac_model,
+        image: Array.isArray(asset.imagesku) ? asset.imagesku[0] : asset.imagesku,
+        warrantyperiod: asset.warrantyperiod,
+        warrantycondition: asset.warrantycondition,
+        warrantynote: asset.warrantynote,
+        power_accessories: null
+    };
+};
+
+const getMainAssetDetail = (mainAsset: any) => {
+    if (!mainAsset) return null;
+
+    return {
+        pid: mainAsset.pid,
+        pname: mainAsset.pname,
+        fac_model: mainAsset.facmodel,
+        image: Array.isArray(mainAsset.imagesku) ? mainAsset.imagesku[0] : (mainAsset.imagesku || mainAsset.image),
+        warrantyperiod: mainAsset.warrantyperiod,
+        warrantycondition: mainAsset.warrantycondition,
+        warrantynote: mainAsset.warrantynote,
+        power_accessories: null
+    };
+};
+
 export default function WarrantyForm({ channel_list, has_phone, current_phone }: { channel_list: Channel[]; has_phone: boolean; current_phone: string }) {
-    const debounceRef = useRef<NodeJS.Timeout | null>(null);
+    // const debounceRef = useRef<NodeJS.Timeout | null>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     console.log("📦 [WarrantyForm] channel_list:", channel_list);
     // @ts-ignore
     const { user } = usePage().props.auth;
@@ -215,6 +172,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
     const [ProductDetail, setProductDetail] = useState<ProductDetail | null>(null);
 
     const [snVerified, setSnVerified] = useState(false);
+    const [expandCombo, setExpandCombo] = useState(false);
 
     const { data, setData, processing, errors, post }: WarrantyFormProps = useForm({
         warranty_file: '',
@@ -258,7 +216,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         };
     }, []);
 
-    // ✅ รีเซ็ตเฉพาะตอนผู้ใช้ “พิมพ์แก้”
+    // รีเซ็ตเฉพาะตอนผู้ใช้ “พิมพ์แก้”
     // const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     //     const { name, value } = e.target;
 
@@ -383,7 +341,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         }
     };
 
-    // ✅ ตรวจสอบการรับประกัน/ลงทะเบียน: เช็ก duplicate แล้ว “บล็อก”
+    // ตรวจสอบการรับประกัน/ลงทะเบียน: เช็ก duplicate แล้ว “บล็อก”
     const handleCheckSn = async () => {
         const serial = data.serial_number.trim();
         const model = data.model_code.trim();
@@ -518,6 +476,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
     //         setLoadingBuyFrom(false);
     //     }
     // };
+
     const handleChangeStoreName = async (buy_from: string) => {
         console.log("📦 [handleChangeStoreName] เริ่มโหลดร้าน:", buy_from);
 
@@ -769,15 +728,89 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                             <Grid size={12}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", py: 4 }}>
                                     <CircularProgress size={32} sx={{ mb: 1 }} />
-                                    <Typography variant="body2" color="text.secondary">
-                                        {t.History.Information.loading || "กำลังโหลดข้อมูลสินค้า..."}
-                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">{t.History.Information.loading || "กำลังโหลดข้อมูลสินค้า..."}</Typography>
                                 </Box>
                             </Grid>
                         ) : (
                             showProduct && ProductDetail && (
                                 <Grid size={12}>
-                                    <ProductDetailComponent productDetail={ProductDetail} />
+                                    {/* Logic การแสดงผล Combo Set */}
+                                    {ProductDetail.is_combo ? (
+                                        <Stack spacing={0}>
+
+                                            {/* 1. แสดงสินค้าหลัก (Main Asset / กล่องรวม) เสมอ */}
+                                            {ProductDetail.main_assets && (
+                                                <Box>
+                                                    {/* <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary', fontWeight: 'bold' }}>
+                                                        สินค้าหลัก (Main Set):
+                                                    </Typography> */}
+                                                    {(() => {
+                                                        const mainDetail = getMainAssetDetail(ProductDetail.main_assets);
+                                                        return mainDetail ? <ProductDetailComponent productDetail={mainDetail} /> : null;
+                                                    })()}
+                                                </Box>
+                                            )}
+
+                                            {/* 2. ส่วนแสดงรายการสินค้าภายในชุด (Collapsible) */}
+                                            {ProductDetail.combo_skus && ProductDetail.combo_skus.length > 0 && (
+                                                <Box sx={{
+                                                }}>
+                                                    {/* Header ปุ่มกด ย่อ/ขยาย */}
+                                                    <Box
+                                                        onClick={() => setExpandCombo(!expandCombo)}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            gap: 1,
+                                                            px: 1,
+                                                            py: 0,
+                                                            mb: 1,
+                                                            mt: 1,
+                                                            bgcolor: 'primary.50',
+                                                            borderRadius: 2,
+                                                            // border: '1px dashed',
+                                                            borderColor: 'primary.200',
+                                                            cursor: 'pointer',
+                                                            userSelect: 'none',
+                                                            transition: 'all 0.2s',
+                                                            '&:hover': { bgcolor: 'primary.100' }
+                                                        }}
+                                                    >
+                                                        <Box display="flex" alignItems="center" gap={1}>
+                                                            <Assessment color="primary" />
+                                                            <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
+                                                                combo set ({ProductDetail.combo_skus.length} รายการ)
+                                                            </Typography>
+                                                        </Box>
+                                                        {/* ไอคอนลูกศร */}
+                                                        <IconButton size="small" sx={{ color: 'primary.main', p: 0.5 }}>
+                                                            {expandCombo ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                                                        </IconButton>
+                                                    </Box>
+
+                                                    {/* ส่วนเนื้อหาที่ ย่อ/ขยาย ได้ */}
+                                                    <Collapse in={expandCombo} timeout="auto" unmountOnExit>
+                                                        <Stack spacing={1} sx={{ mt: 0 }}>
+                                                            {ProductDetail.combo_skus.map((sku) => {
+                                                                const itemDetail = getComboItemDetail(sku, ProductDetail);
+                                                                if (!itemDetail) return null;
+                                                                return (
+                                                                    <Box key={sku} sx={{ position: 'relative' }}>
+                                                                        <ProductDetailComponent productDetail={itemDetail} />
+                                                                    </Box>
+                                                                );
+                                                            })}
+                                                        </Stack>
+                                                    </Collapse>
+                                                </Box>
+                                            )}
+                                        </Stack>
+                                    ) : (
+                                        // กรณีสินค้าเดี่ยว (Single Product)
+                                        <ProductDetailComponent productDetail={ProductDetail} />
+                                    )}
+                                    {/* แสดง Accessories ต่อท้ายเสมอ (ถ้ามี) */}
                                     {ProductDetail.power_accessories && (
                                         <PowerAccessoriesList accessories={ProductDetail.power_accessories} />
                                     )}

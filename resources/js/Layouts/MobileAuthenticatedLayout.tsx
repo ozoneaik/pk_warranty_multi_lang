@@ -89,7 +89,7 @@ export default function MobileAuthenticatedLayout({
                 }}
             >
                 {/* ⚠️ Dev Mode Banner */}
-                {is_dev_mode && (
+                {/* {is_dev_mode && (
                     <Fade in timeout={600}>
                         <Box
                             sx={{
@@ -137,7 +137,7 @@ export default function MobileAuthenticatedLayout({
                             </Box>
                         </Box>
                     </Fade>
-                )}
+                )} */}
 
                 {/* ✅ Navbar */}
                 <AppBar

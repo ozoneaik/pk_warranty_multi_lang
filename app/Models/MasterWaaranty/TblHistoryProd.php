@@ -16,6 +16,8 @@ class TblHistoryProd extends Model
         'reward',
         'serial_number',
         'model_code',
+        'sku_main',
+        'product_type',
         'model_name',
         'product_name',
         'buy_from',

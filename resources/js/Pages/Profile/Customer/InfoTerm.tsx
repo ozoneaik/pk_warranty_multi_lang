@@ -6,36 +6,34 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 export default function InfoTerm() {
     return (
         <MobileAuthenticatedLayout title="ข้อกำหนดและเงื่อนไข (Terms & Conditions)">
-            <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                startIcon={<ArrowBackIcon sx={{ fontSize: 18 }} />}
-                sx={{
-                    mb: 2,
-                    borderRadius: 1,
-                    px: 1.5,
-                    py: 0.5,
-                    fontSize: 13,
-                    textTransform: "none",
-                }}
-                onClick={() => router.get(route("customer.profile.score"))}
-            >
-                กลับ
-            </Button>
-
             <Head title="ข้อกำหนดและเงื่อนไข (Terms & Conditions)" />
-
             <Container
                 maxWidth="md"
                 sx={{
-                    mt: 3,
+                    mt: 7,
                     mb: 8,
                     py: 2,
                     lineHeight: 1.8,
                     "& p": { mb: 2 },
                 }}
             >
+                <Button
+                    variant="contained"
+                    // color="primary"
+                    size="small"
+                    startIcon={<ArrowBackIcon sx={{ fontSize: 18 }} />}
+                    sx={{
+                        mb: 2,
+                        borderRadius: 1,
+                        px: 1.5,
+                        py: 0.5,
+                        fontSize: 13,
+                        textTransform: "none",
+                    }}
+                    onClick={() => router.get(route("customer.profile.score"))}
+                >
+                    กลับ
+                </Button>
                 <Typography variant="h5" fontWeight="bold" gutterBottom>
                     ข้อกำหนดและเงื่อนไข
                 </Typography>
@@ -106,7 +104,7 @@ export default function InfoTerm() {
                         <Typography fontWeight="bold" color="text.secondary">
                             • คุกกี้เพื่อปรับเนื้อหาให้เข้ากับกลุ่มเป้าหมาย (Targeting Cookies)
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ pl: 1}}>
+                        <Typography variant="body2" color="text.secondary" sx={{ pl: 1 }}>
                             คุกกี้ประเภทนี้จะเก็บข้อมูลต่าง ๆ ซึ่งอาจรวมถึงข้อมูลส่วนบุคคลของท่าน
                             และสร้างโปรไฟล์เกี่ยวกับตัวท่าน เพื่อให้เราสามารถวิเคราะห์และนำเสนอเนื้อหา
                             สินค้า/บริการ หรือโฆษณาที่เหมาะสมกับความสนใจของท่านได้

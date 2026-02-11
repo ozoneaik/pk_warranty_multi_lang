@@ -167,6 +167,8 @@
     "ProfileWelcome": {
         "title": "โปรไฟล์ของฉัน",
         "hello": "สวัสดีคุณ",
+        "referralCode": "รหัสแนะนำเพื่อน",
+        "ShortreferralCode": "รหัสแนะนำ",
         "manageTitle": "การจัดการโปรไฟล์ของคุณ",
         "menu": {
             "edit": {
@@ -187,5 +189,6 @@
         "title": "คะแนนสะสม",
         "MyPointTitle": "คะแนนสะสมของฉัน",
         "FeatureIsDeveloping": "ฟีเจอร์นี้ยังกําลังพัฒนา"
-    }
+    },
+    "copy": "คัดลอก"
 }

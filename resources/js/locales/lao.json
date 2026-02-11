@@ -165,6 +165,8 @@
     "ProfileWelcome": {
         "title": "ໂປຣໄຟລຂອງຂ້ອຍ",
         "hello": "ສະບາຍດີທ່ານ",
+        "referralCode": "ລະຫັດແນະນໍາ",
+        "ShortreferralCode": "ລະຫັດແນະນໍາ",
         "manageTitle": "ການຈັດການໂປຣໄຟລຂອງທ່ານ",
         "menu": {
             "edit": {
@@ -185,5 +187,6 @@
         "title": "ຄະແນນສະສົມ",
         "MyPointTitle": "ຄະແນນສະສົມຂອງຂ້ອຍ",
         "FeatureIsDeveloping": "ຟັງຊັນນີ້ກໍາລັງຢູ່ໃນຂັ້ນພັດທະນາ"
-    }
+    },
+     "copy": "ສໍາເນົາ"
 }
