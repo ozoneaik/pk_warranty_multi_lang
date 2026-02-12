@@ -33,7 +33,8 @@ class WrFormRequest extends FormRequest
             'buy_date' => 'required',
             'store_name' => 'required',
             'customer_code' => 'nullable',
-
+            'pc_code' => 'nullable|string|max:50',
+            
             'power_accessories' => 'nullable|array',
             'power_accessories.*.serial_number' => 'required|string',
             'power_accessories.*.model_code'    => 'nullable|string',

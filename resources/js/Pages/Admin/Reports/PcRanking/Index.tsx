@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { Box, Container } from 'lucide-react';
+
 interface RankingItem {
     referrer_uid: string;
     referrer_name: string;
@@ -38,10 +38,6 @@ const PcRanking: React.FC<RankingsProps> = ({ rankings }) => {
         return <span className="font-bold text-gray-500">{actualRank}</span>;
     };
 
-    const goBack = () => {
-        router.get(route('admin.reports.index'));
-    };
-
     return (
         <AuthenticatedLayout>
             <div className="p-8 bg-gray-50 min-h-screen font-sans">
@@ -55,7 +51,7 @@ const PcRanking: React.FC<RankingsProps> = ({ rankings }) => {
                     {/* Header Section */}
                     <div className="p-8 text-center border-b border-gray-100 bg-gradient-to-r from-orange-50 to-white">
                         <h1 className="text-3xl font-black text-orange-800 mb-2">ลำดับยอดสะสม</h1>
-                        <p className="text-gray-500 font-medium">Campaign PC New Member Referral Leaderboard</p>
+                        <p className="text-gray-500 font-medium">Campaign PC Product Registration Leaderboard</p>
                     </div>
                     <div className="p-6">
                         <table className="w-full text-left border-separate border-spacing-y-3">
@@ -63,7 +59,7 @@ const PcRanking: React.FC<RankingsProps> = ({ rankings }) => {
                                 <tr className="text-gray-400 uppercase text-xs font-bold tracking-wider">
                                     <th className="px-4 py-2 text-center w-24">ลำดับที่</th>
                                     <th className="px-4 py-2">ชื่อ-สกุล</th>
-                                    <th className="px-4 py-2 text-right">ยอดสะสม</th>
+                                    <th className="px-4 py-2 text-right">จำนวน (ครั้ง)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,16 +84,22 @@ const PcRanking: React.FC<RankingsProps> = ({ rankings }) => {
                                                     <div className="font-bold text-gray-800">
                                                         {item.referrer_name}
                                                     </div>
-                                                    <div className="text-sm text-gray-400 italic">
-                                                        {item.cust_tel || '---'}
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded">
+                                                            Code: {item.referrer_uid}
+                                                        </span>
+                                                        <span className="text-sm text-gray-400 italic">
+                                                            {item.cust_tel ? `| ${item.cust_tel}` : ''}
+                                                        </span>
                                                     </div>
+
                                                 </td>
 
-                                                {/* ยอดสะสม */}
+                                                {/* ✅ แสดงยอดเป็นจำนวนครั้ง */}
                                                 <td className="px-4 py-4 text-right rounded-r-xl">
                                                     <span className={`text-xl font-black ${isTopThree ? 'text-orange-600' : 'text-gray-700'
                                                         }`}>
-                                                        {Number(item.total_points).toLocaleString()} Point
+                                                        {Number(item.total_referrals).toLocaleString()} ครั้ง
                                                     </span>
                                                 </td>
                                             </tr>

@@ -1042,7 +1042,8 @@ class WarrantyFormController extends Controller
                     'warranty_from' => 'warranty_pupmkin_crm',
                     'customer_code' => $req['customer_code'] ?? null,
                     'customer_name' => $req['customer_name'] ?? null,
-                    'pc_code'       => $request->pc_code ?? null,
+                    // 'pc_code'       => $request->pc_code ?? null,
+                    'pc_code'       => $req['pc_code'] ?? null,
                 ]);
 
                 if ($item['type'] === 'main' && !$mainStoreRecord) {

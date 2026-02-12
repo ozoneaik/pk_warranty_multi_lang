@@ -513,8 +513,15 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         }
     };
 
+    // const handleQrSuccess = (decodedText: string) => {
+    //     setData('customer_code', decodedText);
+    //     setQrScanSuccess(true);
+    //     setOpenQrScanner(false);
+    //     setTimeout(() => setQrScanSuccess(false), 3000);
+    // };
+
     const handleQrSuccess = (decodedText: string) => {
-        setData('customer_code', decodedText);
+        setData('pc_code', decodedText);
         setQrScanSuccess(true);
         setOpenQrScanner(false);
         setTimeout(() => setQrScanSuccess(false), 3000);
@@ -672,6 +679,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                                     buy_date: '',
                                                     store_name: '',
                                                     customer_code: '',
+                                                    pc_code: '',
                                                 });
                                                 setShowForm(false);
                                                 setShowProduct(false);
@@ -1063,7 +1071,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                     </FormControl>
                                 </Grid>
 
-                                {showReferralField && (
+                                {/* {showReferralField && (
                                     <Grid size={12}>
                                         <FormControl fullWidth>
                                             <FormLabel htmlFor="customer_code" sx={{ mb: 1, fontWeight: "medium" }}>
@@ -1101,42 +1109,50 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                             />
                                         </FormControl>
                                     </Grid>
-                                )}
+                                )} */}
 
-                                {/* <Grid size={12}>
-                                    <FormControl fullWidth>
-                                        <FormLabel htmlFor="pc_code" sx={{ mb: 1, fontWeight: "medium" }}>
-                                            รหัสพนักงาน PC (ถ้ามี)
-                                        </FormLabel>
-                                        <TextField
-                                            id="pc_code"
-                                            name="pc_code"
-                                            value={data.pc_code}
-                                            onChange={handleOnChange}
-                                            disabled={processing}
-                                            placeholder="ระบุรหัสพนักงานขาย"
-                                            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-                                            slotProps={{
-                                                input: {
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <IconButton
-                                                                onClick={() => setOpenPcQrScanner(true)}
-                                                                color="primary"
-                                                                sx={{
-                                                                    bgcolor: "primary.50",
-                                                                    "&:hover": { bgcolor: "primary.100" }
-                                                                }}
-                                                            >
-                                                                <QrCode />
-                                                            </IconButton>
-                                                        </InputAdornment>
-                                                    ),
-                                                },
-                                            }}
-                                        />
-                                    </FormControl>
-                                </Grid> */}
+                                {showReferralField && (
+                                    <Grid size={12}>
+                                        <FormControl fullWidth>
+                                            <FormLabel htmlFor="pc_code" sx={{ mb: 1, fontWeight: "medium" }}>
+                                                {t.Warranty.Form.customer_code_title}
+                                            </FormLabel>
+                                            <TextField
+                                                id="pc_code"
+                                                name="pc_code"
+                                                value={data.pc_code}
+                                                onChange={(e) => {
+                                                    // ✅ แก้ไข: รับค่าตามที่พิมพ์จริง (ไม่ต้องกรองเอาแค่ตัวเลข)
+                                                    setData("pc_code", e.target.value);
+                                                }}
+                                                // ✅ แก้ไข: ลบ pattern และ inputMode numeric ออกเพื่อให้คีย์บอร์ดเป็นแบบปกติ
+                                                inputProps={{
+                                                    // สามารถใส่ maxLength หรือ style อื่นๆ ที่ต้องการได้ที่นี่
+                                                }}
+                                                disabled={processing}
+                                                placeholder={t.Warranty.Validate.customer_code}
+                                                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                                                slotProps={{
+                                                    input: {
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                {false && (
+                                                                    <IconButton
+                                                                        onClick={handleOpenQrScanner}
+                                                                        color="primary"
+                                                                        sx={{ bgcolor: "primary.50", "&:hover": { bgcolor: "primary.100" } }}
+                                                                    >
+                                                                        <QrCode />
+                                                                    </IconButton>
+                                                                )}
+                                                            </InputAdornment>
+                                                        ),
+                                                    },
+                                                }}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                )}
 
                                 <Grid size={12}>
                                     <FormControl fullWidth>
