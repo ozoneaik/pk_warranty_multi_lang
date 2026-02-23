@@ -3,6 +3,7 @@ import { Gift, Settings, Calendar, Users, Award, Package, Info, Plus, Trash2, Ar
 import { router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import PrivilegePreviewCard from './PrivilegePreviewCard';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 // --- Interfaces ---
 interface QuotaRule {
@@ -121,9 +122,9 @@ const Create = () => {
     ];
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout>
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-prompt">
-                <div className="max-w-5xl mx-auto px-4 py-8">
+                <div className="max-w-7xl mx-auto px-4 py-8">
 
                     {/* Header */}
                     <div className="mb-8">
@@ -135,7 +136,7 @@ const Create = () => {
                                 <h1 className="text-3xl font-bold text-gray-900">สร้างสิทธิพิเศษใหม่</h1>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 ml-14">
+                        <div className="flex items-center gap-3 ml-2">
                             <div className="p-2 bg-purple-600 rounded-lg shadow-sm">
                                 <Gift className="w-5 h-5 text-white" />
                             </div>
@@ -363,7 +364,7 @@ const Create = () => {
                         </div>
 
                         {/* Footer Action Bar */}
-                        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] rounded-t-xl -mx-4 px-8 py-4 z-20 flex justify-between items-center">
+                        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] rounded-t-xl -mx-0 px-8 py-4 z-20 flex justify-between items-center">
                             <div className="flex items-center gap-3">
                                 <span className="text-sm font-medium text-gray-600">สถานะ:</span>
                                 <button type="button" onClick={() => setData({ ...data, is_active: !data.is_active })} className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${data.is_active ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200'}`}>
@@ -382,7 +383,7 @@ const Create = () => {
                     </form>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 };
 

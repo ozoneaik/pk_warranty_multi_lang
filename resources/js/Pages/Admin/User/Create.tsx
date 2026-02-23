@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 // ปรับ path นี้ตาม Layout จริงของคุณ
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 // กรณีใช้ Ziggy สำหรับ route() ถ้าไม่มี type ให้ข้าม interface นี้ไปได้
 interface RouteParams {
@@ -68,11 +69,11 @@ export default function Create() {
     };
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout>
             <Head title="สร้างผู้ใช้งานใหม่" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="py-10">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-6">
 
                     {/* Header ส่วนหัว */}
                     <div className="flex justify-between items-center mb-6">
@@ -196,6 +197,6 @@ export default function Create() {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Gift, Settings, Calendar, Users, Award, Package, Info, Plus, Trash2, ArrowLeft, Save, Loader2, Image } from 'lucide-react';
 import { router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 // --- Interfaces ---
 interface QuotaRule {
@@ -121,9 +122,9 @@ const Edit = ({ privilege }: EditProps) => {
     ];
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout>
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-prompt">
-                <div className="max-w-5xl mx-auto px-4 py-8">
+                <div className="max-w-7xl mx-auto px-4 py-4">
 
                     {/* Header */}
                     <div className="mb-8">
@@ -328,7 +329,7 @@ const Edit = ({ privilege }: EditProps) => {
                     </form>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 };
 

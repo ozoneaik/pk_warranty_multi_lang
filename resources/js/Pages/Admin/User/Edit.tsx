@@ -1,6 +1,7 @@
 import React, { FormEvent } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 interface UserData {
     id: number;
@@ -24,7 +25,7 @@ export default function EditUser({ user }: { user: UserData }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <AdminLayout
             header={
                 <div className="flex items-center space-x-4">
                     <Link
@@ -132,6 +133,6 @@ export default function EditUser({ user }: { user: UserData }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

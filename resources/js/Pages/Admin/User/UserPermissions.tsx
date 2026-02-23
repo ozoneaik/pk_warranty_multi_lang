@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
 import Swal from 'sweetalert2';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 interface UserPermissionsData {
     role: string;
@@ -59,10 +60,10 @@ export default function UserPermissions({ auth, targetUser, menus, currentPermis
     });
 
     return (
-        <AuthenticatedLayout header={
+        <AdminLayout header={
             <div className="flex items-center space-x-4">
                 <Link
-                    href={route('admin.dashboard') as string}
+                    href={route('admin.users.index') as string}
                     className="text-gray-500 hover:text-gray-700 transition p-1 rounded-full hover:bg-gray-100"
                     title="ย้อนกลับไป Dashboard"
                 >
@@ -74,7 +75,7 @@ export default function UserPermissions({ auth, targetUser, menus, currentPermis
             </div>
         }>
             <Head title="User Permissions" />
-            <div className="py-12 max-w-2xl mx-auto px-4">
+            <div className="py-0 max-w-7xl mx-auto px-4">
                 <form onSubmit={submit} className="space-y-6">
 
                     {/* ส่วนที่ 1: เลือกบทบาท (Role) */}
@@ -143,6 +144,6 @@ export default function UserPermissions({ auth, targetUser, menus, currentPermis
                     </div>
                 </form>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

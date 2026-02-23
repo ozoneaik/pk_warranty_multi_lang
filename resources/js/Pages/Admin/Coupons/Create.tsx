@@ -6,6 +6,7 @@ import {
     Plus, Trash2, ArrowLeft, Save, Loader2, Image, Ticket, QrCode, Link as LinkIcon
 } from 'lucide-react';
 import CouponPreviewCard from './CouponPreviewCard';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 // --- Components (Reused Style) ---
 const InfoTooltip = ({ text }: { text: React.ReactNode }) => {
@@ -111,10 +112,12 @@ export default function CouponCreate() {
 
     // --- Main Render ---
     return (
-        <AuthenticatedLayout>
+        <AdminLayout
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">สร้างคูปองใหม่</h2>}
+        >
             <Head title="สร้างคูปองใหม่" />
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-prompt pb-20">
-                <div className="max-w-5xl mx-auto px-4 py-8">
+                <div className="max-w-7xl mx-auto px-4 py-4">
 
                     {/* Header */}
                     <div className="mb-8">
@@ -368,7 +371,7 @@ export default function CouponCreate() {
                         </div>
 
                         {/* Footer Action Bar (Sticky) */}
-                        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] rounded-t-xl -mx-4 px-8 py-4 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] rounded-t-xl -mx-0 px-8 py-4 z-20 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                                 <span className="text-sm font-medium text-gray-600">สถานะ:</span>
                                 <button type="button" onClick={() => setData('is_active', !data.is_active)} className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${data.is_active ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200'}`}>
@@ -387,6 +390,6 @@ export default function CouponCreate() {
                     </form>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 };

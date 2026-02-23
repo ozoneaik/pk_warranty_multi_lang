@@ -1,15 +1,305 @@
+// import React from 'react';
+// import { Head, Link, router } from '@inertiajs/react';
+// import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+// import {
+//     Box, Pagination, Table, TableBody, TableCell, TableContainer,
+//     TableHead, TableRow, Chip, Avatar, IconButton, Typography
+// } from '@mui/material';
+// import {
+//     Plus, Trash2, Edit2, Copy, Ticket, ArrowLeft, MoreHorizontal, Calendar, Tag
+// } from 'lucide-react';
+// import Swal from 'sweetalert2';
+// import dayjs from 'dayjs';
+
+// interface Coupon {
+//     id: number;
+//     name: string;
+//     code: string;
+//     image_url: string;
+//     discount_value: number;
+//     discount_unit: string;
+//     start_date: string;
+//     end_date: string;
+//     is_active: boolean;
+// }
+
+// interface Props {
+//     coupons: {
+//         data: Coupon[];
+//         links: any[];
+//         current_page: number;
+//         last_page: number;
+//     };
+// }
+
+// export default function CouponIndex({ coupons }: Props) {
+
+//     const handleDelete = (id: number) => {
+//         Swal.fire({
+//             title: 'ยืนยันการลบ?',
+//             text: "คุณไม่สามารถย้อนกลับการกระทำนี้ได้!",
+//             icon: 'warning',
+//             showCancelButton: true,
+//             confirmButtonColor: '#d33',
+//             cancelButtonColor: '#3085d6',
+//             confirmButtonText: 'ลบข้อมูล',
+//             cancelButtonText: 'ยกเลิก',
+//             background: '#fff',
+//             customClass: {
+//                 title: 'font-prompt',
+//                 popup: 'rounded-xl shadow-xl'
+//             }
+//         }).then((result) => {
+//             if (result.isConfirmed) {
+//                 router.delete(route('admin.coupons.destroy', id));
+//             }
+//         });
+//     };
+
+//     const copyToClipboard = (text: string) => {
+//         navigator.clipboard.writeText(text);
+//         const Toast = Swal.mixin({
+//             toast: true,
+//             position: 'top-end',
+//             showConfirmButton: false,
+//             timer: 2000,
+//             timerProgressBar: true
+//         });
+//         Toast.fire({
+//             icon: 'success',
+//             title: 'คัดลอกรหัสเรียบร้อยแล้ว'
+//         });
+//     };
+
+//     return (
+//         <AuthenticatedLayout
+//             header={
+//                 <div className="flex items-center space-x-4">
+//                     <Link
+//                         href={route('admin.reward-management.index') as string}
+//                         className="text-gray-500 hover:text-gray-700 transition p-1 rounded-full hover:bg-gray-100"
+//                         title="ย้อนกลับไป Dashboard"
+//                     >
+//                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+//                         </svg>
+//                     </Link>
+//                     <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100">
+//                         <Ticket className="w-6 h-6 text-purple-600" />
+//                     </div>
+//                     <div className="flex flex-col">
+//                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">จัดการคูปอง</h2>
+//                         <p className="text-gray-500 text-sm">รายการคูปองส่วนลดทั้งหมดในระบบ</p>
+//                     </div>
+//                 </div>
+//             }
+//         >
+//             <Head title="จัดการคูปอง" />
+//             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-prompt pb-20">
+//                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+//                     {
+//                     /* Header Section */}
+//                     {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-2"> */}
+//                         {/* <div>
+//                             <Link
+//                                 href={route('admin.reward-management.index')}
+//                                 className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-purple-600 mb-2 transition-colors"
+//                             >
+//                                 <ArrowLeft className="w-4 h-4" />
+//                                 กลับไปหน้าจัดการรางวัล
+//                             </Link>
+//                             <div className="flex items-center gap-3">
+//                                 <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100">
+//                                     <Ticket className="w-6 h-6 text-purple-600" />
+//                                 </div>
+//                                 <div>
+//                                     <h1 className="text-2xl font-bold text-gray-900">จัดการคูปอง</h1>
+//                                     <p className="text-sm text-gray-500">รายการคูปองส่วนลดทั้งหมดในระบบ</p>
+//                                 </div>
+//                             </div>
+//                         </div> */}
+//                     {/* </div> */}
+//                     <div className="flex items-center justify-end mb-4">
+//                         <Link
+//                             href={route('admin.coupons.create')}
+//                             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 shadow-md hover:shadow-lg transition-all font-medium active:scale-95"
+//                         >
+//                             <Plus className="w-5 h-5" />
+//                             สร้างคูปองใหม่
+//                         </Link>
+//                     </div>
+//                     {/* Table Card */}
+//                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+//                         <TableContainer>
+//                             <Table sx={{ minWidth: 650 }}>
+//                                 <TableHead>
+//                                     <TableRow className="bg-gray-50 border-b border-gray-100">
+//                                         <TableCell width="80" align="center" className="font-semibold text-gray-600 py-4">รูปภาพ</TableCell>
+//                                         <TableCell className="font-semibold text-gray-600 py-4">ข้อมูลคูปอง</TableCell>
+//                                         <TableCell className="font-semibold text-gray-600 py-4">Code</TableCell>
+//                                         <TableCell className="font-semibold text-gray-600 py-4">มูลค่าส่วนลด</TableCell>
+//                                         <TableCell className="font-semibold text-gray-600 py-4">ระยะเวลา</TableCell>
+//                                         <TableCell align="center" className="font-semibold text-gray-600 py-4">สถานะ</TableCell>
+//                                         <TableCell align="center" width="120" className="font-semibold text-gray-600 py-4">จัดการ</TableCell>
+//                                     </TableRow>
+//                                 </TableHead>
+//                                 <TableBody>
+//                                     {coupons.data.length === 0 ? (
+//                                         <TableRow>
+//                                             <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
+//                                                 <div className="flex flex-col items-center justify-center text-gray-400">
+//                                                     <Ticket className="w-12 h-12 mb-3 opacity-20" />
+//                                                     <Typography variant="body1">ยังไม่มีรายการคูปองในระบบ</Typography>
+//                                                 </div>
+//                                             </TableCell>
+//                                         </TableRow>
+//                                     ) : (
+//                                         coupons.data.map((item) => (
+//                                             <TableRow
+//                                                 key={item.id}
+//                                                 hover
+//                                                 sx={{
+//                                                     '&:last-child td, &:last-child th': { border: 0 },
+//                                                     transition: 'background-color 0.2s'
+//                                                 }}
+//                                             >
+//                                                 {/* Image */}
+//                                                 <TableCell align="center">
+//                                                     <Avatar
+//                                                         src={item.image_url || undefined}
+//                                                         variant="rounded"
+//                                                         sx={{ width: 48, height: 48, bgcolor: '#f3e8ff', color: '#9333ea', fontSize: 14, fontWeight: 'bold', margin: '0 auto' }}
+//                                                     >
+//                                                         {!item.image_url && <Tag className="w-5 h-5" />}
+//                                                     </Avatar>
+//                                                 </TableCell>
+
+//                                                 {/* Name & ID */}
+//                                                 <TableCell>
+//                                                     <div className="flex flex-col">
+//                                                         <span className="font-semibold text-gray-800 text-sm md:text-base">{item.name}</span>
+//                                                         <span className="text-xs text-gray-400">ID: {item.id}</span>
+//                                                     </div>
+//                                                 </TableCell>
+
+//                                                 {/* Code */}
+//                                                 <TableCell>
+//                                                     {item.code ? (
+//                                                         <div
+//                                                             className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded-md border border-gray-200 text-gray-700 font-mono text-sm cursor-pointer hover:bg-gray-200 hover:border-gray-300 transition-colors group"
+//                                                             onClick={() => copyToClipboard(item.code)}
+//                                                             title="คลิกเพื่อคัดลอก"
+//                                                         >
+//                                                             {item.code}
+//                                                             <Copy className="w-3 h-3 text-gray-400 group-hover:text-gray-600" />
+//                                                         </div>
+//                                                     ) : (
+//                                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs font-medium border border-blue-100">
+//                                                             Auto Generate
+//                                                         </span>
+//                                                     )}
+//                                                 </TableCell>
+
+//                                                 {/* Discount Value */}
+//                                                 <TableCell>
+//                                                     <div className="flex items-baseline gap-1">
+//                                                         <span className="text-lg font-bold text-purple-600">
+//                                                             {Number(item.discount_value).toLocaleString()}
+//                                                         </span>
+//                                                         <span className="text-xs font-medium text-gray-500 uppercase">
+//                                                             {item.discount_unit === 'BAHT' ? 'บาท' : (item.discount_unit === 'PERCENT' ? '%' : 'คะแนน')}
+//                                                         </span>
+//                                                     </div>
+//                                                 </TableCell>
+
+//                                                 {/* Duration */}
+//                                                 <TableCell>
+//                                                     <div className="flex flex-col gap-1">
+//                                                         <div className="flex items-center gap-1.5 text-xs text-gray-600">
+//                                                             <Calendar className="w-3.5 h-3.5 text-green-500" />
+//                                                             <span>{item.start_date ? dayjs(item.start_date).format('DD MMM BB') : 'ไม่ระบุ'}</span>
+//                                                         </div>
+//                                                         <div className="flex items-center gap-1.5 text-xs text-gray-600">
+//                                                             <Calendar className="w-3.5 h-3.5 text-red-400" />
+//                                                             <span>{item.end_date ? dayjs(item.end_date).format('DD MMM BB') : 'ไม่มีกำหนด'}</span>
+//                                                         </div>
+//                                                     </div>
+//                                                 </TableCell>
+
+//                                                 {/* Status */}
+//                                                 <TableCell align="center">
+//                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.is_active
+//                                                         ? 'bg-green-50 text-green-700 border-green-200'
+//                                                         : 'bg-gray-100 text-gray-600 border-gray-200'
+//                                                         }`}>
+//                                                         <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${item.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+//                                                         {item.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
+//                                                     </span>
+//                                                 </TableCell>
+
+//                                                 {/* Actions */}
+//                                                 <TableCell align="center">
+//                                                     <div className="flex items-center justify-center gap-2">
+//                                                         <Link
+//                                                             href={route('admin.coupons.edit', item.id)}
+//                                                             className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+//                                                             title="แก้ไข"
+//                                                         >
+//                                                             <Edit2 className="w-4 h-4" />
+//                                                         </Link>
+//                                                         <button
+//                                                             onClick={() => handleDelete(item.id)}
+//                                                             className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+//                                                             title="ลบ"
+//                                                         >
+//                                                             <Trash2 className="w-4 h-4" />
+//                                                         </button>
+//                                                     </div>
+//                                                 </TableCell>
+//                                             </TableRow>
+//                                         ))
+//                                     )}
+//                                 </TableBody>
+//                             </Table>
+//                         </TableContainer>
+
+//                         {/* Footer / Pagination */}
+//                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-center sm:justify-end">
+//                             <Pagination
+//                                 count={coupons.last_page}
+//                                 page={coupons.current_page}
+//                                 onChange={(_, page) => router.get(route('admin.coupons.index'), { page })}
+//                                 color="primary"
+//                                 shape="rounded"
+//                                 size="small"
+//                                 sx={{
+//                                     '& .Mui-selected': {
+//                                         bgcolor: '#9333ea !important', // Purple-600
+//                                         color: '#fff'
+//                                     }
+//                                 }}
+//                             />
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         </AuthenticatedLayout>
+//     );
+// }
+
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import {
     Box, Pagination, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Chip, Avatar, IconButton, Typography
+    TableHead, TableRow, Avatar, Typography
 } from '@mui/material';
 import {
-    Plus, Trash2, Edit2, Copy, Ticket, ArrowLeft, MoreHorizontal, Calendar, Tag
+    Plus, Trash2, Edit2, Copy, Ticket, ArrowLeft, Calendar, Tag
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
+import 'dayjs/locale/th';
 
 interface Coupon {
     id: number;
@@ -29,6 +319,9 @@ interface Props {
         links: any[];
         current_page: number;
         last_page: number;
+        total: number;
+        from: number;
+        to: number;
     };
 }
 
@@ -40,18 +333,21 @@ export default function CouponIndex({ coupons }: Props) {
             text: "คุณไม่สามารถย้อนกลับการกระทำนี้ได้!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#ef4444', // สีแดง Tailwind (rose-500)
+            cancelButtonColor: '#9ca3af',  // สีเทา Tailwind (gray-400)
             confirmButtonText: 'ลบข้อมูล',
             cancelButtonText: 'ยกเลิก',
             background: '#fff',
             customClass: {
-                title: 'font-prompt',
-                popup: 'rounded-xl shadow-xl'
+                title: 'font-prompt font-bold text-gray-800',
+                htmlContainer: 'font-prompt text-gray-500',
+                popup: 'rounded-2xl shadow-xl border border-gray-100'
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                router.delete(route('admin.coupons.destroy', id));
+                router.delete(route('admin.coupons.destroy', id), {
+                    preserveScroll: true
+                });
             }
         });
     };
@@ -63,7 +359,10 @@ export default function CouponIndex({ coupons }: Props) {
             position: 'top-end',
             showConfirmButton: false,
             timer: 2000,
-            timerProgressBar: true
+            timerProgressBar: true,
+            customClass: {
+                popup: 'font-prompt rounded-xl shadow-lg border border-gray-100'
+            }
         });
         Toast.fire({
             icon: 'success',
@@ -71,218 +370,224 @@ export default function CouponIndex({ coupons }: Props) {
         });
     };
 
+    const goBack = () => {
+        router.get(route('admin.reward-management.index'));
+    };
+
     return (
-        <AuthenticatedLayout
+        <AdminLayout
             header={
                 <div className="flex items-center space-x-4">
-                    <Link
-                        href={route('admin.reward-management.index') as string}
-                        className="text-gray-500 hover:text-gray-700 transition p-1 rounded-full hover:bg-gray-100"
-                        title="ย้อนกลับไป Dashboard"
+                    <button
+                        onClick={goBack}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-800"
+                        title="ย้อนกลับ"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                    </Link>
-                    <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100">
-                        <Ticket className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div className="flex flex-col">
-                        <h2 className="font-semibold text-xl text-gray-800 leading-tight">จัดการคูปอง</h2>
-                        <p className="text-gray-500 text-sm">รายการคูปองส่วนลดทั้งหมดในระบบ</p>
+                        <ArrowLeft className="h-5 w-5" />
+                    </button>
+                    <div>
+                        <h2 className="font-bold text-2xl text-gray-800 leading-tight">จัดการคูปอง</h2>
+                        <p className="text-sm text-gray-500 font-normal mt-0.5">รายการคูปองส่วนลดทั้งหมดในระบบ</p>
                     </div>
                 </div>
             }
         >
             <Head title="จัดการคูปอง" />
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-prompt pb-20">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {
-                    /* Header Section */}
-                    {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-2"> */}
-                        {/* <div>
-                            <Link
-                                href={route('admin.reward-management.index')}
-                                className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-purple-600 mb-2 transition-colors"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                                กลับไปหน้าจัดการรางวัล
-                            </Link>
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100">
-                                    <Ticket className="w-6 h-6 text-purple-600" />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">จัดการคูปอง</h1>
-                                    <p className="text-sm text-gray-500">รายการคูปองส่วนลดทั้งหมดในระบบ</p>
-                                </div>
-                            </div>
-                        </div> */}
-                    {/* </div> */}
-                    <div className="flex items-center justify-end mb-4">
-                        <Link
-                            href={route('admin.coupons.create')}
-                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 shadow-md hover:shadow-lg transition-all font-medium active:scale-95"
-                        >
-                            <Plus className="w-5 h-5" />
-                            สร้างคูปองใหม่
-                        </Link>
+
+            <div className="space-y-6">
+
+                {/* Toolbar Section */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl border border-purple-100">
+                            <Ticket className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900">รายการคูปองทั้งหมด</h3>
+                            <p className="text-sm text-gray-500">พบ {coupons.total || 0} รายการในระบบ</p>
+                        </div>
                     </div>
-                    {/* Table Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <TableContainer>
-                            <Table sx={{ minWidth: 650 }}>
-                                <TableHead>
-                                    <TableRow className="bg-gray-50 border-b border-gray-100">
-                                        <TableCell width="80" align="center" className="font-semibold text-gray-600 py-4">รูปภาพ</TableCell>
-                                        <TableCell className="font-semibold text-gray-600 py-4">ข้อมูลคูปอง</TableCell>
-                                        <TableCell className="font-semibold text-gray-600 py-4">Code</TableCell>
-                                        <TableCell className="font-semibold text-gray-600 py-4">มูลค่าส่วนลด</TableCell>
-                                        <TableCell className="font-semibold text-gray-600 py-4">ระยะเวลา</TableCell>
-                                        <TableCell align="center" className="font-semibold text-gray-600 py-4">สถานะ</TableCell>
-                                        <TableCell align="center" width="120" className="font-semibold text-gray-600 py-4">จัดการ</TableCell>
+                    <Link
+                        href={route('admin.coupons.create')}
+                        className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 font-semibold text-sm whitespace-nowrap active:scale-95"
+                    >
+                        <Plus className="w-4 h-4" />
+                        สร้างคูปองใหม่
+                    </Link>
+                </div>
+
+                {/* Table Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <TableContainer>
+                        <Table sx={{ minWidth: 800 }}>
+                            <TableHead>
+                                <TableRow className="bg-gray-50/80 border-b border-gray-100">
+                                    <TableCell width="80" align="center" sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>รูปภาพ</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>ข้อมูลคูปอง</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>รหัส (Code)</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>มูลค่าส่วนลด</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>ระยะเวลา</TableCell>
+                                    <TableCell align="center" sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>สถานะ</TableCell>
+                                    <TableCell align="right" width="120" sx={{ fontWeight: 'bold', color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', pr: 4 }}>จัดการ</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody className="divide-y divide-gray-50">
+                                {coupons.data.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} align="center" sx={{ py: 12 }}>
+                                            <div className="flex flex-col items-center justify-center text-gray-400">
+                                                <div className="p-4 bg-gray-50 rounded-full mb-3">
+                                                    <Ticket className="w-8 h-8 text-gray-300" />
+                                                </div>
+                                                <Typography variant="body1" fontWeight={500} color="text.primary">ยังไม่มีรายการคูปอง</Typography>
+                                                <Typography variant="body2" mt={0.5}>เริ่มต้นสร้างคูปองใบแรกของคุณ</Typography>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {coupons.data.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
-                                                <div className="flex flex-col items-center justify-center text-gray-400">
-                                                    <Ticket className="w-12 h-12 mb-3 opacity-20" />
-                                                    <Typography variant="body1">ยังไม่มีรายการคูปองในระบบ</Typography>
+                                ) : (
+                                    coupons.data.map((item) => (
+                                        <TableRow
+                                            key={item.id}
+                                            hover
+                                            sx={{
+                                                '&:last-child td, &:last-child th': { border: 0 },
+                                                transition: 'background-color 0.2s'
+                                            }}
+                                            className="hover:bg-gray-50/50 group"
+                                        >
+                                            {/* Image */}
+                                            <TableCell align="center" sx={{ py: 2 }}>
+                                                <Avatar
+                                                    src={item.image_url || undefined}
+                                                    variant="rounded"
+                                                    sx={{
+                                                        width: 48, height: 48,
+                                                        bgcolor: '#f3e8ff', color: '#9333ea',
+                                                        fontSize: 14, fontWeight: 'bold',
+                                                        margin: '0 auto', border: '1px solid #e2e8f0',
+                                                        boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+                                                    }}
+                                                >
+                                                    {!item.image_url && <Tag className="w-5 h-5" />}
+                                                </Avatar>
+                                            </TableCell>
+
+                                            {/* Name & ID */}
+                                            <TableCell sx={{ py: 2 }}>
+                                                <div className="font-bold text-gray-900 line-clamp-1">{item.name}</div>
+                                                <div className="text-xs text-gray-400 font-mono mt-0.5">ID: {item.id}</div>
+                                            </TableCell>
+
+                                            {/* Code */}
+                                            <TableCell sx={{ py: 2 }}>
+                                                {item.code ? (
+                                                    <div
+                                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 rounded-md border border-gray-200 text-gray-700 font-mono text-sm cursor-pointer hover:bg-gray-100 hover:border-gray-300 hover:text-indigo-600 transition-colors group/code"
+                                                        onClick={() => copyToClipboard(item.code)}
+                                                        title="คลิกเพื่อคัดลอก"
+                                                    >
+                                                        {item.code}
+                                                        <Copy className="w-3.5 h-3.5 text-gray-400 group-hover/code:text-indigo-500" />
+                                                    </div>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs font-medium border border-blue-100">
+                                                        Auto Generate
+                                                    </span>
+                                                )}
+                                            </TableCell>
+
+                                            {/* Discount Value */}
+                                            <TableCell sx={{ py: 2 }}>
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-lg font-bold text-purple-600">
+                                                        {Number(item.discount_value).toLocaleString()}
+                                                    </span>
+                                                    <span className="text-xs font-semibold text-gray-500">
+                                                        {item.discount_unit === 'BAHT' ? 'บาท' : (item.discount_unit === 'PERCENT' ? '%' : 'คะแนน')}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+
+                                            {/* Duration */}
+                                            <TableCell sx={{ py: 2 }}>
+                                                <div className="flex flex-col gap-1.5">
+                                                    <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+                                                        <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+                                                        <span>{item.start_date ? dayjs(item.start_date).locale('th').add(543, 'year').format('DD MMM BB') : 'ไม่ระบุ'}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+                                                        <Calendar className="w-3.5 h-3.5 text-rose-400" />
+                                                        <span>{item.end_date ? dayjs(item.end_date).locale('th').add(543, 'year').format('DD MMM BB') : 'ไม่มีกำหนด'}</span>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+
+                                            {/* Status */}
+                                            <TableCell align="center" sx={{ py: 2 }}>
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${item.is_active
+                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                                                    }`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${item.is_active ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                                                    {item.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
+                                                </span>
+                                            </TableCell>
+
+                                            {/* Actions */}
+                                            <TableCell align="right" sx={{ py: 2, pr: 3 }}>
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    <Link
+                                                        href={route('admin.coupons.edit', item.id)}
+                                                        className="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+                                                        title="แก้ไข"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => handleDelete(item.id)}
+                                                        className="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors"
+                                                        title="ลบ"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    ) : (
-                                        coupons.data.map((item) => (
-                                            <TableRow
-                                                key={item.id}
-                                                hover
-                                                sx={{
-                                                    '&:last-child td, &:last-child th': { border: 0 },
-                                                    transition: 'background-color 0.2s'
-                                                }}
-                                            >
-                                                {/* Image */}
-                                                <TableCell align="center">
-                                                    <Avatar
-                                                        src={item.image_url || undefined}
-                                                        variant="rounded"
-                                                        sx={{ width: 48, height: 48, bgcolor: '#f3e8ff', color: '#9333ea', fontSize: 14, fontWeight: 'bold', margin: '0 auto' }}
-                                                    >
-                                                        {!item.image_url && <Tag className="w-5 h-5" />}
-                                                    </Avatar>
-                                                </TableCell>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
 
-                                                {/* Name & ID */}
-                                                <TableCell>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-semibold text-gray-800 text-sm md:text-base">{item.name}</span>
-                                                        <span className="text-xs text-gray-400">ID: {item.id}</span>
-                                                    </div>
-                                                </TableCell>
-
-                                                {/* Code */}
-                                                <TableCell>
-                                                    {item.code ? (
-                                                        <div
-                                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 rounded-md border border-gray-200 text-gray-700 font-mono text-sm cursor-pointer hover:bg-gray-200 hover:border-gray-300 transition-colors group"
-                                                            onClick={() => copyToClipboard(item.code)}
-                                                            title="คลิกเพื่อคัดลอก"
-                                                        >
-                                                            {item.code}
-                                                            <Copy className="w-3 h-3 text-gray-400 group-hover:text-gray-600" />
-                                                        </div>
-                                                    ) : (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs font-medium border border-blue-100">
-                                                            Auto Generate
-                                                        </span>
-                                                    )}
-                                                </TableCell>
-
-                                                {/* Discount Value */}
-                                                <TableCell>
-                                                    <div className="flex items-baseline gap-1">
-                                                        <span className="text-lg font-bold text-purple-600">
-                                                            {Number(item.discount_value).toLocaleString()}
-                                                        </span>
-                                                        <span className="text-xs font-medium text-gray-500 uppercase">
-                                                            {item.discount_unit === 'BAHT' ? 'บาท' : (item.discount_unit === 'PERCENT' ? '%' : 'คะแนน')}
-                                                        </span>
-                                                    </div>
-                                                </TableCell>
-
-                                                {/* Duration */}
-                                                <TableCell>
-                                                    <div className="flex flex-col gap-1">
-                                                        <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                                                            <Calendar className="w-3.5 h-3.5 text-green-500" />
-                                                            <span>{item.start_date ? dayjs(item.start_date).format('DD MMM BB') : 'ไม่ระบุ'}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                                                            <Calendar className="w-3.5 h-3.5 text-red-400" />
-                                                            <span>{item.end_date ? dayjs(item.end_date).format('DD MMM BB') : 'ไม่มีกำหนด'}</span>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-
-                                                {/* Status */}
-                                                <TableCell align="center">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.is_active
-                                                        ? 'bg-green-50 text-green-700 border-green-200'
-                                                        : 'bg-gray-100 text-gray-600 border-gray-200'
-                                                        }`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${item.is_active ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                                        {item.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
-                                                    </span>
-                                                </TableCell>
-
-                                                {/* Actions */}
-                                                <TableCell align="center">
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <Link
-                                                            href={route('admin.coupons.edit', item.id)}
-                                                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            title="แก้ไข"
-                                                        >
-                                                            <Edit2 className="w-4 h-4" />
-                                                        </Link>
-                                                        <button
-                                                            onClick={() => handleDelete(item.id)}
-                                                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="ลบ"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-
-                        {/* Footer / Pagination */}
-                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-center sm:justify-end">
+                    {/* Footer / Pagination */}
+                    {coupons.last_page > 1 && (
+                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                                แสดงหน้า {coupons.current_page} จาก {coupons.last_page} (ทั้งหมด {coupons.total} รายการ)
+                            </Typography>
                             <Pagination
                                 count={coupons.last_page}
                                 page={coupons.current_page}
-                                onChange={(_, page) => router.get(route('admin.coupons.index'), { page })}
+                                onChange={(_, page) => router.get(route('admin.coupons.index'), { page }, { preserveScroll: true })}
                                 color="primary"
                                 shape="rounded"
                                 size="small"
                                 sx={{
                                     '& .Mui-selected': {
-                                        bgcolor: '#9333ea !important', // Purple-600
-                                        color: '#fff'
+                                        bgcolor: '#9333ea !important', // Tailwind purple-600
+                                        color: '#fff',
+                                        fontWeight: 'bold'
+                                    },
+                                    '& .MuiPaginationItem-root': {
+                                        fontFamily: 'inherit'
                                     }
                                 }}
                             />
                         </div>
-                    </div>
+                    )}
                 </div>
+
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

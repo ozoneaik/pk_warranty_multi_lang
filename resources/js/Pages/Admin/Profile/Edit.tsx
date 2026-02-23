@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 import { Link } from '@mui/material';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 const PasswordInput = ({
     className = "",
@@ -88,7 +89,7 @@ export default function AdminProfileEdit({ status }: { status?: string }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <AdminLayout
             header={
                 <div className="flex items-center space-x-4">
                     <Link
@@ -106,7 +107,7 @@ export default function AdminProfileEdit({ status }: { status?: string }) {
         >
             <Head title="Profile" />
 
-            <div className="py-12">
+            <div className="py-0">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                     {/* 1. Update Profile Information */}
@@ -239,6 +240,6 @@ export default function AdminProfileEdit({ status }: { status?: string }) {
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

@@ -2,10 +2,11 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import PointForm from './Form';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 export default function PointCreate() {
     return (
-        <AuthenticatedLayout
+        <AdminLayout
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">สร้างเงื่อนไขแต้มใหม่</h2>}
         >
             <Head title="สร้างเงื่อนไขแต้ม" />
@@ -14,6 +15,6 @@ export default function PointCreate() {
                     <PointForm />
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

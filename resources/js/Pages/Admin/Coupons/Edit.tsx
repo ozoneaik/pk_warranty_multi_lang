@@ -5,6 +5,7 @@ import {
     Gift, Settings, Calendar, Users, Award, Package, Info,
     Plus, Trash2, ArrowLeft, Save, Loader2, Image, Ticket, QrCode, Link as LinkIcon
 } from 'lucide-react';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 // --- Components (Reused Style) ---
 const InfoTooltip = ({ text }: { text: React.ReactNode }) => {
@@ -180,10 +181,10 @@ export default function CouponEdit({ coupon }: { coupon: CouponData }) {
     };
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout>
             <Head title={`แก้ไขคูปอง: ${coupon.name}`} />
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-prompt pb-20">
-                <div className="max-w-5xl mx-auto px-4 py-8">
+                <div className="max-w-7xl mx-auto px-4 py-4">
 
                     {/* Header */}
                     <div className="mb-8">
@@ -455,6 +456,6 @@ export default function CouponEdit({ coupon }: { coupon: CouponData }) {
                     </form>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 };

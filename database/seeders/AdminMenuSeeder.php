@@ -11,6 +11,17 @@ class AdminMenuSeeder extends Seeder
     {
         $menus = [
             [
+                'title' => 'dashboard',
+                'description' => 'หน้าแรกของระบบ แสดงภาพรวมและสถิติสำคัญต่างๆ',
+                'icon_type' => 'dashboard', // อย่าลืมเพิ่ม Case นี้ใน React Component
+                'route_name' => 'admin.dashboard',
+                'color_class' => 'bg-indigo-50 hover:bg-indigo-100',
+                'icon_color' => 'text-indigo-600',
+                'order' => 0,
+                'is_active' => true,
+                'key' => 'dashboard', 
+            ],
+            [
                 'title' => 'จัดการผู้ใช้',
                 'description' => 'ดูรายชื่อ, แก้ไขบทบาท, หรือระงับการใช้งาน',
                 'icon_type' => 'user',
@@ -89,6 +100,17 @@ class AdminMenuSeeder extends Seeder
                 'icon_color' => 'text-indigo-500',
                 'order' => 8,
                 'is_active' => true,
+            ],
+            [
+                'title' => 'ประวัติการเข้าใช้งาน',
+                'description' => 'ตรวจสอบประวัติการ Login ของผู้ใช้งาน',
+                'icon_type' => 'log', // ตรวจสอบ icon ที่ระบบรองรับ
+                'route_name' => 'admin.login-logs.index',
+                'color_class' => 'bg-slate-50 hover:bg-slate-100',
+                'icon_color' => 'text-slate-500',
+                'order' => 9,
+                'is_active' => true,
+                'key' => 'login_logs', // สำคัญ: ต้องตรงกับ Middleware check_menu
             ],
         ];
 

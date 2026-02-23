@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Warranty\WrFormRequest;
+use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblHistoryProd;
+use App\Models\MasterWaaranty\TypeProcessPoint;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -139,9 +141,13 @@ class WarrantyFormController extends Controller
                 throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
             }
 
-            if (($apiData['search_type'] ?? '') !== 'serial') {
-                throw new \Exception('กรุณาระบุเป็นหมายเลขเครื่อง (Serial Number) เท่านั้น');
+            if (!str_contains($apiData['search_type'] ?? '', 'serial')) {
+                throw new \Exception('ระบบอนุญาตให้ค้นหาด้วยหมายเลขซีเรียล (Serial) เท่านั้น');
             }
+
+            // if (($apiData['search_type'] ?? '') !== 'serial') {
+            //     throw new \Exception('กรุณาระบุเป็นหมายเลขเครื่อง (Serial Number) เท่านั้น');
+            // }
 
             $isExpired = $apiData['warrantyexpire'] ?? false;
             if ($isExpired === true || $isExpired === 'true') {
@@ -1115,10 +1121,135 @@ class WarrantyFormController extends Controller
                 }
             }
 
+            // if (!empty($req['pc_code'])) {
+            //     // เช็คว่าไม่ได้ใส่รหัสของตัวเอง
+            //     if ($customer && $customer->referral_code === $req['pc_code']) {
+            //         Log::info('⚪ [Point System] ข้ามการแจกคะแนน: ผู้ใช้ใส่รหัส PC ของตัวเอง');
+            //     } else {
+            //         try {
+            //             $processPoint = TypeProcessPoint::where('process_code', 'PC_CODE')
+            //                 ->where('is_active', 1)
+            //                 ->first();
+
+            //             if ($processPoint && $processPoint->default_point > 0) {
+            //                 $targetStoreRef = $mainStoreRecord ?? $store;
+
+            //                 // คำนวณแต้มก่อนหน้า-หลัง (ถ้าตารางต้องการใช้)
+            //                 $currentPoint = $customer ? (int)$customer->point : 0;
+            //                 $pointTran = (int)$processPoint->default_point;
+
+            //                 PointTransaction::create([
+            //                     'line_id'          => $user->line_id, // 👈 ตรงกับ $fillable
+            //                     'transaction_type' => $processPoint->transaction_type ?? 'earn',
+            //                     'process_code'     => $processPoint->process_code,
+            //                     'reference_id'     => (string)$targetStoreRef->id, // 👈 อ้างอิง ID การลงทะเบียน
+            //                     'pid'              => $targetStoreRef->model_code,
+            //                     'pname'            => $targetStoreRef->product_name,
+            //                     'product_type'     => $targetStoreRef->product_type ?? 'main',
+            //                     'point_before'     => $currentPoint,
+            //                     'point_tran'       => $pointTran,     // 👈 ตรงกับ $fillable (คะแนนที่ได้)
+            //                     'point_after'      => $currentPoint + $pointTran,
+            //                     'docdate'          => now()->format('Y-m-d'),
+            //                     'docno'            => $req['pc_code'], // 👈 เนื่องจากไม่มีช่อง pc_code เลยขอประยุกต์เก็บใน docno ชั่วคราว (หรือถ้ามีฟิลด์อื่นบอกได้ครับ)
+            //                     'trandate'         => now()->format('Y-m-d'),
+            //                     'created_at'       => now(),
+            //                 ]);
+
+            //                 Log::info('🟢 [Point System] บันทึกคะแนนสำเร็จ', [
+            //                     'pc_code' => $req['pc_code'],
+            //                     'point'   => $pointTran,
+            //                 ]);
+            //             }
+            //         } catch (\Exception $e) {
+            //             Log::error('❌ [Point System] เกิดข้อผิดพลาดในการแจกคะแนน', ['error' => $e->getMessage()]);
+            //         }
+            //     }
+            // }
+
+            if (!empty($req['pc_code'])) {
+                try {
+                    // 1. ดึงข้อมูลเงื่อนไขคะแนนของ PC_CODE และเช็คว่า is_active = 1
+                    $processPoint = TypeProcessPoint::where('process_code', 'PC_CODE')
+                        ->where('is_active', 1)
+                        ->first();
+
+                    // 2. ถ้าเจอเงื่อนไขและคะแนนที่ตั้งไว้มากกว่า 0
+                    if ($processPoint && $processPoint->default_point > 0) {
+                        $targetStoreRef = $mainStoreRecord ?? $store;
+
+                        // คำนวณแต้มก่อนหน้า-หลัง
+                        $currentPoint = $customer ? (int)$customer->point : 0;
+                        $pointTran = (int)$processPoint->default_point;
+
+                        // 3. บันทึก Transaction
+                        PointTransaction::create([
+                            'line_id'          => $user->line_id,
+                            'transaction_type' => $processPoint->transaction_type ?? 'earn',
+                            'process_code'     => $processPoint->process_code,
+                            'reference_id'     => (string)$targetStoreRef->id,
+                            'pid'              => $targetStoreRef->model_code,
+                            'pname'            => $targetStoreRef->product_name,
+                            'product_type'     => 'privilege',
+                            'point_before'     => $currentPoint,
+                            'point_tran'       => $pointTran,
+                            'point_after'      => $currentPoint + $pointTran,
+                            'docdate'          => now()->format('Y-m-d'),
+                            'docno'            => $req['pc_code'], // ใช้เก็บ pc_code 
+                            'trandate'         => now()->format('Y-m-d'),
+                            'created_at'       => now(),
+                        ]);
+
+                        Log::info('🟢 [Point System] บันทึกคะแนนสำเร็จ', [
+                            'pc_code' => $req['pc_code'],
+                            'point'   => $pointTran,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('❌ [Point System] เกิดข้อผิดพลาดในการแจกคะแนน', [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
             DB::commit();
 
             // 4. LINE Notification
             $lineTargetStore = $mainStoreRecord ?? $store;
+            // try {
+            //     $lineUid = $lineTargetStore->lineid;
+            //     $chatApiUrl = "https://f662-180-180-217-205.ngrok-free.app/api/external/save-chat";
+            //     $internalApiKey = "PUMPKIN_SECRET_KEY_2024";
+            //     $realCustomerName = $req['customer_name'] ?? ($user->name ?? 'ลูกค้าลงทะเบียน');
+
+            //     if ($lineUid && $internalApiKey) {
+            //         $detailText = "ขอบพระคุณสำหรับการลงทะเบียน 🙏\n" .
+            //             "ชื่อผู้ลงทะเบียน: {$realCustomerName}\n" .
+            //             "แอดมินกำลังตรวจสอบข้อมูลของท่าน\n" .
+            //             "สินค้า: " . ($lineTargetStore->product_name ?? '-') . "\n" .
+            //             "S/N: " . ($lineTargetStore->serial_number ?? '-');
+
+            //         $chatResponse = Http::timeout(10)
+            //             ->withOptions(['verify' => false])
+            //             ->withHeaders([
+            //                 'X-API-KEY' => $internalApiKey,
+            //                 'Content-Type' => 'application/json',
+            //             ])
+            //             ->post($chatApiUrl, [
+            //                 'to' => $lineUid,
+            //                 'custName' => $realCustomerName,
+            //                 'messages' => [
+            //                     [
+            //                         'type' => 'text',
+            //                         'text' => $detailText
+            //                     ]
+            //                 ]
+            //             ]);
+
+            //         Log::info('📩 [Chat API] บันทึกสำเร็จสำหรับลูกค้า: ' . $realCustomerName);
+            //     }
+            // } catch (\Exception $ex) {
+            //     Log::error('❌ [Chat API] Error: ' . $ex->getMessage());
+            // }
 
             try {
                 $lineUid = $lineTargetStore->lineid;

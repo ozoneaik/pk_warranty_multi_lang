@@ -4,6 +4,7 @@ import axios from 'axios';
 import { router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import RewardPreviewCard from './RewardPreviewCard';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 // --- Interfaces ---
 interface QuotaRule {
@@ -222,25 +223,17 @@ const Create = () => {
     ];
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">สร้างของรางวัลใหม่</h2>}
+        >
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 font-prompt">
-                <div className="max-w-5xl mx-auto px-4 py-8">
-                    <div className="mb-8">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Link href={route('admin.rewards.index')} className="p-2 hover:bg-white rounded-full transition-colors text-gray-500">
-                                    <ArrowLeft className="w-6 h-6" />
-                                </Link>
-                                <div>
-                                    <h1 className="text-3xl font-bold text-gray-900">ตั้งค่ารางวัล</h1>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div className="max-w-7xl mx-auto px-4 py-4">
                     {/* Header */}
                     <div className="mb-8">
                         <div className="flex items-center gap-3 mb-2">
+                             <Link href={route('admin.rewards.index')} className="p-2 hover:bg-white rounded-full transition-colors text-gray-500">
+                                    <ArrowLeft className="w-6 h-6" />
+                                </Link>
                             <div className="p-3 bg-blue-600 rounded-xl">
                                 <Gift className="w-6 h-6 text-white" />
                             </div>
@@ -705,7 +698,7 @@ const Create = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-lg rounded-t-xl -mx-4 px-8 py-4 z-10">
+                        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-lg rounded-t-xl -mx-0 px-8 py-4 z-10">
                             <div className="max-w-5xl mx-auto flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <span className="text-sm text-gray-600">สถานะ:</span>
@@ -731,8 +724,7 @@ const Create = () => {
                     </form>
                 </div>
             </div>
-        </AuthenticatedLayout>
-
+        </AdminLayout>
     );
 };
 

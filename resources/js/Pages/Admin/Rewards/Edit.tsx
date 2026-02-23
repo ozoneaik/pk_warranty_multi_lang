@@ -3,6 +3,7 @@ import { Gift, Settings, Calendar, Users, Award, Package, Info, Search, Loader2,
 import axios from 'axios';
 import { router, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 // --- Interfaces ---
 interface QuotaRule {
     id: number;
@@ -160,11 +161,9 @@ const Edit = ({ reward }: EditProps) => {
     ];
 
     return (
-        <AuthenticatedLayout>
-
-
+        <AdminLayout>
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 font-prompt">
-                <div className="max-w-5xl mx-auto px-4 py-8">
+                <div className="max-w-7xl mx-auto px-4 py-4แก้ไขสิทธิพิเศษ">
                     {/* Header */}
                     <div className="mb-8">
                         <div className="flex items-center justify-between">
@@ -452,7 +451,7 @@ const Edit = ({ reward }: EditProps) => {
                     </form>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 };
 

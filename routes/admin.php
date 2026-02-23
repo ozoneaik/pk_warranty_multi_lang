@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminFGFReportController;
 use App\Http\Controllers\Admin\AdminOrderReportController;
 use App\Http\Controllers\Admin\AdminCustomerReportController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminLoginLogController;
 use App\Http\Controllers\Admin\AdminPcRankingReportController;
 use App\Http\Controllers\Admin\AdminPopupController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -34,12 +36,14 @@ Route::middleware('auth:admin')->group(function () {
     });
     Route::post('logout', [AdminAuthController::class, 'destroy'])->name('logout');
 
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard', [
-            'menus' => Auth::guard('admin')->user()->getAllowedMenus()
-        ]);
-    })->name('dashboard');
+    // Route::get('/dashboard', function () {
+    //     return Inertia::render('Admin/Dashboard', [
+    //         'menus' => Auth::guard('admin')->user()->getAllowedMenus()
+    //     ]);
+    // })->name('dashboard');
 
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
     Route::prefix('permissions')->name('permissions.')->middleware('check_menu:permissions')->group(function () {
         Route::get('/', [AdminPermissionController::class, 'index'])->name('index');
         Route::post('/update', [AdminPermissionController::class, 'update'])->name('update');
@@ -158,6 +162,10 @@ Route::middleware('auth:admin')->group(function () {
         Route::middleware('check_menu:reports.pc-ranking')->group(function () {
             Route::get('/pc-ranking', [AdminPcRankingReportController::class, 'index'])->name('pc-ranking');
         });
+    });
+
+    Route::prefix('login-logs')->name('login-logs.')->middleware('check_menu:login_logs')->group(function () {
+        Route::get('/', [AdminLoginLogController::class, 'index'])->name('index');
     });
 
     Route::prefix('reward-management')
