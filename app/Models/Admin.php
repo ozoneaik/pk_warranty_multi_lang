@@ -86,16 +86,44 @@ class Admin extends Authenticatable
     //         ->orderBy('order')
     //         ->get();
     // }
+
+    // public function getAllowedMenus()
+    // {
+    //     // 1. ถ้าเป็น super_admin ดึงเมนูทั้งหมดที่ active
+    //     if ($this->role === 'super_admin') {
+    //         return AdminMenu::where('is_active', true)
+    //             ->orderBy('order')
+    //             ->get(); // ดึงแบบแบนๆ ไม่ต้องใช้ with('children')
+    //     }
+
+    //     // 2. ดึง ID ของเมนูที่ได้รับอนุญาต
+    //     $roleMenuIds = DB::table('role_menu_permissions')
+    //         ->where('role', $this->role)
+    //         ->pluck('admin_menu_id');
+
+    //     $userMenuIds = DB::table('admin_menu_permissions')
+    //         ->where('admin_id', $this->id)
+    //         ->pluck('admin_menu_id');
+
+    //     $allAllowedIds = $roleMenuIds->merge($userMenuIds)->unique()->toArray();
+
+    //     // 3. ดึงทุกเมนู (ทั้งพ่อและลูก) ที่อยู่ในรายการที่มีสิทธิ์
+    //     return AdminMenu::whereIn('id', $allAllowedIds)
+    //         ->where('is_active', true)
+    //         ->orderBy('order')
+    //         ->get(); // ดึงแบบแบนๆ ทั้งหมด
+    // }
+
     public function getAllowedMenus()
     {
         // 1. ถ้าเป็น super_admin ดึงเมนูทั้งหมดที่ active
         if ($this->role === 'super_admin') {
-            return AdminMenu::where('is_active', true)
+            return \App\Models\AdminMenu::where('is_active', true)
                 ->orderBy('order')
-                ->get(); // ดึงแบบแบนๆ ไม่ต้องใช้ with('children')
+                ->get();
         }
 
-        // 2. ดึง ID ของเมนูที่ได้รับอนุญาต
+        // 2. ดึง ID ของเมนูที่ได้รับอนุญาต (จาก Roles และรายบุคคล)
         $roleMenuIds = DB::table('role_menu_permissions')
             ->where('role', $this->role)
             ->pluck('admin_menu_id');
@@ -104,13 +132,24 @@ class Admin extends Authenticatable
             ->where('admin_id', $this->id)
             ->pluck('admin_menu_id');
 
+        // รวม ID ของเมนูลูกและแม่ที่ได้รับสิทธิ์ตรงๆ
         $allAllowedIds = $roleMenuIds->merge($userMenuIds)->unique()->toArray();
 
-        // 3. ดึงทุกเมนู (ทั้งพ่อและลูก) ที่อยู่ในรายการที่มีสิทธิ์
-        return AdminMenu::whereIn('id', $allAllowedIds)
+        // 3. หา Parent ID ของเมนูที่ได้รับอนุญาต เพื่อให้เมนูแม่ (Folder) แสดงผลด้วย
+        $parentIds = \App\Models\AdminMenu::whereIn('id', $allAllowedIds)
+            ->whereNotNull('parent_id')
+            ->pluck('parent_id')
+            ->unique()
+            ->toArray();
+
+        // รวม ID ทั้งหมด (เมนูที่อนุญาต + เมนูแม่ของมัน)
+        $finalMenuIds = array_unique(array_merge($allAllowedIds, $parentIds));
+
+        // 4. ดึงทุกเมนู (ทั้งพ่อและลูก) ที่อยู่ในรายการที่มีสิทธิ์
+        return \App\Models\AdminMenu::whereIn('id', $finalMenuIds)
             ->where('is_active', true)
             ->orderBy('order')
-            ->get(); // ดึงแบบแบนๆ ทั้งหมด
+            ->get();
     }
 
     public function creator()
