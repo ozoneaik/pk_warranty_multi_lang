@@ -105,7 +105,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                         <Box key={`bat-${item.id}-${index}`} sx={{ position: 'relative' }}>
                             {/* (Optional) ใส่ Label บอกว่าเป็นแบตเตอรี่ ถ้าต้องการ */}
                             <Chip label="Battery" size="small" color="success" variant="outlined" sx={{ mb: 1 }} />
-                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} />
+                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF"/>
                         </Box>
                     ))}
 
@@ -114,7 +114,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                         <Box key={`chg-${item.id}-${index}`} sx={{ position: 'relative' }}>
                             {/* (Optional) ใส่ Label บอกว่าเป็นแท่นชาร์จ ถ้าต้องการ */}
                             <Chip label="Charger" size="small" color="warning" variant="outlined" sx={{ mb: 1 }} />
-                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} />
+                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF"/>
                         </Box>
                     ))}
                 </Stack>

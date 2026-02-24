@@ -473,4 +473,75 @@ class CustomerProfileController extends Controller
         //     ],
         // ]);
     }
+
+    public function show()
+    {
+        $user = Auth::user();
+        // ดึงข้อมูล customer ของ user คนนี้
+        $customer = TblCustomerProd::where('cust_line', $user->line_id)
+            ->orWhere('cust_tel', $user->phone)
+            ->first();
+
+        $customerVat = TblCustomerProdVat::where('cust_line', $user->line_id)->first();
+
+        return Inertia::render('Profile/Customer/ProfileShow', [
+            'customer' => $customer,
+            'vat' => $customerVat
+        ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $user = Auth::user();
+
+        // 1. หาข้อมูลใน TblCustomerProd
+        $customer = TblCustomerProd::query()
+            ->where(function ($q) use ($user) {
+                if (!empty($user->line_id)) {
+                    $q->where('cust_line', $user->line_id);
+                }
+                if (!empty($user->phone)) {
+                    $q->orWhere('cust_tel', $user->phone);
+                }
+            })
+            ->first();
+
+        try {
+            DB::beginTransaction();
+
+            // 2. จัดการตาราง TblCustomerProd (เปลี่ยนสถานะ)
+            if ($customer) {
+                $customer->status = 'deleted';
+
+                // (Optional) ลบข้อมูลส่วนบุคคลทิ้งตาม PDPA
+                // $customer->cust_firstname = 'Deleted';
+                // $customer->cust_lastname = 'User';
+                // $customer->cust_line = null;
+
+                $customer->save();
+            }
+
+            // 3. จัดการตาราง users (เปลี่ยนสถานะ)
+            $userModel = User::find($user->id);
+            if ($userModel) {
+                $userModel->status = 'deleted';
+                $userModel->save();
+            }
+
+            DB::commit();
+
+            // 4. บังคับ Logout
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            Log::info('🟢 User Account Deactivated', ['user_id' => $user->id]);
+
+            return redirect('/')->with('success', 'บัญชีของคุณถูกระงับการใช้งานเรียบร้อยแล้ว');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('❌ Delete Account Error', ['error' => $e->getMessage()]);
+            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด โปรดลองอีกครั้ง']);
+        }
+    }
 }

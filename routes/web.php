@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('Profile/Customer/ScoreBlank');
         })->name('customer.profile.score.blank');
 
+        Route::get('/show', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 

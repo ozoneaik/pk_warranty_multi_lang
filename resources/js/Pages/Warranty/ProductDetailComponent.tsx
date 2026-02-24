@@ -242,7 +242,7 @@ const Transition = forwardRef(function Transition(
 });
 
 // ใช้ Type ProductDetail จาก global.d.ts แทน any
-export default function ProductDetailComponent({ productDetail }: { productDetail: ProductDetail }) {
+export default function ProductDetailComponent({ productDetail, bgColor = '#E8F5E9' }: { productDetail: ProductDetail, bgColor?: string }) {
     const { t } = useLanguage();
     const [open, setOpen] = useState(false);
 
@@ -265,7 +265,7 @@ export default function ProductDetailComponent({ productDetail }: { productDetai
     const model = warrantyDetail.fac_model || warrantyDetail.model_name || "-";
 
     // Hardcode สีเขียวอ่อนไว้ก่อน (สื่อว่าตรวจสอบผ่านแล้ว)
-    const bgColor = '#E8F5E9';
+    // const bgColor = '#E8F5E9';
 
     // รองรับหลายรูปแบบ key
     const warrantyPeriod =

@@ -34,7 +34,7 @@ export default function PointExpiryModal({ open, onClose }: PointExpiryModalProp
                 {loading ? (
                     <Box textAlign="center" py={4}><CircularProgress size={30} sx={{ color: '#FF8A00' }} /></Box>
                 ) : (
-                    <Stack spacing={1.5} sx={{ maxHeight: '50vh', overflowY: 'auto', py: 1 }}>
+                    <Stack spacing={1.5} sx={{ maxHeight: '50vh', overflowY: 'scroll', py: 1 }}>
                         {data.length > 0 ? data.map((item, idx) => (
                             <Box key={idx} sx={{ p: 2, borderRadius: 3, bgcolor: item.is_urgent ? '#FFF5F5' : '#F8F9FA', border: `1px solid ${item.is_urgent ? '#FFC1C1' : '#EEE'}` }}>
                                 <Stack direction="row" justifyContent="space-between" mb={1}>

@@ -228,7 +228,7 @@ export default function WelComeProFile() {
                                     transition: "all 0.3s ease",
                                     "&:hover": { transform: "translateY(-4px)", boxShadow: 4 },
                                 }}
-                                onClick={() => router.get(route("customer.profile.edit"))}
+                                onClick={() => router.get(route("customer.profile.show"))}
                             >
                                 <CardContent sx={{ textAlign: "center", py: 3 }}>
                                     <Avatar

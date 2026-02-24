@@ -25,7 +25,8 @@ class User extends Authenticatable
         'line_id',
         'facebook_id',
         'phone',
-        'role'
+        'role',
+        'status',
     ];
 
     /**
