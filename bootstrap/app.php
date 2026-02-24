@@ -39,12 +39,20 @@ return Application::configure(basePath: dirname(__DIR__))
             'check_menu' => CheckMenuPermission::class,
         ]);
 
+        // $middleware->redirectGuestsTo(function (Request $request) {
+        //     // ถ้า URL ขึ้นต้นด้วย admin/* ให้ไปหน้า login ของ admin
+        //     if ($request->is('admin/*')) {
+        //         return route('admin.login');
+        //     }
+        //     // ถ้าไม่ใช่ (User ปกติ) ให้ไปหน้า login ปกติ
+        //     return route('login');
+        // });
+        
         $middleware->redirectGuestsTo(function (Request $request) {
-            // ถ้า URL ขึ้นต้นด้วย admin/* ให้ไปหน้า login ของ admin
-            if ($request->is('admin/*')) {
+            if ($request->is('admin') || $request->is('admin/*')) {
                 return route('admin.login');
             }
-            // ถ้าไม่ใช่ (User ปกติ) ให้ไปหน้า login ปกติ
+            // ถ้าไม่ใช่ ให้ไปหน้า login ปกติ
             return route('login');
         });
 

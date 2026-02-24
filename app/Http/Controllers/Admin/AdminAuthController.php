@@ -34,7 +34,8 @@ class AdminAuthController extends Controller
             //      return back()->withErrors(['email' => 'Access denied.']);
             // }
 
-            return redirect()->intended(route('admin.dashboard'));
+            // return redirect()->intended(route('admin.dashboard'));
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
