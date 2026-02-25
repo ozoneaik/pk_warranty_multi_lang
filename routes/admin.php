@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminOrderReportController;
 use App\Http\Controllers\Admin\AdminCustomerReportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminLoginLogController;
+use App\Http\Controllers\Admin\AdminMemberPointController;
 use App\Http\Controllers\Admin\AdminPcRankingReportController;
 use App\Http\Controllers\Admin\AdminPopupController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -120,6 +121,13 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/{id}/edit', [AdminBannerController::class, 'edit'])->name('edit');
         Route::put('/{id}', [AdminBannerController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminBannerController::class, 'destroy'])->name('destroy');
+    });
+
+    //หน้าจัดการคะแนนสมาชิก
+    Route::prefix('member-points')->name('member-points.')->middleware('check_menu:member_points')->group(function () {
+        Route::get('/', [AdminMemberPointController::class, 'index'])->name('index');
+        Route::post('/search', [AdminMemberPointController::class, 'searchCustomer'])->name('search');
+        Route::post('/adjust', [AdminMemberPointController::class, 'adjustPoints'])->name('adjust');
     });
 
     // Route::prefix('orders')->name('orders.')->middleware('check_menu:orders')->group(function () {

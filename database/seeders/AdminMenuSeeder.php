@@ -112,6 +112,17 @@ class AdminMenuSeeder extends Seeder
                 'is_active' => true,
                 'key' => 'login_logs', // สำคัญ: ต้องตรงกับ Middleware check_menu
             ],
+            [
+                'title' => 'จัดการคะแนนสมาชิก',
+                'description' => 'จัดการคะแนนของสมาชิกในระบบ',
+                'icon_type' => 'point',
+                'route_name' => 'admin.member-points.index',
+                'color_class' => 'bg-blue-50 hover:bg-blue-100',
+                'icon_color' => 'text-blue-500',
+                'order' => 10,
+                'is_active' => true,
+                'key' => 'member_points',
+            ],
         ];
 
         foreach ($menus as $menu) {
