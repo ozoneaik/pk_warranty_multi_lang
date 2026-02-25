@@ -99,6 +99,7 @@ declare global {
         warranty_condition: string;
         warranty_note: string;
         no: number;
+        serial_label?: string;
     }
 
     // Interface สำหรับ Group ของ Accessories
@@ -115,6 +116,7 @@ declare global {
         pname?: string; // API มักส่ง key นี้
         fac_model?: string;
         model_name?: string;
+        serial_label?: string;
 
         // รูปภาพ
         p_path?: string;

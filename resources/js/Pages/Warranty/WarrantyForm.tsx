@@ -105,7 +105,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                         <Box key={`bat-${item.id}-${index}`} sx={{ position: 'relative' }}>
                             {/* (Optional) ใส่ Label บอกว่าเป็นแบตเตอรี่ ถ้าต้องการ */}
                             <Chip label="Battery" size="small" color="success" variant="outlined" sx={{ mb: 1 }} />
-                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF"/>
+                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF" serial={item.serial_label} />
                         </Box>
                     ))}
 
@@ -114,7 +114,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                         <Box key={`chg-${item.id}-${index}`} sx={{ position: 'relative' }}>
                             {/* (Optional) ใส่ Label บอกว่าเป็นแท่นชาร์จ ถ้าต้องการ */}
                             <Chip label="Charger" size="small" color="warning" variant="outlined" sx={{ mb: 1 }} />
-                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF"/>
+                            <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF" serial={item.serial_label} />
                         </Box>
                     ))}
                 </Stack>
@@ -312,6 +312,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                 // เติม field อัตโนมัติ (ถ้าไม่มีในฟอร์ม)
                 setData((prev: any) => ({
                     ...prev,
+                    serial_number: response.data?.data?.serial_info?.sn || prev.serial_number,
                     model_code: prev.model_code || pd.pid || "",
                     model_name: pd.fac_model || "",
                     product_name: pd.pname || "",
@@ -754,7 +755,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                                     </Typography> */}
                                                     {(() => {
                                                         const mainDetail = getMainAssetDetail(ProductDetail.main_assets);
-                                                        return mainDetail ? <ProductDetailComponent productDetail={mainDetail} /> : null;
+                                                        return mainDetail ? <ProductDetailComponent productDetail={mainDetail} serial={data.serial_number} /> : null;
                                                     })()}
                                                 </Box>
                                             )}
@@ -805,7 +806,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                                                 if (!itemDetail) return null;
                                                                 return (
                                                                     <Box key={sku} sx={{ position: 'relative' }}>
-                                                                        <ProductDetailComponent productDetail={itemDetail} />
+                                                                        <ProductDetailComponent productDetail={itemDetail} serial={data.serial_number} />
                                                                     </Box>
                                                                 );
                                                             })}
@@ -816,7 +817,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                         </Stack>
                                     ) : (
                                         // กรณีสินค้าเดี่ยว (Single Product)
-                                        <ProductDetailComponent productDetail={ProductDetail} />
+                                        <ProductDetailComponent productDetail={ProductDetail} serial={data.serial_number} />
                                     )}
                                     {/* แสดง Accessories ต่อท้ายเสมอ (ถ้ามี) */}
                                     {ProductDetail.power_accessories && (

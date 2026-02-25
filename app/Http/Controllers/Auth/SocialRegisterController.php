@@ -223,7 +223,8 @@ class SocialRegisterController extends Controller
             'cust_firstname' => 'required|string|max:255',
             'cust_lastname'  => 'required|string|max:255',
             'cust_gender'    => 'required',
-            'cust_email'     => 'required|email|max:255',
+            // 'cust_email'     => 'required|email|max:255',
+            'cust_email'     => 'nullable|email|max:255',
             'cust_birthdate' => 'required|date',
             'cust_tel'       => 'required',
             // 'cust_address'     => 'required|string|max:255',
@@ -263,12 +264,20 @@ class SocialRegisterController extends Controller
         }
 
         // 5. Unique Check
-        $duplicateEmail = TblCustomerProd::where('cust_email', $request->cust_email)
-            ->where('cust_uid', '!=', $lineId)->exists();
-        if ($duplicateEmail) {
-            return back()->withInput()->withErrors(['cust_email' => 'อีเมลนี้มีผู้ใช้งานแล้ว']);
-        }
+        // $duplicateEmail = TblCustomerProd::where('cust_email', $request->cust_email)
+        //     ->where('cust_uid', '!=', $lineId)->exists();
+        // if ($duplicateEmail) {
+        //     return back()->withInput()->withErrors(['cust_email' => 'อีเมลนี้มีผู้ใช้งานแล้ว']);
+        // }
 
+        if (!empty($request->cust_email)) {
+            $duplicateEmail = TblCustomerProd::where('cust_email', $request->cust_email)
+                ->where('cust_uid', '!=', $lineId)->exists();
+
+            if ($duplicateEmail) {
+                return back()->withInput()->withErrors(['cust_email' => 'อีเมลนี้มีผู้ใช้งานแล้ว']);
+            }
+        }  
         $duplicatePhone = TblCustomerProd::where('cust_tel', $phoneToSave)
             ->where('cust_uid', '!=', $lineId)->exists();
         if ($duplicatePhone) {

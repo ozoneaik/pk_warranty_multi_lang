@@ -127,12 +127,11 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">อีเมล *</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">อีเมล</label>
                 {{-- [FIX] เพิ่ม $data['email'] --}}
                 <input type="email" name="cust_email"
                     value="{{ old('cust_email', $data['cust_email'] ?? $data['email']) }}"
-                    class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-300"
-                    required>
+                    class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-300">
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-6">

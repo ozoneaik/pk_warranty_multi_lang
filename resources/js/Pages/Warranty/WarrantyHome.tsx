@@ -587,11 +587,11 @@ export default function WarrantyHome() {
                         alt="Warranty Banner"
                         style={{
                             backgroundColor: "black",
-                            paddingTop: "20px",
+                            paddingTop: "46px",
                             width: "100%", height: "100%", objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectPosition: "top", maxHeight: "400px"
+                            objectPosition: "top", maxHeight: "430px"
                         }}
                         onError={(e) => {
                             e.currentTarget.src = "https://via.placeholder.com/800x400?text=No+Image";

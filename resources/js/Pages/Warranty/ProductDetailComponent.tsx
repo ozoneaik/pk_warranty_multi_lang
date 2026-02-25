@@ -242,7 +242,7 @@ const Transition = forwardRef(function Transition(
 });
 
 // ใช้ Type ProductDetail จาก global.d.ts แทน any
-export default function ProductDetailComponent({ productDetail, bgColor = '#E8F5E9' }: { productDetail: ProductDetail, bgColor?: string }) {
+export default function ProductDetailComponent({ productDetail, bgColor = '#E8F5E9', serial = "-" }: { productDetail: ProductDetail, bgColor?: string, serial?: string }) {
     const { t } = useLanguage();
     const [open, setOpen] = useState(false);
 
@@ -292,6 +292,8 @@ export default function ProductDetailComponent({ productDetail, bgColor = '#E8F5
         warrantyDetail.warrantyNote ||
         "-";
 
+    const displaySerial = serial !== "-" ? serial : (warrantyDetail.serial_label || "-");
+    
     return (
         <>
             <Card
@@ -353,6 +355,10 @@ export default function ProductDetailComponent({ productDetail, bgColor = '#E8F5
 
                         <Typography variant="body2" color="text.secondary">
                             <strong>{t.Warranty.Form.CodePd} :</strong> {warrantyDetail.pid} ({model})
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                            <strong>Serial Number :</strong> {displaySerial}
                         </Typography>
 
                         <Typography variant="body2" color="text.secondary">
