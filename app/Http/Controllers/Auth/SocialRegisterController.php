@@ -421,9 +421,19 @@ class SocialRegisterController extends Controller
         $process = TypeProcessPoint::where('process_code', 'REGISTER')->where('is_active', 1)->first();
         $initialPoint = $process?->default_point ?? 50;
 
+        $pointBefore = (int) $cust->point;
+        $pointAfter  = $pointBefore + $initialPoint;
+
+        // คำนวณ Tier ใหม่จากคะแนนสะสมรวม
+        $newTier = match (true) {
+            $pointAfter >= 3000 => 'platinum',
+            $pointAfter >= 1000 => 'gold',
+            default             => 'silver',
+        };
+
         $cust->update([
             'point'           => $initialPoint,
-            'tier_key'        => 'silver',
+            'tier_key'        => $newTier,
             'tier_updated_at' => now(),
             'tier_expired_at' => now()->addYears(2),
             'last_earn_at'    => now(),
@@ -434,10 +444,10 @@ class SocialRegisterController extends Controller
             'transaction_type' => 'earn',
             'process_code'     => 'REGISTER',
             'pname'            => 'สมัครสมาชิกครั้งแรก',
-            'point_before'     => 0,
+            'point_before'     => $pointBefore,
             'point_tran'       => $initialPoint,
-            'point_after'      => $initialPoint,
-            'tier'             => 'silver',
+            'point_after'      => $pointAfter,
+            'tier'             => $newTier,
             'docdate'          => now()->toDateString(),
             'trandate'         => now()->toDateString(),
             'docno'            => 'REG-' . now()->format('YmdHis'),

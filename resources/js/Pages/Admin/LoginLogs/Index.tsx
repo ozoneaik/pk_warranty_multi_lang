@@ -203,6 +203,10 @@ interface LoginLog {
     failure_reason: string | null;
     login_at: string;
     metadata: any;
+    user?: {
+        id: number;
+        name: string;
+    } | null;
 }
 
 interface Props {
@@ -298,6 +302,7 @@ export default function Index({ logs, filters }: Props) {
                                 <tr>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider w-44">วัน-เวลา</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">บัญชีผู้ใช้</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider w-48">ชื่อ</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">ที่อยู่ IP</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">สถานะ</th>
                                     <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">อุปกรณ์ (User Agent)</th>
@@ -331,6 +336,18 @@ export default function Index({ logs, filters }: Props) {
                                                 ) : (
                                                     <span className="inline-flex items-center text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md">
                                                         System / Admin
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            <td className="px-6 py-4">
+                                                {log.user ? (
+                                                    <span className="text-sm font-medium text-gray-800">
+                                                        {log.user.name}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-sm font-medium text-gray-500">
+                                                        ไม่มีข้อมูล
                                                     </span>
                                                 )}
                                             </td>
