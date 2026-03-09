@@ -12,9 +12,9 @@ import {
     useTheme,
     Fade,
 } from "@mui/material";
-import { Close, ChevronLeft, ChevronRight, WorkspacePremium } from "@mui/icons-material";
+import { Close, ChevronLeft, ChevronRight, WorkspacePremium, Stars } from "@mui/icons-material";
 import dayjs from "dayjs";
-import { keyframes } from "@mui/system";
+import { keyframes, styled } from "@mui/system";
 
 type Tier = "silver" | "gold" | "platinum";
 
@@ -28,24 +28,41 @@ interface CardPreviewDialogProps {
 }
 
 /** ===== Animations ===== */
-const popIn = keyframes`
-  0%   { opacity: 0; transform: translateY(12px) scale(0.98); filter: saturate(0.9); }
-  60%  { opacity: 1; transform: translateY(0) scale(1.005); }
-  100% { transform: translateY(0) scale(1); filter: saturate(1); }
+const sheenMove = keyframes`
+  0%   { transform: translateX(-150%) skewX(-20deg); opacity: 0; }
+  20%  { opacity: 0.5; }
+  50%  { opacity: 0.8; }
+  80%  { opacity: 0.5; }
+  100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
 `;
 
-const sheenMove = keyframes`
-  0%   { transform: translateX(-120%) skewX(-12deg); opacity: 0; }
-  40%  { opacity: .45; }
-  60%  { opacity: .25; }
-  100% { transform: translateX(180%) skewX(-12deg); opacity: 0; }
+const meshMove = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 `;
 
 const stepBump = keyframes`
-  0%   { transform: scale(1); }
-  35%  { transform: scale(1.015); }
-  100% { transform: scale(1); }
+  0%   { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
 `;
+
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+`;
+
+const GlassBox = styled(Box)(({ theme }) => ({
+    background: "rgba(255, 255, 255, 0.15)",
+    backdropFilter: "blur(8px)",
+    borderRadius: "12px",
+    padding: "4px 12px",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+}));
 
 const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
     open,
@@ -59,10 +76,11 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
     const startIndex = Math.max(0, tiers.indexOf(activeTier));
     const [step, setStep] = React.useState(startIndex);
 
-    React.useEffect(() => setStep(startIndex), [activeTier, open]);
+    React.useEffect(() => {
+        if (open) setStep(startIndex);
+    }, [activeTier, open, startIndex]);
 
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
     const maxSteps = tiers.length;
 
     const touchRef = React.useRef<{ x: number | null }>({ x: null });
@@ -73,300 +91,202 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
         if (touchRef.current.x == null) return;
         const dx = e.changedTouches[0].clientX - touchRef.current.x;
         if (Math.abs(dx) > 50) {
-            if (dx < 0 && step < maxSteps - 1) setStep(step + 1); // ปัดซ้าย -> ถัดไป
-            if (dx > 0 && step > 0) setStep(step - 1); // ปัดขวา -> ก่อนหน้า
+            if (dx < 0 && step < maxSteps - 1) setStep(step + 1);
+            if (dx > 0 && step > 0) setStep(step - 1);
         }
         touchRef.current.x = null;
     };
 
-    // const TierCard = (tierKey: Tier) => (
-    //     <Card
-    //         sx={{
-    //             position: "relative",
-    //             overflow: "hidden",
-    //             borderRadius: 3,
-    //             border: "1px solid #d9d9d9",
-    //             background: cardColors[tierKey],
-    //             color: "#111",
-    //             boxShadow: "0 12px 28px rgba(0,0,0,0.25)",
-    //             transform: "translateZ(0)",
-    //             willChange: "transform, filter",
-
-    //             // --- แสงวิ้งหนึ่งครั้งหลังเปิด ---
-    //             "&::before": {
-    //                 content: '""',
-    //                 position: "absolute",
-    //                 top: 0,
-    //                 bottom: 0,
-    //                 left: 0,
-    //                 width: "35%",
-    //                 background:
-    //                     "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%)",
-    //                 mixBlendMode: "screen",
-    //                 pointerEvents: "none",
-    //                 animation: `${sheenMove} 1850ms ease-in-out 450ms`, // run once
-    //             },
-
-    //             // --- ถ้า hover/focus ให้วิ่ง loop ตลอด ---
-    //             "&:hover::before, &:focus-within::before": {
-    //                 animation: `${sheenMove} 1600ms linear 0ms infinite`,
-
-    //             },
-    //         }}
-    //     >
-    //         <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-    //             <Stack
-    //                 direction="row"
-    //                 justifyContent="space-between"
-    //                 alignItems="flex-start"
-    //                 sx={{ pb: { xs: 2, sm: 4 } }}
-    //                 color={"white"}
-    //             >
-    //                 <Box>
-    //                     <Stack direction="row" alignItems="center" spacing={0.5}>
-    //                         <Box
-    //                             sx={{
-    //                                 width: 22,
-    //                                 height: 22,
-    //                                 borderRadius: "50%",
-    //                                 background: "radial-gradient(#FFF, #FFF6B4)",
-    //                                 border: "2px solid #FFE970",
-    //                                 display: "grid",
-    //                                 placeItems: "center",
-    //                                 color: "#8A8200",
-    //                                 fontWeight: 900,
-    //                                 fontSize: 12,
-    //                             }}
-    //                         >
-    //                             <Typography
-    //                                 variant="caption"
-    //                                 fontWeight={900}
-    //                                 sx={{
-    //                                     color: "black",
-    //                                     fontSize: { xs: "0.9rem", sm: "0.9rem" },
-    //                                     lineHeight: 1,
-    //                                 }}
-    //                             >
-    //                                 P
-    //                             </Typography>
-    //                         </Box>
-    //                         <Typography
-    //                             fontSize={{ xs: "1rem", sm: "1rem" }}
-    //                             fontWeight={800}
-    //                             sx={{
-    //                                 color: "#fff",
-    //                                 textShadow:
-    //                                     "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-    //                             }}
-    //                         >
-    //                             {point ?? 0}
-    //                         </Typography>
-    //                     </Stack>
-
-    //                     <Typography
-    //                         fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
-    //                         sx={{ color: "#222", mt: 0.5 }}
-    //                     >
-    //                         Member Since : {dayjs(joined_at).format("D MMM YYYY")}
-    //                     </Typography>
-
-    //                     <Typography
-    //                         mt={1}
-    //                         fontWeight={800}
-    //                         sx={{
-    //                             color: "#fff",
-    //                             textShadow: "0 1px 2px rgba(0,0,0,.6)",
-    //                         }}
-    //                     >
-    //                         {tierKey === "silver"
-    //                             ? "Silver Member"
-    //                             : tierKey === "gold"
-    //                                 ? "Gold Member"
-    //                                 : "Platinum Member"}
-    //                     </Typography>
-    //                 </Box>
-
-    //                 <Box
-    //                     component="img"
-    //                     src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
-    //                     alt="Pumpkin"
-    //                     sx={{ height: { xs: 34, sm: 40 }, opacity: 1, mt: { xs: 10, sm: 12 } }}
-    //                 />
-    //             </Stack>
-    //         </CardContent>
-    //     </Card>
-    // );
-
     const TierCard = (tierKey: Tier) => {
         const isOwnTier = tierKey === activeTier;
+        const isSilver = tierKey === "silver";
 
-        // Mock point ถ้าไม่ใช่ tier ตัวเอง
-        const displayPoint = isOwnTier
-            ? point
-            : tierKey === "silver"
-                ? Math.floor(Math.random() * 1000) + 1              // 1 - 1000
-                : tierKey === "gold"
-                    ? Math.floor(Math.random() * 2000) + 1001        // 1001 - 3000
-                    : Math.floor(Math.random() * 3000) + 3001;       // 3001 - 6000
+        // Colors configuration
+        const colors = {
+            silver: {
+                main: "linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%)",
+                mesh: "radial-gradient(at 0% 0%, rgba(0,0,0,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.02) 0, transparent 50%)",
+                text: "#2c3e50",
+                accent: "#7f8c8d",
+                badgeBg: "rgba(0,0,0,0.05)",
+                label: "Silver Member",
+                iconColor: "#7f8c8d"
+            },
+
+
+
+            gold: {
+                main: "linear-gradient(135deg, #8B660F 0%, #CFA525 20%, #FFF8E1 40%, #D4AF37 50%, #C8A02E 60%, #B8860B 80%, #996515 100%)",
+                mesh: "radial-gradient(at 0% 0%, rgba(255,255,255,0.4) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255,215,0,0.3) 0, transparent 50%)",
+                text: "#463300",
+                accent: "#fff",
+                badgeBg: "rgba(0,0,0,0.15)",
+                label: "Gold Member",
+                iconColor: "#8B660F"
+            },
+            platinum: {
+                main: "linear-gradient(135deg, #004d40 0%, #00796b 25%, #26a69a 50%, #00796b 75%, #004d40 100%)",
+                mesh: "radial-gradient(at 0% 0%, rgba(255,255,255,0.3) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.4) 0, transparent 50%)",
+                text: "#ffffff",
+                accent: "#e0f2f1",
+                badgeBg: "rgba(255,255,255,0.1)",
+                label: "Platinum Member",
+                iconColor: "#b2dfdb"
+            }
+        }[tierKey];
+
 
         return (
             <Card
                 sx={{
                     position: "relative",
                     overflow: "hidden",
-                    borderRadius: 3,
-                    border: "1px solid #d9d9d9",
-                    background: cardColors[tierKey],
-                    color: "#111",
-                    boxShadow: "0 12px 28px rgba(0,0,0,0.25)",
-                    transform: "translateZ(0)",
-                    willChange: "transform, filter",
+                    borderRadius: "24px",
+                    background: colors.main,
+                    minHeight: { xs: 200, sm: 220 },
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.15), inset 0 0 100px rgba(255,255,255,0.5)",
+                    border: (tierKey === "platinum") ? "none" : "1px solid rgba(0,0,0,0.05)",
+
+
+                    transition: "all 0.3s ease",
                     "&::before": {
                         content: '""',
                         position: "absolute",
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        width: "35%",
-                        background:
-                            "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.65) 50%, rgba(255,255,255,0) 100%)",
-                        mixBlendMode: "screen",
+                        inset: 0,
+                        background: colors.mesh,
+                        backgroundSize: "200% 200%",
+                        animation: `${meshMove} 10s ease infinite`,
                         pointerEvents: "none",
-                        animation: `${sheenMove} 1850ms ease-in-out 450ms`,
                     },
-                    "&:hover::before, &:focus-within::before": {
-                        animation: `${sheenMove} 1600ms linear 0ms infinite`,
-                    },
+                    "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        background: "linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 80%)",
+                        backgroundSize: "200% 100%",
+                        animation: `${sheenMove} 4s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
+                        pointerEvents: "none",
+                    }
                 }}
             >
-                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                    <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="flex-start"
-                        sx={{ pb: { xs: 2, sm: 4 } }}
-                        color={"white"}
-                    >
-                        <Box>
-                            {/* ✅ คะแนน */}
-                            <Stack direction="row" alignItems="center" spacing={0.5}>
-                                <Box
-                                    sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        fontWeight={900}
-                                        sx={{
-                                            color: "black",
-                                            fontSize: { xs: "0.9rem", sm: "0.9rem" },
-                                            lineHeight: 1,
-                                            userSelect: 'none',
-                                        }}
-                                    >
-                                        <WorkspacePremium sx={{ color: "text.secondary" }} />
-                                    </Typography>
-
-                                    <Typography
-                                        color="text.secondary"
-                                        fontSize={{ xs: "1rem", sm: "1rem" }}
-                                        fontWeight={800}
-                                    >
-                                        {point ?? 0}
-                                    </Typography>
-                                </Box>
-
-                                {/* <Box
-                                    sx={{
-                                        width: 22,
-                                        height: 22,
-                                        borderRadius: "50%",
-                                        background: "radial-gradient(#FFF, #FFF6B4)",
-                                        border: "2px solid #FFE970",
-                                        display: "grid",
-                                        placeItems: "center",
-                                        color: "#8A8200",
-                                        fontWeight: 900,
-                                        fontSize: 12,
-                                    }}
-                                >
-                                    <Typography
-                                        variant="caption"
-                                        fontWeight={900}
-                                        sx={{
-                                            color: "black",
-                                            fontSize: { xs: "0.9rem", sm: "0.9rem" },
-                                            lineHeight: 1,
-                                        }}
-                                    >
-                                        P
-                                    </Typography>
-                                </Box> */}
-                                {/* 
+                <CardContent sx={{ p: { xs: 3, sm: 4 }, position: "relative", zIndex: 1 }}>
+                    <Stack spacing={3}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            <Box>
                                 <Typography
-                                    fontSize={{ xs: "1rem", sm: "1rem" }}
-                                    fontWeight={800}
+                                    variant="overline"
                                     sx={{
-                                        color: "#fff",
-                                        textShadow:
-                                            "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+                                        color: colors.text,
+                                        opacity: 0.7,
+                                        fontWeight: 700,
+                                        letterSpacing: 1.5,
+                                        display: "block",
+                                        mb: -0.5
                                     }}
                                 >
-                                    {displayPoint.toLocaleString()}
-                                </Typography> */}
-                            </Stack>
+                                    PUMPKIN MEMBERSHIP
+                                </Typography>
+                                <Typography
+                                    variant="h5"
+                                    fontWeight={900}
+                                    sx={{
+                                        color: colors.text,
+                                        textShadow: isSilver ? "none" : "0 2px 4px rgba(0,0,0,0.2)",
+                                        fontSize: { xs: "1.5rem", sm: "1.75rem" }
+                                    }}
+                                >
+                                    {colors.label}
+                                </Typography>
+                            </Box>
 
-                            {/* ✅ วันที่สมัคร */}
-                            <Typography
-                                fontSize={{ xs: "0.70rem", sm: "0.9rem" }}
-                                sx={{ color: "#222", mt: 1 }}
-                            >
-                                Member Since : {dayjs(joined_at).format("D MMM YYYY")}
-                            </Typography>
-
-                            {/* ✅ แสดง tier + สถานะ */}
-                            <Typography
-                                mt={1}
-                                fontWeight={800}
+                            <Box
+                                component="img"
+                                src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
+                                alt="Pumpkin"
                                 sx={{
-                                    color: "#fff",
-                                    textShadow: "0 1px 2px rgba(0,0,0,.6)",
+                                    height: { xs: 28, sm: 32 },
+                                    filter: (tierKey === "platinum") ? "brightness(0) invert(1)" : (isSilver ? "grayscale(1) brightness(0.2)" : "none"),
+                                    opacity: 0.9
+                                }}
+                            />
+                        </Stack>
+
+                        <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 1 }}>
+                            <Box
+                                sx={{
+                                    bgcolor: colors.badgeBg,
+                                    px: 2,
+                                    py: 1,
+                                    borderRadius: "16px",
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 1,
+                                    border: isSilver ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.1)"
                                 }}
                             >
-                                {tierKey === "silver"
-                                    ? "Silver Member"
-                                    : tierKey === "gold"
-                                        ? "Gold Member"
-                                        : "Platinum Member"}
+                                <WorkspacePremium sx={{ color: colors.iconColor, fontSize: 24 }} />
+                                <Typography fontWeight={800} sx={{ color: colors.text, fontSize: "1.1rem" }}>
+                                    {point.toLocaleString()} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>Pts</Box>
+                                </Typography>
+                            </Box>
 
-                                {/* ✅ ป้ายบอกสถานะ */}
-                                <Box
-                                    component="span"
+                            {isOwnTier && (
+                                <Fade in={true}>
+                                    <Box
+                                        sx={{
+                                            bgcolor: (tierKey === "platinum") ? "#fff" : (isSilver ? "#2c3e50" : "#463300"),
+                                            color: "#fff",
+                                            px: 1.5,
+                                            py: 0.5,
+                                            borderRadius: "20px",
+                                            fontSize: "0.65rem",
+                                            fontWeight: 900,
+                                            textTransform: "uppercase",
+                                            letterSpacing: 0.5,
+                                            animation: `${pulse} 2s ease-in-out infinite`
+                                        }}
+
+
+                                    >
+                                        Active Level
+                                    </Box>
+                                </Fade>
+                            )}
+                        </Stack>
+
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-end">
+                            <Box>
+                                <Typography
                                     sx={{
-                                        fontSize: "0.7rem",
+                                        color: colors.text,
+                                        opacity: 0.6,
+                                        fontSize: "0.65rem",
                                         fontWeight: 600,
-                                        color: isOwnTier ? "#00e676" : "#ffe082",
-                                        background: "rgba(0,0,0,0.35)",
-                                        px: 1,
-                                        py: 0.2,
-                                        borderRadius: 1,
-                                        textTransform: "uppercase",
-                                        mt: 1
+                                        mb: 0.2
                                     }}
                                 >
-                                    {isOwnTier ? "Your current level" : "Example"}
-                                </Box>
-                            </Typography>
-                        </Box>
+                                    MEMBER SINCE
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        color: colors.text,
+                                        fontWeight: 700,
+                                        fontSize: "0.85rem"
+                                    }}
+                                >
+                                    {dayjs(joined_at).format("DD/MM/YYYY")}
+                                </Typography>
+                            </Box>
 
-                        <Box
-                            component="img"
-                            src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
-                            alt="Pumpkin"
-                            sx={{ height: { xs: 34, sm: 40 }, opacity: 1, mt: { xs: 10, sm: 12 } }}
-                        />
+                            {!isSilver && (
+                                <Box sx={{ opacity: 0.8 }}>
+                                    <Stars sx={{ color: colors.accent, fontSize: 32 }} />
+                                </Box>
+                            )}
+                        </Stack>
                     </Stack>
                 </CardContent>
             </Card>
@@ -377,77 +297,112 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
         <Dialog
             open={open}
             onClose={onClose}
+            fullWidth
+            maxWidth="xs"
             BackdropProps={{
                 sx: {
-                    backgroundColor: "transparent", // ไม่มีสีทับ
-                    backdropFilter: "blur(10px)",   // ยังเบลอได้
-                    WebkitBackdropFilter: "blur(10px)",
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
                 },
             }}
-            PaperProps={{ sx: { background: "transparent", boxShadow: "none", p: 0 } }}
+            PaperProps={{
+                sx: {
+                    background: "transparent",
+                    boxShadow: "none",
+                    overflow: "visible",
+                    m: 2
+                }
+            }}
         >
             <Box sx={{ position: "relative" }}>
                 <IconButton
                     onClick={onClose}
                     sx={{
                         position: "absolute",
-                        right: 6,
-                        top: 6,
-                        zIndex: 2,
-                        bgcolor: "rgba(255,255,255,.75)",
-                        backdropFilter: "blur(2px)",
-                        "&:hover": { bgcolor: "rgba(255,255,255,.95)" },
+                        right: -10,
+                        top: -10,
+                        zIndex: 10,
+                        bgcolor: "white",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        "&:hover": { bgcolor: "#f5f5f5" },
                     }}
-                    aria-label="close"
+                    size="small"
                 >
-                    <Close />
+                    <Close fontSize="small" />
                 </IconButton>
+
                 <Box
-                    sx={{ pt: 5, pb: 1, px: { xs: 1, sm: 1.5 } }}
+                    sx={{ pb: 1 }}
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
                     <Box
                         sx={{
-                            willChange: "transform",
-                            animation: `${stepBump} 220ms ease`,
-                            transition: "transform 260ms cubic-bezier(.2,.8,.2,1)",
+                            animation: `${stepBump} 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)`,
                         }}
                         key={tiers[step]}
                     >
                         {TierCard(tiers[step])}
                     </Box>
-                    <MobileStepper
-                        variant="dots"
-                        steps={maxSteps}
-                        position="static"
-                        activeStep={step}
-                        sx={{
-                            mt: 1,
-                            background: "transparent",
-                            justifyContent: "center",
-                            "& .MuiMobileStepper-dot": { width: 6, height: 6 },
-                            "& .MuiMobileStepper-dotActive": { width: 16, borderRadius: 999 },
-                        }}
-                        nextButton={
-                            <IconButton
-                                onClick={() => setStep((s) => Math.min(s + 1, maxSteps - 1))}
-                                disabled={step === maxSteps - 1}
-                                aria-label="next"
-                            >
-                                <ChevronRight />
-                            </IconButton>
-                        }
-                        backButton={
-                            <IconButton
-                                onClick={() => setStep((s) => Math.max(s - 1, 0))}
-                                disabled={step === 0}
-                                aria-label="back"
-                            >
-                                <ChevronLeft />
-                            </IconButton>
-                        }
-                    />
+
+                    <Stack
+                        direction="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        spacing={3}
+                        sx={{ mt: 3 }}
+                    >
+                        <IconButton
+                            onClick={() => setStep((s) => Math.max(s - 1, 0))}
+                            disabled={step === 0}
+                            sx={{
+                                bgcolor: "rgba(255,255,255,0.2)",
+                                color: "white",
+                                "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                "&.Mui-disabled": { opacity: 0.3, color: "white" }
+                            }}
+                        >
+                            <ChevronLeft />
+                        </IconButton>
+
+                        <MobileStepper
+                            variant="dots"
+                            steps={maxSteps}
+                            position="static"
+                            activeStep={step}
+                            sx={{
+                                background: "transparent",
+                                p: 0,
+                                "& .MuiMobileStepper-dot": {
+                                    width: 8,
+                                    height: 8,
+                                    bgcolor: "rgba(255,255,255,0.3)",
+                                    mx: 0.5
+                                },
+                                "& .MuiMobileStepper-dotActive": {
+                                    width: 24,
+                                    borderRadius: 4,
+                                    bgcolor: "white"
+                                },
+                            }}
+                            nextButton={null}
+                            backButton={null}
+                        />
+
+                        <IconButton
+                            onClick={() => setStep((s) => Math.min(s + 1, maxSteps - 1))}
+                            disabled={step === maxSteps - 1}
+                            sx={{
+                                bgcolor: "rgba(255,255,255,0.2)",
+                                color: "white",
+                                "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                                "&.Mui-disabled": { opacity: 0.3, color: "white" }
+                            }}
+                        >
+                            <ChevronRight />
+                        </IconButton>
+                    </Stack>
                 </Box>
             </Box>
         </Dialog>

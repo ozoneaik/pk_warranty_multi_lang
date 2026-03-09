@@ -91,7 +91,8 @@ export default function WelComeProFile() {
                         borderBottomRightRadius: "12px",
                         borderBottomLeftRadius: "12px",
                         objectPosition: "top",
-                        maxHeight: "350px",
+                        maxHeight: "390px",
+                        paddingTop: "16px",
                     }}
                 />
                 <Paper

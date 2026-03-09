@@ -1,9 +1,10 @@
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
 import {
     Box, Typography, Stack, Button, Container, Grid, Card, List,
-    ListItemButton, ListItemIcon, ListItemText, Divider, CardContent, Avatar, Link
+    ListItemButton, ListItemIcon, ListItemText, Divider, CardContent, Avatar, Link, Fade
 } from "@mui/material";
-import { ChevronRight, Gavel, Logout, Shield, Edit, WorkspacePremium } from "@mui/icons-material";
+import { ChevronRight, Gavel, Logout, Shield, Edit, WorkspacePremium, Stars } from "@mui/icons-material";
+
 import { Head, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
 import dayjs from "dayjs";
@@ -12,22 +13,64 @@ import CardPreviewDialog from "./CardTiers/CardPreviewDialog";
 import React from "react";
 import PointExpiryModal from "../Partials/PointExpiryModal";
 import { ChevronRightIcon } from "lucide-react";
+import { keyframes, styled } from "@mui/system";
+
+/** ===== Animations for Premium Card ===== */
+const sheenMove = keyframes`
+  0%   { transform: translateX(-150%) skewX(-20deg); opacity: 0; }
+  20%  { opacity: 0.5; }
+  50%  { opacity: 0.8; }
+  80%  { opacity: 0.5; }
+  100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
+`;
+
+const meshMove = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+`;
+
 export default function ScorePage() {
     const { t } = useLanguage();
     const { auth, line_avatar, point, joined_at, tier, tier_expired_at } = usePage().props as any;
     const user = auth.user;
     const [openPreview, setOpenPreview] = React.useState(false);
     const [openPointModal, setOpenPointModal] = React.useState(false);
-    const cardColors: Record<string, string> = {
-        silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
-        gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)",
-        platinum: "linear-gradient(45deg, #004D40 0%, #00796B 30%, #4DB6AC 50%, #00796B 70%, #004D40 100%)",
-    };
+    const cardThemes: Record<string, { main: string, mesh: string, text: string, accent: string, badgeBg: string, label: string, iconColor: string }> = {
+        silver: {
+            main: "linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%)",
+            mesh: "radial-gradient(at 0% 0%, rgba(0,0,0,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.02) 0, transparent 50%)",
+            text: "#2c3e50",
+            accent: "#7f8c8d",
+            badgeBg: "rgba(0,0,0,0.05)",
+            label: "Silver Member",
+            iconColor: "#7f8c8d"
+        },
 
-    const tierName: Record<string, string> = {
-        silver: "Silver Member",
-        gold: "gold Member",
-        platinum: "platinum Member",
+        gold: {
+            main: "linear-gradient(135deg, #8B660F 0%, #CFA525 20%, #FFF8E1 40%, #D4AF37 50%, #C8A02E 60%, #B8860B 80%, #996515 100%)",
+            mesh: "radial-gradient(at 0% 0%, rgba(255,255,255,0.4) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255,215,0,0.3) 0, transparent 50%)",
+            text: "#111",
+            accent: "#D4AF37",
+            badgeBg: "rgba(0,0,0,0.1)",
+            label: "Gold Member",
+            iconColor: "#D4AF37"
+        },
+        platinum: {
+            main: "linear-gradient(135deg, #004d40 0%, #00796b 25%, #26a69a 50%, #00796b 75%, #004d40 100%)",
+            mesh: "radial-gradient(at 0% 0%, rgba(255,255,255,0.3) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.4) 0, transparent 50%)",
+            text: "white",
+            accent: "#26a69a",
+            badgeBg: "rgba(255,255,255,0.1)",
+            label: "Platinum Member",
+            iconColor: "#26a69a"
+        },
     };
 
     return (
@@ -104,9 +147,9 @@ export default function ScorePage() {
                                         fontSize={{ xs: "0.9rem", sm: "1rem" }}
                                         fontWeight={800}
                                     >
-                                        {point ?? 0}
+                                        {point ?? 0} Pts
                                     </Typography>
-                                    <ChevronRightIcon size={14} color="#F55014" />
+                                    {/* <ChevronRightIcon size={20} color="#F55014" /> */}
                                 </Box>
                             </Stack>
                         </Box>
@@ -116,115 +159,178 @@ export default function ScorePage() {
                     <Card
                         onClick={() => setOpenPreview(true)}
                         sx={{
-                            mt: { xs: 2, sm: 2 },
-                            borderRadius: 3,
-                            border: "1px solid #d9d9d9",
-                            background: cardColors[tier],
-                            color: "#111",
+                            mt: { xs: 3, sm: 3 },
+                            borderRadius: 4,
+                            position: "relative",
+                            overflow: "hidden",
+                            background: cardThemes[tier].main,
+                            color: cardThemes[tier].text,
                             transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
-                            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.15), inset 0 0 100px rgba(255,255,255,0.5)",
+                            border: (tier === "platinum") ? "none" : "1px solid rgba(0,0,0,0.05)",
+
+                            "&::before": {
+                                content: '""',
+                                position: "absolute",
+                                inset: 0,
+                                background: cardThemes[tier].mesh,
+                                backgroundSize: "200% 200%",
+                                animation: `${meshMove} 10s ease infinite`,
+                                pointerEvents: "none",
+                            },
+
+                            "&::after": {
+                                content: '""',
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                background: "linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 80%)",
+                                backgroundSize: "200% 100%",
+                                animation: `${sheenMove} 4s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
+                                pointerEvents: "none",
+                            },
                             "&:hover": {
-                                transform: "translateY(-6px) scale(1.02)",
-                                boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
+                                transform: "translateY(-6px)",
+                                boxShadow: "0 15px 30px rgba(0,0,0,0.25)",
                             },
                         }}
                     >
-                        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                            <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems="flex-start"
-                                sx={{ pt: { xs: 0, sm: 1 }, pb: { xs: 2, sm: 4 } }}
-                                color={"white"}
-                            >
-                                <Box>
-                                    <Stack
-                                        direction="row"
-                                        alignItems="center"
-                                        spacing={0.5}
-                                        ml={0}
-                                    >
-                                        {/* วงกลม P พร้อม Gradient */}
-                                        <Box
-                                            sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
-                                        >
-                                            <Typography
-                                                variant="caption"
-                                                fontWeight={900}
-                                                sx={{
-                                                    color: "black",
-                                                    fontSize: { xs: "0.9rem", sm: "0.9rem" },
-                                                    lineHeight: 1,
-                                                    userSelect: 'none',
-                                                }}
-                                            >
-                                                <WorkspacePremium sx={{ color: "text.secondary" }} />
-                                            </Typography>
 
-                                            <Typography
-                                                color="text.secondary"
-                                                fontSize={{ xs: "0.9rem", sm: "1rem" }}
-                                                fontWeight={800}
-                                            >
-                                                {point ?? 0}
-                                            </Typography>
-                                        </Box>
-
-                                        {/* คะแนน */}
-                                        {/* <Typography
-                                            color="text.secondary"
-                                            fontSize={{ xs: "1rem", sm: "1rem" }}
-                                            fontWeight={800}
+                        <CardContent sx={{ p: { xs: 2, sm: 2 }, position: "relative", zIndex: 1 }}>
+                            <Stack spacing={3}>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                    <Box>
+                                        <Typography
+                                            variant="overline"
                                             sx={{
-                                                color: '#fff',
-                                                textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000',
+                                                color: cardThemes[tier].text,
+                                                opacity: 0.7,
+                                                fontWeight: 700,
+                                                letterSpacing: 1.5,
+                                                display: "block",
+                                                mb: -0.5
                                             }}
                                         >
-                                            {point ?? 0}
-                                        </Typography> */}
-                                    </Stack>
-                                    
-                                    <Typography
-                                        fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
-                                        color="text.secondary"
+                                            PUMPKIN MEMBERSHIP
+                                        </Typography>
+                                        <Typography
+                                            variant="h5"
+                                            fontWeight={900}
+                                            sx={{
+                                                color: cardThemes[tier].text,
+                                                textShadow: tier === "silver" ? "none" : "0 2px 4px rgba(0,0,0,0.2)",
+                                                fontSize: { xs: "1.5rem", sm: "1.75rem" }
+                                            }}
+                                        >
+                                            {cardThemes[tier].label}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box
+                                        component="img"
+                                        src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
+                                        alt="Pumpkin"
                                         sx={{
-                                            color: '#333',
-                                            mt: 1
+                                            height: { xs: 28, sm: 32 },
+                                            filter: (tier === "platinum") ? "brightness(0) invert(1)" : (tier === "silver" ? "grayscale(1) brightness(0.2)" : "none"),
+                                            opacity: 0.9
+                                        }}
+                                    />
+                                </Stack>
+
+                                <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 1 }}>
+                                    <Box
+                                        sx={{
+                                            bgcolor: cardThemes[tier].badgeBg,
+                                            px: 2,
+                                            py: 1,
+                                            borderRadius: "16px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 1,
+                                            border: tier === "silver" ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.1)"
                                         }}
                                     >
-                                        Member Since :{" "}
-                                        {dayjs(joined_at).format("D MMM YYYY")}
-                                    </Typography>
-                                    <Typography
-                                        fontSize={{ xs: "0.7rem", sm: "0.8rem" }}
-                                        sx={{
-                                            color: "#333",
-                                            mt: 0.3,
-                                            fontWeight: 500,
-                                        }}
-                                    >
-                                        Expire Date :{" "}
-                                        {tier_expired_at ? dayjs(tier_expired_at).format("D MMM YYYY") : "-"}
-                                    </Typography>
-                                    {/* <Typography
-                                        mt={1}
-                                        fontWeight={700}
-                                        fontSize={{ xs: "0.9rem", sm: "1rem" }}
-                                        color="#000"
-                                    >
-                                        {tierName[tier]}
-                                    </Typography> */}
-                                </Box>
-                                <Box
-                                    component="img"
-                                    src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
-                                    alt="Pumpkin"
-                                    sx={{
-                                        height: { xs: 30, sm: 35, md: 40 },
-                                        opacity: 1,
-                                        mt: { xs: 10, sm: 12 },
-                                    }}
-                                />
+                                        <WorkspacePremium sx={{ color: cardThemes[tier].iconColor, fontSize: 24 }} />
+                                        <Typography fontWeight={800} sx={{ color: cardThemes[tier].text, fontSize: "1.1rem" }}>
+                                            {point?.toLocaleString() ?? 0} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>Pts</Box>
+                                        </Typography>
+                                    </Box>
+
+                                    {/* <Fade in={true}>
+                                        <Box
+                                            sx={{
+                                                bgcolor: (tier === "platinum") ? "#fff" : (tier === "silver" ? "#2c3e50" : "#463300"),
+                                                color: "#fff",
+                                                px: 1.5,
+                                                py: 0.5,
+                                                borderRadius: "20px",
+                                                fontSize: "0.65rem",
+                                                fontWeight: 900,
+                                                textTransform: "uppercase",
+                                                letterSpacing: 0.5,
+                                                animation: `${pulse} 2s ease-in-out infinite`
+                                            }}
+                                        >
+                                            Active Level
+                                        </Box>
+                                    </Fade> */}
+                                </Stack>
+
+                                <Stack direction="row" justifyContent="space-between" alignItems="flex-end">
+                                    <Box>
+                                        <Typography
+                                            sx={{
+                                                color: cardThemes[tier].text,
+                                                opacity: 0.6,
+                                                fontSize: "0.65rem",
+                                                fontWeight: 600,
+                                                mb: 0.2
+                                            }}
+                                        >
+                                            MEMBER SINCE
+                                        </Typography>
+                                        <Typography
+                                            sx={{
+                                                color: cardThemes[tier].text,
+                                                fontWeight: 700,
+                                                fontSize: "0.85rem"
+                                            }}
+                                        >
+                                            {dayjs(joined_at).format("DD/MM/YYYY")}
+                                        </Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography
+                                            sx={{
+                                                color: cardThemes[tier].text,
+                                                opacity: 0.6,
+                                                fontSize: "0.65rem",
+                                                fontWeight: 600,
+                                                mb: 0.2
+                                            }}
+                                        >
+                                           Expire Date
+                                        </Typography>
+                                        <Typography
+                                            sx={{
+                                                color: cardThemes[tier].text,
+                                                fontWeight: 700,
+                                                fontSize: "0.85rem"
+                                            }}
+                                        >
+                                            {tier_expired_at ? dayjs(tier_expired_at).format("D MMM YYYY") : "-"}
+                                        </Typography>
+                                    </Box>
+
+                                    {tier !== "silver" && (
+                                        <Box sx={{ opacity: 0.8 }}>
+                                            <Stars sx={{ color: cardThemes[tier].accent, fontSize: 32 }} />
+                                        </Box>
+                                    )}
+                                </Stack>
                             </Stack>
                         </CardContent>
                     </Card>
@@ -232,10 +338,9 @@ export default function ScorePage() {
                     {/* Progress Section */}
                     <RewardProgress
                         cardColors={{
-                            silver: "linear-gradient(45deg, #707070 0%, #a8a8a8 20%, #e8e8e8 40%, #ffffff 50%, #e8e8e8 60%, #a8a8a8 80%, #707070 100%)",
-                            gold: "linear-gradient(45deg, #8B660F 0%, #CFA525 25%, #FFF8E1 45%, #CFA525 65%, #8B660F 100%)",
-                            platinum: "linear-gradient(45deg, #004D40 0%, #00796B 30%, #4DB6AC 50%, #00796B 70%, #004D40 100%)",
-
+                            silver: cardThemes.silver.main,
+                            gold: cardThemes.gold.main,
+                            platinum: cardThemes.platinum.main
                         }}
                         point={point}
                         joined_at={joined_at}
@@ -331,7 +436,11 @@ export default function ScorePage() {
                 activeTier={tier as "silver" | "gold" | "platinum"}
                 point={point ?? 0}
                 joined_at={joined_at}
-                cardColors={cardColors}
+                cardColors={{
+                    silver: cardThemes.silver.main,
+                    gold: cardThemes.gold.main,
+                    platinum: cardThemes.platinum.main
+                }}
             />
             <PointExpiryModal
                 open={openPointModal}

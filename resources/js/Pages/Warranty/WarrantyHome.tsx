@@ -429,6 +429,7 @@ export default function WarrantyHome() {
     const [checkedDays, setCheckedDays] = useState<string[]>([]);
     const [earnedData, setEarnedData] = useState({ points: 0, ids: [], message: '', items: [], });
     const [popupImages, setPopupImages] = useState<string[]>([]);
+    const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
 
     const [openPointModal, setOpenPointModal] = React.useState(false);
 
@@ -447,6 +448,7 @@ export default function WarrantyHome() {
 
                 if (!lastShown || now - parseInt(lastShown, 10) > oneHour) {
                     setPopupImages(images);
+                    setCurrentPopupIndex(0);
                     setShowImagePopup(true);
                     sessionStorage.setItem("popup_last_shown", now.toString());
                     return; // หยุดรอก่อน (รอปิด Modal ค่อยไปต่อ)
@@ -511,8 +513,20 @@ export default function WarrantyHome() {
     }, []);
 
     const handleCloseImagePopup = () => {
-        setShowImagePopup(false);
-        setTimeout(() => checkPendingPoints(), 300); // หน่วงนิดนึงให้ดูสมูท
+        const nextIndex = currentPopupIndex + 1;
+        if (nextIndex < popupImages.length) {
+            // ปิดรูปปัจจุบันก่อน
+            setShowImagePopup(false);
+            // หน่วงเวลาเล็กน้อยแล้วเปิดรูปถัดไป
+            setTimeout(() => {
+                setCurrentPopupIndex(nextIndex);
+                setShowImagePopup(true);
+            }, 300);
+        } else {
+            // ถ้าหมดแล้ว ให้ปิด Modal และไป flow ถัดไป
+            setShowImagePopup(false);
+            setTimeout(() => checkPendingPoints(), 300);
+        }
     };
 
     const handleCloseEarnModal = async () => {
@@ -804,7 +818,7 @@ export default function WarrantyHome() {
             <ImagePopupModal
                 open={showImagePopup}
                 onClose={handleCloseImagePopup}
-                images={popupImages}
+                images={popupImages[currentPopupIndex] ? [popupImages[currentPopupIndex]] : []}
             />
 
             <EarnPointModal
