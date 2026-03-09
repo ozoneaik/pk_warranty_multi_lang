@@ -149,6 +149,16 @@
             "mainTitle": "Personal Information",
             "sub": "You can edit your personal information and billing address here."
         },
+        "show": {
+            "title": "Your Profile Information",
+            "subtitle": "Personal details and billing address for tax invoice",
+            "editButton": "Edit Profile",
+            "fullName": "Full Name",
+            "taxInfoTitle": "Tax Invoice Information",
+            "taxName": "Name/Company (Tax Invoice)",
+            "taxTel": "Phone Number (Tax Invoice)",
+            "taxAddress": "Billing Address"
+        },
         "form": {
             "formLengend": "Personal Information",
             "firstname": "First Name",
@@ -287,6 +297,21 @@
         "noTextToCopy": "No text to copy",
         "copied": "Copied!",
         "clickToCopy": "Click to copy"
+    },
+    "iconMenu": {
+        "checkRepairStatus": "Repair Status",
+        "warrantyProduct": "Warranty Products",
+        "pumpkinCorner": "Pumpkin Corner",
+        "onlineShop": "Online Channels",
+        "checkin": "Check in",
+        "referral": "Referral"
+    },
+    "footerMenu": {
+        "home": "Home",
+        "form": "Form",
+        "privilege": "Privilege",
+        "tools": "History",
+        "profile": "Profile"
     },
     "Checkin": {
         "title": "Check-in Rewards",

@@ -47,77 +47,77 @@ export default function ProfileShow({ customer, vat }: ProfileShowProps) {
                         sx={{ borderRadius: 1, px: 1.5, py: 0.5, fontSize: 13, textTransform: "none" }}
                         onClick={() => router.get(route("customer.profile.edit"))}
                     >
-                        แก้ไขข้อมูล
+                        {t.Customer.show.editButton}
                     </Button>
                 </Box>
-
+ 
                 <header className="mb-4">
                     <Typography variant="h6" fontWeight="bold" color="text.primary">
-                        ข้อมูลโปรไฟล์ของคุณ
+                        {t.Customer.show.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        รายละเอียดข้อมูลส่วนตัวและที่อยู่สำหรับออกใบกำกับภาษี
+                        {t.Customer.show.subtitle}
                     </Typography>
                 </header>
-
+ 
                 <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 2 }}>
                     <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, color: '#F54927' }}>
-                        ข้อมูลส่วนตัว
+                        {t.Customer.form.formLengend}
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-
+ 
                     <Grid container spacing={2}>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">ชื่อ - นามสกุล</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.show.fullName}</Typography>
                             <Typography variant="body1" fontWeight="medium">
                                 {displayValue(customer?.cust_firstname)} {displayValue(customer?.cust_lastname)}
                             </Typography>
                         </Grid>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">เพศ</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.form.gender}</Typography>
                             <Typography variant="body1" fontWeight="medium">{displayValue(customer?.cust_gender)}</Typography>
                         </Grid>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">เบอร์โทรศัพท์</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.form.tel}</Typography>
                             <Typography variant="body1" fontWeight="medium">{displayValue(customer?.cust_tel)}</Typography>
                         </Grid>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">อีเมล</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.form.email}</Typography>
                             <Typography variant="body1" fontWeight="medium">{displayValue(customer?.cust_email)}</Typography>
                         </Grid>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">วันเกิด</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.form.birthdate}</Typography>
                             <Typography variant="body1" fontWeight="medium">{displayValue(customer?.cust_birthdate)}</Typography>
                         </Grid>
                     </Grid>
-
+ 
                     <Box sx={{ mt: 3 }}>
-                        <Typography variant="caption" color="text.secondary">ที่อยู่</Typography>
+                        <Typography variant="caption" color="text.secondary">{t.Customer.form.address}</Typography>
                         <Typography variant="body1" fontWeight="medium">
                             {displayValue(customer?.cust_full_address)} {displayValue(customer?.cust_subdistrict)} {displayValue(customer?.cust_district)} {displayValue(customer?.cust_province)} {displayValue(customer?.cust_zipcode)}
                         </Typography>
                     </Box>
                 </Paper>
-
+ 
                 <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
                     <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, color: '#F54927' }}>
-                        ข้อมูลสำหรับออกใบกำกับภาษี
+                        {t.Customer.show.taxInfoTitle}
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-
+ 
                     <Grid container spacing={2}>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">ชื่อ/บริษัท (ใบกำกับภาษี)</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.show.taxName}</Typography>
                             <Typography variant="body1" fontWeight="medium">{displayValue(vat?.vat_cust_name)}</Typography>
                         </Grid>
                         <Grid size={12}>
-                            <Typography variant="caption" color="text.secondary">เบอร์โทรศัพท์ (ใบกำกับภาษี)</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.Customer.show.taxTel}</Typography>
                             <Typography variant="body1" fontWeight="medium">{displayValue(vat?.vat_tel_c)}</Typography>
                         </Grid>
                     </Grid>
-
+ 
                     <Box sx={{ mt: 3 }}>
-                        <Typography variant="caption" color="text.secondary">ที่อยู่ออกใบกำกับภาษี</Typography>
+                        <Typography variant="caption" color="text.secondary">{t.Customer.show.taxAddress}</Typography>
                         <Typography variant="body1" fontWeight="medium">
                             {displayValue(vat?.vat_cust_address)} {displayValue(vat?.vat_cust_province)} {displayValue(vat?.vat_cust_district)} {displayValue(vat?.vat_cust_subdistrict)} {displayValue(vat?.vat_cust_zipcode)}
                         </Typography>

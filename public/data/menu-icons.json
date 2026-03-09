@@ -1,72 +1,42 @@
 [
     {
         "id": 1,
-        "title": {
-            "th": "เช็กสถานะซ่อม",
-            "en": "Repair Status",
-            "lao": "ກວດສະຖານະການສ້ອມແປງ",
-            "myanmar": "ပြုပြင်မှုအခြေအနေ စစ်ဆေးရန်"
-        },
+        "title": "checkRepairStatus",
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184410046-Layer_1-1%201.png",
         "link": "https://pumpkin.co.th/track/",
         "color": "#2196f3"
     },
     {
         "id": 2,
-        "title": {
-            "th": "สินค้ารับประกัน",
-            "en": "Warranty Products",
-            "lao": "ສິນຄ້າຮັບປະກັນ",
-            "myanmar": "အာမခံထားသော ပစ္စည်းများ"
-        },
+        "title": "warrantyProduct",
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184424820-Frame%20427321869%202%20%288%29.png",
         "link": "https://pumpkin.co.th/warranty_check/?tel=",
         "color": "#4caf50"
     },
     {
         "id": 3,
-        "title": {
-            "th": "Pumpkin Corner",
-            "en": "Pumpkin Corner",
-            "lao": "Pumpkin Corner",
-            "myanmar": "Pumpkin Corner"
-        },
+        "title": "pumpkinCorner",
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184431964-Frame%20427321869%201.png",
         "link": "https://pumpkin.co.th/pumpkincorner/",
         "color": "#f57c00"
     },
     {
         "id": 4,
-        "title": {
-            "th": "ช่องทางสื่อสารออนไลน์",
-            "en": "Online Communication Channels",
-            "lao": "ຊ່ອງທາງສື່ສານອອນໄລນ໌",
-            "myanmar": "အွန်လိုင်းဆက်သွယ်မှုလမ်းကြောင်းများ"
-        },
+        "title": "onlineShop",
         "icon_url": "https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1742184436674-Layer_1-1%201%20%281%29.png",
         "link": "https://linktr.ee/pumpkintoolschannel",
         "color": "#e91e63"
     },
     {
         "id": 5,
-        "title": {
-            "th": "เช็คอิน",
-            "en": "Check in",
-            "lao": "",
-            "myanmar":""
-        },
+        "title": "checkin",
         "icon_url": "https://cdn-icons-png.flaticon.com/512/15537/15537663.png",
         "link": "https://pumpkin.co.th/checkin/",
         "color": "#e91e63"
     },
     {
         "id": 6,
-        "title":{
-            "th": "แนะนำเพื่อน",
-            "en": "Feferral",
-            "lao": "",
-            "myanmar":""
-        },
+        "title": "referral",
         "icon_url": "https://cdn-icons-png.flaticon.com/512/2559/2559028.png",
         "link": "/customer-profile/referral",
         "color": "#e91e63"

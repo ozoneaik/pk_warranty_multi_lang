@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { router, usePage } from "@inertiajs/react";
 import * as MuiIcons from "@mui/icons-material";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface MenuItem {
     id: number;
@@ -14,6 +15,7 @@ interface MenuItem {
 }
 
 export default function FooterCarousel() {
+    const { t, language } = useLanguage();
     const [menus, setMenus] = useState<MenuItem[]>([]);
     const [loading, setLoading] = useState(true);
     const { url } = usePage();
@@ -65,6 +67,7 @@ export default function FooterCarousel() {
 
     return (
         <Box
+            key={language}
             sx={{
                 position: "fixed",
                 bottom: 0,
@@ -124,7 +127,7 @@ export default function FooterCarousel() {
                                     display: "block",
                                 }}
                             >
-                                {item.label}
+                                {(t.footerMenu as any)[item.label] || item.label}
                             </Typography>
                         </Box>
                     );

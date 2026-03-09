@@ -1,31 +1,31 @@
 [
     {
         "id": 1,
-        "label": "Home",
+        "label": "home",
         "route": "warranty.home",
         "icon": "Home"
     },
     {
         "id": 2,
-        "label": "Form",
+        "label": "form",
         "route": "warranty.form",
         "icon": "Assignment"
     },
     {
         "id": 3,
-        "label": "Privilege",
+        "label": "privilege",
         "route": "customer.profile.privilege",
         "icon": "WorkspacePremium"
     },
     {
         "id": 4,
-        "label": "Tools",
+        "label": "tools",
         "route": "warranty.history",
         "icon": "History"
     },
     {
         "id": 5,
-        "label": "Profile",
+        "label": "profile",
         "route": "customer.profile.welcome",
         "icon": "SupervisedUserCircle"
     }

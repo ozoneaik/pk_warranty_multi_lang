@@ -15,12 +15,7 @@ import { useLanguage } from "@/context/LanguageContext";
 
 interface MenuItem {
   id: number;
-  title: {
-    th: string;
-    en: string;
-    lao: string;
-    myanmar: string;
-  };
+  title: string;
   icon_url: string;
   link: string;
   color?: string;
@@ -32,7 +27,7 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { auth } = usePage().props as any;
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const userPhone = auth?.user?.phone ?? "";
 
   useEffect(() => {
@@ -69,7 +64,7 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
   }
 
   return (
-    <Box sx={{ mt: 1, mb: 0, px: 0 }}>
+    <Box key={language} sx={{ mt: 1, mb: 0, px: 0 }}>
       <Slider {...sliderSettings}>
         {menus.map((item) => {
           const isCheckinMenu = item.id === 5 || item.link === "checkin";
@@ -77,7 +72,7 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
             ? `${item.link}${userPhone}`
             : item.link;
 
-          const title = item.title?.[language] || item.title.th;
+          const title = (t.iconMenu as any)[item.title] || item.title;
 
           return (
             <Box key={item.id} px={0}>
