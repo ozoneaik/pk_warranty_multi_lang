@@ -104,13 +104,13 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
         // Colors configuration
         const colors = {
             silver: {
-                main: "linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%)",
-                mesh: "radial-gradient(at 0% 0%, rgba(0,0,0,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.02) 0, transparent 50%)",
+                main: "linear-gradient(135deg, #757575 0%, #C2C2C2 35%, #FDFDFD 50%, #D9D9D9 65%, #757575 100%)",
+                mesh: "radial-gradient(at 0% 0%, rgba(255,255,255,0.15) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.05) 0, transparent 50%)",
                 text: "#2c3e50",
-                accent: "#7f8c8d",
+                accent: "#757575",
                 badgeBg: "rgba(0,0,0,0.05)",
                 label: "Silver Member",
-                iconColor: "#7f8c8d"
+                iconColor: "#757575"
             },
 
 
@@ -145,7 +145,7 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                     background: colors.main,
                     minHeight: { xs: 200, sm: 220 },
                     boxShadow: "0 20px 40px rgba(0,0,0,0.15), inset 0 0 100px rgba(255,255,255,0.5)",
-                    border: (tierKey === "platinum") ? "none" : "1px solid rgba(0,0,0,0.05)",
+                    border: "none",
 
 
                     transition: "all 0.3s ease",
@@ -153,9 +153,12 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                         content: '""',
                         position: "absolute",
                         inset: 0,
-                        background: colors.mesh,
-                        backgroundSize: "200% 200%",
-                        animation: `${meshMove} 10s ease infinite`,
+                        background: isSilver
+                            ? `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"), ${colors.mesh}`
+                            : colors.mesh,
+                        opacity: isSilver ? 0.2 : 1,
+                        backgroundSize: isSilver ? "150px, 200% 200%" : "200% 200%",
+                        animation: isSilver ? "none" : `${meshMove} 10s ease infinite`,
                         pointerEvents: "none",
                     },
                     "&::after": {
@@ -208,7 +211,6 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                                 alt="Pumpkin"
                                 sx={{
                                     height: { xs: 28, sm: 32 },
-                                    filter: (tierKey === "platinum") ? "brightness(0) invert(1)" : (isSilver ? "grayscale(1) brightness(0.2)" : "none"),
                                     opacity: 0.9
                                 }}
                             />
@@ -277,7 +279,7 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                                         fontSize: "0.85rem"
                                     }}
                                 >
-                                    {dayjs(joined_at).format("DD/MM/YYYY")}
+                                    {dayjs(joined_at).format("D MMM YYYY")}
                                 </Typography>
                             </Box>
 

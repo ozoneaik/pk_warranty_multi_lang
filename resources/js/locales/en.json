@@ -201,7 +201,26 @@
     "Score": {
         "title": "Reward Points",
         "MyPointTitle": "My Reward Points",
-        "FeatureIsDeveloping": "This feature is currently under development"
+        "FeatureIsDeveloping": "This feature is currently under development",
+        "pts": "Pts",
+        "memberSince": "MEMBER SINCE",
+        "expireDate": "Expire Date",
+        "settings": "Settings",
+        "pdpa": "PDPA",
+        "terms": "Terms & Conditions",
+        "logout": "Log out",
+        "membershipTitle": "PUMPKIN MEMBERSHIP",
+        "currentLevel": "Current Level",
+        "allLevels": "All Membership Levels",
+        "activeLevel": "Active Level",
+        "current": "Current",
+        "pointRange": "{min} - {max} Pts",
+        "pointAbove": "{min} Pts and above",
+        "tiers": {
+            "silver": "Silver Member",
+            "gold": "Gold Member",
+            "platinum": "Platinum Member"
+        }
     },
     "copy": "Copy",
     "Privilege": {

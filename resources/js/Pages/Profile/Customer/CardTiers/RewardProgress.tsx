@@ -1,14 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography, Fade } from "@mui/material";
 import dayjs from "dayjs";
+import { useLanguage } from "@/context/LanguageContext";
+import { keyframes, styled } from "@mui/system";
+import { WorkspacePremium } from "@mui/icons-material";
 
 interface RewardProgressProps {
     cardColors: Record<string, string>;
     point?: number;
     joined_at?: string;
     tier_expired_at?: string;
-    tier?: string; // ✅ เพิ่ม tier ปัจจุบันจาก backend
+    tier?: string;
 }
+
+/** ===== Animations ===== */
+const sheenMove = keyframes`
+  0%   { transform: translateX(-150%) skewX(-20deg); opacity: 0; }
+  20%  { opacity: 0.5; }
+  50%  { opacity: 0.8; }
+  80%  { opacity: 0.5; }
+  100% { transform: translateX(250%) skewX(-20deg); opacity: 0; }
+`;
+
+const meshMove = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+`;
 
 export default function RewardProgress({
     cardColors,
@@ -17,6 +41,7 @@ export default function RewardProgress({
     tier = "silver",
     tier_expired_at,
 }: RewardProgressProps) {
+    const { t } = useLanguage();
     const [level, setLevel] = useState<string>(tier);
 
     useEffect(() => {
@@ -51,7 +76,7 @@ export default function RewardProgress({
 
         if (arc) arc.setAttribute("stroke-dasharray", `${dash} ${C}`);
         if (pctText) pctText.textContent = `${Math.round(pctAll)}%`;
-        if (centerText) centerText.textContent = `${fmt(point)} คะแนน`;
+        if (centerText) centerText.textContent = `${fmt(point)} ${t.Score.pts}`;
 
         // === Linear Progress ของระดับปัจจุบัน ===
         const tiers = [
@@ -59,7 +84,7 @@ export default function RewardProgress({
             { key: "gold", min: 1001, max: 3000 },
             { key: "platinum", min: 3001, max: Infinity },
         ];
-        const currentTier = tiers.find((t) => t.key === tier) || tiers[0];
+        const currentTier = tiers.find((item) => item.key === tier) || tiers[0];
         const span = currentTier.max === Infinity ? 1000 : currentTier.max - currentTier.min;
         const base = Math.max(0, point - currentTier.min);
         const pct = Math.min(100, (base / span) * 100);
@@ -132,52 +157,115 @@ export default function RewardProgress({
                                 0%
                             </text>
                             <text id="centerText" x="60" y="78" textAnchor="middle" fontSize="8" fill="#666">
-                                0 คะแนน
+                                0 {t.Score.pts}
                             </text>
                         </svg>
                         <Typography mt={1} fontWeight={700} fontSize="1rem" color="text.primary">
-                            ระดับปัจจุบัน: {level}
+                            {t.Score.currentLevel}: {t.Score.tiers[tier as keyof typeof t.Score.tiers]}
                         </Typography>
                     </Box>
 
                     {/* Tier Section */}
                     <Box>
                         <Typography fontWeight={700} mb={1}>
-                            ระดับสมาชิกทั้งหมด
+                            {t.Score.allLevels}
                         </Typography>
 
                         <Box className="tiers">
-                            {["silver", "gold", "platinum"].map((t) => (
-                                <div key={t} className={`tier ${t === tier ? "active" : ""}`}>
+                            {["silver", "gold", "platinum"].map((tierKey) => (
+                                <div key={tierKey} className={`tier ${tierKey === tier ? "active" : ""}`}>
                                     <Box>
                                         <Card
                                             sx={{
-                                                width: 80,
-                                                height: 50,
-                                                background: cardColors[t],
-                                                borderRadius: 2,
-                                                color: "#333",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                fontWeight: 500,
-                                                fontSize: "0.7rem",
-                                                textAlign: "center",
-                                                overflow: "hidden",
-                                                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                                                width: 100,
+                                                minHeight: 60,
+                                                borderRadius: "12px",
+                                                background: (() => {
+                                                    const themes: any = {
+                                                        silver: "linear-gradient(135deg, #757575 0%, #C2C2C2 35%, #FDFDFD 50%, #D9D9D9 65%, #757575 100%)",
+                                                        gold: "linear-gradient(135deg, #8B660F 0%, #CFA525 20%, #FFF8E1 40%, #D4AF37 50%, #C8A02E 60%, #B8860B 80%, #996515 100%)",
+                                                        platinum: "linear-gradient(135deg, #004d40 0%, #00796b 25%, #26a69a 50%, #00796b 75%, #004d40 100%)"
+                                                    };
+                                                    return themes[tierKey] || themes.silver;
+                                                })(),
+                                                color: tierKey === "platinum" ? "white" : (tierKey === "gold" ? "#463300" : "#2c3e50"),
                                                 position: "relative",
+                                                overflow: "hidden",
+                                                boxShadow: "0 4px 10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.3)",
+                                                border: "none",
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                p: 1,
+                                                transition: "all 0.3s ease",
+
+                                                "&::before": {
+                                                    content: '""',
+                                                    position: "absolute",
+                                                    inset: 0,
+                                                    background: tierKey === "platinum" 
+                                                        ? "radial-gradient(at 0% 0%, rgba(255,255,255,0.3) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.4) 0, transparent 50%)"
+                                                        : (tierKey === "gold" 
+                                                            ? "radial-gradient(at 0% 0%, rgba(255,255,255,0.4) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255,215,0,0.3) 0, transparent 50%)"
+                                                            : (tierKey === "silver" 
+                                                                ? `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"), radial-gradient(at 0% 0%, rgba(255,255,255,0.15) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.05) 0, transparent 50%)`
+                                                                : "radial-gradient(at 0% 0%, rgba(255,255,255,0.08) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(255,255,255,0.05) 0, transparent 50%)")),
+                                                    opacity: tierKey === "silver" ? 0.2 : 1,
+                                                    backgroundSize: tierKey === "silver" ? "100px, 200% 200%, 200% 200%" : "200% 200%",
+                                                    animation: tierKey === "silver" ? "none" : `${meshMove} 10s ease infinite`,
+                                                    pointerEvents: "none",
+                                                },
+                                                "&::after": {
+                                                    content: '""',
+                                                    position: "absolute",
+                                                    top: 0,
+                                                    left: 0,
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    background: "linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 80%)",
+                                                    backgroundSize: "200% 100%",
+                                                    animation: `${sheenMove} 4s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
+                                                    pointerEvents: "none",
+                                                }
                                             }}
                                         >
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    fontSize: "0.4rem",
+                                                    fontWeight: 900,
+                                                    opacity: 0.8,
+                                                    letterSpacing: 0.5,
+                                                    position: "relative",
+                                                    zIndex: 2,
+                                                    lineHeight: 1
+                                                }}
+                                            >
+                                                {t.Score.membershipTitle.split(' ')[1]}
+                                            </Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: "0.55rem",
+                                                    fontWeight: 950,
+                                                    position: "relative",
+                                                    zIndex: 2,
+                                                    lineHeight: 1.2,
+                                                    mt: 0.2
+                                                }}
+                                            >
+                                                {tierKey.toUpperCase()}
+                                            </Typography>
+
                                             <Box
                                                 component="img"
                                                 src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
                                                 alt="Pumpkin"
                                                 sx={{
                                                     position: "absolute",
-                                                    top: 22,
+                                                    bottom: 4,
                                                     right: 4,
-                                                    height: 14,
+                                                    height: 8,
                                                     opacity: 0.9,
+                                                    zIndex: 2,
                                                 }}
                                             />
                                         </Card>
@@ -185,21 +273,36 @@ export default function RewardProgress({
 
                                     <div>
                                         <div className="name">
-                                            {t === "silver"
-                                                ? "Silver Member"
-                                                : t === "gold"
-                                                    ? "Gold Member"
-                                                    : "Platinum Member"}
+                                            {t.Score.tiers[tierKey as keyof typeof t.Score.tiers]}
                                         </div>
                                         <div className="need">
-                                            {t === "silver" && "Point 0 - 1,000 แต้ม"}
-                                            {t === "gold" && "Point 1,001 - 3,000 แต้ม"}
-                                            {t === "platinum" && "Point 3,001 แต้มขึ้นไป"}
+                                            {tierKey === "silver" && t.Score.pointRange.replace("{min}", "0").replace("{max}", "1,000")}
+                                            {tierKey === "gold" && t.Score.pointRange.replace("{min}", "1,001").replace("{max}", "3,000")}
+                                            {tierKey === "platinum" && t.Score.pointAbove.replace("{min}", "3,001")}
                                         </div>
                                     </div>
 
                                     <div className="muted" style={{ textAlign: "right", minWidth: 80 }}>
-                                        {t === tier ? "ปัจจุบัน" : ""}
+                                        {tierKey === tier ? (
+                                            <Fade in={true}>
+                                                <Box
+                                                    sx={{
+                                                        bgcolor: (tierKey === "platinum") ? "#fff" : (tierKey === "silver" ? "#2c3e50" : "#463300"),
+                                                        color: "#fff",
+                                                        px: 1,
+                                                        py: 0.3,
+                                                        borderRadius: "10px",
+                                                        fontSize: "0.6rem",
+                                                        fontWeight: 900,
+                                                        textTransform: "uppercase",
+                                                        animation: `${pulse} 2s ease-in-out infinite`,
+                                                        display: "inline-block"
+                                                    }}
+                                                >
+                                                    {t.Score.current}
+                                                </Box>
+                                            </Fade>
+                                        ) : ""}
                                     </div>
                                 </div>
                             ))}

@@ -203,7 +203,26 @@
     "Score": {
         "title": "คะแนนสะสม",
         "MyPointTitle": "คะแนนสะสมของฉัน",
-        "FeatureIsDeveloping": "ฟีเจอร์นี้ยังกําลังพัฒนา"
+        "FeatureIsDeveloping": "ฟีเจอร์นี้ยังกําลังพัฒนา",
+        "pts": "Pts",
+        "memberSince": "สมาชิกตั้งแต่",
+        "expireDate": "วันหมดอายุ",
+        "settings": "ตั้งค่า",
+        "pdpa": "PDPA",
+        "terms": "ข้อกำหนดและเงื่อนไข",
+        "logout": "ออกจากระบบ",
+        "membershipTitle": "PUMPKIN MEMBERSHIP",
+        "currentLevel": "ระดับปัจจุบัน",
+        "allLevels": "ระดับสมาชิกทั้งหมด",
+        "activeLevel": "ระดับที่เปิดใช้งาน",
+        "current": "ปัจจุบัน",
+        "pointRange": "{min} - {max} คะแนน",
+        "pointAbove": "{min} คะแนนขึ้นไป",
+        "tiers": {
+            "silver": "Silver Member",
+            "gold": "Gold Member",
+            "platinum": "Platinum Member"
+        }
     },
     "copy": "คัดลอก",
     "Privilege": {

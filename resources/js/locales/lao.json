@@ -201,7 +201,26 @@
     "Score": {
         "title": "ຄະແນນສະສົມ",
         "MyPointTitle": "ຄະແນນສະສົມຂອງຂ້ອຍ",
-        "FeatureIsDeveloping": "ຟັງຊັນນີ້ກໍາລັງຢູ່ໃນຂັ້ນພັດທະນາ"
+        "FeatureIsDeveloping": "ຟັງຊັນນີ້ກໍາລັງຢູ່ໃນຂັ້ນພັດທະນາ",
+        "pts": "Pts",
+        "memberSince": "ສະມາຊິກຕັ້ງແຕ່",
+        "expireDate": "ວັນໝົດອາຍຸ",
+        "settings": "ຕັ້ງຄ່າ",
+        "pdpa": "PDPA",
+        "terms": "ເງື່ອນໄຂແລະຂໍ້ກໍານົດ",
+        "logout": "ອອກຈາກລະບົບ",
+        "membershipTitle": "PUMPKIN MEMBERSHIP",
+        "currentLevel": "ລະດັບປັດຈຸບັນ",
+        "allLevels": "ລະດັບສະມາຊິກທັງໝົດ",
+        "activeLevel": "ລະດັບທີ່ເປີດໃຊ້ງານ",
+        "current": "ປັດຈຸບັນ",
+        "pointRange": "{min} - {max} ຄະແນນ",
+        "pointAbove": "{min} ຄະແນນຂຶ້ນໄປ",
+        "tiers": {
+            "silver": "Silver Member",
+            "gold": "Gold Member",
+            "platinum": "Platinum Member"
+        }
     },
      "copy": "ສໍາເນົາ",
     "Privilege": {

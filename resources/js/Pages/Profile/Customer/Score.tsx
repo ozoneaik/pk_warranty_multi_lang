@@ -44,13 +44,13 @@ export default function ScorePage() {
     const [openPointModal, setOpenPointModal] = React.useState(false);
     const cardThemes: Record<string, { main: string, mesh: string, text: string, accent: string, badgeBg: string, label: string, iconColor: string }> = {
         silver: {
-            main: "linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%)",
-            mesh: "radial-gradient(at 0% 0%, rgba(0,0,0,0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.02) 0, transparent 50%)",
+            main: "linear-gradient(135deg, #757575 0%, #C2C2C2 35%, #FDFDFD 50%, #D9D9D9 65%, #757575 100%)",
+            mesh: "radial-gradient(at 0% 0%, rgba(255,255,255,0.15) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(0,0,0,0.05) 0, transparent 50%)",
             text: "#2c3e50",
-            accent: "#7f8c8d",
+            accent: "#757575",
             badgeBg: "rgba(0,0,0,0.05)",
-            label: "Silver Member",
-            iconColor: "#7f8c8d"
+            label: t.Score.tiers.silver,
+            iconColor: "#757575"
         },
 
         gold: {
@@ -59,7 +59,7 @@ export default function ScorePage() {
             text: "#111",
             accent: "#D4AF37",
             badgeBg: "rgba(0,0,0,0.1)",
-            label: "Gold Member",
+            label: t.Score.tiers.gold,
             iconColor: "#D4AF37"
         },
         platinum: {
@@ -68,7 +68,7 @@ export default function ScorePage() {
             text: "white",
             accent: "#26a69a",
             badgeBg: "rgba(255,255,255,0.1)",
-            label: "Platinum Member",
+            label: t.Score.tiers.platinum,
             iconColor: "#26a69a"
         },
     };
@@ -147,7 +147,7 @@ export default function ScorePage() {
                                         fontSize={{ xs: "0.9rem", sm: "1rem" }}
                                         fontWeight={800}
                                     >
-                                        {point ?? 0} Pts
+                                        {point ?? 0} {t.Score.pts}
                                     </Typography>
                                     {/* <ChevronRightIcon size={20} color="#F55014" /> */}
                                 </Box>
@@ -167,15 +167,18 @@ export default function ScorePage() {
                             color: cardThemes[tier].text,
                             transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
                             boxShadow: "0 20px 40px rgba(0,0,0,0.15), inset 0 0 100px rgba(255,255,255,0.5)",
-                            border: (tier === "platinum") ? "none" : "1px solid rgba(0,0,0,0.05)",
+                            border: "none",
 
                             "&::before": {
                                 content: '""',
                                 position: "absolute",
                                 inset: 0,
-                                background: cardThemes[tier].mesh,
-                                backgroundSize: "200% 200%",
-                                animation: `${meshMove} 10s ease infinite`,
+                                background: tier === "silver" 
+                                    ? `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"), ${cardThemes[tier].mesh}`
+                                    : cardThemes[tier].mesh,
+                                opacity: tier === "silver" ? 0.2 : 1,
+                                backgroundSize: tier === "silver" ? "150px, 200% 200%" : "200% 200%",
+                                animation: tier === "silver" ? "none" : `${meshMove} 10s ease infinite`,
                                 pointerEvents: "none",
                             },
 
@@ -213,7 +216,7 @@ export default function ScorePage() {
                                                 mb: -0.5
                                             }}
                                         >
-                                            PUMPKIN MEMBERSHIP
+                                            {t.Score.membershipTitle}
                                         </Typography>
                                         <Typography
                                             variant="h5"
@@ -234,7 +237,6 @@ export default function ScorePage() {
                                         alt="Pumpkin"
                                         sx={{
                                             height: { xs: 28, sm: 32 },
-                                            filter: (tier === "platinum") ? "brightness(0) invert(1)" : (tier === "silver" ? "grayscale(1) brightness(0.2)" : "none"),
                                             opacity: 0.9
                                         }}
                                     />
@@ -255,7 +257,7 @@ export default function ScorePage() {
                                     >
                                         <WorkspacePremium sx={{ color: cardThemes[tier].iconColor, fontSize: 24 }} />
                                         <Typography fontWeight={800} sx={{ color: cardThemes[tier].text, fontSize: "1.1rem" }}>
-                                            {point?.toLocaleString() ?? 0} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>Pts</Box>
+                                            {point?.toLocaleString() ?? 0} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>{t.Score.pts}</Box>
                                         </Typography>
                                     </Box>
 
@@ -290,7 +292,7 @@ export default function ScorePage() {
                                                 mb: 0.2
                                             }}
                                         >
-                                            MEMBER SINCE
+                                            {t.Score.memberSince}
                                         </Typography>
                                         <Typography
                                             sx={{
@@ -299,7 +301,7 @@ export default function ScorePage() {
                                                 fontSize: "0.85rem"
                                             }}
                                         >
-                                            {dayjs(joined_at).format("DD/MM/YYYY")}
+                                            {dayjs(joined_at).format("D MMM YYYY")}
                                         </Typography>
                                     </Box>
                                     <Box>
@@ -312,7 +314,7 @@ export default function ScorePage() {
                                                 mb: 0.2
                                             }}
                                         >
-                                           Expire Date
+                                           {t.Score.expireDate}
                                         </Typography>
                                         <Typography
                                             sx={{
@@ -372,7 +374,7 @@ export default function ScorePage() {
                     {/* Settings */}
                     <Box sx={{ mt: { xs: 4 }, mb: { xs: 8, sm: 10 }, px: { xs: 2, sm: 1 } }}>
                         <Typography fontWeight={700} sx={{ mb: 1 }} fontSize={{ xs: "0.95rem", sm: "1rem" }}>
-                            ตั้งค่า
+                            {t.Score.settings}
                         </Typography>
                         <Card
                             sx={{
@@ -391,7 +393,7 @@ export default function ScorePage() {
                                         <Shield sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary="PDPA"
+                                        primary={t.Score.pdpa}
                                         primaryTypographyProps={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
                                     />
                                 </ListItemButton>
@@ -404,7 +406,7 @@ export default function ScorePage() {
                                         <Gavel sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary="Term And Condition"
+                                        primary={t.Score.terms}
                                         primaryTypographyProps={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
                                     />
                                 </ListItemButton>
@@ -417,7 +419,7 @@ export default function ScorePage() {
                                         <Logout sx={{ color: "#F54927", fontSize: { xs: 22, sm: 24 } }} />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary="ออกจากระบบ"
+                                        primary={t.Score.logout}
                                         primaryTypographyProps={{
                                             color: "#F54927",
                                             fontWeight: 600,

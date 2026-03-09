@@ -205,7 +205,24 @@
     "Score": {
         "title": "အမှတ်စုဆောင်းမှု",
         "MyPointTitle": "ကျွန်ုပ်၏ အမှတ်စုဆောင်းမှု",
-        "FeatureIsDeveloping": "ဤအင်္ဂါရပ်သည် တိုးတက်မှုအဆင့်တွင်ရှိပါသည်"
+        "FeatureIsDeveloping": "ဤအင်္ဂါရပ်သည် တိုးတက်မှုအဆင့်တွင်ရှိပါသည်",
+        "pts": "Pts",
+        "memberSince": "အဖွဲ့ဝင်ဖြစ်သည့်နေ့",
+        "expireDate": "သက်တမ်းကုန်ဆုံးရက်",
+        "settings": "ဆက်တင်များ",
+        "logout": "ထွက်လိုက်ပါ။",
+        "membershipTitle": "PUMPKIN MEMBERSHIP",
+        "currentLevel": "လက်ရှိအဆင့်",
+        "allLevels": "အဖွဲ့ဝင်အဆင့်အားလုံး",
+        "activeLevel": "Active Level",
+        "current": "လက်ရှိ",
+        "pointRange": "အမှတ် {min} - {max} အမှတ်",
+        "pointAbove": "အမှတ် {min} နှင့်အထက်",
+        "tiers": {
+            "silver": "Silver Member",
+            "gold": "Gold Member",
+            "platinum": "Platinum Member"
+        }
     },
     "copy": "ကူးယူမယ်",
     "Privilege": {

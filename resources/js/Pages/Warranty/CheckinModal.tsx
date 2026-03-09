@@ -15,22 +15,27 @@ import { useLanguage } from '@/context/LanguageContext';
 
 // --- Animations ---
 const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-`;
-
-const coinBounce = keyframes`
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-4px) rotate(10deg); }
-  50% { transform: translateY(0) rotate(0deg); }
-  75% { transform: translateY(-2px) rotate(-10deg); }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 106, 0, 0.4); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(255, 106, 0, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 106, 0, 0); }
 `;
 
 const shimmer = keyframes`
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 `;
+
+const float = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+`;
+
+const confettiRotate = keyframes`
+  0% { transform: rotate(0deg) translateY(0); opacity: 1; }
+  100% { transform: rotate(360deg) translateY(100vh); opacity: 0; }
+`;
+
 
 interface CheckinModalProps {
     open: boolean;
@@ -119,45 +124,62 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
             <Box id="checkin-modal-container"
                 sx={{
                     position: 'relative',
-                    width: '92%', // กว้างเกือบเต็มจอแต่เหลือขอบเล็กน้อย
-                    maxWidth: '360px', // ขนาดที่เหมาะสมที่สุดสำหรับ Mobile UI
-                    maxHeight: '90vh', // ไม่ให้สูงเกินหน้าจอ
-                    bgcolor: '#F8F9FA',
-                    borderRadius: 4,
-                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-                    overflowY: 'auto', // ถ้าจอมือถือเล็กมากจะเลื่อนดูได้
+                    width: '94%',
+                    maxWidth: '335px',
+                    maxHeight: '92vh',
+                    bgcolor: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: 5,
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    overflowY: 'auto',
                     outline: 'none',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
                 }}>
 
-                {/* Header - ปรับให้ Compact มากขึ้น */}
+
+                {/* Header - Premium Design */}
                 <Box sx={{
-                    background: 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)',
-                    p: 1.5,
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white'
+                    background: 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 50%, #FF3D00 100%)',
+                    backgroundSize: '200% 200%',
+                    animation: `${shimmer} 5s linear infinite`,
+                    p: 1.4,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white',
+                    borderTopLeftRadius: 'inherit',
+                    borderTopRightRadius: 'inherit',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'linear-gradient(rgba(255,255,255,0.1), transparent)',
+                        pointerEvents: 'none'
+                    }
                 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <IconButton onClick={onClose} size="small" sx={{ color: 'white' }}>
-                            <Close fontSize="small" />
-                        </IconButton>
-                        <Typography variant="body2" fontWeight="bold">{t.Checkin.title}</Typography>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box sx={{
+                            bgcolor: 'rgba(255,255,255,0.2)',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            p: 0.5,
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            <IconButton onClick={onClose} size="small" sx={{ color: 'white', p: 0.5 }}>
+                                <Close fontSize="small" />
+                            </IconButton>
+                        </Box>
+                        <Typography variant="subtitle1" fontWeight="800" sx={{ letterSpacing: 0.5 }}>{t.Checkin.title}</Typography>
                     </Stack>
-                    {/* <Box sx={{
-                        bgcolor: 'rgba(255,255,255,0.2)',
-                        px: 1.2, py: 0.4, borderRadius: 5,
-                        display: 'flex', alignItems: 'center', gap: 0.5
-                    }}>
-                        <LocalFireDepartment sx={{ color: '#FFD700', fontSize: 16 }} />
-                        <Typography variant="caption" fontWeight="bold">{currentStreak} วัน</Typography>
-                    </Box> */}
                 </Box>
 
-                <Box sx={{ p: 2 }}>
+
+                <Box sx={{ p: 1.2 }}>
                     {!successData ? (
                         <Grid>
-                            <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, mb: 2, bgcolor: 'white', border: '1px solid #EDF2F7' }}>
-                                <Typography variant="body2" align="center" fontWeight="bold" sx={{ mb: 1.5, color: '#2D3748' }}>
+                            <Paper elevation={0} sx={{ p: 1, borderRadius: 3, mb: 1.2, bgcolor: 'white', border: '1px solid #EDF2F7' }}>
+                                <Typography variant="body2" align="center" fontWeight="bold" sx={{ mb: 1, color: '#2D3748' }}>
                                     {currentLocale === 'th' 
                                         ? dayjs().locale('th').format('MMMM') + ' ' + (dayjs().year() + 543)
                                         : dayjs().format('MMMM YYYY')}
@@ -167,7 +189,7 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                 <Grid container columns={7} spacing={0.5}>
                                     {t.Checkin.daysOfWeek.map(d => (
                                         <Grid size={1} key={d}>
-                                            <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ fontSize: '0.6rem', fontWeight: 700, mb: 0.5 }}>
+                                            <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ fontSize: '0.6rem', fontWeight: 800, mb: 0.5 }}>
                                                 {d}
                                             </Typography>
                                         </Grid>
@@ -191,26 +213,35 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        borderRadius: 1.5,
+                                                        borderRadius: 2,
                                                         position: 'relative',
+                                                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                                         bgcolor: isChecked
                                                             ? 'transparent'
                                                             : isToday
                                                                 ? '#FFF4E6'
-                                                                : '#F7FAFC',
+                                                                : 'white',
                                                         background: isChecked
                                                             ? 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)'
                                                             : undefined,
                                                         border: isToday && !isChecked
                                                             ? '2px solid #FF6A00'
                                                             : '1px solid #EDF2F7',
+                                                        boxShadow: isChecked 
+                                                            ? '0 4px 12px rgba(255, 106, 0, 0.3)' 
+                                                            : isToday 
+                                                                ? '0 0 10px rgba(255, 106, 0, 0.1)'
+                                                                : 'none',
                                                         color: isChecked ? '#FFF' : '#4A5568',
-                                                        opacity: isFuture ? 0.5 : 1
+                                                        opacity: isFuture ? 0.4 : 1,
+                                                        '&:active': { transform: !isFuture ? 'scale(0.92)' : 'none' },
+                                                        cursor: isFuture ? 'default' : 'pointer'
                                                     }}
                                                 >
-                                                    <Typography fontSize="0.75rem" fontWeight={isToday || isChecked ? 700 : 500}>
+                                                    <Typography fontSize="0.8rem" fontWeight={isToday || isChecked ? 800 : 500}>
                                                         {day}
                                                     </Typography>
+
 
                                                     {isChecked && (
                                                         <MonetizationOn
@@ -233,30 +264,49 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                     fullWidth variant="contained" disableElevation onClick={handleCheckin}
                                     disabled={loading || hasCheckedInToday}
                                     sx={{
-                                        mt: 2, borderRadius: 3, py: 1.2,
-                                        background: hasCheckedInToday ? '#E2E8F0' : 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)',
-                                        fontWeight: 'bold', fontSize: '0.95rem',
+                                        mt: 1.5, borderRadius: 4, py: 1.2,
+                                        background: hasCheckedInToday 
+                                            ? '#E2E8F0' 
+                                            : 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)',
+                                        boxShadow: hasCheckedInToday ? 'none' : '0 8px 20px -6px rgba(255, 106, 0, 0.5)',
+                                        fontWeight: '800', fontSize: '1rem',
                                         textTransform: 'none',
+                                        animation: !hasCheckedInToday ? `${pulse} 2s infinite` : 'none',
+                                        '&:active': { transform: 'scale(0.98)' },
                                         '&.Mui-disabled': { bgcolor: '#E2E8F0', color: '#A0AEC0' }
                                     }}
                                 >
-                                    {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : (hasCheckedInToday ? t.Checkin.checkedIn : t.Checkin.checkinNow)}
+                                    {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : (hasCheckedInToday ? t.Checkin.checkedIn : t.Checkin.checkinNow)}
                                 </Button>
+
                             </Paper>
 
-                            <Box sx={{ bgcolor: 'white', p: 1, borderRadius: 3, border: '1px solid #EDF2F7', mb: 1 }}>
-                                <Box sx={{
-                                    bgcolor: 'rgba(255,255,255,0.2)',
-                                    px: 1, py: 0.4, borderRadius: 5,
-                                    display: 'flex', alignItems: 'center', gap: 0.5
-                                }}>
-                                    <LocalFireDepartment sx={{ color: '#FFD700', fontSize: 16 }} />
-                                    <Typography variant="caption" fontWeight="bold">{t.Checkin.streakMsg.replace('{days}', currentStreak.toString())}</Typography>
-                                </Box>
+                            <Box sx={{ 
+                                bgcolor: 'white', 
+                                p: 1, 
+                                borderRadius: 3, 
+                                border: '1px solid #EDF2F7', 
+                                mb: 1,
+                                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                            }}>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Box sx={{
+                                        p: 0.5,
+                                        borderRadius: '50%',
+                                        bgcolor: '#FFF5F5',
+                                        display: 'flex'
+                                    }}>
+                                        <LocalFireDepartment sx={{ color: '#FF6A00', fontSize: 18, animation: `${float} 2s ease-in-out infinite` }} />
+                                    </Box>
+                                    <Typography variant="body2" fontWeight="800" color="#2D3748">
+                                        {t.Checkin.streakMsg.replace('{days}', currentStreak.toString())}
+                                    </Typography>
+                                </Stack>
                             </Box>
+
                             {/* Milestones - ออกแบบใหม่ให้แนวนอนประหยัดพื้นที่ */}
-                            <Box sx={{ bgcolor: 'white', p: 1.5, borderRadius: 3, border: '1px solid #EDF2F7' }}>
-                                <Typography variant="caption" color="text.secondary" fontWeight="700" display="block" sx={{ mb: 1, fontSize: '0.65rem' }}>
+                            <Box sx={{ bgcolor: 'white', p: 1.2, borderRadius: 4, border: '1px solid #EDF2F7', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                                <Typography variant="caption" color="text.secondary" fontWeight="800" display="block" sx={{ mb: 0.8, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                                     {t.Checkin.specialRewards}
                                 </Typography>
 
@@ -269,23 +319,47 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                     ))}
                                 </Stack>
                             </Box>
+
                         </Grid>
                     ) : (
                         /* Success View */
-                        <Stack spacing={2} alignItems="center" sx={{ py: 3 }}>
+                        <Stack spacing={3} alignItems="center" sx={{ py: 4, position: 'relative', overflow: 'hidden' }}>
+                            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                {[...Array(12)].map((_, i) => (
+                                    <Box
+                                        key={i}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: -20,
+                                            left: `${Math.random() * 100}%`,
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: '50%',
+                                            bgcolor: ['#FF6A00', '#FF9A8B', '#FFD700', '#4CAF50', '#2196F3'][i % 5],
+                                            animation: `${confettiRotate} ${2 + Math.random() * 2}s linear infinite`,
+                                            animationDelay: `${Math.random() * 2}s`
+                                        }}
+                                    />
+                                ))}
+                            </Box>
+                            
                             <Box sx={{
-                                width: 80, height: 80, borderRadius: '50%',
+                                width: 100, height: 100, borderRadius: '50%',
                                 background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: '0 10px 20px -5px rgba(255, 106, 0, 0.3)',
+                                animation: `${pulse} 2s infinite`
                             }}>
-                                <Stars sx={{ fontSize: 50, color: '#FF6A00' }} />
+                                <Stars sx={{ fontSize: 60, color: '#FF6A00' }} />
                             </Box>
+                            
                             <Box textAlign="center">
-                                <Typography variant="h6" fontWeight="bold">{t.Checkin.checkinSuccess}</Typography>
-                                {/* <Typography variant="h4" fontWeight="900" sx={{ color: '#FF6A00' }}>
-                                    +{successData.points} <span style={{ fontSize: '1rem' }}>แต้ม</span>
-                                </Typography> */}
+                                <Typography variant="h5" fontWeight="900" sx={{ mb: 1, color: '#2D3748' }}>{t.Checkin.checkinSuccess}</Typography>
+                                <Typography variant="body2" color="text.secondary" fontWeight="500">
+                                    ยินดีด้วย! คุณได้รับรางวัลจากการเช็คอินวันนี้แล้ว
+                                </Typography>
                             </Box>
+
                             {/* <Button
                                 fullWidth
                                 variant="contained"
@@ -342,24 +416,46 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
 
 function MilestoneRow({ days, points, progress, current }: any) {
     const { t } = useLanguage();
+    const progressPercent = Math.min((progress / days) * 100, 100);
+
     return (
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ bgcolor: '#F8F9FA', p: 1, borderRadius: 2 }}>
-            <Stack direction="row" spacing={1} alignItems="center">
-                <Box sx={{
-                    width: 28, height: 28, borderRadius: 1,
-                    background: current ? '#FF6A00' : '#EDF2F7',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                    {current ? <CheckCircle sx={{ color: 'white', fontSize: 16 }} /> : <CardGiftcard sx={{ color: '#A0AEC0', fontSize: 16 }} />}
-                </Box>
-                <Box>
-                    <Typography variant="caption" fontWeight="700" display="block" sx={{ lineHeight: 1 }}>{t.Checkin.days.replace('{days}', days.toString())}</Typography>
-                    <Typography variant="caption" sx={{ color: '#718096', fontSize: '0.6rem' }}>{t.Checkin.earnPoints.replace('{points}', points.toString())}</Typography>
-                </Box>
+        <Box sx={{ width: '100%' }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Box sx={{
+                        width: 32, height: 32, borderRadius: 1.5,
+                        background: current ? 'linear-gradient(135deg, #FF9A8B 0%, #FF6A00 100%)' : '#F7FAFC',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: current ? '0 4px 8px rgba(255, 106, 0, 0.2)' : 'none',
+                        border: '1px solid',
+                        borderColor: current ? 'transparent' : '#EDF2F7'
+                    }}>
+                        {current ? <EmojiEvents sx={{ color: 'white', fontSize: 18 }} /> : <CardGiftcard sx={{ color: '#A0AEC0', fontSize: 18 }} />}
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" fontWeight="800" sx={{ lineHeight: 1.2, color: '#2D3748' }}>
+                            {t.Checkin.days.replace('{days}', days.toString())}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#FF6A00', fontWeight: '700', fontSize: '0.65rem' }}>
+                            {t.Checkin.earnPoints.replace('{points}', points.toString())}
+                        </Typography>
+                    </Box>
+                </Stack>
+                <Typography variant="caption" fontWeight="900" sx={{ color: current ? '#FF6A00' : '#A0AEC0', bgcolor: current ? '#FFF5F5' : '#F7FAFC', px: 1, py: 0.5, borderRadius: 2 }}>
+                    {current ? t.Checkin.success : `${progress}/${days}`}
+                </Typography>
             </Stack>
-            <Typography variant="caption" fontWeight="bold" sx={{ color: current ? '#FF6A00' : '#A0AEC0' }}>
-                {current ? t.Checkin.success : `${progress}/${days}`}
-            </Typography>
-        </Stack>
+            {!current && (
+                <Box sx={{ width: '100%', height: 6, bgcolor: '#EDF2F7', borderRadius: 3, overflow: 'hidden' }}>
+                    <Box sx={{ 
+                        width: `${progressPercent}%`, 
+                        height: '100%', 
+                        background: 'linear-gradient(90deg, #FF9A8B 0%, #FF6A00 100%)',
+                        borderRadius: 'inherit',
+                        transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }} />
+                </Box>
+            )}
+        </Box>
     );
 }
