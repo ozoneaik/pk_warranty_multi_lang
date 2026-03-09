@@ -9,6 +9,7 @@ type Translations = typeof en;
 
 interface LanguageContextType {
     language: Language;
+    currentLocale: Language;
     setLanguage: (lang: Language) => void;
     t: Translations;
 }
@@ -47,7 +48,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, [language]);
 
     return (
-        <LanguageContext.Provider value={{ language, setLanguage, t }}>
+        <LanguageContext.Provider value={{ language, currentLocale: language, setLanguage, t }}>
             {children}
         </LanguageContext.Provider>
     );

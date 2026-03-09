@@ -11,6 +11,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import { MonetizationOn } from '@mui/icons-material';
+import { useLanguage } from '@/context/LanguageContext';
 
 // --- Animations ---
 const pulse = keyframes`
@@ -42,6 +43,7 @@ interface CheckinModalProps {
 
 export default function CheckinModal({ open, onClose, onSuccess, currentStreak = 0, hasCheckedInToday, checkedDays = [] }: CheckinModalProps) {
     const theme = useTheme();
+    const { t, currentLocale } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [successData, setSuccessData] = useState<any>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -99,8 +101,8 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
         } catch (error: any) {
             Swal.fire({
                 icon: 'error',
-                title: 'ขออภัย',
-                text: error.response?.data?.message || 'ไม่สามารถเช็คอินได้',
+                title: t.Checkin.errorTitle,
+                text: error.response?.data?.message || t.Checkin.errorMsg,
                 target: document.getElementById('checkin-modal-container') || 'body'
             });
         } finally {
@@ -139,7 +141,7 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                         <IconButton onClick={onClose} size="small" sx={{ color: 'white' }}>
                             <Close fontSize="small" />
                         </IconButton>
-                        <Typography variant="body2" fontWeight="bold">เช็คอินรับแต้ม</Typography>
+                        <Typography variant="body2" fontWeight="bold">{t.Checkin.title}</Typography>
                     </Stack>
                     {/* <Box sx={{
                         bgcolor: 'rgba(255,255,255,0.2)',
@@ -156,12 +158,14 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                         <Grid>
                             <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, mb: 2, bgcolor: 'white', border: '1px solid #EDF2F7' }}>
                                 <Typography variant="body2" align="center" fontWeight="bold" sx={{ mb: 1.5, color: '#2D3748' }}>
-                                    {dayjs().format('MMMM YYYY')}
+                                    {currentLocale === 'th' 
+                                        ? dayjs().locale('th').format('MMMM') + ' ' + (dayjs().year() + 543)
+                                        : dayjs().format('MMMM YYYY')}
                                 </Typography>
 
                                 {/* ปรับแต่ง Grid ปฏิทินให้พอดีมือถือ */}
                                 <Grid container columns={7} spacing={0.5}>
-                                    {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(d => (
+                                    {t.Checkin.daysOfWeek.map(d => (
                                         <Grid size={1} key={d}>
                                             <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ fontSize: '0.6rem', fontWeight: 700, mb: 0.5 }}>
                                                 {d}
@@ -236,7 +240,7 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                         '&.Mui-disabled': { bgcolor: '#E2E8F0', color: '#A0AEC0' }
                                     }}
                                 >
-                                    {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : (hasCheckedInToday ? 'เช็คอินแล้ว' : 'เช็คอินเลย!')}
+                                    {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : (hasCheckedInToday ? t.Checkin.checkedIn : t.Checkin.checkinNow)}
                                 </Button>
                             </Paper>
 
@@ -247,13 +251,13 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                     display: 'flex', alignItems: 'center', gap: 0.5
                                 }}>
                                     <LocalFireDepartment sx={{ color: '#FFD700', fontSize: 16 }} />
-                                    <Typography variant="caption" fontWeight="bold">คุณเช็คอินต่อเนื่องแล้ว {currentStreak} วัน</Typography>
+                                    <Typography variant="caption" fontWeight="bold">{t.Checkin.streakMsg.replace('{days}', currentStreak.toString())}</Typography>
                                 </Box>
                             </Box>
                             {/* Milestones - ออกแบบใหม่ให้แนวนอนประหยัดพื้นที่ */}
                             <Box sx={{ bgcolor: 'white', p: 1.5, borderRadius: 3, border: '1px solid #EDF2F7' }}>
                                 <Typography variant="caption" color="text.secondary" fontWeight="700" display="block" sx={{ mb: 1, fontSize: '0.65rem' }}>
-                                    รางวัลพิเศษ
+                                    {t.Checkin.specialRewards}
                                 </Typography>
 
                                 <Stack spacing={1}>
@@ -277,7 +281,7 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                 <Stars sx={{ fontSize: 50, color: '#FF6A00' }} />
                             </Box>
                             <Box textAlign="center">
-                                <Typography variant="h6" fontWeight="bold">เช็คอินสำเร็จ! 🎉</Typography>
+                                <Typography variant="h6" fontWeight="bold">{t.Checkin.checkinSuccess}</Typography>
                                 {/* <Typography variant="h4" fontWeight="900" sx={{ color: '#FF6A00' }}>
                                     +{successData.points} <span style={{ fontSize: '1rem' }}>แต้ม</span>
                                 </Typography> */}
@@ -322,10 +326,10 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                                 {isRefreshing ? (
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <CircularProgress size={20} color="inherit" />
-                                        <Typography variant="body2" fontWeight="bold">กำลังโหลด...</Typography>
+                                        <Typography variant="body2" fontWeight="bold">{t.Checkin.loading}</Typography>
                                     </Stack>
                                 ) : (
-                                    'ตกลง'
+                                    t.Checkin.confirm
                                 )}
                             </Button>
                         </Stack>
@@ -337,6 +341,7 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
 }
 
 function MilestoneRow({ days, points, progress, current }: any) {
+    const { t } = useLanguage();
     return (
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ bgcolor: '#F8F9FA', p: 1, borderRadius: 2 }}>
             <Stack direction="row" spacing={1} alignItems="center">
@@ -348,12 +353,12 @@ function MilestoneRow({ days, points, progress, current }: any) {
                     {current ? <CheckCircle sx={{ color: 'white', fontSize: 16 }} /> : <CardGiftcard sx={{ color: '#A0AEC0', fontSize: 16 }} />}
                 </Box>
                 <Box>
-                    <Typography variant="caption" fontWeight="700" display="block" sx={{ lineHeight: 1 }}>{days} วัน</Typography>
-                    <Typography variant="caption" sx={{ color: '#718096', fontSize: '0.6rem' }}>รับ {points} แต้ม</Typography>
+                    <Typography variant="caption" fontWeight="700" display="block" sx={{ lineHeight: 1 }}>{t.Checkin.days.replace('{days}', days.toString())}</Typography>
+                    <Typography variant="caption" sx={{ color: '#718096', fontSize: '0.6rem' }}>{t.Checkin.earnPoints.replace('{points}', points.toString())}</Typography>
                 </Box>
             </Stack>
             <Typography variant="caption" fontWeight="bold" sx={{ color: current ? '#FF6A00' : '#A0AEC0' }}>
-                {current ? "สำเร็จ" : `${progress}/${days}`}
+                {current ? t.Checkin.success : `${progress}/${days}`}
             </Typography>
         </Stack>
     );

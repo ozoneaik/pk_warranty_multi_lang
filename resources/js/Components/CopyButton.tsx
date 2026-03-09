@@ -89,6 +89,7 @@ import React, { useState } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import { ContentCopy, Check } from '@mui/icons-material';
 import Swal from 'sweetalert2';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface CopyButtonProps {
     text: string | null | undefined;
@@ -97,6 +98,7 @@ interface CopyButtonProps {
 }
 
 export default function CopyButton({ text, size = 'small', color = '#999' }: CopyButtonProps) {
+    const { t } = useLanguage();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async (e: React.MouseEvent) => {
@@ -108,7 +110,7 @@ export default function CopyButton({ text, size = 'small', color = '#999' }: Cop
                 toast: true,
                 position: 'center',
                 icon: 'warning',
-                title: 'ไม่มีข้อความให้คัดลอก',
+                title: t.Privilege.noTextToCopy,
                 showConfirmButton: false,
                 timer: 1500,
             });
@@ -123,7 +125,7 @@ export default function CopyButton({ text, size = 'small', color = '#999' }: Cop
                 toast: true,
                 position: 'center',
                 icon: 'success',
-                title: 'คัดลอกเรียบร้อย',
+                title: t.Privilege.copied,
                 showConfirmButton: false,
                 timer: 1500,
                 didOpen: (toast) => {
@@ -161,7 +163,7 @@ export default function CopyButton({ text, size = 'small', color = '#999' }: Cop
     };
 
     return (
-        <Tooltip title={copied ? 'คัดลอกแล้ว' : 'กดเพื่อคัดลอก'}>
+        <Tooltip title={copied ? t.Privilege.copied : t.Privilege.clickToCopy}>
             <span>
                 <IconButton
                     size={size}

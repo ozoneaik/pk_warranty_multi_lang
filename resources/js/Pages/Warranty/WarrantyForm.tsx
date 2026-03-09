@@ -50,6 +50,7 @@ const mapAccessoryToProductDetail = (item: PowerAccessoryItem): ProductDetail =>
 };
 
 const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesData | null | undefined }) => {
+    const { t } = useLanguage();
     const [expanded, setExpanded] = useState(false);
 
     if (!accessories) return null;
@@ -89,7 +90,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                 <Box display="flex" alignItems="center" gap={1}>
                     <CheckCircleOutline color="primary" />
                     <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
-                        power accessories ({totalCount} รายการ)
+                        {t.Warranty.Form.powerAccessoriesCount.replace('{count}', totalCount.toString())}
                     </Typography>
                 </Box>
                 <IconButton size="small" sx={{ color: 'primary.main', p: 0.5 }}>
@@ -104,7 +105,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                     {batteryList.map((item, index) => (
                         <Box key={`bat-${item.id}-${index}`} sx={{ position: 'relative' }}>
                             {/* (Optional) ใส่ Label บอกว่าเป็นแบตเตอรี่ ถ้าต้องการ */}
-                            <Chip label="Battery" size="small" color="success" variant="outlined" sx={{ mb: 1 }} />
+                            <Chip label={t.Warranty.Form.battery} size="small" color="success" variant="outlined" sx={{ mb: 1 }} />
                             <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF" serial={item.serial_label} />
                         </Box>
                     ))}
@@ -113,7 +114,7 @@ const PowerAccessoriesList = ({ accessories }: { accessories: PowerAccessoriesDa
                     {chargerList.map((item, index) => (
                         <Box key={`chg-${item.id}-${index}`} sx={{ position: 'relative' }}>
                             {/* (Optional) ใส่ Label บอกว่าเป็นแท่นชาร์จ ถ้าต้องการ */}
-                            <Chip label="Charger" size="small" color="warning" variant="outlined" sx={{ mb: 1 }} />
+                            <Chip label={t.Warranty.Form.charger} size="small" color="warning" variant="outlined" sx={{ mb: 1 }} />
                             <ProductDetailComponent productDetail={mapAccessoryToProductDetail(item)} bgColor="#F0F8FF" serial={item.serial_label} />
                         </Box>
                     ))}
@@ -280,7 +281,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         // ต้องมีอย่างน้อยหนึ่งอย่าง
         if (!serial && !model) {
             Swal.fire({
-                title: 'กรุณากรอกหมายเลขเครื่อง (S/N)',
+                title: t.Warranty.Validate.serial_number,
                 icon: 'warning',
                 confirmButtonColor: '#F54927',
             });
@@ -319,22 +320,22 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                 }));
 
                 Swal.fire({
-                    title: 'ตรวจสอบสินค้าสำเร็จ',
-                    text: 'กรุณากด "ลงทะเบียนรับประกัน" เพื่อดำเนินการต่อ',
+                    title: t.Warranty.Form.checkProductSuccess,
+                    text: t.Warranty.Form.checkProductSuccessMsg,
                     icon: 'success',
                     confirmButtonColor: '#28a745',
                 });
             } else {
                 Swal.fire({
-                    title: 'ไม่พบข้อมูลสินค้า',
-                    text: 'กรุณาตรวจสอบ S/N หรือ รหัสสินค้า แล้วลองใหม่อีกครั้ง',
+                    title: t.Warranty.Form.productNotFound,
+                    text: t.Warranty.Form.productNotFoundMsg,
                     icon: 'warning',
                     confirmButtonColor: '#F54927',
                 });
                 setShowProduct(false);
             }
         } catch (error: any) {
-            const msg = error.response?.data?.message || 'เกิดข้อผิดพลาดระหว่างตรวจสอบสินค้า';
+            const msg = error.response?.data?.message || t.Warranty.Form.checkProductError;
             Swal.fire({ title: msg, icon: 'error', confirmButtonColor: '#F54927' });
             setShowProduct(false);
         } finally {
@@ -348,7 +349,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         const model = data.model_code.trim();
 
         if (!serial) {
-            return Swal.fire({ title: 'กรุณากรอก Serial Number', icon: 'warning', confirmButtonColor: '#F54927' });
+            return Swal.fire({ title: t.Warranty.Validate.serial_number, icon: 'warning', confirmButtonColor: '#F54927' });
         }
 
         // if (!model) {
@@ -381,7 +382,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                 setShowProduct(true);
             }
         } catch (error: any) {
-            const msg = error.response?.data?.message || error.message || "เกิดข้อผิดพลาด";
+            const msg = error.response?.data?.message || error.message || t.Warranty.Form.checkProductError;
             Swal.fire({ title: msg, icon: 'error', confirmButtonColor: '#F54927' });
             setShowForm(false);
             setSnVerified(false);
@@ -413,7 +414,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         // ✅ เช็คเบอร์โทร (ถ้าไม่มีในระบบ ต้องกรอก)
         if (!has_phone) {
             if (!data.phone || data.phone.length !== 10) {
-                Swal.fire('กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก', '', 'warning');
+                Swal.fire(t.Warranty.Validate.AlertMessage.phone, '', 'warning');
                 return;
             }
         }
@@ -423,7 +424,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
             onError: (errors: any) => {
                 console.error("Errors: ", errors);
                 const messages = Object.values(errors).join('\n');
-                if (messages) Swal.fire('ข้อมูลไม่ถูกต้อง', messages, 'error');
+                if (messages) Swal.fire(t.Warranty.Form.checkProductError, messages, 'error');
             },
             onFinish: () => {
                 console.log("Submit finished");
@@ -449,7 +450,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
         const isBigStore = requireReferral.includes(value);
         console.log("🔍 ตรวจสอบร้านค้า:", { value, isBigStore });
 
-        setStoreLabel(isBigStore ? "Branch Name (ชื่อสาขา)" : t.Warranty.Form.store_name);
+        setStoreLabel(isBigStore ? t.Warranty.Form.branchName : t.Warranty.Form.store_name);
         setShowReferralField(isBigStore);
 
         if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -552,7 +553,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Box display="flex" alignItems="center" gap={1}>
                             <CameraAlt color="primary" />
-                            <Typography variant="h6" fontWeight="bold">สแกน QR Code</Typography>
+                            <Typography variant="h6" fontWeight="bold">{t.Warranty.Form.scanQr}</Typography>
                         </Box>
                         <IconButton onClick={handleCloseQrScanner} size="small"><Close /></IconButton>
                     </Box>
@@ -560,7 +561,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                 <DialogContent>
                     <Box textAlign="center" mb={2}>
                         <Typography variant="body2" color="text.secondary">
-                            นำกล้องไปสแกน QR Code เพื่อรับรหัสลูกค้าอัตโนมัติ
+                            {t.Warranty.Form.scanQrMsg}
                         </Typography>
                     </Box>
                     <Html5QrcodePlugin defaultCamera="back" fps={10} qrbox={250} disableFlip={false} qrCodeSuccessCallback={handleQrSuccess} />
@@ -570,7 +571,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
             <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
                 {qrScanSuccess && (
                     <Alert severity="success" sx={{ mb: 2 }} onClose={() => setQrScanSuccess(false)}>
-                        สแกน QR Code สำเร็จแล้ว! รหัสลูกค้าถูกเพิ่มเข้าฟอร์มอัตโนมัติ
+                        {t.Warranty.Form.checkProductSuccess}
                     </Alert>
                 )}
 
@@ -701,7 +702,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                             <Grid size={12}>
                                 <FormControl fullWidth>
                                     <FormLabel htmlFor="model_code" required sx={{ mb: 1, fontWeight: 'medium' }}>
-                                        รหัสสินค้า
+                                        {t.Warranty.Form.model_code}
                                     </FormLabel>
                                     <TextField
                                         id="model_code"
@@ -710,7 +711,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                         onChange={handleOnChange}
                                         required
                                         disabled
-                                        placeholder="รหัสรุ่นสินค้า"
+                                        placeholder={t.Warranty.Placeholder.model_code}
                                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                                     />
                                 </FormControl>
@@ -727,7 +728,7 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                     disabled={loadingProduct || checking}
                                     sx={{ py: 1.5, borderRadius: 2 }}
                                 >
-                                    {loadingProduct ? (<><CircularProgress size={20} sx={{ mr: 1 }} />กำลังตรวจสอบสินค้า...</>) : "ตรวจสอบสินค้า"}
+                                    {loadingProduct ? (<><CircularProgress size={20} sx={{ mr: 1 }} />{t.Warranty.Form.checkingProduct}</>) : t.Warranty.Form.checkProduct}
                                 </Button>
                             </Grid>
                         )}

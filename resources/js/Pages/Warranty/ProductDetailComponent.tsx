@@ -358,7 +358,7 @@ export default function ProductDetailComponent({ productDetail, bgColor = '#E8F5
                         </Typography>
 
                         <Typography variant="body2" color="text.secondary">
-                            <strong>Serial Number :</strong> {displaySerial}
+                            <strong>{t.Warranty.Form.serial_number} :</strong> {displaySerial}
                         </Typography>
 
                         <Typography variant="body2" color="text.secondary">

@@ -548,9 +548,9 @@
 //                     "& .MuiTabs-indicator": { backgroundColor: "#FF7B00" }
 //                 }}
 //             >
-//                 <Tab label="ทั้งหมด" />
-//                 <Tab label="ได้รับ" />
-//                 <Tab label="ใช้ไป" />
+//                 <Tab label={t.Privilege.allHistory} />
+//                 <Tab label={t.Privilege.earned} />
+//                 <Tab label={t.Privilege.used} />
 //                 <Tab label="คูปองของฉัน" />
 //                 <Tab
 //                     label="ติดตามพัสดุ"
@@ -783,7 +783,7 @@
 //                     ) : (
 //                         <Box sx={{ textAlign: "center", py: 8, color: "#bbb" }}>
 //                             <LocalShipping sx={{ fontSize: 56, mb: 1, opacity: 0.3 }} />
-//                             <Typography variant="body2">ไม่มีรายการที่ต้องจัดส่ง</Typography>
+//                             <Typography variant="body2">{t.Privilege.noParcelMsg}</Typography>
 //                         </Box>
 //                     )}
 //                 </Stack>
@@ -861,8 +861,15 @@ import {
 
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import "dayjs/locale/lo";
+import "dayjs/locale/my";
+import "dayjs/locale/en";
 import { QRCodeSVG } from "qrcode.react";
 import CopyButton from "@/Components/CopyButton";
+import { useLanguage } from "@/context/LanguageContext";
+import "dayjs/locale/lo";
+import "dayjs/locale/my";
+import "dayjs/locale/en";
 
 interface RedeemItem {
     id: number;
@@ -934,6 +941,7 @@ function QontoStepIcon(props: any) {
 }
 
 export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryProps) {
+    const { t, language } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -944,11 +952,26 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = isMobile ? 7 : 12;
 
+    const isThaiRes = language === "th";
+    const currentLocale = language === "th" ? "th" : language === "lao" ? "lo" : language === "myanmar" ? "my" : "en";
+    
+    const formatDate = (date: string | dayjs.Dayjs, formatStr: string = "D MMM YY") => {
+        let d = dayjs(date).locale(currentLocale);
+        if (isThaiRes) {
+            return d.add(543, 'year').format(formatStr);
+        }
+        return d.format(formatStr);
+    };
+
+    const formatDateTime = (date: string | dayjs.Dayjs) => {
+        return formatDate(date, "D MMM YY HH:mm");
+    };
+
     const availableYears = useMemo(() => {
-        if (!data) return ["ทั้งหมด"];
+        if (!data) return [t.Privilege.allHistory];
         const years = Array.from(new Set(data.map((d) => dayjs(d.trandate).year()))).sort((a, b) => b - a);
-        return ["ทั้งหมด", ...years.map(String)];
-    }, [data]);
+        return [t.Privilege.allHistory, ...years.map(String)];
+    }, [data, t.Privilege.allHistory]);
 
     const filteredByType = useMemo(() => {
         if (!data) return [];
@@ -958,10 +981,10 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
     }, [data, tab]);
 
     const filteredByYear = useMemo(() => {
-        return year === "ทั้งหมด"
+        return year === t.Privilege.allHistory
             ? filteredByType
             : filteredByType.filter((d) => dayjs(d.trandate).year().toString() === year);
-    }, [filteredByType, year]);
+    }, [filteredByType, year, t.Privilege.allHistory]);
 
     const sortedHistory = useMemo(() => {
         return [...filteredByYear].sort((a, b) => {
@@ -989,7 +1012,7 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
             default: return 0;
         }
     };
-    const steps = ['รับคำสั่งซื้อ', 'เตรียมสินค้า', 'จัดส่งแล้ว', 'สำเร็จ'];
+    const steps = [t.Privilege.received, t.Privilege.preparing, t.Privilege.shippedStatus, t.Privilege.completedStatus];
 
     const handleTabChange = (_: any, v: number) => {
         setTab(v);
@@ -1011,11 +1034,11 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                     "& .MuiTabs-flexContainer": { justifyContent: "space-evenly"}
                 }}
             >
-                <Tab label="ทั้งหมด" />
-                <Tab label="ได้รับ" />
-                <Tab label="ใช้ไป" />
+                <Tab label={t.Privilege.allHistory} />
+                <Tab label={t.Privilege.earned} />
+                <Tab label={t.Privilege.used} />
                 <Tab
-                    label="ติดตามพัสดุ"
+                    label={t.Privilege.trackParcel}
                     icon={<LocalShipping sx={{ fontSize: 18, mb: 0 }} />}
                     iconPosition="start"
                     sx={{ minHeight: 48 }}
@@ -1040,8 +1063,8 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                             onChange={(e) => { setSort(e.target.value); setCurrentPage(1); }}
                             sx={{ flex: 1, borderRadius: 2 }}
                         >
-                            <MenuItem value="desc">ล่าสุด</MenuItem>
-                            <MenuItem value="asc">เก่าสุด</MenuItem>
+                            <MenuItem value="desc">{t.Privilege.latest}</MenuItem>
+                            <MenuItem value="asc">{t.Privilege.oldest}</MenuItem>
                         </Select>
                         <IconButton onClick={() => { setSort(sort === "desc" ? "asc" : "desc"); setCurrentPage(1); }}>
                             <ArrowDownward sx={{ transform: sort === "asc" ? "rotate(180deg)" : "0deg", transition: "0.3s" }} />
@@ -1059,14 +1082,14 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                         {visibleHistory.map((item, index) => {
                             const isRedeem = item.point_tran < 0;
                             const color = isRedeem ? "#F55014" : "#2E7D32";
-                            const dateText = dayjs(item.trandate).locale('th').add(543, 'year').format("D MMM YY");
+                            const dateText = formatDate(item.trandate);
                             const pointText = `${isRedeem ? "" : "+"}${item.point_tran.toLocaleString()}`;
 
                             return (
                                 <Box key={index} sx={{ display: "grid", gridTemplateColumns: isMobile ? "1fr auto" : "1fr 100px 100px", alignItems: "center", py: 1.8, borderBottom: "1px solid #f0f0f0" }}>
                                     <Box sx={{ overflow: 'hidden' }}>
                                         <Typography fontWeight={700} sx={{ fontSize: 14, color: isRedeem ? "#F55014" : "#222", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                            {isRedeem ? `แลก ${item.pname}` : item.pname}
+                                            {isRedeem ? `${t.Privilege.redeemPrefix} ${item.pname}` : item.pname}
                                         </Typography>
                                         {isMobile && <Typography variant="caption" color="text.secondary">{dateText}</Typography>}
                                     </Box>
@@ -1080,7 +1103,7 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
 
                         {visibleHistory.length === 0 && (
                             <Box sx={{ textAlign: 'center', py: 6, color: '#999' }}>
-                                <Typography variant="body2">ไม่มีรายการ</Typography>
+                                <Typography variant="body2">{t.Privilege.noHistory}</Typography>
                             </Box>
                         )}
                     </Stack>
@@ -1104,7 +1127,7 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                                         <Stack direction="row" justifyContent="space-between" alignItems="start" mb={2}>
                                             <Box>
                                                 <Typography variant="caption" color="text.secondary">
-                                                    สั่งเมื่อ: {dayjs(order.created_at).locale('th').add(543, 'year').format("D MMM YY HH:mm")}
+                                                    {t.Privilege.orderDate}: {formatDateTime(order.created_at)}
                                                 </Typography>
                                                 <Stack direction="row" alignItems="center">
                                                     <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#FF7B00' }}>
@@ -1114,7 +1137,7 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                                                 </Stack>
                                             </Box>
                                             <Chip
-                                                label={isCancelled ? "ยกเลิก" : (order.status === 'completed' ? "สำเร็จ" : (order.status === 'shipped' ? "ส่งแล้ว" : "กำลังดำเนินการ"))}
+                                                label={isCancelled ? t.Privilege.cancelledStatus : (order.status === 'completed' ? t.Privilege.completedStatus : (order.status === 'shipped' ? t.Privilege.shippedStatus : t.Privilege.processingStatus))}
                                                 size="small"
                                                 sx={{
                                                     bgcolor: isCancelled ? '#ffebee' : (order.status === 'completed' ? '#e8f5e9' : '#fff3e0'),
@@ -1130,7 +1153,7 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                                             </Box>
                                             <Box sx={{ overflow: 'hidden' }}>
                                                 <Typography variant="body2" fontWeight={600} noWrap>{order.product_name}</Typography>
-                                                <Typography variant="caption" color="text.secondary">ใช้ {order.points_redeemed.toLocaleString()} คะแนน</Typography>
+                                                <Typography variant="caption" color="text.secondary">{t.Privilege.used} {order.points_redeemed.toLocaleString()} {t.Privilege.points}</Typography>
                                             </Box>
                                         </Stack>
                                         {!isCancelled ? (
@@ -1148,13 +1171,13 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                                         ) : (
                                             <Box sx={{ p: 2, bgcolor: '#ffebee', borderRadius: 2, display: 'flex', gap: 1, alignItems: 'center', color: '#d32f2f' }}>
                                                 <Cancel fontSize="small" />
-                                                <Typography variant="caption" fontWeight={600}>รายการถูกยกเลิกและคืนแต้มเรียบร้อยแล้ว</Typography>
+                                                <Typography variant="caption" fontWeight={600}>{t.Privilege.parcelCancelledMsg}</Typography>
                                             </Box>
                                         )}
                                         {order.status === 'shipped' && order.tracking_number && (
                                             <Box sx={{ mt: 2, p: 1.5, bgcolor: '#F5F5F5', borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Box>
-                                                    <Typography variant="caption" color="text.secondary" display="block">เลขพัสดุ (Tracking No.)</Typography>
+                                                    <Typography variant="caption" color="text.secondary" display="block">{t.Privilege.trackingNo}</Typography>
                                                     <Typography variant="body2" fontWeight={700} sx={{ letterSpacing: 0.5 }}>{order.tracking_number}</Typography>
                                                 </Box>
                                                 <CopyButton text={order.tracking_number} color="primary" />
@@ -1167,7 +1190,7 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
                     ) : (
                         <Box sx={{ textAlign: "center", py: 8, color: "#bbb" }}>
                             <LocalShipping sx={{ fontSize: 56, mb: 1, opacity: 0.3 }} />
-                            <Typography variant="body2">ไม่มีรายการที่ต้องจัดส่ง</Typography>
+                            <Typography variant="body2">{t.Privilege.noParcelMsg}</Typography>
                         </Box>
                     )}
                 </Stack>

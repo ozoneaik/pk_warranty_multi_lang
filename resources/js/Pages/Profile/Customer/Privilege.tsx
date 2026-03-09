@@ -41,6 +41,7 @@ import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import PointExpiryModal from "../Partials/PointExpiryModal";
+import { useLanguage } from "@/context/LanguageContext";
 
 // --- Types ---
 type Tier = "silver" | "gold" | "platinum";
@@ -110,8 +111,9 @@ interface PrivilegeProps extends PageProps {
 
 // REWARD LIST COMPONENT (แยกออกมาเฉพาะของรางวัล)
 function RewardList({ products, point, userTierLevel, onRedeem }: { products: ProductItem[]; point: number; userTierLevel: number; onRedeem: (item: ProductItem) => void; }) {
+    const { t } = useLanguage();
     if (!products || products.length === 0) {
-        return <Typography variant="body2" sx={{ color: "#999", mt: 3, ml: 3 }}>ยังไม่มีของรางวัล</Typography>;
+        return <Typography variant="body2" sx={{ color: "#999", mt: 3, ml: 3 }}>{t.Privilege.noRewards}</Typography>;
     }
     return (
         <Grid container spacing={1.5} sx={{ mt: 3, px: 2 }} alignItems="stretch">
@@ -125,9 +127,9 @@ function RewardList({ products, point, userTierLevel, onRedeem }: { products: Pr
                 let buttonText = "";
                 if (isTierLocked) {
                     const tierName = item.tier_level === 2 ? "Gold" : item.tier_level === 3 ? "Platinum" : "High Tier";
-                    buttonText = `เฉพาะระดับ ${tierName}`;
+                    buttonText = `${t.Privilege.onlyForLevel} ${tierName}`;
                 } else {
-                    buttonText = isPointEnough ? "แลกของรางวัล" : "คะแนนไม่พอ";
+                    buttonText = isPointEnough ? t.Privilege.redeemReward : t.Privilege.notEnoughPoints;
                 }
 
                 return (
@@ -144,7 +146,7 @@ function RewardList({ products, point, userTierLevel, onRedeem }: { products: Pr
                                 <Typography variant="body2" fontWeight={700} sx={{ color: "#333", minHeight: 40, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>{item.pname}</Typography>
                                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5, mb: 1 }}>
                                     <Box sx={{ width: 22, height: 22, borderRadius: "50%", background: "radial-gradient(#FFF, #FFF6B4)", border: "2px solid #FFE970", display: "grid", placeItems: "center", color: "#8A8200", fontWeight: 900, fontSize: 12 }}>P</Box>
-                                    <Typography variant="body2" fontWeight={900} sx={{ color: "#444" }}>{item.redeem_point?.toLocaleString() ?? 0} คะแนน</Typography>
+                                    <Typography variant="body2" fontWeight={900} sx={{ color: "#444" }}>{item.redeem_point?.toLocaleString() ?? 0} {t.Privilege.points}</Typography>
                                 </Stack>
                                 <Button fullWidth size="small" disabled={!canRedeem} sx={{ bgcolor: isTierLocked ? "#9e9e9e" : (canRedeem ? "#FF8A00" : "#E0E0E0"), color: "white", fontWeight: 700, py: 0.6, fontSize: 12, borderRadius: 1.5, textTransform: "none", "&:hover": { bgcolor: isTierLocked ? "#9e9e9e" : (canRedeem ? "#e67800" : "#E0E0E0") }, transition: "0.2s" }} onClick={() => onRedeem(item)}>
                                     {buttonText}
@@ -160,8 +162,9 @@ function RewardList({ products, point, userTierLevel, onRedeem }: { products: Pr
 
 // PRIVILEGE LIST COMPONENT (แยกออกมาเฉพาะสิทธิพิเศษ)
 function PrivilegeList({ products, point, userTierLevel, onRedeem }: { products: ProductItem[]; point: number; userTierLevel: number; onRedeem: (item: ProductItem) => void; }) {
+    const { t } = useLanguage();
     if (!products || products.length === 0) {
-        return <Typography variant="body2" sx={{ color: "#999", mt: 3, ml: 3 }}>ยังไม่มีสิทธิพิเศษ</Typography>;
+        return <Typography variant="body2" sx={{ color: "#999", mt: 3, ml: 3 }}>{t.Privilege.noPrivileges}</Typography>;
     }
     return (
         <Grid container spacing={1.5} sx={{ mt: 3, px: 2 }} alignItems="stretch">
@@ -176,14 +179,14 @@ function PrivilegeList({ products, point, userTierLevel, onRedeem }: { products:
                 let buttonColor = "#4CAF50"; // สีเขียว default
 
                 if (isClaimed) {
-                    buttonText = "รับสิทธิ์แล้ว";
+                    buttonText = t.Privilege.claimed;
                     buttonColor = "#9e9e9e"; // สีเทา
                 } else if (isTierLocked) {
                     const tierName = item.tier_level === 2 ? "Gold" : item.tier_level === 3 ? "Platinum" : "High Tier";
-                    buttonText = `เฉพาะระดับ ${tierName}`;
+                    buttonText = `${t.Privilege.onlyForLevel} ${tierName}`;
                     buttonColor = "#9e9e9e";
                 } else {
-                    buttonText = "รับสิทธิพิเศษ";
+                    buttonText = t.Privilege.claimPrivilege;
                 }
 
                 // Privilege มักเป็นสีเขียว หรือ Theme ที่สื่อถึงการ "ได้รับ"
@@ -229,7 +232,7 @@ function PrivilegeList({ products, point, userTierLevel, onRedeem }: { products:
                                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5, mb: 1 }}>
                                     {/* Privilege อาจจะแสดงเป็น Earn Point (สีเขียว) */}
                                     <Box sx={{ width: 22, height: 22, borderRadius: "50%", background: "radial-gradient(#FFF, #E8F5E9)", border: "2px solid #C8E6C9", display: "grid", placeItems: "center", color: "#1B5E20", fontWeight: 900, fontSize: 12 }}>P</Box>
-                                    <Typography variant="body2" fontWeight={900} sx={{ color: "#2E7D32" }}>+{item.earn_point?.toLocaleString() ?? 0} คะแนน</Typography>
+                                    <Typography variant="body2" fontWeight={900} sx={{ color: "#2E7D32" }}>+{item.earn_point?.toLocaleString() ?? 0} {t.Privilege.points}</Typography>
                                 </Stack>
                                 <Button
                                     fullWidth
@@ -261,8 +264,9 @@ function PrivilegeList({ products, point, userTierLevel, onRedeem }: { products:
 
 // PART 3: COUPON LIST COMPONENT (แยกออกมาเฉพาะคูปอง)
 function CouponList({ products, point, userTierLevel, onRedeem }: { products: ProductItem[]; point: number; userTierLevel: number; onRedeem: (item: ProductItem) => void; }) {
+    const { t } = useLanguage();
     if (!products || products.length === 0) {
-        return <Typography variant="body2" sx={{ color: "#999", mt: 3, ml: 3 }}>ยังไม่มีคูปอง</Typography>;
+        return <Typography variant="body2" sx={{ color: "#999", mt: 3, ml: 3 }}>{t.Privilege.noCoupons}</Typography>;
     }
     return (
         <Grid container spacing={1.5} sx={{ mt: 3, px: 2 }} alignItems="stretch">
@@ -275,9 +279,9 @@ function CouponList({ products, point, userTierLevel, onRedeem }: { products: Pr
                 let buttonText = "";
                 if (isTierLocked) {
                     const tierName = item.tier_level === 2 ? "Gold" : item.tier_level === 3 ? "Platinum" : "High Tier";
-                    buttonText = `เฉพาะระดับ ${tierName}`;
+                    buttonText = `${t.Privilege.onlyForLevel} ${tierName}`;
                 } else {
-                    buttonText = isPointEnough ? "แลกคูปอง" : "คะแนนไม่พอ";
+                    buttonText = isPointEnough ? t.Privilege.redeemCoupon : t.Privilege.notEnoughPoints;
                 }
 
                 return (
@@ -295,7 +299,7 @@ function CouponList({ products, point, userTierLevel, onRedeem }: { products: Pr
                                 <Typography variant="body2" fontWeight={700} sx={{ color: "#333", minHeight: 40, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>{item.pname}</Typography>
                                 <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5, mb: 1 }}>
                                     <Box sx={{ width: 22, height: 22, borderRadius: "50%", background: "#eee", display: "grid", placeItems: "center", color: "#666", fontWeight: 900, fontSize: 12 }}>P</Box>
-                                    <Typography variant="body2" fontWeight={900} sx={{ color: "#444" }}>{item.redeem_point?.toLocaleString() ?? 0} คะแนน</Typography>
+                                    <Typography variant="body2" fontWeight={900} sx={{ color: "#444" }}>{item.redeem_point?.toLocaleString() ?? 0} {t.Privilege.points}</Typography>
                                 </Stack>
                                 <Button fullWidth size="small" disabled={!canRedeem} sx={{ bgcolor: isTierLocked ? "#9e9e9e" : (canRedeem ? "#2196F3" : "#E0E0E0"), color: "white", fontWeight: 700, py: 0.6, fontSize: 12, borderRadius: 1.5, textTransform: "none", "&:hover": { bgcolor: isTierLocked ? "#9e9e9e" : (canRedeem ? "#1976D2" : "#E0E0E0") }, transition: "0.2s" }} onClick={() => onRedeem(item)}>
                                     {buttonText}
@@ -311,6 +315,7 @@ function CouponList({ products, point, userTierLevel, onRedeem }: { products: Pr
 
 // --- Main Page ---
 export default function PrivilegePage() {
+    const { t, language } = useLanguage();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {
@@ -328,7 +333,8 @@ export default function PrivilegePage() {
     const isHighTier = tier === "platinum" || tier === "gold";
     const isBelowThreshold = isHighTier && point < currentMinPoint;
     const isNotExpired = tier_expired_at && dayjs().isBefore(dayjs(tier_expired_at));
-    const fmt = new Intl.NumberFormat("th-TH");
+    const isThaiRes = language === "th";
+    const fmt = new Intl.NumberFormat(isThaiRes ? "th-TH" : "en-US");
 
     // --- State ---
     const [tab, setTab] = React.useState(0);
@@ -455,7 +461,7 @@ export default function PrivilegePage() {
 
     const handleConfirmAddressInput = () => {
         if (!addressForm.name || !addressForm.phone || !addressForm.address || !addressForm.sub_district || !addressForm.district || !addressForm.province || !addressForm.zipcode) {
-            Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลให้ครบถ้วน', timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'warning', title: t.Privilege.fillAllInfo, timer: 1500, showConfirmButton: false });
             return;
         }
         setRedeemStep('address_confirm');
@@ -524,15 +530,15 @@ export default function PrivilegePage() {
     }
 
     const getExpiryText = (item: ProductItem) => {
-        if (item.expiry_type === 'none') return "ไม่ระบุ";
-        if (item.expiry_type === 'dynamic') return `รีบเลย! ใช้ได้นาน ${item.expiry_days} วัน หลังกดรับ`;
-        if (item.expired_at) return `ใช้สิทธิ์ได้ถึง: ${dayjs(item.expired_at).format('D MMM YYYY')}`;
-        return "ใช้ได้จนกว่าจะมีการเปลี่ยนแปลง";
+        if (item.expiry_type === 'none') return t.Privilege.noExpiry;
+        if (item.expiry_type === 'dynamic') return t.Privilege.limitedTime.replace('{days}', String(item.expiry_days));
+        if (item.expired_at) return `${t.Privilege.validUntil}: ${dayjs(item.expired_at).format('D MMM YYYY')}`;
+        return t.Privilege.anyChanges;
     };
 
     return (
-        <MobileAuthenticatedLayout title="สิทธิพิเศษ (Privilege)">
-            <Head title="สิทธิพิเศษ (Privilege)" />
+        <MobileAuthenticatedLayout title={t.Privilege.title}>
+            <Head title={t.Privilege.title} />
             <Container maxWidth={false} disableGutters sx={{ mt: 7.5, mb: 7 }}>
 
                 {/* User Info & Tabs */}
@@ -615,8 +621,8 @@ export default function PrivilegePage() {
                                         </Stack>
                                     </Stack>
                                     <Typography variant="caption" sx={{ color: "#999", fontSize: 10, lineHeight: 1.2, display: "block", mt: 0.5 }}>
-                                        หมดอายุ {tier_expired_at
-                                            ? `${dayjs(tier_expired_at).format("D MMM")} ${dayjs(tier_expired_at).year() + 543}`
+                                        {t.Privilege.expiredAt} {tier_expired_at
+                                            ? `${dayjs(tier_expired_at).format("D MMM")} ${dayjs(tier_expired_at).year() + (isThaiRes ? 543 : 0)}`
                                             : "-"
                                         }
                                     </Typography>
@@ -625,7 +631,12 @@ export default function PrivilegePage() {
                                     <Stack alignItems="center" spacing={0.5}>
                                         <QrCodeScannerIcon sx={{ color: "#555", fontSize: 24 }} />
                                         <Typography variant="caption" sx={{ color: "#555", fontWeight: 700, lineHeight: 1.2 }}>
-                                            หมายเลข<br />สมาชิก
+                                            {t.Privilege.memberId.split(" ").map((word: string, i: number) => (
+                                                <React.Fragment key={i}>
+                                                    {word}
+                                                    {i === 0 && <br />}
+                                                </React.Fragment>
+                                            ))}
                                         </Typography>
                                     </Stack>
                                 </Grid>
@@ -659,8 +670,8 @@ export default function PrivilegePage() {
 
                             <Typography variant="body2" sx={{ color: "#444", fontSize: 13, mb: 1, pl: 1 }}>
                                 {nextTier
-                                    ? <span>สะสมอีก <b>{fmt.format(remainingPoints)} คะแนน</b> เพื่อเลื่อนสถานะเป็น {nextTier}</span>
-                                    : <span>สถานะสมาชิกของคุณอยู่ในระดับสูงสุด</span>
+                                    ? <span dangerouslySetInnerHTML={{ __html: t.Privilege.collectMorePoints.replace('{point}', `<b>${fmt.format(remainingPoints)}</b>`).replace('{tier}', nextTier) }} />
+                                    : <span>{t.Privilege.highestTier}</span>
                                 }
                             </Typography>
 
@@ -722,10 +733,10 @@ export default function PrivilegePage() {
 
                 <Box sx={{ mt: 1.5, px: 1 }}>
                     <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="standard" sx={{ width: "100%", borderBottom: "1px solid #E0E0E0", "& .MuiTabs-flexContainer": { justifyContent: "space-evenly" }, "& .MuiTab-root": { minHeight: 44, color: "#8C8C8C", fontWeight: 700, fontSize: 16, textTransform: "none" }, "& .Mui-selected": { color: "#FF8A00" }, "& .MuiTabs-indicator": { backgroundColor: "#FF8A00", height: 3, borderRadius: 3 } }}>
-                        <Tab label="รางวัล" />
-                        <Tab label="สิทธิพิเศษ" />
+                        <Tab label={t.Privilege.rewardsTab} />
+                        <Tab label={t.Privilege.privilegesTab} />
                         {/* <Tab label="คูปอง" /> */}
-                        <Tab label="ประวัติ" />
+                        <Tab label={t.Privilege.historyTab} />
                     </Tabs>
                 </Box>
 
@@ -791,31 +802,31 @@ export default function PrivilegePage() {
                                 {/* <Typography variant="body2" sx={{ color: '#FF5722', mt: 1, fontWeight: 500 }}>Total {selectedItem.usage_limit_amount ? selectedItem.usage_limit_amount : '300'} Rewards</Typography> */}
                                 <Divider sx={{ my: 3, borderColor: '#f0f0f0' }} />
                                 <Box>
-                                    <Typography variant="subtitle1" fontWeight={800} sx={{ color: '#FF5722', mb: 1 }}>เงื่อนไข</Typography>
+                                    <Typography variant="subtitle1" fontWeight={800} sx={{ color: '#FF5722', mb: 1 }}>{t.Privilege.conditions}</Typography>
                                     <Box sx={{ textAlign: 'left', bgcolor: '', p: 0 }}>
                                         <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line', fontSize: '0.85rem', lineHeight: 1.7 }}>
-                                            {selectedItem.remark ? selectedItem.remark : `1. เงื่อนไขเป็นไปตามที่บริษัทกำหนด`}
+                                            {selectedItem.remark ? selectedItem.remark : t.Privilege.defaultConditions}
                                         </Typography>
                                     </Box>
                                 </Box>
-                                <Button fullWidth variant="contained" onClick={() => setRedeemStep('confirm')} sx={{ mt: 4, py: 1.5, borderRadius: '50px', background: '#FF5722', fontWeight: 900, fontSize: '1rem', boxShadow: '0 6px 20px rgba(255, 87, 34, 0.3)', '&:hover': { background: '#F4511E' } }}>Redeem</Button>
+                                <Button fullWidth variant="contained" onClick={() => setRedeemStep('confirm')} sx={{ mt: 4, py: 1.5, borderRadius: '50px', background: '#FF5722', fontWeight: 900, fontSize: '1rem', boxShadow: '0 6px 20px rgba(255, 87, 34, 0.3)', '&:hover': { background: '#F4511E' } }}>{t.Privilege.redeemConfirm}</Button>
                             </Box>
                         )}
 
                         {/* STEP 2: ADDRESS INPUT */}
                         {redeemStep === 'address_input' && (
                             <Box>
-                                <Typography variant="h6" fontWeight="bold" align="center" mb={1}>Delivery address</Typography>
+                                <Typography variant="h6" fontWeight="bold" align="center" mb={1}>{t.Privilege.addressInputTitle}</Typography>
                                 <Stack spacing={2} mt={2}>
-                                    <TextField label="ชื่อ-นามสกุล ผู้รับ" value={addressForm.name} onChange={e => setAddressForm({ ...addressForm, name: e.target.value })} fullWidth size="small" />
-                                    <TextField label="เบอร์โทรศัพท์" value={addressForm.phone} onChange={e => setAddressForm({ ...addressForm, phone: e.target.value })} fullWidth size="small" />
-                                    <TextField label="ที่อยู่ (บ้านเลขที่, หมู่, ซอย, ถนน)" value={addressForm.address} onChange={e => setAddressForm({ ...addressForm, address: e.target.value })} fullWidth size="small" multiline rows={2} />
+                                    <TextField label={t.Customer.form.firstname + " - " + t.Customer.form.lastname} value={addressForm.name} onChange={e => setAddressForm({ ...addressForm, name: e.target.value })} fullWidth size="small" />
+                                    <TextField label={t.Customer.form.tel} value={addressForm.phone} onChange={e => setAddressForm({ ...addressForm, phone: e.target.value })} fullWidth size="small" />
+                                    <TextField label={t.Customer.form.address} value={addressForm.address} onChange={e => setAddressForm({ ...addressForm, address: e.target.value })} fullWidth size="small" multiline rows={2} />
                                     <Autocomplete
                                         options={provinces}
                                         getOptionLabel={(option) => option.name_th}
                                         value={provinces.find(p => p.name_th === addressForm.province) || null}
                                         onChange={(_, v) => handleProvinceChange(v)}
-                                        renderInput={(params) => <TextField {...params} label="จังหวัด" size="small" fullWidth />}
+                                        renderInput={(params) => <TextField {...params} label={t.Customer.form.province} size="small" fullWidth />}
                                     />
                                     <Grid container spacing={2}>
                                         <Grid size={{ xs: 6 }}>
@@ -825,7 +836,7 @@ export default function PrivilegePage() {
                                                 value={amphures.find(a => a.name_th === addressForm.district) || null}
                                                 onChange={(_, v) => handleAmphureChange(v)}
                                                 disabled={!addressForm.province}
-                                                renderInput={(params) => <TextField {...params} label="เขต/อำเภอ" size="small" fullWidth />}
+                                                renderInput={(params) => <TextField {...params} label={t.Customer.form.district} size="small" fullWidth />}
                                             />
                                         </Grid>
                                         <Grid size={{ xs: 6 }}>
@@ -835,15 +846,15 @@ export default function PrivilegePage() {
                                                 value={tambons.find(t => t.name_th === addressForm.sub_district) || null}
                                                 onChange={(_, v) => handleTambonChange(v)}
                                                 disabled={!addressForm.district}
-                                                renderInput={(params) => <TextField {...params} label="แขวง/ตำบล" size="small" fullWidth />}
+                                                renderInput={(params) => <TextField {...params} label={t.Customer.form.subdistrict} size="small" fullWidth />}
                                             />
                                         </Grid>
                                         <Grid size={{ xs: 12 }}>
-                                            <TextField label="รหัสไปรษณีย์" value={addressForm.zipcode} size="small" fullWidth disabled />
+                                            <TextField label={t.Customer.form.zipcode} value={addressForm.zipcode} size="small" fullWidth disabled />
                                         </Grid>
                                     </Grid>
                                     <Box sx={{ mt: 1, p: 1.5, bgcolor: '#F5F5F5', borderRadius: 2 }}>
-                                        <FormControlLabel control={<Checkbox checked={updateProfile} onChange={(e) => setUpdateProfile(e.target.checked)} color="primary" size="small" />} label={<Typography variant="body2" fontWeight={500} color="textSecondary">ใช้เป็นที่อยู่ปัจจุบัน (อัปเดตข้อมูลส่วนตัว)</Typography>} />
+                                        <FormControlLabel control={<Checkbox checked={updateProfile} onChange={(e) => setUpdateProfile(e.target.checked)} color="primary" size="small" />} label={<Typography variant="body2" fontWeight={500} color="textSecondary">{t.Privilege.updateProfileCheckbox}</Typography>} />
                                     </Box>
                                 </Stack>
                                 <Button fullWidth variant="contained" sx={{ mt: 3, bgcolor: '#FF5722', borderRadius: 8, py: 1.5, fontWeight: 'bold' }} onClick={handleConfirmAddressInput}>Next</Button>
@@ -853,13 +864,13 @@ export default function PrivilegePage() {
                         {/* STEP 3: CONFIRM ADDRESS */}
                         {redeemStep === 'address_confirm' && (
                             <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h6" fontWeight="bold" mb={3}>Confirm delivery address</Typography>
+                                <Typography variant="h6" fontWeight="bold" mb={3}>{t.Privilege.addressConfirmTitle}</Typography>
                                 <Box sx={{ textAlign: 'left', bgcolor: '#F9FAFB', p: 2, borderRadius: 2, position: 'relative' }}>
                                     <Typography variant="subtitle2" fontWeight="bold" mb={0.5}>{addressForm.name} | {addressForm.phone}</Typography>
                                     <Typography variant="body2" sx={{ color: '#333', lineHeight: 1.6 }}>{addressForm.address} {addressForm.sub_district}, {addressForm.district},<br />{addressForm.province}, {addressForm.zipcode}</Typography>
                                     <Button size="small" startIcon={<EditIcon sx={{ fontSize: 14 }} />} sx={{ position: 'absolute', top: 8, right: 8, textTransform: 'none', color: '#999', fontSize: 12 }} onClick={() => setRedeemStep('address_input')}>Edit</Button>
                                 </Box>
-                                <Button fullWidth variant="contained" sx={{ mt: 4, bgcolor: '#FF5722', borderRadius: 8, py: 1.5, fontWeight: 'bold' }} onClick={() => setRedeemStep('confirm')}>Redeem</Button>
+                                <Button fullWidth variant="contained" sx={{ mt: 4, bgcolor: '#FF5722', borderRadius: 8, py: 1.5, fontWeight: 'bold' }} onClick={() => setRedeemStep('confirm')}>{t.Privilege.redeemConfirm}</Button>
                             </Box>
                         )}
 
@@ -878,8 +889,8 @@ export default function PrivilegePage() {
                                 )}
                                 <Typography variant="h6" fontWeight={800} mb={1}>{selectedItem?.pname}</Typography>
                                 <Chip label={selectedItem?.tier_level === 2 ? 'Gold' : (selectedItem?.tier_level === 3 ? 'Platinum' : 'Silver')} size="small" sx={{ bgcolor: '#FFC107', color: 'white', fontWeight: 'bold', mb: 2 }} />
-                                <Typography variant="h5" color="#333" fontWeight={800} mb={3}>{selectedItem?.product_type === 'privilege' ? `+${selectedItem?.earn_point} Points` : `${selectedItem?.redeem_point.toLocaleString()} Points`}</Typography>
-                                <Button fullWidth variant="contained" disabled={loading} onClick={() => processRedeem()} sx={{ bgcolor: '#FF5722', borderRadius: 8, py: 1.5, fontWeight: 'bold' }}>{loading ? "Processing..." : "Redeem"}</Button>
+                                <Typography variant="h5" color="#333" fontWeight={800} mb={3}>{selectedItem?.product_type === 'privilege' ? `+${selectedItem?.earn_point} ${t.Privilege.points}` : `${selectedItem?.redeem_point.toLocaleString()} ${t.Privilege.points}`}</Typography>
+                                <Button fullWidth variant="contained" disabled={loading} onClick={() => processRedeem()} sx={{ bgcolor: '#FF5722', borderRadius: 8, py: 1.5, fontWeight: 'bold' }}>{loading ? "Processing..." : t.Privilege.redeemConfirm}</Button>
                             </Box>
                         )}
 
@@ -903,7 +914,7 @@ export default function PrivilegePage() {
                                 {selectedItem?.delivery_type === 'delivery' ? (
                                     <Box sx={{ py: 2 }}>
                                         <Box sx={{ fontSize: '60px', mb: 2 }}>🚚</Box>
-                                        <Typography variant="h6" fontWeight={800} color="success.main">บันทึกข้อมูลจัดส่งเรียบร้อย!</Typography>
+                                        <Typography variant="h6" fontWeight={800} color="success.main">{t.Privilege.redeemSuccess}!</Typography>
                                     </Box>
                                 ) : (
                                     <Box sx={{ p: 4, bgcolor: '#f9f9f9', border: '1px dashed #ddd', borderRadius: 2 }}>
@@ -912,7 +923,7 @@ export default function PrivilegePage() {
 
                                         {/* แสดงเป็น Icon หรือข้อความ Success แทน */}
                                         <Box sx={{ fontSize: '50px', mb: 2 }}>🎉</Box>
-                                        <Typography variant="h6" fontWeight={800} color="success.main" gutterBottom>แลกสิทธิ์สำเร็จ!</Typography>
+                                        <Typography variant="h6" fontWeight={800} color="success.main" gutterBottom>{t.Privilege.redeemSuccess}!</Typography>
 
                                         {/* <Typography variant="body2" color="text.secondary" sx={{ mt: 2, mb: 0.5 }}>รหัสของคุณ</Typography>
                                         <Typography variant="h4" fontWeight={900} sx={{ color: '#FF5722', letterSpacing: 1 }}>
@@ -920,7 +931,7 @@ export default function PrivilegePage() {
                                         </Typography> */}
                                     </Box>
                                 )}
-                                <Button fullWidth variant="contained" onClick={() => setMainDialog({ ...mainDialog, open: false })} sx={{ mt: 3, borderRadius: '50px', bgcolor: '#FF5722' }}>ปิดหน้าต่าง</Button>
+                                <Button fullWidth variant="contained" onClick={() => setMainDialog({ ...mainDialog, open: false })} sx={{ mt: 3, borderRadius: '50px', bgcolor: '#FF5722' }}>{t.Privilege.back}</Button>
                             </Box>
                         )}
                     </DialogContent>
