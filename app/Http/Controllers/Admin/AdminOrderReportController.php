@@ -111,48 +111,58 @@ class AdminOrderReportController extends Controller
         return back()->with('success', 'อัปเดตสถานะเรียบร้อยแล้ว');
     }
 
-    // ✅ ฟังก์ชันใหม่: เช็คสถานะจาก API
+    // ฟังก์ชันใหม่: เช็คสถานะจาก API (afterservice-sv.pumpkin.tools)
     public function syncStatus($id)
     {
         $order = Order::findOrFail($id);
 
         try {
+            Log::info("[SyncStatus] เริ่มเช็คสถานะ Order #{$order->order_number} (ID: {$id})");
+
             // 1. ยิง API ไปตรวจสอบ
-            $response = Http::timeout(5)->post('https://slip.pumpkin.tools/serial/R_mainstatusorder.php', [
-                'jobno' => $order->order_number
+            $response = Http::timeout(5)->post('https://afterservice-sv.pumpkin.tools/sv/callpsc.php', [
+                'ticketcode' => $order->order_number
             ]);
 
             $apiData = $response->json();
+            Log::info("[SyncStatus] API Response for #{$order->order_number}: " . json_encode($apiData, JSON_UNESCAPED_UNICODE));
 
             // ตรวจสอบว่ามีข้อมูลส่งกลับมาไหม
             if (!isset($apiData['status'])) {
+                Log::warning("[SyncStatus] ไม่พบ status ใน API response สำหรับ Order #{$order->order_number}");
                 return back()->with('error', 'ไม่พบข้อมูลสถานะจากระบบภายนอก');
             }
 
-            $apiStatusText = $apiData['status'];
+            $apiStatusText = trim($apiData['status']);
 
             // 2. แปลงข้อความไทยจาก API เป็น Status ภาษาอังกฤษในระบบเรา
-            // [IMPORTANT] คุณต้องจับคู่คำให้ตรงกับที่ API ส่งมาจริง
             $mappedStatus = match ($apiStatusText) {
-                'รับคำสั่งซื้อ'                  => 'pending',
-                'กำลังดำเนินการจัดเตรียมสินค้า' => 'processing',
-                'อยู่ระหว่างการจัดส่ง'          => 'shipped',
-                'จัดส่งสำเร็จ'                  => 'completed',
-                'ยกเลิกคำสั่งซื้อ'               => 'cancelled',
-                default => null // ถ้าไม่ตรงเคสไหนเลย ให้เป็น null (ไม่ทำอะไร)
+                'รอเปิดSO'              => 'pending',
+                'เปิดออเดอร์แล้ว'        => 'pending',
+                'กำลังจัดสินค้า'         => 'processing',
+                'แพ็คสินค้าเสร็จ'        => 'processing',
+                'พร้อมส่ง'              => 'processing',
+                'เตรียมส่ง'             => 'shipped',
+                'กำลังส่ง'              => 'shipped',
+                'ส่งของแล้ว'            => 'completed',
+                'บัญชีรับงานแล้ว'        => 'completed',
+                default => null
             };
 
             if (!$mappedStatus) {
+                Log::warning("[SyncStatus] สถานะ '$apiStatusText' จาก API ไม่ตรงกับ mapping สำหรับ Order #{$order->order_number}");
                 return back()->with('error', "สถานะจาก API คือ '$apiStatusText' ซึ่งไม่ตรงกับระบบ");
             }
 
             // 3. ถ้าสถานะเปลี่ยน ให้เรียกใช้ฟังก์ชันอัปเดต
             if ($order->status !== $mappedStatus) {
+                Log::info("[SyncStatus] Order #{$order->order_number} สถานะเปลี่ยน: {$order->status} → {$mappedStatus} (API: {$apiStatusText})");
                 $this->processOrderStatusUpdate($order, $mappedStatus);
-                return back()->with('success', "อัปเดตสถานะเป็น '$mappedStatus' เรียบร้อยแล้ว");
+                return back()->with('success', "อัปเดตสถานะเป็น '$apiStatusText' ($mappedStatus) เรียบร้อยแล้ว");
             }
 
-            return back()->with('info', "สถานะปัจจุบันเป็นปัจจุบันแล้ว ($mappedStatus)");
+            Log::info("[SyncStatus] Order #{$order->order_number} สถานะไม่เปลี่ยนแปลง: {$mappedStatus} (API: {$apiStatusText})");
+            return back()->with('info', "สถานะปัจจุบันเป็นปัจจุบันแล้ว: $apiStatusText ($mappedStatus)");
         } catch (\Exception $e) {
             Log::error("Sync Order Error: " . $e->getMessage());
             return back()->with('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อ API');

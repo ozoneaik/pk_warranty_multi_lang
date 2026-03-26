@@ -822,7 +822,7 @@
 //     );
 // }
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
     Box,
     Divider,
@@ -948,9 +948,19 @@ export default function RedeemHistory({ data = [], orders = [] }: RedeemHistoryP
     const [tab, setTab] = useState(0);
     const [selectedCoupon, setSelectedCoupon] = useState<RedeemItem | null>(null);
     const [sort, setSort] = useState("desc");
-    const [year, setYear] = useState("ทั้งหมด");
+    const [year, setYear] = useState(t.Privilege.allHistory);
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = isMobile ? 7 : 12;
+
+    // Sync year filter when language changes
+    useEffect(() => {
+        setYear(prev => {
+            // ถ้าค่าปัจจุบันเป็นปี (ตัวเลข) ให้คงไว้ ไม่ต้องเปลี่ยน
+            if (/^\d{4}$/.test(prev)) return prev;
+            // ถ้าเป็นข้อความ "ทั้งหมด"/"All"/etc → เปลี่ยนเป็นภาษาใหม่
+            return t.Privilege.allHistory;
+        });
+    }, [language, t.Privilege.allHistory]);
 
     const isThaiRes = language === "th";
     const currentLocale = language === "th" ? "th" : language === "lao" ? "lo" : language === "myanmar" ? "my" : "en";
