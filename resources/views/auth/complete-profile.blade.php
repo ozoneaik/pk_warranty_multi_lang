@@ -224,8 +224,7 @@
             </div>
             <button type="submit" id="btnSubmit"
                 class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded transition duration-200 flex justify-center items-center">
-                <span id="btnSpinner" class="spinner hidden"></span> <span
-                    id="btnText">ยืนยันข้อมูลและเข้าสู่ระบบ</span> </button>
+                <span id="btnSpinner" class="spinner hidden"></span> <span id="btnText">ยืนยันข้อมูล</span> </button>
         </form>
     </div>
 

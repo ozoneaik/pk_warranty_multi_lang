@@ -48,18 +48,38 @@ Route::middleware('guest')->group(function () {
         Route::get('callback',[LineAuthController::class,'handleLineCallback'])->name('line.callback');
     });
 
-    Route::get('register/complete-profile', [SocialRegisterController::class, 'showRegistrationForm'])
-        ->name('register.complete_profile');
-        
-    Route::post('register/complete-profile', [SocialRegisterController::class, 'store'])
-        ->name('register.complete_profile.store');
+    // Route::get('register/complete-profile', [SocialRegisterController::class, 'showRegistrationForm'])
+    //     ->name('register.complete_profile');
 
-    Route::post('register/send-otp', [SocialRegisterController::class, 'sendOtp'])
-        ->name('register.send_otp');
+    // Route::post('register/complete-profile', [SocialRegisterController::class, 'store'])
+    //     ->name('register.complete_profile.store');
+
+    // Route::post('register/send-otp', [SocialRegisterController::class, 'sendOtp'])
+    //     ->name('register.send_otp');
 
     Route::prefix('facebook')->group(function(){
         Route::get('redirect',[FacebookAuthController::class,'redirectToFacebook'])->name('facebook.login');
         Route::get('callback',[FacebookAuthController::class,'handleFacebookCallback'])->name('facebook.callback');
+    });
+
+    Route::prefix('register')->name('register.')->group(function () {
+
+        // Legacy Redirect (เผื่อมีคนเข้า URL เดิม จะได้วิ่งไป Step 1)
+        Route::get('complete-profile', [SocialRegisterController::class, 'showRegistrationForm'])
+            ->name('complete_profile');
+
+        // STEP 1: เลือกประเภทผู้ใช้งาน
+        Route::get('step1', [SocialRegisterController::class, 'showStep1'])->name('step1');
+        Route::post('step1', [SocialRegisterController::class, 'storeStep1'])->name('step1.store');
+
+        // STEP 2: ข้อมูลส่วนตัว + OTP
+        Route::get('step2', [SocialRegisterController::class, 'showStep2'])->name('step2');
+        Route::post('step2', [SocialRegisterController::class, 'storeStep2'])->name('step2.store');
+        Route::post('send-otp', [SocialRegisterController::class, 'sendOtp'])->name('send_otp');
+
+        // STEP 3: ที่อยู่ (Dropdown) + รหัสแนะนำเพื่อน
+        Route::get('step3', [SocialRegisterController::class, 'showStep3'])->name('step3');
+        Route::post('step3', [SocialRegisterController::class, 'storeStep3'])->name('step3.store');
     });
 });
 

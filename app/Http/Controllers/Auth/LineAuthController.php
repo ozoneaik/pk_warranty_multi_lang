@@ -38,6 +38,79 @@ class LineAuthController extends Controller
         return Socialite::driver('line')->redirect();
     }
 
+    // public function handleLineCallback(Request $request)
+    // {
+    //     try {
+    //         $lineUser = Socialite::driver('line')->user();
+    //         $lineId   = $lineUser->getId();
+    //         $email    = $lineUser->getEmail();
+    //         $avatar   = $lineUser->getAvatar();
+    //         $name     = $lineUser->getName();
+
+    //         $cust = TblCustomerProd::where('cust_uid', $lineId)->first();
+
+    //         if ($cust) {
+    //             $lastLogin = LoginLog::where('line_id', $lineId)
+    //                 ->where('status', 'success')
+    //                 ->latest('login_at')
+    //                 ->first();
+
+    //             // เช็คว่าไม่ได้เข้านานเกินกำหนด (ตัวอย่างใช้ 30 วัน)
+    //             if ($lastLogin && $lastLogin->login_at->diffInDays(now()) > 30) {
+
+    //                 Log::warning("⏳ User {$lineId} inactive > 30 days. Redirecting to Update Profile.");
+
+    //                 // ดึงข้อมูลจาก $cust ใส่ Session ให้ครบ
+    //                 session([
+    //                     'social_register_data' => [
+    //                         // ข้อมูลพื้นฐานจาก LINE
+    //                         'provider' => 'line',
+    //                         'line_id'  => $lineId,
+    //                         'email'    => $cust->cust_email ?? $email, // ใช้จาก DB ก่อน ถ้าไม่มีค่อยใช้จาก LINE
+    //                         'avatar'   => $avatar,
+    //                         'name'     => $name,
+    //                         'is_update_mode' => true, // ตัวบอก View ว่านี่คือการ Update (เปลี่ยนหัวข้อ)
+
+    //                         // ข้อมูลเดิมจาก Database (สำคัญมาก! ถ้าไม่ใส่ตรงนี้ ฟอร์มจะโล่ง)
+    //                         'cust_firstname'   => $cust->cust_firstname,
+    //                         'cust_lastname'    => $cust->cust_lastname,
+    //                         'cust_tel'         => $cust->cust_tel,
+    //                         'cust_gender'      => $cust->cust_gender,
+    //                         'cust_birthdate'   => $cust->cust_birthdate,
+
+    //                         // ข้อมูลที่อยู่
+    //                         'cust_address'     => $cust->cust_address,
+    //                         'cust_province'    => $cust->cust_province,
+    //                         'cust_district'    => $cust->cust_district,
+    //                         'cust_subdistrict' => $cust->cust_subdistrict,
+    //                         'cust_zipcode'     => $cust->cust_zipcode,
+    //                     ]
+    //                 ]);
+
+    //                 return redirect()->route('register.complete_profile')
+    //                     ->with('error', 'คุณไม่ได้เข้าใช้งานนานเกิน 30 วัน กรุณาตรวจสอบข้อมูลและยืนยันตัวตน');
+    //             }
+
+    //             return $this->loginExistingUser($lineUser, $cust);
+    //         }
+
+    //         session([
+    //             'social_register_data' => [
+    //                 'provider' => 'line',
+    //                 'line_id'  => $lineId,
+    //                 'name'     => $name,
+    //                 'email'    => $email,
+    //                 'avatar'   => $avatar,
+    //             ]
+    //         ]);
+
+    //         return redirect()->route('register.complete_profile');
+    //     } catch (\Exception $e) {
+    //         Log::error('LINE Login Error', ['msg' => $e->getMessage()]);
+    //         return redirect()->route('login')->with('error', 'Login Failed');
+    //     }
+    // }
+
     public function handleLineCallback(Request $request)
     {
         try {
@@ -58,9 +131,9 @@ class LineAuthController extends Controller
                 // เช็คว่าไม่ได้เข้านานเกินกำหนด (ตัวอย่างใช้ 30 วัน)
                 if ($lastLogin && $lastLogin->login_at->diffInDays(now()) > 30) {
 
-                    Log::warning("⏳ User {$lineId} inactive > 30 days. Redirecting to Update Profile.");
+                    Log::warning("⏳ User {$lineId} inactive > 30 days. Redirecting to Update Profile Step 1.");
 
-                    // ดึงข้อมูลจาก $cust ใส่ Session ให้ครบ
+                    // 1. ข้อมูลพื้นฐานสำหรับอ้างอิง
                     session([
                         'social_register_data' => [
                             // ข้อมูลพื้นฐานจาก LINE
@@ -70,30 +143,43 @@ class LineAuthController extends Controller
                             'avatar'   => $avatar,
                             'name'     => $name,
                             'is_update_mode' => true, // ตัวบอก View ว่านี่คือการ Update (เปลี่ยนหัวข้อ)
-
-                            // ข้อมูลเดิมจาก Database (สำคัญมาก! ถ้าไม่ใส่ตรงนี้ ฟอร์มจะโล่ง)
-                            'cust_firstname'   => $cust->cust_firstname,
-                            'cust_lastname'    => $cust->cust_lastname,
-                            'cust_tel'         => $cust->cust_tel,
-                            'cust_gender'      => $cust->cust_gender,
-                            'cust_birthdate'   => $cust->cust_birthdate,
-
-                            // ข้อมูลที่อยู่
-                            'cust_address'     => $cust->cust_address,
-                            'cust_province'    => $cust->cust_province,
-                            'cust_district'    => $cust->cust_district,
-                            'cust_subdistrict' => $cust->cust_subdistrict,
-                            'cust_zipcode'     => $cust->cust_zipcode,
                         ]
                     ]);
 
-                    return redirect()->route('register.complete_profile')
+                    // 2. Pre-fill ข้อมูลสำหรับ Step 1 (ประเภทผู้ใช้งาน)
+                    session(['register_step1' => [
+                        'crm_user_type_id' => $cust->crm_user_type_id,
+                    ]]);
+
+                    // 3. Pre-fill ข้อมูลสำหรับ Step 2 (ข้อมูลส่วนตัว)
+                    session(['register_step2' => [
+                        'cust_firstname' => $cust->cust_firstname,
+                        'cust_lastname'    => $cust->cust_lastname,
+                        'cust_gender'      => $cust->cust_gender,
+                        'cust_email'     => $cust->cust_email ?? $email,
+                        'cust_birthdate'   => $cust->cust_birthdate,
+                        'cust_tel'       => $cust->cust_tel,
+                        'timezone'       => 'Asia/Bangkok', // Default ให้
+                    ]]);
+
+                    // 4. Pre-fill ข้อมูลสำหรับ Step 3 (ที่อยู่)
+                    session(['register_step3' => [
+                        'cust_address'     => $cust->cust_address,
+                        'cust_province'    => $cust->cust_province,
+                        'cust_district'    => $cust->cust_district,
+                        'cust_subdistrict' => $cust->cust_subdistrict,
+                        'cust_zipcode'     => $cust->cust_zipcode,
+                    ]]);
+
+                    // Redirect ไปที่ Step 1 ของระบบใหม่
+                    return redirect()->route('register.step1')
                         ->with('error', 'คุณไม่ได้เข้าใช้งานนานเกิน 30 วัน กรุณาตรวจสอบข้อมูลและยืนยันตัวตน');
                 }
 
                 return $this->loginExistingUser($lineUser, $cust);
             }
 
+            // กรณีเป็น User ใหม่ที่เพิ่งเคย Login ครั้งแรก
             session([
                 'social_register_data' => [
                     'provider' => 'line',
@@ -104,7 +190,8 @@ class LineAuthController extends Controller
                 ]
             ]);
 
-            return redirect()->route('register.complete_profile');
+            // Redirect ไปที่ Step 1 สำหรับคนสมัครใหม่
+            return redirect()->route('register.step1');
         } catch (\Exception $e) {
             Log::error('LINE Login Error', ['msg' => $e->getMessage()]);
             return redirect()->route('login')->with('error', 'Login Failed');
