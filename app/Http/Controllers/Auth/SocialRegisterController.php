@@ -207,12 +207,18 @@ class SocialRegisterController extends Controller
         try {
             DB::beginTransaction();
 
+            $rawEmail = !empty($step2['cust_email']) ? $step2['cust_email'] : '';
+            if (empty($rawEmail) || $rawEmail === 'default@email.com') {
+                $rawEmail = $lineId . '@no-email.com';
+            }
+
             // ── 1. User (Laravel Auth) ──────────────────────────────
             $user = User::updateOrCreate(
                 ['line_id' => $lineId],
                 [
                     'name'     => $step2['cust_firstname'] . ' ' . $step2['cust_lastname'],
-                    'email'    => $step2['cust_email'],
+                    // 'email'    => $step2['cust_email'],
+                    'email'    => $rawEmail,
                     'password' => Hash::make($lineId),
                     'phone'    => $step2['cust_tel'],
                 ]
@@ -298,6 +304,7 @@ class SocialRegisterController extends Controller
             ]);
 
             Auth::login($user);
+            $this->assignLineRichMenu($lineId);
 
             // ── 6. Clear Session (เพิ่มตัวแปรที่ใช้เช็ค Flag เข้าไปให้เกลี้ยง) ──
             session()->forget([
@@ -507,5 +514,26 @@ class SocialRegisterController extends Controller
             '',
             $text
         );
+    }
+
+    protected function assignLineRichMenu(string $lineId)
+    {
+        $richMenuId = 'richmenu-b0bcd26a8e3430bf7375935b5ea98a3f';
+
+        // อย่าลืมเอา Channel Access Token ของ LINE Messaging API ไปใส่ในไฟล์ .env ด้วยนะครับ
+        $accessToken = env('LINE_CHANNEL_ACCESS_TOKEN');
+
+        if (empty($accessToken)) return;
+
+        try {
+            $response = Http::withToken($accessToken)
+                ->post("https://api.line.me/v2/bot/user/{$lineId}/richmenu/{$richMenuId}");
+
+            if (!$response->successful()) {
+                Log::error("Assign Rich Menu Failed for {$lineId}: " . $response->body());
+            }
+        } catch (\Exception $e) {
+            Log::error("Assign Rich Menu Error: " . $e->getMessage());
+        }
     }
 }
