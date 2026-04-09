@@ -46,7 +46,7 @@ class PointPopupController extends Controller
         $transactions = PointTransaction::where('line_id', $user->line_id)
             ->where('transaction_type', 'earn')
             ->where('is_shown', 0)
-            ->orderBy('created_at', 'desc') // เรียงจากใหม่ไปเก่า
+            ->orderBy('created_at', 'desc')
             ->get();
 
         if ($transactions->isEmpty()) {
@@ -55,36 +55,31 @@ class PointPopupController extends Controller
 
         $totalPoints = $transactions->sum('point_tran');
         $items = $transactions->map(function ($t) {
+            $sourceName = $this->getTransactionName($t);
+            $title = match ($t->process_code) {
+                'REGISTER' => 'ยินดีต้อนรับ สมาชิกพัมคิน! สมาชิกใหม่รับคะเนนเพิ่ม',
+                'WARRANTY_APPROVE' => 'ลงทะเบียนสำเร็จ! รับคะแนนเพิ่ม',
+                'FRIEND_REFERRAL' => 'ขอบคุณที่แนะนำเพื่อน! รับคะแนนเพิ่ม',
+                'CHECKIN' => 'เช็คอินสำเร็จ! รับคะแนนเพิ่ม',
+                'BIRTHDAY' => 'สุขสันต์วันเกิด! รับคะแนนเพิ่ม',
+                default => 'ยินดีด้วย! คุณได้รับคะแนน',
+            };
+
             return [
                 'id' => $t->id,
-                'title' => $this->getTransactionName($t), // ชื่อรายการ (เช่น แนะนำเพื่อน)
+                'process_code' => $t->process_code,
+                'title' => $title,
+                'message' => "คุณได้รับ " . number_format($t->point_tran) . " แต้มจาก $sourceName",
                 'point' => $t->point_tran,
                 'date' => $t->created_at->format('d/m/Y H:i'),
             ];
         });
         $ids = $transactions->pluck('id');
 
-        // ✅ หาที่มาของแต้ม (Source)
-        // ถ้ามีหลายรายการ ให้เอาชื่อรายการล่าสุดมาโชว์ แล้วบอกว่า "และอื่นๆ"
-        $latestTran = $transactions->first();
-
-        // กำหนดชื่อรายการจากข้อมูลที่มี (ปรับตาม Logic ของคุณ)
-        // เช่นใช้ process_code หรือ reference_id มา map เป็นชื่อภาษาไทย
-        $sourceName = $this->getTransactionName($latestTran);
-
-        if ($transactions->count() > 1) {
-            $message = "จาก $sourceName และรายการอื่นๆ";
-        } else {
-            $message = "จาก $sourceName";
-        }
-
         return response()->json([
             'has_points' => true,
-            // 'total_points' => $totalPoints,
             'items' => $items,
-            'transaction_ids' => $ids,
-            'title' => 'ยินดีด้วย! คุณได้รับแต้ม',
-            'message' => $message, // ส่งข้อความที่ระบุที่มา
+            'transaction_ids' => $ids, // เอาไว้ใช้ถ้าอยาก ack ทั้งหมดทีเดียว
         ]);
     }
 

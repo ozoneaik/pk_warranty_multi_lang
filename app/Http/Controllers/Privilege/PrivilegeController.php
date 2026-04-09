@@ -237,7 +237,18 @@ class PrivilegeController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        $latestEarn = PointTransaction::where('line_id', $user->line_id)
+            ->where('transaction_type', 'earn')
+            ->where('point_tran', '>', 0)
+            ->orderByDesc('trandate')
+            ->value('trandate');
+
+        $pointExpiryDate = $latestEarn
+            ? Carbon::parse($latestEarn)->addYear()->format('d/m/Y')
+            : null;
+
         return Inertia::render('Profile/Customer/Privilege', [
+            'point_expiry_date' => $pointExpiryDate,
             'display_name'    => $displayName,
             'point'           => $point,
             'joined_at'       => $customer->datetime,

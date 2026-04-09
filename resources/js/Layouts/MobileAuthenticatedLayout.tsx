@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-    Box, AppBar, Toolbar, Typography,
-    IconButton, Menu, MenuItem, Select,
-    Fade
-} from '@mui/material';
-import { Menu as MenuIcon } from '@mui/icons-material';
-import { router, usePage } from '@inertiajs/react';
-import { useLanguage } from '@/context/LanguageContext';
-import PumpkinLogo from '../assets/logo/PumpkinLogo.png';
-import FooterCarousel from '@/Components/FooterCarousel';
+    Box,
+    AppBar,
+    Toolbar,
+    Typography,
+    IconButton,
+    Menu,
+    MenuItem,
+    Select,
+    Fade,
+} from "@mui/material";
+import { Menu as MenuIcon } from "@mui/icons-material";
+import { router, usePage } from "@inertiajs/react";
+import { useLanguage } from "@/context/LanguageContext";
+import PumpkinLogo from "../assets/logo/PumpkinLogo.png";
+import FooterCarousel from "@/Components/FooterCarousel";
 
 type Language = "en" | "th" | "lao" | "myanmar";
 
@@ -19,16 +25,15 @@ interface MobileAuthenticatedLayoutProps {
 
 export default function MobileAuthenticatedLayout({
     children,
-    title = ""
+    title = "",
 }: MobileAuthenticatedLayoutProps) {
-
     const { t, setLanguage, language } = useLanguage();
     const { url, props } = usePage();
     const { is_dev_mode, app_env }: any = props;
     const [scrolled, setScrolled] = useState(false);
 
     // ใช้เช็คเพื่อเปลี่ยนสี Navbar
-    const isWarrantyHome = url.includes('/warranty/home');
+    const isWarrantyHome = url.includes("/warranty/home");
 
     useEffect(() => {
         const handleScroll = () => {
@@ -36,15 +41,15 @@ export default function MobileAuthenticatedLayout({
             setScrolled(scrollTop > 5);
         };
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const getSelectedIndex = () => {
-        if (url.includes('/warranty/home')) return 0;
-        if (url.includes('/warranty/form')) return 1;
-        if (url.includes('/warranty/history')) return 2;
-        if (url.includes('/customer-profile')) return 3;
+        if (url.includes("/warranty/home")) return 0;
+        if (url.includes("/warranty/form")) return 1;
+        if (url.includes("/warranty/history")) return 2;
+        if (url.includes("/customer-profile")) return 3;
         return 0;
     };
 
@@ -55,37 +60,37 @@ export default function MobileAuthenticatedLayout({
 
     const handleMenu = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
     const handleClose = () => setAnchorEl(null);
-    const handleLogout = () => router.post(route('logout'));
+    const handleLogout = () => router.post(route("logout"));
     const handleChangeLang = (value: string) => setLanguage(value as Language);
 
     return (
         <Box
             sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-                backgroundColor: '#f5f5f5',
-                overflow: 'hidden',
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "100vh",
+                backgroundColor: "#f5f5f5",
+                overflow: "hidden",
             }}
         >
 
             {/* ✅ กรอบจำลองจอมือถือ */}
             <Box
                 sx={{
-                    position: 'relative',
-                    width: '100%',
+                    position: "relative",
+                    width: "100%",
                     maxWidth: 500,
-                    minHeight: '100dvh',
-                    backgroundColor: '#fff',
+                    minHeight: "100dvh",
+                    backgroundColor: "#fff",
                     boxShadow: {
-                        xs: 'none',
-                        md: '0 0 20px rgba(0,0,0,0.15)',
+                        xs: "none",
+                        md: "0 0 20px rgba(0,0,0,0.15)",
                     },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    borderRadius: { xs: 0, md: '25px' },
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden",
+                    borderRadius: { xs: 0, md: "25px" },
                 }}
             >
                 {/* ⚠️ Dev Mode Banner */}
@@ -144,14 +149,14 @@ export default function MobileAuthenticatedLayout({
                     position="fixed"
                     sx={{
                         top: 0,
-                        backgroundColor: isWarrantyHome ? 'white' : '#F54927',
-                        boxShadow: 'none',
+                        backgroundColor: isWarrantyHome ? "white" : "#F54927",
+                        boxShadow: "none",
                         zIndex: (theme) => theme.zIndex.drawer + 1,
-                        backdropFilter: 'blur(0px)',
-                        width: '100%',
+                        backdropFilter: "blur(0px)",
+                        width: "100%",
                         maxWidth: 500,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
+                        left: "50%",
+                        transform: "translateX(-50%)",
                     }}
                 >
                     <Toolbar>
@@ -164,7 +169,7 @@ export default function MobileAuthenticatedLayout({
                                 mr: 1.5,
                                 ml: -1,
                             }}
-                            onClick={() => router.get('/warranty/home')}
+                            onClick={() => router.get("/warranty/home")}
                         />
 
                         <IconButton
@@ -172,7 +177,7 @@ export default function MobileAuthenticatedLayout({
                             onClick={handleMenu}
                             sx={{
                                 mr: -0.5,
-                                color: isWarrantyHome ? '#000' : '#fff'
+                                color: isWarrantyHome ? "#000" : "#fff",
                             }}
                         >
                             <MenuIcon />
@@ -182,8 +187,8 @@ export default function MobileAuthenticatedLayout({
                             sx={{
                                 flexGrow: 1,
                                 fontWeight: 600,
-                                fontSize: '1rem',
-                                color: isWarrantyHome ? '#000' : '#fff',
+                                fontSize: "1rem",
+                                color: isWarrantyHome ? "#000" : "#fff",
                             }}
                         >
                             {title}
@@ -194,17 +199,21 @@ export default function MobileAuthenticatedLayout({
                             size="small"
                             variant="outlined"
                             sx={{
-                                color: isWarrantyHome ? '#000' : '#fff',
-                                '& .MuiSvgIcon-root': { color: isWarrantyHome ? '#000' : '#fff' },
+                                color: isWarrantyHome ? "#000" : "#fff",
+                                "& .MuiSvgIcon-root": {
+                                    color: isWarrantyHome ? "#000" : "#fff",
+                                },
                                 minWidth: 80,
-                                border: 'none',
-                                '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                border: "none",
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                    border: "none",
+                                },
                             }}
                         >
-                            <MenuItem value={'en'}>EN</MenuItem>
-                            <MenuItem value={'th'}>ไทย</MenuItem>
-                            <MenuItem value={'lao'}>ລາວ</MenuItem>
-                            <MenuItem value={'myanmar'}>မြန်မာ</MenuItem>
+                            <MenuItem value={"en"}>EN</MenuItem>
+                            <MenuItem value={"th"}>ไทย</MenuItem>
+                            <MenuItem value={"lao"}>ລາວ</MenuItem>
+                            <MenuItem value={"myanmar"}>မြန်မာ</MenuItem>
                         </Select>
                     </Toolbar>
                 </AppBar>
@@ -214,11 +223,11 @@ export default function MobileAuthenticatedLayout({
                     id="menu-appbar"
                     anchorEl={anchorEl}
                     keepMounted
-                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                    transformOrigin={{ vertical: "top", horizontal: "right" }}
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
-                    sx={{ mt: '45px' }}
+                    sx={{ mt: "45px" }}
                 >
                     <MenuItem
                         onClick={() => {
@@ -237,15 +246,15 @@ export default function MobileAuthenticatedLayout({
                 <Box
                     sx={{
                         flex: 1,
-                        pt: '64px',        // ความสูง AppBar
-                        pb: '65px',        // FooterCarousel
-                        overflowY: 'auto',
-                        WebkitOverflowScrolling: 'touch',
+                        pt: "64px", // ความสูง AppBar
+                        pb: "65px", // FooterCarousel
+                        overflowY: "auto",
+                        WebkitOverflowScrolling: "touch",
                         px: 2,
                         py: 1,
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                        '&::-webkit-scrollbar': { display: 'none' },
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                        "&::-webkit-scrollbar": { display: "none" },
                     }}
                 >
                     {children}

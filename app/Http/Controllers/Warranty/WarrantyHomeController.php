@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
+use App\Services\TierService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -31,11 +34,10 @@ class WarrantyHomeController extends Controller
     //     ]);
     // }
 
-    public function index()
+    public function index(TierService $tierService)
     {
         $user = Auth::user();
 
-        // ค้นหาข้อมูลลูกค้า
         $customer = TblCustomerProd::query()
             ->where(function ($q) use ($user) {
                 if (!empty($user->line_id)) {
@@ -45,27 +47,45 @@ class WarrantyHomeController extends Controller
                     $q->orWhere('cust_tel', $user->phone);
                 }
             })
-            ->first(); // เปลี่ยนจาก select เป็น first เพื่อเอา Model มา update ได้
+            ->first();
 
-        // สร้าง Referral Code ถ้ายังไม่มี (Logic เดียวกับ ReferralController)
         if ($customer && !$customer->referral_code && !empty($user->line_id)) {
             $customer->update([
                 'referral_code' => strtoupper(substr(md5($user->line_id), 0, 8))
             ]);
         }
 
-        $point = $customer->point ?? 0;
+        // คำนวณ Tier ล่าสุด (เหมือน PrivilegeController)
+        if ($customer) {
+            $tierService->recalculate($customer);
+        }
 
-        // สร้าง Link สำหรับ QR Code
+        $point = $customer->point ?? 0;
+        $tierKey = strtolower($customer->tier_key ?? 'silver');
+
         $referralUrl = $customer->referral_code
             ? route('line.login', ['ref' => $customer->referral_code])
             : null;
 
+        $latestEarn = null;
+        if ($customer) {
+            $latestEarn = PointTransaction::where('line_id', $user->line_id)
+                ->where('transaction_type', 'earn')
+                ->where('point_tran', '>', 0)
+                ->orderByDesc('trandate')
+                ->value('trandate');
+        }
+        $pointExpiryDate = $latestEarn
+            ? Carbon::parse($latestEarn)->addYear()->format('d/m/Y')
+            : null;
+
         return Inertia::render('Warranty/WarrantyHome', [
-            'point' => $point,
-            'joined_at' => $customer->datetime ?? now(),
-            'referral_url' => $referralUrl, // ส่งตัวแปรนี้ไปหน้าบ้าน
-            'customer_code' => $customer->referral_code ?? '-', // ส่งรหัสสมาชิกไปโชว์ด้วยก็ได้
+            'point'             => $point,
+            'tier'              => $tierKey,          // ← เพิ่ม
+            'joined_at'         => $customer->datetime ?? now(),
+            'referral_url'      => $referralUrl,
+            'customer_code'     => $customer->referral_code ?? '-',
+            'point_expiry_date' => $pointExpiryDate,
         ]);
     }
 }

@@ -11,6 +11,7 @@ interface MenuItem {
     id: number;
     label: string;
     route: string;
+    url?: string;
     icon: string;
 }
 
@@ -85,13 +86,19 @@ export default function FooterCarousel() {
         >
             <Slider {...sliderSettings}>
                 {menus.map((item) => {
-                    const isActive = route().current(item.route);
+                    const isActive = item.route ? route().current(item.route) : false;
                     const IconComponent = MuiIcons[item.icon as keyof typeof MuiIcons];
 
                     return (
                         <Box
                             key={item.id}
-                            onClick={() => router.get(route(item.route))}
+                            onClick={() => {
+                                if (item.url) {
+                                    window.open(item.url, "_blank");
+                                } else if (item.route) {
+                                    router.get(route(item.route));
+                                }
+                            }}
                             sx={{
                                 textAlign: "center",
                                 cursor: "pointer",
@@ -122,12 +129,18 @@ export default function FooterCarousel() {
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    fontSize: "0.75rem",
+                                    fontSize: "0.62rem",
                                     fontWeight: isActive ? 700 : 500,
-                                    display: "block",
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                    wordBreak: "break-word",
+                                    lineHeight: 1.2,
+                                    px: 0.3,
                                 }}
                             >
-                                {(t.footerMenu as any)[item.label] || item.label}
+                                {item.label}
                             </Typography>
                         </Box>
                     );

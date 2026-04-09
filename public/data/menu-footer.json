@@ -1,31 +1,31 @@
 [
     {
         "id": 1,
-        "label": "home",
+        "label": "หน้าแรก",
         "route": "warranty.home",
         "icon": "Home"
     },
     {
         "id": 2,
-        "label": "form",
-        "route": "warranty.form",
-        "icon": "Assignment"
-    },
-    {
-        "id": 3,
-        "label": "privilege",
+        "label": "แลกของรางวัล",
         "route": "customer.profile.privilege",
         "icon": "WorkspacePremium"
     },
     {
+        "id": 3,
+        "label": "สิทธิพิเศษ",
+        "route": "customer.profile.score",
+        "icon": "CardGiftcard"
+    },
+    {
         "id": 4,
-        "label": "tools",
-        "route": "warranty.history",
-        "icon": "History"
+        "label": "Pumpkin Corner",
+        "url": "https://pumpkin.co.th/pumpkincorner/",
+        "icon": "OpenInNew"
     },
     {
         "id": 5,
-        "label": "profile",
+        "label": "โปรไฟล์",
         "route": "customer.profile.welcome",
         "icon": "SupervisedUserCircle"
     }

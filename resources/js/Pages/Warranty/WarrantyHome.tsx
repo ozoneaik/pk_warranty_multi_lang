@@ -1,391 +1,41 @@
-// import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
-// import {
-//     Box, Card, CardContent, Grid, Typography, Stack,
-//     Avatar, Paper, Container, useTheme, useMediaQuery
-// } from "@mui/material";
-// import { Assignment, History, Edit, WorkspacePremium } from "@mui/icons-material";
-// import { Head, Link, router, usePage } from "@inertiajs/react";
-// import { useLanguage } from "@/context/LanguageContext";
-// import PumpkinLogo from '../../assets/logo/PumpkinLogo.png'
-// import backgroundHome from '../../assets/images/bigBanner_20251016-161220.jpg'
-
-// import Slider from "react-slick";
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
-// import IconMenuCarousel from "@/Components/IconMenuCarousel";
-// import { useEffect, useState } from "react";
-// import axios from "axios";
-// import CheckinModal from "./CheckinModal";
-// import dayjs from "dayjs";
-// import EarnPointModal from "./EarnPointModal";
-
-// const bannerHeight = { xs: 250, sm: 220, md: 260 };
-// export default function WarrantyHome() {
-//     const { t } = useLanguage();
-//     const theme = useTheme();
-//     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-
-//     // const { user } = usePage().props.auth;
-//     const { auth, line_avatar, point } = usePage().props as any;
-//     const user = auth.user;
-//     const [currentPoint, setCurrentPoint] = useState(point ?? 0);
-//     const [showCheckin, setShowCheckin] = useState(false);
-//     const [currentStreak, setCurrentStreak] = useState(0);
-//     const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
-//     const [checkedDays, setCheckedDays] = useState<string[]>([]);
-
-//     const [banners, setBanners] = useState<string[]>([]);
-//     const [heroImage, setHeroImage] = useState<string | null>(null);
-//     const [loading, setLoading] = useState(true);
-
-//     const [showEarnModal, setShowEarnModal] = useState(false);
-//     const [earnedData, setEarnedData] = useState({ points: 0, ids: [] });
-
-//     const defaultBackground = backgroundHome;
-
-//     const checkPendingPoints = async () => {
-//         try {
-//             const res = await axios.get('/api/points/pending');
-//             if (res.data.has_points) {
-//                 setEarnedData({
-//                     points: res.data.total_points,
-//                     ids: res.data.transaction_ids
-//                 });
-//                 setShowEarnModal(true);
-//             }
-//         } catch (error) {
-//             console.error("Error checking points:", error);
-//         }
-//     };
-
-//     useEffect(() => {
-
-//         const fetchBanners = async () => {
-//             try {
-//                 const res = await axios.get('/api/banners/active');
-
-//                 // รับค่า Sliders
-//                 if (res.data.sliders && res.data.sliders.length > 0) {
-//                     setBanners(res.data.sliders);
-//                 }
-
-//                 // รับค่า Background Image
-//                 if (res.data.background) {
-//                     setHeroImage(res.data.background);
-//                 }
-
-//             } catch (error) {
-//                 console.error("Failed to fetch banners", error);
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-
-//         fetchBanners();
-
-//         const checkStatus = async () => {
-//             try {
-//                 const res = await axios.get('/api/checkin/status');
-
-//                 setCurrentStreak(res.data.current_streak);
-//                 setHasCheckedInToday(res.data.has_checked_in);
-//                 setCheckedDays(res.data.checked_days || []);
-
-//                 if (!res.data.has_checked_in) {
-//                     setTimeout(() => setShowCheckin(true), 1000);
-//                 }
-//             } catch (err) {
-//                 console.error(err);
-//             }
-//         };
-
-//         checkStatus();
-//         checkPendingPoints();
-//     }, []);
-
-//     const handleCloseEarnModal = async () => {
-//         setShowEarnModal(false);
-//         try {
-//             await axios.post('/api/points/ack', { transaction_ids: earnedData.ids });
-
-//             // อัปเดตแต้มปัจจุบันบนหน้าจอให้ทันที (Option)
-//             setCurrentPoint((prev: number) => prev + earnedData.points);
-//         } catch (error) {
-//             console.error("Failed to ack points:", error);
-//         }
-//     };
-
-//     const handleCheckinSuccess = (earnedPoints: number) => {
-//         setCurrentPoint((prev: number) => prev + earnedPoints);
-//         setHasCheckedInToday(true);
-
-//         const today = dayjs().format('YYYY-MM-DD');
-
-//         setCheckedDays(prev => {
-//             if (prev.includes(today)) return prev;
-//             return [...prev, today];
-//         });
-
-//         setEarnedData({ points: earnedPoints, ids: [] }); // ids ว่างไว้เพราะ CheckinModal อาจจะจัดการเอง หรือถ้าอยากให้ flow เดียวกันก็ยิง API
-//         setShowEarnModal(true);
-//     };
-
-//     // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ
-//     const navigateTo = (route: string) => {
-//         router.visit(route);
-//     };
-
-//     const bannerSettings = {
-//         dots: true,
-//         infinite: true,
-//         speed: 500,
-//         slidesToShow: 1,
-//         slidesToScroll: 1,
-//         autoplay: true,
-//         autoplaySpeed: 4000,
-//         arrows: false,
-//         pauseOnHover: true,
-//     };
-
-//     return (
-//         <MobileAuthenticatedLayout title={t.homePage.title}>
-//             <Head title={t.homePage.title} />
-//             <Box>
-//                 {/* Hero Image Section */}
-//                 <Box sx={{ position: "relative" }}>
-//                     <img
-//                         src={heroImage || defaultBackground}
-//                         alt="Warranty Banner"
-//                         style={{
-//                             backgroundColor: "black",
-//                             paddingTop: "20px",
-//                             width: "100%", height: "100%", objectFit: "cover",
-//                             borderBottomRightRadius: "12px",
-//                             borderBottomLeftRadius: "12px",
-//                             objectPosition: "top", maxHeight: "400px"
-//                         }}
-//                         // เพิ่ม onError เพื่อกันรูปแตก
-//                         onError={(e) => {
-//                             e.currentTarget.src = "https://via.placeholder.com/800x400?text=No+Image";
-//                         }}
-//                     />
-
-//                     {/* Floating Header Section */}
-//                     <Paper
-//                         elevation={4}
-//                         sx={{
-//                             position: "absolute", bottom: -40,
-//                             left: "50%", transform: "translateX(-50%)",
-//                             width: "90%", padding: 2, borderRadius: 3,
-//                         }}
-//                     >
-//                         <Stack direction="row" alignItems="center" spacing={2}>
-//                             <Avatar
-//                                 src={line_avatar || "https://via.placeholder.com/64"} sx={{
-//                                     bgcolor: "rgba(255,255,255,0.2)",
-//                                     width: 60, height: 60
-//                                 }}
-//                             />
-
-//                             <Box
-//                                 sx={{
-//                                     // display: "flex",
-//                                     alignItems: "center",
-//                                     justifyContent: "space-between",
-//                                     width: "100%",
-//                                 }}
-//                             >
-//                                 <Typography fontWeight="bold">
-//                                     {/* สวัสดีคุณ {" "} */}
-//                                     {t.homePage.menu_list.welcome + " "}
-//                                     <Box component="span" sx={{ color: "#F54927" }}>
-//                                         {user.name}
-//                                     </Box>
-//                                 </Typography>
-//                                 {/* <Box sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}>
-//                                     <WorkspacePremium sx={{ color: "#F5B301" }} />
-//                                     <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
-//                                         {point ?? 0} P
-//                                     </Typography>
-//                                 </Box> */}
-//                             </Box>
-//                             <Link href={route('customer.profile.welcome')}>
-//                                 <Edit />
-//                             </Link>
-//                         </Stack>
-//                     </Paper>
-//                 </Box>
-//             </Box>
-
-//             <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 8, mb: 7, px: 2, py: 2 }}>
-//                 <Box>
-//                     {/* Quick Actions */}
-//                     <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
-//                         {t.homePage.menu_list.title}
-//                     </Typography>
-
-//                     <Grid container spacing={2} sx={{ mb: 3 }}>
-//                         {/* ลงทะเบียนรับประกัน */}
-//                         <Grid size={{ xs: 6 }}>
-//                             <Card
-//                                 elevation={2}
-//                                 sx={{
-//                                     cursor: "pointer",
-//                                     height: "100%", // ความสูงเต็ม grid
-//                                     display: "flex", // บังคับให้การ์ดขยายเท่ากัน
-//                                     transition: "all 0.3s ease",
-//                                     "&:hover": {
-//                                         transform: "translateY(-4px)",
-//                                         boxShadow: 4,
-//                                     },
-//                                 }}
-//                                 onClick={() => router.get(route("warranty.form"))}
-//                             >
-//                                 <CardContent
-//                                     sx={{
-//                                         textAlign: "center",
-//                                         py: 3,
-//                                         flexGrow: 1,
-//                                         display: "flex",
-//                                         flexDirection: "column",
-//                                         alignItems: "center",
-//                                         justifyContent: "center",
-//                                     }}
-//                                 >
-//                                     <Avatar
-//                                         sx={{
-//                                             bgcolor: "#4caf50", mx: "auto",
-//                                             mb: 2, width: 50, height: 50,
-//                                         }}
-//                                     >
-//                                         <Assignment />
-//                                     </Avatar>
-//                                     <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
-//                                         {t.homePage.menu_list.warrantyFormHeadTitle}
-//                                     </Typography>
-//                                     <Typography variant="body2" color="text.secondary">
-//                                         {t.homePage.menu_list.warrantyFormSubTitle}
-//                                     </Typography>
-//                                 </CardContent>
-//                             </Card>
-//                         </Grid>
-
-//                         {/* ประวัติการรับประกัน */}
-//                         <Grid size={{ xs: 6 }}>
-//                             <Card
-//                                 elevation={2}
-//                                 sx={{
-//                                     cursor: "pointer",
-//                                     height: "100%", // ความสูงเท่ากัน
-//                                     display: "flex",
-//                                     transition: "all 0.3s ease",
-//                                     "&:hover": {
-//                                         transform: "translateY(-4px)",
-//                                         boxShadow: 4,
-//                                     },
-//                                 }}
-//                                 onClick={() => navigateTo("/warranty/history")}
-//                             >
-//                                 <CardContent
-//                                     sx={{
-//                                         textAlign: "center",
-//                                         py: 3,
-//                                         flexGrow: 1,
-//                                         display: "flex",
-//                                         flexDirection: "column",
-//                                         alignItems: "center",
-//                                         justifyContent: "center",
-//                                     }}
-//                                 >
-//                                     <Avatar
-//                                         sx={{
-//                                             bgcolor: "#2196f3",
-//                                             mx: "auto",
-//                                             mb: 2,
-//                                             width: 50,
-//                                             height: 50,
-//                                         }}
-//                                     >
-//                                         <History />
-//                                     </Avatar>
-//                                     <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
-//                                         {t.homePage.menu_list.warrantyHistoryHeadTitle}
-//                                     </Typography>
-//                                     <Typography variant="body2" color="text.secondary">
-//                                         {t.homePage.menu_list.warrantyHistorySubTitle}
-//                                     </Typography>
-//                                 </CardContent>
-//                             </Card>
-//                         </Grid>
-//                     </Grid>
-//                     <IconMenuCarousel onCheckinClick={() => setShowCheckin(true)} />
-//                     {!loading && banners.length > 0 && (
-//                         <Box
-//                             sx={{
-//                                 mt: { sm: 0 },
-//                                 borderRadius: 3,
-//                                 overflow: "visible",
-//                                 position: "relative",
-//                                 height: bannerHeight,
-//                                 width: "100%",
-//                             }}
-//                         >
-//                             <Slider {...bannerSettings}>
-//                                 {banners.map((bannerUrl, idx) => (
-//                                     <Box
-//                                         key={idx}
-//                                         sx={{
-//                                             height: bannerHeight,
-//                                             overflow: "hidden",
-//                                             position: "relative",
-//                                         }}
-//                                     >
-//                                         <Box
-//                                             component="img"
-//                                             src={bannerUrl} // ใช้ URL จาก DB
-//                                             alt={`Promotion ${idx + 1}`}
-//                                             loading="lazy"
-//                                             decoding="async"
-//                                             sx={{
-//                                                 width: "100%",
-//                                                 height: "100%",
-//                                                 objectFit: "contain",
-//                                                 display: "block",
-//                                             }}
-//                                         />
-//                                     </Box>
-//                                 ))}
-//                             </Slider>
-//                         </Box>
-//                     )}
-//                 </Box>
-//             </Container>
-//             <CheckinModal
-//                 open={showCheckin}
-//                 onClose={() => setShowCheckin(false)}
-//                 onSuccess={handleCheckinSuccess}
-//                 currentStreak={currentStreak}
-//                 hasCheckedInToday={hasCheckedInToday} // ส่งสถานะไปที่ Modal ด้วย
-//                 checkedDays={checkedDays}
-//             />
-//             <EarnPointModal
-//                 open={showEarnModal}
-//                 onClose={handleCloseEarnModal}
-//                 points={earnedData.points}
-//             />
-//         </MobileAuthenticatedLayout>
-//     )
-// }
-
 import MobileAuthenticatedLayout from "@/Layouts/MobileAuthenticatedLayout";
 import {
-    Box, Card, CardContent, Grid, Typography, Stack,
-    Avatar, Paper, Container, useTheme, useMediaQuery
+    Box,
+    Card,
+    CardContent,
+    Grid,
+    Typography,
+    Stack,
+    Avatar,
+    Paper,
+    Container,
+    useTheme,
+    useMediaQuery,
+    Fab,
+    Badge,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    List,
+    ListItemAvatar,
+    ListItemText,
+    ListItemButton,
+    IconButton,
+    keyframes,
 } from "@mui/material";
-import { Assignment, History, Edit, WorkspacePremium } from "@mui/icons-material";
+import {
+    Assignment,
+    History,
+    Edit,
+    WorkspacePremium,
+    NotificationsActive,
+    CheckCircle,
+    CardGiftcard,
+    Close,
+} from "@mui/icons-material";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
-import backgroundHome from '../../assets/images/bigBanner_20251016-161220.jpg'
+import backgroundHome from "../../assets/images/bigBanner_20251016-161220.jpg";
 
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -403,14 +53,34 @@ import PointExpiryModal from "../Profile/Partials/PointExpiryModal";
 
 const bannerHeight = { xs: 250, sm: 220, md: 260 };
 
+const shakeAnimation = keyframes`
+  0% { transform: rotate(0deg); }
+  5% { transform: rotate(15deg); }
+  10% { transform: rotate(-10deg); }
+  15% { transform: rotate(15deg); }
+  20% { transform: rotate(-10deg); }
+  25% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+`;
+
+// --- กำหนด Type สำหรับการแจ้งเตือน ---
+type NotificationType = "CHECK_IN" | "EARN_POINT";
+interface NotificationItem {
+    id: string;
+    type: NotificationType;
+    title: string;
+    message: string;
+    data?: any;
+}
+
 export default function WarrantyHome() {
     const { t } = useLanguage();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const { auth, line_avatar, point, customer_code, referral_url } = usePage().props as any;
+    const { auth, line_avatar, point, customer_code, referral_url, point_expiry_date, tier, } = usePage().props as any;
     const user = auth.user;
-    console.log("customer_code:", customer_code);
+
     // State
     const [currentPoint, setCurrentPoint] = useState(point ?? 0);
     const [banners, setBanners] = useState<string[]>([]);
@@ -422,26 +92,66 @@ export default function WarrantyHome() {
     const [showEarnModal, setShowEarnModal] = useState(false);
     const [showImagePopup, setShowImagePopup] = useState(false);
     const [showProfileQr, setShowProfileQr] = useState(false);
+    const [openPointModal, setOpenPointModal] = React.useState(false);
 
-    // Data States
+    // Data States สำหรับ Check-in และ Points
     const [currentStreak, setCurrentStreak] = useState(0);
     const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
     const [checkedDays, setCheckedDays] = useState<string[]>([]);
-    const [earnedData, setEarnedData] = useState({ points: 0, ids: [], message: '', items: [], });
+    const tierConfig: Record<
+        string,
+        { label: string; color: string; bg: string; border: string }
+    > = {
+        silver: {
+            label: "Silver",
+            color: "#5F5E5A",
+            bg: "#F1EFE8",
+            border: "#B4B2A9",
+        },
+        gold: {
+            label: "Gold",
+            color: "#854F0B",
+            bg: "#FAEEDA",
+            border: "#EF9F27",
+        },
+        platinum: {
+            label: "Platinum",
+            color: "#3C3489",
+            bg: "#EEEDFE",
+            border: "#AFA9EC",
+        },
+    };
+
+    const [earnedData, setEarnedData] = useState<{
+        title: string;
+        points: number;
+        ids: number[];
+        message: string;
+        items: any[];
+        notificationId?: string;
+    }>({
+        title: "",
+        points: 0,
+        ids: [],
+        message: "",
+        items: [],
+    });
     const [popupImages, setPopupImages] = useState<string[]>([]);
     const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
 
-    const [openPointModal, setOpenPointModal] = React.useState(false);
+    // --- State สำหรับระบบกระดิ่งแจ้งเตือน ---
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [showNotificationModal, setShowNotificationModal] = useState(false);
 
     const defaultBackground = backgroundHome;
 
+    // โหลด Popup โปรโมชั่น (ยังคง Auto Popup อยู่เพราะเป็นแบนเนอร์)
     const checkImagePopup = async () => {
         try {
-            const res = await axios.get('/api/popup/active');
+            const res = await axios.get("/api/popup/active");
             const images = res.data.images;
 
             if (images && images.length > 0) {
-                // เช็คว่าเคยแสดงไปหรือยัง (Session 1 ชั่วโมง)
                 const lastShown = sessionStorage.getItem("popup_last_shown");
                 const now = Date.now();
                 const oneHour = 60 * 60 * 1000;
@@ -454,97 +164,65 @@ export default function WarrantyHome() {
                     return; // หยุดรอก่อน (รอปิด Modal ค่อยไปต่อ)
                 }
             }
-            // ถ้าไม่มีรูป หรือเคยแสดงแล้ว -> ไปขั้นต่อไปทันที
-            checkPendingPoints();
+            loadNotifications();
         } catch (error) {
             console.error("Failed to fetch popup:", error);
-            checkPendingPoints(); // Error ก็ไปต่อ
+            loadNotifications();
         }
     };
 
-    // การจัดลำดับ Popup (Step-by-Step)
-    // Step 2: เช็คแต้มก่อน
-    const checkPendingPoints = async () => {
+    // --- ดึงข้อมูลการแจ้งเตือนทั้งหมดมารวมกันโดยไม่เปิด Modal ทันที ---
+    const loadNotifications = async () => {
+        let newNotifs: NotificationItem[] = [];
+
         try {
-            const res = await axios.get('/api/points/pending');
-            if (res.data.has_points) {
-                // ถ้ามีแต้ม -> เปิด Modal แต้ม และหยุดรอก่อน
-                setEarnedData({
-                    points: res.data.total_points,
-                    ids: res.data.transaction_ids,
-                    message: res.data.message,
-                    items: res.data.items,
+            // 1. เช็คแต้มค้างรับ
+            const ptRes = await axios.get("/api/points/pending");
+            if (ptRes.data.has_points && ptRes.data.items) {
+                ptRes.data.items.forEach((item: any) => {
+                    newNotifs.push({
+                        id: `pending_point_${item.id}`,
+                        type: "EARN_POINT",
+                        title: item.title,
+                        message: item.message,
+                        data: {
+                            ...item,
+                            transaction_ids: [item.id], // สำหรับ ack เมื่อคลิก
+                            items: [item], // สำหรับโชว์ใน Modal (โชว์รายการเดียว)
+                        },
+                    });
                 });
-                setShowEarnModal(true);
-            } else {
-                // ถ้าไม่มีแต้ม -> ไป Step 2 ทันที
-                checkCheckinStatus();
             }
+
+            // 2. เช็คสถานะ Check-in
+            const chkRes = await axios.get("/api/checkin/status");
+            setCurrentStreak(chkRes.data.current_streak);
+            setHasCheckedInToday(chkRes.data.has_checked_in);
+            setCheckedDays(chkRes.data.checked_days || []);
+
+            if (!chkRes.data.has_checked_in) {
+                newNotifs.push({
+                    id: "daily_checkin",
+                    type: "CHECK_IN",
+                    title: "ได้เวลาเช็คอินแล้ว!",
+                    message: "อย่าลืมเช็คอินวันนี้เพื่อรับแต้มพิเศษ",
+                });
+            }
+
+            setNotifications(newNotifs);
         } catch (error) {
-            console.error("Error checking points:", error);
-            // ถ้า Error ก็ให้ข้ามไป Step 2 เลย
-            checkCheckinStatus();
+            console.error("Error loading notifications:", error);
         }
     };
 
-    // Step 3: เช็คสถานะ Check-in
-    const checkCheckinStatus = async () => {
-        try {
-            const res = await axios.get('/api/checkin/status');
-
-            setCurrentStreak(res.data.current_streak);
-            setHasCheckedInToday(res.data.has_checked_in);
-            setCheckedDays(res.data.checked_days || []);
-
-            if (!res.data.has_checked_in) {
-                // ถ้ายังไม่เช็คอิน -> เปิด Modal เช็คอิน
-                setTimeout(() => setShowCheckin(true), 500); // หน่วงนิดนึงให้ดูนุ่มนวล
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    // เริ่มต้นทำงานเมื่อโหลดหน้าเว็บ
     useEffect(() => {
         fetchBanners();
-        // เริ่ม Flow การเช็ค Popup
         checkImagePopup();
     }, []);
 
-    const handleCloseImagePopup = () => {
-        const nextIndex = currentPopupIndex + 1;
-        if (nextIndex < popupImages.length) {
-            // ปิดรูปปัจจุบันก่อน
-            setShowImagePopup(false);
-            // หน่วงเวลาเล็กน้อยแล้วเปิดรูปถัดไป
-            setTimeout(() => {
-                setCurrentPopupIndex(nextIndex);
-                setShowImagePopup(true);
-            }, 300);
-        } else {
-            // ถ้าหมดแล้ว ให้ปิด Modal และไป flow ถัดไป
-            setShowImagePopup(false);
-            setTimeout(() => checkPendingPoints(), 300);
-        }
-    };
-
-    const handleCloseEarnModal = async () => {
-        setShowEarnModal(false);
-        try {
-            await axios.post('/api/points/ack', { transaction_ids: earnedData.ids });
-            setCurrentPoint((prev: number) => prev + earnedData.points);
-
-            setTimeout(() => checkCheckinStatus(), 300);
-        } catch (error) {
-            checkCheckinStatus();
-        }
-    };
-
-    // Handlers
     const fetchBanners = async () => {
         try {
-            const res = await axios.get('/api/banners/active');
+            const res = await axios.get("/api/banners/active");
             if (res.data.sliders && res.data.sliders.length > 0) {
                 setBanners(res.data.sliders);
             }
@@ -558,20 +236,95 @@ export default function WarrantyHome() {
         }
     };
 
+    const handleCloseImagePopup = () => {
+        const nextIndex = currentPopupIndex + 1;
+        if (nextIndex < popupImages.length) {
+            setShowImagePopup(false);
+            setTimeout(() => {
+                setCurrentPopupIndex(nextIndex);
+                setShowImagePopup(true);
+            }, 300);
+        } else {
+            setShowImagePopup(false);
+            setTimeout(() => loadNotifications(), 300);
+        }
+    };
+
+    // --- Action เมื่อกดรายการแจ้งเตือน ---
+    const handleNotificationClick = (notif: NotificationItem) => {
+        setShowNotificationModal(false); // ปิด Modal ก่อนเปิด Modal ซ้อนถ้ามี
+
+        if (notif.type === "CHECK_IN") {
+            setShowCheckin(true);
+        } else if (notif.type === "EARN_POINT") {
+            setEarnedData({
+                title: notif.title,
+                points: notif.data.point || 0, // สังเกตว่าใช้ point (singular) จาก item
+                ids: notif.data.transaction_ids || [],
+                message: notif.data.message || "",
+                items: notif.data.items || [],
+                notificationId: notif.id,
+            });
+            setShowEarnModal(true);
+        }
+    };
+
+    // --- เมื่อเช็คอินสำเร็จ ---
     const handleCheckinSuccess = (earnedPoints: number) => {
         setCurrentPoint((prev: number) => prev + earnedPoints);
         setHasCheckedInToday(true);
-        const today = dayjs().format('YYYY-MM-DD');
-        setCheckedDays(prev => {
+
+        const today = dayjs().format("YYYY-MM-DD");
+        setCheckedDays((prev) => {
             if (prev.includes(today)) return prev;
             return [...prev, today];
         });
 
-        // ในกรณีเช็คอินแล้วได้แต้มเพิ่มอีก อยากให้โชว์ Modal แต้มซ้อนเลยไหม?
-        // ถ้าใช่ Uncomment บรรทัดล่าง
+        setNotifications((prev) => {
+            const filtered = prev.filter((n) => n.type !== "CHECK_IN");
+            return [
+                ...filtered,
+                {
+                    id: `earned_checkin_${Date.now()}`,
+                    type: "EARN_POINT",
+                    title: "ยินดีด้วย! คุณได้รับแต้ม",
+                    message: "จากการเช็คอินประจำวัน",
+                    data: {
+                        points: earnedPoints,
+                        ids: [], // ถ้า CheckinModal จัดการ ack ในตัวแล้ว ปล่อยว่างไว้
+                        items: [
+                            {
+                                id: Date.now(),
+                                title: "การเช็คอินประจำวัน",
+                                point: earnedPoints,
+                                date: dayjs().format("DD/MM/YYYY HH:mm"),
+                            },
+                        ],
+                    },
+                },
+            ];
+        });
+    };
 
-        // setEarnedData({ points: earnedPoints, ids: [] }); 
-        // setShowEarnModal(true);
+    // --- เมื่อกดรับแต้มเสร็จ ---
+    const handleCloseEarnModal = async () => {
+        setShowEarnModal(false);
+        try {
+            if (earnedData.ids && earnedData.ids.length > 0) {
+                await axios.post("/api/points/ack", {
+                    transaction_ids: earnedData.ids,
+                });
+            }
+
+            // หมายเหตุ: ไม่ต้องบวกแต้ม (setCurrentPoint) เข้าไปอีก
+            // เนื่องจากแต้มตั้งต้น (usePage().props.point) ได้รวมแต้มเหล่านี้มาจากฐานข้อมูลแล้ว
+            // ลบรายการแต้มนี้ออกจากการแจ้งเตือน
+            setNotifications((prev) =>
+                prev.filter((n) => n.id !== earnedData.notificationId),
+            );
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const navigateTo = (route: string) => {
@@ -601,14 +354,18 @@ export default function WarrantyHome() {
                         alt="Warranty Banner"
                         style={{
                             backgroundColor: "black",
-                            paddingTop: "46px",
-                            width: "100%", height: "100%", objectFit: "cover",
+                            paddingTop: "60px",
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
-                            objectPosition: "top", maxHeight: "430px"
+                            objectPosition: "top",
+                            maxHeight: "430px",
                         }}
                         onError={(e) => {
-                            e.currentTarget.src = "https://via.placeholder.com/800x400?text=No+Image";
+                            e.currentTarget.src =
+                                "https://via.placeholder.com/800x400?text=No+Image";
                         }}
                     />
 
@@ -616,55 +373,151 @@ export default function WarrantyHome() {
                     <Paper
                         elevation={4}
                         sx={{
-                            position: "absolute", bottom: -40,
-                            left: "50%", transform: "translateX(-50%)",
-                            width: "90%", padding: 2, borderRadius: 3,
+                            position: "absolute",
+                            bottom: -60,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: "90%",
+                            padding: 2,
+                            borderRadius: 3,
                         }}
                     >
                         <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar
-                                src={line_avatar || "https://via.placeholder.com/64"}
+                                src={
+                                    line_avatar ||
+                                    "https://via.placeholder.com/64"
+                                }
                                 onClick={() => setShowProfileQr(true)}
                                 sx={{
                                     bgcolor: "rgba(255,255,255,0.2)",
-                                    width: 60, height: 60,
+                                    width: 60,
+                                    height: 60,
                                     cursor: "pointer",
                                     border: "2px solid #fff",
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                                 }}
                             />
 
-                            {/* ใช้ flexGrow เพื่อให้พื้นที่ตรงกลางยืดออก */}
-                            <Box sx={{ flexGrow: 1 }}>
-                                <Typography fontWeight="bold">
+                            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                                {/* ชื่อ */}
+                                <Typography fontWeight="bold" noWrap>
                                     {t.homePage.menu_list.welcome + " "}
-                                    <Box component="span" sx={{ color: "#F54927" }}>
+                                    <Box
+                                        component="span"
+                                        sx={{ color: "#F54927" }}
+                                    >
                                         {user.name}
                                     </Box>
                                 </Typography>
 
-                                {/* ส่วนแสดงคะแนนแบบ Stack แนวนอน */}
+                                {/* แถว: Point + Tier badge */}
                                 <Stack
                                     direction="row"
                                     alignItems="center"
-                                    spacing={0.5}
-                                    sx={{
-                                        mt: 0.5,
-                                        cursor: 'pointer',
-                                        width: 'fit-content',
-                                        '&:active': { opacity: 0.6 }
-                                    }}
-                                    onClick={() => setOpenPointModal(true)}
+                                    spacing={1}
+                                    sx={{ mt: 0.5 }}
                                 >
-                                    <WorkspacePremium sx={{ color: "#F5B301", fontSize: 20 }} />
-                                    <Typography fontWeight="bold" sx={{ color: "#F5B301" }}>
-                                        {point ?? 0} P
+                                    {/* Point (กดเปิด Modal) */}
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={0.4}
+                                        onClick={() => setOpenPointModal(true)}
+                                        sx={{
+                                            cursor: "pointer",
+                                            "&:active": { opacity: 0.6 },
+                                        }}
+                                    >
+                                        <WorkspacePremium
+                                            sx={{
+                                                color: "#F5B301",
+                                                fontSize: 18,
+                                            }}
+                                        />
+                                        <Typography
+                                            fontWeight="bold"
+                                            sx={{
+                                                color: "#F5B301",
+                                                fontSize: "0.9rem",
+                                            }}
+                                        >
+                                            {currentPoint.toLocaleString()} P
+                                        </Typography>
+                                        <ChevronRightIcon
+                                            size={13}
+                                            color="#F5B301"
+                                        />
+                                    </Stack>
+
+                                    {/* Divider จุด */}
+                                    <Typography
+                                        sx={{
+                                            color: "text.disabled",
+                                            fontSize: "0.6rem",
+                                            lineHeight: 1,
+                                        }}
+                                    >
+                                        •
                                     </Typography>
-                                    <ChevronRightIcon size={14} color="#F5B301" />
+
+                                    {/* Tier Badge */}
+                                    {(() => {
+                                        const cfg =
+                                            tierConfig[tier] ??
+                                            tierConfig.silver;
+                                        const tierIcon: Record<string, string> =
+                                            {
+                                                silver: "🥈",
+                                                gold: "🥇",
+                                                platinum: "💎",
+                                            };
+                                        return (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    color: cfg.color,
+                                                    bgcolor: cfg.bg,
+                                                    border: `1px solid ${cfg.border}`,
+                                                    borderRadius: "20px",
+                                                    px: 1,
+                                                    py: 0.2,
+                                                    fontSize: "0.68rem",
+                                                    fontWeight: 700,
+                                                    lineHeight: 1.6,
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                            >
+                                                {/* {tierIcon[tier] ?? "🥈"}{" "} */}
+                                                {cfg.label}
+                                            </Typography>
+                                        );
+                                    })()}
                                 </Stack>
+
+                                {/* วันหมดอายุแต้ม */}
+                                {point_expiry_date && (
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={0.4}
+                                        sx={{ mt: 0.6 }}
+                                    >
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "#9e6c00",
+                                                fontSize: "0.65rem",
+                                                lineHeight: 1.4,
+                                            }}
+                                        >
+                                            คะแนนหมดอายุ {point_expiry_date}
+                                        </Typography>
+                                    </Stack>
+                                )}
                             </Box>
 
-                            <Link href={route('customer.profile.welcome')}>
+                            <Link href={route("customer.profile.welcome")}>
                                 <Edit sx={{ color: "#F54927" }} />
                             </Link>
                         </Stack>
@@ -672,7 +525,16 @@ export default function WarrantyHome() {
                 </Box>
             </Box>
 
-            <Container maxWidth={isMobile ? 'sm' : 'lg'} sx={{ flexGrow: 1, mt: 6, mb: 7, px: 2, py: 2 }}>
+            <Container
+                maxWidth={isMobile ? "sm" : "lg"}
+                sx={{
+                    flexGrow: 1,
+                    mt: { xs: 6, sm: 8, md: 8 },
+                    mb: 7,
+                    px: 2,
+                    py: 2,
+                }}
+            >
                 <Box>
                     {/* Quick Actions */}
                     <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
@@ -708,9 +570,9 @@ export default function WarrantyHome() {
                                     }}
                                 >
                                     <Avatar
-                                        sx={{
-                                            bgcolor: "#4caf50", mx: "auto",
-                                            mb: 2, width: 50, height: 50,
+                                        sx={{ 
+                                            bgcolor: "#4caf50", mx: "auto", 
+                                            mb: 2, width: 50, height: 50, 
                                         }}
                                     >
                                         <Assignment />
@@ -777,9 +639,9 @@ export default function WarrantyHome() {
                     {!loading && banners.length > 0 && (
                         <Box
                             sx={{
-                                mt: { sm: 0 },
+                                mt: { xs: -5, sm: -1, md: -2 },
                                 borderRadius: 3,
-                                overflow: "visible",
+                                overflow: "hidden",
                                 position: "relative",
                                 height: bannerHeight,
                                 width: "100%",
@@ -815,14 +677,142 @@ export default function WarrantyHome() {
                     )}
                 </Box>
             </Container>
+
+            {/* --- กระดิ่งแจ้งเตือนมุมขวาล่าง --- */}
+            <Fab
+                color="primary"
+                aria-label="notifications"
+                onClick={() => setShowNotificationModal(true)}
+                sx={{
+                    position: "fixed",
+                    // ขยับ bottom ขึ้นมาเป็น 90 เพื่อไม่ให้ทับกับเมนู Footer ด้านล่าง
+                    bottom: isMobile ? 90 : 70,
+                    // คำนวณระยะขอบขวา: ถ้าระยะจอเล็กกว่ากรอบ ให้ห่าง 20px / ถ้าจอใหญ่ ให้คำนวณเกาะขอบกรอบ 500px
+                    // right: { xs: 20, sm: "calc(50vw - 250px + 5px)" },
+                    right: isMobile ? 10 : "calc(50vw - 250px + 5px)",
+                    zIndex: 1000,
+                    bgcolor: "#ee5c3fff",
+                    "&:hover": { bgcolor: "#d63a1b" },
+                }}
+            >
+                <Badge badgeContent={notifications.length} color="error">
+                    <NotificationsActive
+                        sx={{
+                            animation:
+                                notifications.length > 0
+                                    ? `${shakeAnimation} 2.5s infinite ease-in-out`
+                                    : "none",
+                            transformOrigin: "top center",
+                        }}
+                    />
+                </Badge>
+            </Fab>
+
+            <Dialog
+                open={showNotificationModal}
+                onClose={() => setShowNotificationModal(false)}
+                fullWidth
+                maxWidth="xs"
+                disableScrollLock
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        overflow: "hidden",
+                    },
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        p: 2,
+                        bgcolor: "#f8f9fa",
+                        borderBottom: "1px solid #eaeaea",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <Typography variant="subtitle1" fontWeight="bold">
+                        การแจ้งเตือน
+                    </Typography>
+                    <IconButton
+                        onClick={() => setShowNotificationModal(false)}
+                        size="small"
+                    >
+                        <Close fontSize="small" />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ p: 0 }}>
+                    <List sx={{ p: 0 }}>
+                        {notifications.length === 0 ? (
+                            <Box sx={{ py: 6, textAlign: "center" }}>
+                                <Typography color="text.secondary">
+                                    ไม่มีการแจ้งเตือนใหม่
+                                </Typography>
+                            </Box>
+                        ) : (
+                            notifications.map((notif) => (
+                                <ListItemButton
+                                    key={notif.id}
+                                    onClick={() =>
+                                        handleNotificationClick(notif)
+                                    }
+                                    sx={{ borderBottom: "1px solid #f0f0f0" }}
+                                >
+                                    <ListItemAvatar>
+                                        <Avatar
+                                            sx={{
+                                                bgcolor:
+                                                    notif.type === "CHECK_IN"
+                                                        ? "#4caf50"
+                                                        : "#FFC107",
+                                            }}
+                                        >
+                                            {notif.type === "CHECK_IN" ? (
+                                                <CheckCircle />
+                                            ) : (
+                                                <CardGiftcard />
+                                            )}
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight="bold"
+                                            >
+                                                {notif.title}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                            >
+                                                {notif.message}
+                                            </Typography>
+                                        }
+                                    />
+                                </ListItemButton>
+                            ))
+                        )}
+                    </List>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal Components */}
             <ImagePopupModal
                 open={showImagePopup}
                 onClose={handleCloseImagePopup}
-                images={popupImages[currentPopupIndex] ? [popupImages[currentPopupIndex]] : []}
+                images={
+                    popupImages[currentPopupIndex]
+                        ? [popupImages[currentPopupIndex]]
+                        : []
+                }
             />
 
             <EarnPointModal
                 open={showEarnModal}
+                title={earnedData.title}
                 items={earnedData.items}
                 onClose={handleCloseEarnModal}
                 points={earnedData.points}
@@ -851,5 +841,5 @@ export default function WarrantyHome() {
                 onClose={() => setOpenPointModal(false)}
             />
         </MobileAuthenticatedLayout>
-    )
+    );
 }

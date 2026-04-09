@@ -15,13 +15,13 @@
             "title": "เมนูหลัก",
             "welcome": "ยินดีต้อนรับ",
             "warrantyFormHeadTitle": "ลงทะเบียน",
-            "warrantyFormSubTitle": "ลงทะเบียนสินค้าใหม่",
-            "warrantyHistoryHeadTitle": "ประวัติ",
-            "warrantyHistorySubTitle": "ดูประวัติการรับประกัน"
+            "warrantyFormSubTitle": "รับประกันสินค้า",
+            "warrantyHistoryHeadTitle": "ดูประวัติ",
+            "warrantyHistorySubTitle": "การรับประกันสินค้า"
         },
         "mainMenu": {
-            "checkRepairStatus": "เช็กสถานะซ่อม",
-            "warrantyProduct": "สินค้ารับประกัน",
+            "checkRepairStatus": "ติดตามสถานะซ่อม",
+            "warrantyProduct": "ข้อมูลรับประกัน",
             "pumpkinCorner": "Pumpkin Corner",
             "onlineShop": "ช่องทางสั่งซื้อสินค้าออนไลน์"
         }
@@ -301,18 +301,18 @@
         "clickToCopy": "กดเพื่อคัดลอก"
     },
     "iconMenu": {
-        "checkRepairStatus": "เช็กสถานะซ่อม",
-        "warrantyProduct": "สินค้ารับประกัน",
+        "checkRepairStatus": "ติดตามสถานะซ่อม",
+        "warrantyProduct": "ข้อมูลรับประกัน",
         "pumpkinCorner": "Pumpkin Corner",
-        "onlineShop": "ช่องทางสื่อสารออนไลน์",
-        "checkin": "เช็คอิน",
+        "onlineShop": "ช่องทางติดต่อ",
+        "checkin": "เช็คอินรับคะแนน",
         "referral": "แนะนำเพื่อน"
     },
     "footerMenu": {
         "home": "หน้าหลัก",
         "form": "ฟอร์ม",
         "privilege": "รางวัล",
-        "tools": "เครื่องมือของฉัน",
+        "tools": "เครื่องมือ",
         "profile": "โปรไฟล์"
     },
     "Checkin": {
