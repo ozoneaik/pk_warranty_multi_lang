@@ -6,12 +6,25 @@ import {
   CardContent,
   Avatar,
   CircularProgress,
+  Badge,
+  keyframes,
 } from "@mui/material";
+import { NotificationsActive } from "@mui/icons-material";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { router, usePage } from "@inertiajs/react";
 import { useLanguage } from "@/context/LanguageContext";
+
+const shakeAnimation = keyframes`
+  0% { transform: rotate(0deg); }
+  5% { transform: rotate(15deg); }
+  10% { transform: rotate(-10deg); }
+  15% { transform: rotate(15deg); }
+  20% { transform: rotate(-10deg); }
+  25% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+`;
 
 interface MenuItem {
   id: number;
@@ -20,10 +33,18 @@ interface MenuItem {
   link: string;
   color?: string;
 }
+
 interface IconMenuCarouselProps {
   onCheckinClick: () => void;
+  notificationsCount?: number;
+  onNotificationClick?: () => void;
 }
-export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselProps) {
+
+export default function IconMenuCarousel({
+  onCheckinClick,
+  notificationsCount = 0,
+  onNotificationClick,
+}: IconMenuCarouselProps) {
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { auth } = usePage().props as any;
@@ -67,7 +88,7 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
     <Box key={language} sx={{ mt: 1, mb: 0, px: 0 }}>
       <Slider {...sliderSettings}>
         {menus.map((item) => {
-          const isCheckinMenu = item.id === 5 || item.link === "checkin";
+          const isCheckinMenu = item.title === "checkin" || item.link === "checkin";
           const link = item.link.includes("warranty_check")
             ? `${item.link}${userPhone}`
             : item.link;
@@ -78,10 +99,11 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
             <Box key={item.id} px={0}>
               <Box
                 onClick={() => {
-                  if (isCheckinMenu) {
+                  if (isCheckinMenu && onNotificationClick) {
+                    onNotificationClick();
+                  } else if (isCheckinMenu) {
                     onCheckinClick();
-                  }
-                  else if (item.link.startsWith('/')) {
+                  } else if (item.link.startsWith("/")) {
                     router.visit(item.link);
                   } else {
                     const finalLink = item.link.includes("warranty_check")
@@ -114,16 +136,41 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
                       minHeight: 100,
                     }}
                   >
-                    <Avatar
-                      src={item.icon_url}
-                      alt={title}
-                      sx={{
-                        bgcolor: item.color || "#F54927",
-                        width: 42,
-                        height: 42,
-                        mb: 1,
-                      }}
-                    />
+                    {isCheckinMenu ? (
+                      <Badge badgeContent={notificationsCount} color="error">
+                        <Avatar
+                          sx={{
+                            bgcolor: "#ee5c3fff",
+                            width: 42,
+                            height: 42,
+                            mb: 1,
+                          }}
+                        >
+                          <NotificationsActive
+                            sx={{
+                              fontSize: 22,
+                              color: "#fff",
+                              animation:
+                                notificationsCount > 0
+                                  ? `${shakeAnimation} 2.5s infinite ease-in-out`
+                                  : "none",
+                              transformOrigin: "top center",
+                            }}
+                          />
+                        </Avatar>
+                      </Badge>
+                    ) : (
+                      <Avatar
+                        src={item.icon_url}
+                        alt={title}
+                        sx={{
+                          bgcolor: item.color || "#F54927",
+                          width: 42,
+                          height: 42,
+                          mb: 1,
+                        }}
+                      />
+                    )}
                     <Typography
                       variant="body2"
                       fontWeight="600"
@@ -150,4 +197,4 @@ export default function IconMenuCarousel({ onCheckinClick }: IconMenuCarouselPro
       </Slider>
     </Box>
   );
-}
+}

@@ -53,15 +53,7 @@ import PointExpiryModal from "../Profile/Partials/PointExpiryModal";
 
 const bannerHeight = { xs: 250, sm: 220, md: 260 };
 
-const shakeAnimation = keyframes`
-  0% { transform: rotate(0deg); }
-  5% { transform: rotate(15deg); }
-  10% { transform: rotate(-10deg); }
-  15% { transform: rotate(15deg); }
-  20% { transform: rotate(-10deg); }
-  25% { transform: rotate(0deg); }
-  100% { transform: rotate(0deg); }
-`;
+
 
 // --- กำหนด Type สำหรับการแจ้งเตือน ---
 type NotificationType = "CHECK_IN" | "EARN_POINT";
@@ -635,7 +627,11 @@ export default function WarrantyHome() {
                             </Card>
                         </Grid>
                     </Grid>
-                    <IconMenuCarousel onCheckinClick={() => setShowCheckin(true)} />
+                    <IconMenuCarousel 
+                        onCheckinClick={() => setShowCheckin(true)} 
+                        notificationsCount={notifications.length}
+                        onNotificationClick={() => setShowNotificationModal(true)}
+                    />
                     {!loading && banners.length > 0 && (
                         <Box
                             sx={{
@@ -678,35 +674,7 @@ export default function WarrantyHome() {
                 </Box>
             </Container>
 
-            {/* --- กระดิ่งแจ้งเตือนมุมขวาล่าง --- */}
-            <Fab
-                color="primary"
-                aria-label="notifications"
-                onClick={() => setShowNotificationModal(true)}
-                sx={{
-                    position: "fixed",
-                    // ขยับ bottom ขึ้นมาเป็น 90 เพื่อไม่ให้ทับกับเมนู Footer ด้านล่าง
-                    bottom: isMobile ? 90 : 70,
-                    // คำนวณระยะขอบขวา: ถ้าระยะจอเล็กกว่ากรอบ ให้ห่าง 20px / ถ้าจอใหญ่ ให้คำนวณเกาะขอบกรอบ 500px
-                    // right: { xs: 20, sm: "calc(50vw - 250px + 5px)" },
-                    right: isMobile ? 10 : "calc(50vw - 250px + 5px)",
-                    zIndex: 1000,
-                    bgcolor: "#ee5c3fff",
-                    "&:hover": { bgcolor: "#d63a1b" },
-                }}
-            >
-                <Badge badgeContent={notifications.length} color="error">
-                    <NotificationsActive
-                        sx={{
-                            animation:
-                                notifications.length > 0
-                                    ? `${shakeAnimation} 2.5s infinite ease-in-out`
-                                    : "none",
-                            transformOrigin: "top center",
-                        }}
-                    />
-                </Badge>
-            </Fab>
+
 
             <Dialog
                 open={showNotificationModal}
