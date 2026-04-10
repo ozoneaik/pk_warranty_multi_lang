@@ -13,7 +13,7 @@ class AssignRichMenuToOldUsers extends Command
 
     public function handle()
     {
-        $richMenuId = 'richmenu-b0bcd26a8e3430bf7375935b5ea98a3f';
+        $richMenuId = 'richmenu-fa10adc8c2d762cc23238fc9954547f7';
         $accessToken = env('LINE_CHANNEL_ACCESS_TOKEN');
 
         if (empty($accessToken)) {
