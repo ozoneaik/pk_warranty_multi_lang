@@ -207,9 +207,9 @@ class SocialRegisterController extends Controller
         try {
             DB::beginTransaction();
 
-            $rawEmail = !empty($step2['cust_email']) ? $step2['cust_email'] : '';
-            if (empty($rawEmail) || $rawEmail === 'default@email.com') {
-                $rawEmail = $lineId . '@no-email.com';
+            $rawEmail = !empty($step2['cust_email']) ? $step2['cust_email'] : null;
+            if ($rawEmail === 'default@email.com' || trim((string)$rawEmail) === '') {
+                $rawEmail = null;
             }
 
             // ── 1. User (Laravel Auth) ──────────────────────────────
@@ -230,7 +230,8 @@ class SocialRegisterController extends Controller
             $cust->cust_firstname = $step2['cust_firstname'];
             $cust->cust_lastname  = $step2['cust_lastname'];
             $cust->cust_gender    = $step2['cust_gender'];
-            $cust->cust_email     = $step2['cust_email'];
+            // $cust->cust_email     = $step2['cust_email'];
+            $cust->cust_email     = $rawEmail;
             $cust->cust_birthdate = $step2['cust_birthdate'];
             $cust->cust_tel       = $step2['cust_tel'];
 

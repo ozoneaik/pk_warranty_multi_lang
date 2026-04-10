@@ -240,25 +240,87 @@ class LineAuthController extends Controller
     //     return redirect()->to($redirect);
     // }
 
+    // private function loginExistingUser($lineUser, $cust)
+    // {
+    //     $lineId = $lineUser->getId();
+
+    //     // Update User Model (Laravel Auth)
+    //     $user = User::firstOrNew(['line_id' => $lineId]);
+    //     if (!$user->exists) {
+    //         $user->name = trim($cust->cust_firstname . ' ' . $cust->cust_lastname);
+    //         $user->email = $cust->cust_email ?? $lineUser->getEmail();
+    //         $user->password = bcrypt($lineId);
+    //         $user->save();
+    //     }
+
+    //     // Update Customer Data บางส่วน
+    //     $cust->cust_line  = $lineId;
+    //     $cust->cust_email = $cust->cust_email ?: $lineUser->getEmail();
+    //     $cust->save();
+
+    //     // 1. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม
+    //     $hasRegisteredPoint = PointTransaction::where('line_id', $lineId)
+    //         ->where('process_code', 'REGISTER')
+    //         ->exists();
+
+    //     if (!$hasRegisteredPoint) {
+    //         $this->awardFirstRegistrationPoints($cust, $lineId);
+    //     }
+
+    //     // Check Tier Expiry (Logic เดิม)
+    //     $this->checkTierExpiry($cust, $user);
+
+    //     // Login Log
+    //     LoginLog::create([
+    //         'user_id' => $user->id,
+    //         'line_id' => $lineId,
+    //         'status'  => 'success',
+    //         'login_at' => now(),
+    //         'ip_address' => request()->ip(),
+    //         'user_agent' => request()->userAgent(),
+    //     ]);
+
+    //     Auth::login($user);
+
+    //     // Redirect
+    //     $redirect = session('after_login_redirect') ?? '/dashboard';
+    //     session()->forget(['referrer_code', 'after_login_redirect']);
+    //     session(['line_avatar' => $lineUser->getAvatar(), 'line_email' => $user->email]);
+
+    //     return redirect()->to($redirect);
+    // }
+
     private function loginExistingUser($lineUser, $cust)
     {
         $lineId = $lineUser->getId();
 
-        // Update User Model (Laravel Auth)
+        // 1. Fallback เป็น null ถ้าไม่มีอีเมล หรือเป็น default@email.com
+        $rawEmail = $cust->cust_email ?? $lineUser->getEmail();
+        if (empty($rawEmail) || $rawEmail === 'default@email.com' || trim($rawEmail) === '') {
+            $rawEmail = null;
+        }
+
+        // 2. Update User Model (Laravel Auth)
         $user = User::firstOrNew(['line_id' => $lineId]);
         if (!$user->exists) {
             $user->name = trim($cust->cust_firstname . ' ' . $cust->cust_lastname);
-            $user->email = $cust->cust_email ?? $lineUser->getEmail();
+            $user->email = $rawEmail;
             $user->password = bcrypt($lineId);
             $user->save();
+        } else {
+            // [เสริม] ล้างบางข้อมูลเก่า ถ้าคนเก่าติด default@email.com อยู่ให้เคลียร์เป็น null
+            if ($user->email === 'default@email.com' || $user->email === '') {
+                $user->email = null;
+                $user->save();
+            }
         }
 
-        // Update Customer Data บางส่วน
+        // 3. Update Customer Data บางส่วน
         $cust->cust_line  = $lineId;
-        $cust->cust_email = $cust->cust_email ?: $lineUser->getEmail();
+        $cust->cust_email = $rawEmail;
         $cust->save();
 
-        // 1. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม
+        // 4. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม
         $hasRegisteredPoint = PointTransaction::where('line_id', $lineId)
             ->where('process_code', 'REGISTER')
             ->exists();
@@ -267,7 +329,7 @@ class LineAuthController extends Controller
             $this->awardFirstRegistrationPoints($cust, $lineId);
         }
 
-        // Check Tier Expiry (Logic เดิม)
+        // Check Tier Expiry
         $this->checkTierExpiry($cust, $user);
 
         // Login Log
