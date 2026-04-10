@@ -4,11 +4,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>ลงทะเบียนสมาชิกใหม่ — ที่อยู่ & ยืนยัน</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {
@@ -59,7 +60,7 @@
             padding: .5rem .75rem;
             border: 1px solid #e5e7eb;
             border-radius: .5rem;
-            font-size: .875rem;
+            font-size: 1rem;
             outline: none;
             transition: border-color .2s, box-shadow .2s;
             font-family: 'Sarabun', sans-serif;
@@ -87,7 +88,7 @@
             padding: .45rem .75rem !important;
             border-color: #e5e7eb !important;
             box-shadow: none !important;
-            font-size: .875rem !important;
+            font-size: 1rem !important;
             font-family: 'Sarabun', sans-serif !important;
             min-height: unset !important;
         }
@@ -102,7 +103,7 @@
         .ts-dropdown {
             z-index: 9999 !important;
             border-radius: .5rem !important;
-            font-size: .875rem !important;
+            font-size: 1rem !important;
         }
 
         .ts-wrapper.disabled .ts-control {
@@ -165,6 +166,49 @@
             font-size: .78rem;
             color: #111827;
             font-weight: 600;
+        }
+
+        /* Scanner Modal */
+        #qr-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        #qr-container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        #reader {
+            width: 100% !important;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: none !important;
+        }
+
+        #reader video {
+            border-radius: 1rem;
+        }
+
+        #reader__dashboard_section_csr button {
+            background: #f97316 !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.875rem !important;
+            margin-top: 1rem !important;
         }
     </style>
 </head>
@@ -260,9 +304,24 @@
                     <div class="ref-box" id="refBox">
                         <div class="mt-3">
                             <label class="form-label">รหัสแนะนำเพื่อน</label>
-                            <input type="text" name="referral_code" class="form-input uppercase tracking-widest"
-                                value="{{ old('referral_code', request()->query('ref', session('referrer_code', ''))) }}"
-                                placeholder="เช่น AB12CD34" maxlength="20">
+                            <div class="flex gap-2">
+                                <div class="relative flex-grow">
+                                    <input type="text" name="referral_code" id="referral_code" class="form-input uppercase tracking-widest pl-10"
+                                        value="{{ old('referral_code', request()->query('ref', session('referrer_code', ''))) }}"
+                                        placeholder="เช่น AB12CD34" maxlength="20">
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="startScanner()" class="flex items-center justify-center gap-2 bg-orange-100 text-orange-600 px-4 py-2.5 rounded-xl hover:bg-orange-200 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                    </svg>
+                                    <span class="text-sm font-bold hidden sm:inline">สแกน</span>
+                                </button>
+                            </div>
                             <p class="text-xs text-gray-400 mt-1">ทั้งคุณและผู้แนะนำจะได้รับคะแนนพิเศษ</p>
                         </div>
                     </div>
@@ -312,6 +371,22 @@
             </form>
         </div>
 
+    </div>
+
+    {{-- Scanner Modal --}}
+    <div id="qr-modal" onclick="event.target.id === 'qr-modal' && stopScanner()">
+        <div id="qr-container">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800">สแกนรหัสแนะนำเพื่อน</h3>
+                <button type="button" onclick="stopScanner()" class="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="reader"></div>
+            <p class="text-center text-xs text-gray-400 mt-4">วางรหัส QR ให้อยู่ในกรอบเพื่อทำการสแกน</p>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
@@ -463,6 +538,68 @@
             const open = forceOpen === true ? true : !box.classList.contains('open');
             box.classList.toggle('open', open);
             arrow.style.transform = open ? 'rotate(90deg)' : 'rotate(0deg)';
+        }
+
+        // ============================================================
+        // QR Scanner Logic
+        // ============================================================
+        let html5QrCode = null;
+
+        async function startScanner() {
+            document.getElementById('qr-modal').style.display = 'flex';
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+
+            const config = {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 250
+                }
+            };
+
+            try {
+                await html5QrCode.start({
+                    facingMode: "environment"
+                }, config, onScanSuccess);
+            } catch (err) {
+                console.error("Scanner start error:", err);
+                alert("ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาตใช้งานกล้อง");
+                stopScanner();
+            }
+        }
+
+        async function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                await html5QrCode.stop();
+            }
+            document.getElementById('qr-modal').style.display = 'none';
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // ดึงค่า Referral Code จาก URL หรือข้อความตรงๆ
+            let code = decodedText;
+            try {
+                if (code.includes('?ref=')) {
+                    code = new URL(code).searchParams.get('ref');
+                } else if (code.includes('/register?ref=')) {
+                    code = code.split('ref=')[1].split('&')[0];
+                }
+            } catch (e) {
+                // If not URL, use raw text
+            }
+
+            document.getElementById('referral_code').value = code.toUpperCase();
+            
+            // Visual feedback
+            const input = document.getElementById('referral_code');
+            input.classList.add('ring-2', 'ring-green-500', 'border-green-500');
+            setTimeout(() => {
+                input.classList.remove('ring-2', 'ring-green-500', 'border-green-500');
+            }, 2000);
+
+            stopScanner();
         }
 
         // ============================================================

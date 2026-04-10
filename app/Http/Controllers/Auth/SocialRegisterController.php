@@ -97,7 +97,18 @@ class SocialRegisterController extends Controller
         if ($isThailand && $this->isOtpVerificationEnabled()) {
             $rules['otp'] = 'required|digits:4';
         }
-        $request->validate($rules);
+        $request->validate($rules, [
+            'cust_firstname.required' => 'กรุณากรอกชื่อจริง',
+            'cust_lastname.required'  => 'กรุณากรอกนามสกุล',
+            'cust_gender.required'    => 'กรุณาเลือกเพศ',
+            'cust_gender.in'          => 'ข้อมูลเพศไม่ถูกต้อง',
+            'cust_email.email'        => 'รูปแบบอีเมลไม่ถูกต้อง',
+            'cust_birthdate.required' => 'กรุณาเลือกวันเกิด',
+            'cust_birthdate.date'     => 'รูปแบบวันที่ไม่ถูกต้อง',
+            'cust_tel.required'       => 'กรุณากรอกเบอร์โทรศัพท์',
+            'otp.required'            => 'กรุณากรอกรหัส OTP',
+            'otp.digits'              => 'รหัส OTP ต้องเป็นตัวเลข 4 หลัก',
+        ]);
 
         if (!empty($request->cust_email)) {
             $duplicateEmailProd = TblCustomerProd::where('cust_email', $request->cust_email)

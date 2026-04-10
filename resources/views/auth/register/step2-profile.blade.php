@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>ลงทะเบียนสมาชิกใหม่ — ข้อมูลส่วนตัว</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -56,7 +56,7 @@
             padding: .5rem .75rem;
             border: 1px solid #e5e7eb;
             border-radius: .5rem;
-            font-size: .875rem;
+            font-size: 1rem;
             outline: none;
             transition: border-color .2s, box-shadow .2s;
             font-family: 'Sarabun', sans-serif;
@@ -206,10 +206,11 @@
                 {{-- Email --}}
                 <div class="mb-4">
                     <label class="form-label">อีเมล</label>
-                    <input type="email" name="cust_email"
+                    <input type="email" name="cust_email" id="cust_email"
                         class="form-input @error('cust_email') border-red-500 @enderror"
                         value="{{ old('cust_email', $data['cust_email'] ?? $data['email'] ?? '') }}"
                         placeholder="example@email.com">
+                    <p id="emailError" class="text-red-500 text-xs mt-1 hidden">รูปแบบอีเมลไม่ถูกต้อง</p>
 
                     @error('cust_email')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -299,6 +300,30 @@
             input.addEventListener('input', () => {
                 hidden.value = iti.getNumber();
             });
+
+            // Real-time Email Validation
+            const emailInput = document.getElementById('cust_email');
+            const emailError = document.getElementById('emailError');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            emailInput.addEventListener('blur', function() {
+                const val = this.value.trim();
+                if (val !== '' && !emailRegex.test(val)) {
+                    this.classList.add('border-red-500');
+                    emailError.classList.remove('hidden');
+                } else {
+                    this.classList.remove('border-red-500');
+                    emailError.classList.add('hidden');
+                }
+            });
+
+            emailInput.addEventListener('input', function() {
+                const val = this.value.trim();
+                if (val === '' || emailRegex.test(val)) {
+                    this.classList.remove('border-red-500');
+                    emailError.classList.add('hidden');
+                }
+            });
         });
 
         async function sendOtp() {
@@ -355,6 +380,16 @@
                 return;
             }
             document.getElementById('cust_tel_hidden').value = iti.getNumber();
+            
+            // Email Validation
+            if (emailInput.value.trim() !== '' && !emailRegex.test(emailInput.value)) {
+                e.preventDefault();
+                emailInput.classList.add('border-red-500');
+                emailError.classList.remove('hidden');
+                emailInput.focus();
+                return;
+            }
+
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
