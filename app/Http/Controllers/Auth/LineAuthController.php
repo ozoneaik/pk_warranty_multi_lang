@@ -306,6 +306,7 @@ class LineAuthController extends Controller
             $user->name = trim($cust->cust_firstname . ' ' . $cust->cust_lastname);
             $user->email = $rawEmail;
             $user->password = bcrypt($lineId);
+            $user->status = 'active';
             $user->save();
         } else {
             // [เสริม] ล้างบางข้อมูลเก่า ถ้าคนเก่าติด default@email.com อยู่ให้เคลียร์เป็น null
@@ -318,6 +319,7 @@ class LineAuthController extends Controller
         // 3. Update Customer Data บางส่วน
         $cust->cust_line  = $lineId;
         $cust->cust_email = $rawEmail;
+        $cust->status = 'enabled';
         $cust->save();
 
         // 4. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม

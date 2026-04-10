@@ -55,7 +55,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     useEffect(() => {
         const loadProvinces = async () => {
             try {
-                const res = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province.jsonfdfd");
+                const res = await fetch("https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province.json");
                 if (!res.ok) throw new Error("API Province failed");
                 const data: Province[] = await res.json();
                 setProvinces(data);
@@ -301,7 +301,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
         });
     };
 
-    // OTP
+      // OTP
     // const submit: FormEventHandler = async (e) => {
     //     e.preventDefault();
 
@@ -390,6 +390,35 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     //     });
     // };
 
+    const handleDelete = () => {
+        Swal.fire({
+            title: t.Customer.form.deleteAccountConfirmTitle,
+            text: t.Customer.form.deleteAccountConfirmText,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: t.Customer.form.deleteAccountButton,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route("customer.profile.destroy"), {
+                    onSuccess: () => {
+                        // Success handling is done by the controller redirect
+                    },
+                    onError: (err) => {
+                        console.error("❌ Delete account error:", err);
+                        Swal.fire({
+                            title: 'เกิดข้อผิดพลาด',
+                            html: Object.values(err).join('<br>'),
+                            icon: 'error',
+                            confirmButtonColor: '#F54927',
+                        });
+                    },
+                });
+            }
+        });
+    };
+
     return (
         <section className={className}>
             <Button
@@ -415,7 +444,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     {t.Customer.title.mainTitle}
                 </h2>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {/* คุณสามารถแก้ไขข้อมูลส่วนตัวและที่อยู่ใบกำกับภาษีได้ที่นี่ */}
+                     {/* คุณสามารถแก้ไขข้อมูลส่วนตัวและที่อยู่ใบกำกับภาษีได้ที่นี่ */}
                     {t.Customer.title.sub}
                 </p>
             </header>
@@ -681,19 +710,31 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                 </fieldset>
 
-                <div className="flex items-center gap-4 mt-8">
-                    <PrimaryButton disabled={processing}>{t.Customer.form.buttonSave}</PrimaryButton>
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                <div className="flex items-center justify-between gap-4 mt-8">
+                    <div className="flex items-center gap-4">
+                        <PrimaryButton disabled={processing}>{t.Customer.form.buttonSave}</PrimaryButton>
+                        <Transition
+                            show={recentlySuccessful}
+                            enter="transition ease-in-out"
+                            enterFrom="opacity-0"
+                            leave="transition ease-in-out"
+                            leaveTo="opacity-0"
+                        >
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {t.Customer.form.saved}
+                            </p>
+                        </Transition>
+                    </div>
+
+                    {/* <Button
+                        variant="text"
+                        color="error"
+                        size="small"
+                        onClick={handleDelete}
+                        sx={{ textTransform: 'none', fontWeight: 'bold' }}
                     >
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {t.Customer.form.saved}
-                        </p>
-                    </Transition>
+                        {t.Customer.form.deleteAccount}
+                    </Button> */}
                 </div>
             </form>
         </section>

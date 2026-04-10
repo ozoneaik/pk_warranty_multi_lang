@@ -184,7 +184,11 @@
             },
             "buttonSave": "ບັນທຶກຂໍ້ມູນທັງໝົດ",
             "saved": "ຂໍ້ມູນຂອງທ່ານໄດ້ຖືກບັນທຶກແລ້ວ.",
-            "backToProfile": "ກັບໄປໜ້າໂປຣໄຟລ໌ຂອງຂ້ອຍ"
+            "backToProfile": "ກັບໄປໜ້າໂປຣໄຟລ໌ຂອງຂ້ອຍ",
+            "deleteAccount": "ລຶບບັນຊີຜູ້ໃຊ້",
+            "deleteAccountConfirmTitle": "ທ່ານແນ່ໃຈບໍ່?",
+            "deleteAccountConfirmText": "ທ່ານຕ້ອງການລຶບບັນຊີຜູ້ໃຊ້ແມ່ນບໍ່? ການດຳເນີນການນີ້ຈະບໍ່ສາມາດກູ້ຄືນຂໍ້ມູນໄດ້",
+            "deleteAccountButton": "ຢືນຢັນການລຶບບັນຊີ"
         }
     },
     "ProfileWelcome": {

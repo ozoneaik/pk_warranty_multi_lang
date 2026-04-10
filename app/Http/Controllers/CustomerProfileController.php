@@ -368,6 +368,33 @@ class CustomerProfileController extends Controller
             ])->withInput();
         }
 
+        // ตรวจสอบอีเมลซ้ำในฐานข้อมูล (ยกเว้นของตัวเอง)
+        if (!empty($validatedCustomer['cust_email'])) {
+            $emailExists = TblCustomerProd::query()
+                ->where('cust_email', $validatedCustomer['cust_email'])
+                ->when(!empty($user->line_id), function ($q) use ($user) {
+                    $q->where('cust_line', '!=', $user->line_id);
+                })
+                ->exists();
+
+            $userEmailExists = User::query()
+                ->where('email', $validatedCustomer['cust_email'])
+                ->where('id', '!=', $user->id)
+                ->exists();
+
+            if ($emailExists || $userEmailExists) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'message' => 'อีเมลนี้ถูกใช้ลงทะเบียนกับบัญชีอื่นแล้ว',
+                        'errors' => ['cust_email' => 'อีเมลนี้ถูกใช้ลงทะเบียนกับบัญชีอื่นแล้ว']
+                    ], 422);
+                }
+                return back()->withErrors([
+                    'cust_email' => 'อีเมลนี้ถูกใช้ลงทะเบียนกับบัญชีอื่นแล้ว',
+                ])->withInput();
+            }
+        }
+
         // ✅ แปลงค่าเพศให้ตรงกับที่เก็บในฐานข้อมูล
         $mapDB = ['ชาย' => 'male', 'หญิง' => 'female'];
         if (!empty($validatedCustomer['cust_gender'])) {
@@ -511,7 +538,7 @@ class CustomerProfileController extends Controller
 
             // 2. จัดการตาราง TblCustomerProd (เปลี่ยนสถานะ)
             if ($customer) {
-                $customer->status = 'deleted';
+                $customer->status = 'disabled';
 
                 // (Optional) ลบข้อมูลส่วนบุคคลทิ้งตาม PDPA
                 // $customer->cust_firstname = 'Deleted';
@@ -524,7 +551,7 @@ class CustomerProfileController extends Controller
             // 3. จัดการตาราง users (เปลี่ยนสถานะ)
             $userModel = User::find($user->id);
             if ($userModel) {
-                $userModel->status = 'deleted';
+                $userModel->status = 'disabled';
                 $userModel->save();
             }
 

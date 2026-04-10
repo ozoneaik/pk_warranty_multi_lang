@@ -184,7 +184,11 @@
             },
             "buttonSave": "Save All Information",
             "saved": "Your information has been saved.",
-            "backToProfile": "Back to My Profile"
+            "backToProfile": "Back to My Profile",
+            "deleteAccount": "Delete Account",
+            "deleteAccountConfirmTitle": "Are you sure?",
+            "deleteAccountConfirmText": "Do you want to delete your account? This action cannot be undone.",
+            "deleteAccountButton": "Confirm Delete"
         }
     },
     "ProfileWelcome": {

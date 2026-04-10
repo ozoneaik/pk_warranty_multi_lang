@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/show', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
         Route::get('/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+        Route::delete('/', [CustomerProfileController::class, 'destroy'])->name('customer.profile.destroy');
 
         // Route::get('/privilege/blank', function () {
         //     return Inertia::render('Profile/Customer/Blank/PrivilegeBlank');

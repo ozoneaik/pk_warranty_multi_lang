@@ -186,7 +186,11 @@
             },
             "buttonSave": "บันทึกข้อมูลทั้งหมด",
             "saved": "ข้อมูลถูกบันทึกแล้ว",
-            "backToProfile": "กลับไปที่โปรไฟล์ของฉัน"
+            "backToProfile": "กลับไปที่โปรไฟล์ของฉัน",
+            "deleteAccount": "ลบบัญชีผู้ใช้",
+            "deleteAccountConfirmTitle": "คุณแน่ใจหรือไม่?",
+            "deleteAccountConfirmText": "คุณต้องการลบบัญชีผู้ใช้ใช่หรือไม่? การดำเนินการนี้จะไม่สามารถกู้คืนข้อมูลได้",
+            "deleteAccountButton": "ยืนยันการลบบัญชี"
         }
     },
     "ProfileWelcome": {
