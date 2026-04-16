@@ -53,8 +53,6 @@ import PointExpiryModal from "../Profile/Partials/PointExpiryModal";
 
 const bannerHeight = { xs: 250, sm: 220, md: 260 };
 
-
-
 // --- กำหนด Type สำหรับการแจ้งเตือน ---
 type NotificationType = "CHECK_IN" | "EARN_POINT";
 interface NotificationItem {
@@ -70,7 +68,15 @@ export default function WarrantyHome() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const { auth, line_avatar, point, customer_code, referral_url, point_expiry_date, tier, } = usePage().props as any;
+    const {
+        auth,
+        line_avatar,
+        point,
+        customer_code,
+        referral_url,
+        point_expiry_date,
+        tier,
+    } = usePage().props as any;
     const user = auth.user;
 
     // State
@@ -170,15 +176,25 @@ export default function WarrantyHome() {
         try {
             // 1. เช็คแต้มค้างรับ (แบ่งกลุ่ม: เช็คอินลง FAB, อื่นๆ ลง Popup)
             const ptRes = await axios.get("/api/points/pending");
-            if (ptRes.data.has_points && ptRes.data.items && ptRes.data.items.length > 0) {
+            if (
+                ptRes.data.has_points &&
+                ptRes.data.items &&
+                ptRes.data.items.length > 0
+            ) {
                 const items = ptRes.data.items;
                 // แยกรายการที่เป็นเช็คอิน
-                const checkinPoints = items.filter((item: any) => 
-                    item.title?.includes("เช็คอิน") || item.type === "checkin"
+                const checkinPoints = items.filter(
+                    (item: any) =>
+                        item.title?.includes("เช็คอิน") ||
+                        item.type === "checkin",
                 );
                 // รายการอื่นๆ
-                const otherPoints = items.filter((item: any) => 
-                    !(item.title?.includes("เช็คอิน") || item.type === "checkin")
+                const otherPoints = items.filter(
+                    (item: any) =>
+                        !(
+                            item.title?.includes("เช็คอิน") ||
+                            item.type === "checkin"
+                        ),
                 );
 
                 // ส่งรายการเช็คอินเข้า FAB
@@ -201,7 +217,10 @@ export default function WarrantyHome() {
                     const firstItem = otherPoints[0];
                     setEarnedData({
                         title: firstItem.title || "ยินดีด้วย! คุณได้รับแต้ม",
-                        points: otherPoints.reduce((sum: number, item: any) => sum + (item.point || 0), 0),
+                        points: otherPoints.reduce(
+                            (sum: number, item: any) => sum + (item.point || 0),
+                            0,
+                        ),
                         ids: otherPoints.map((item: any) => item.id),
                         message: firstItem.message || "คุณมีแต้มค้างรับ",
                         items: otherPoints,
@@ -380,13 +399,10 @@ export default function WarrantyHome() {
                     >
                         <Stack direction="row" alignItems="center" spacing={2}>
                             <Avatar
-                                src={
-                                    line_avatar ||
-                                    "https://via.placeholder.com/64"
-                                }
+                                src={line_avatar ?? undefined}
                                 onClick={() => setShowProfileQr(true)}
                                 sx={{
-                                    bgcolor: "rgba(255,255,255,0.2)",
+                                    bgcolor: line_avatar ? "transparent" : "#F54927",
                                     width: 60,
                                     height: 60,
                                     cursor: "pointer",
@@ -552,7 +568,9 @@ export default function WarrantyHome() {
                                         boxShadow: 4,
                                     },
                                 }}
-                                onClick={() => router.get(route("warranty.form"))}
+                                onClick={() =>
+                                    router.get(route("warranty.form"))
+                                }
                             >
                                 <CardContent
                                     sx={{
@@ -566,18 +584,34 @@ export default function WarrantyHome() {
                                     }}
                                 >
                                     <Avatar
-                                        sx={{ 
-                                            bgcolor: "#4caf50", mx: "auto", 
-                                            mb: 2, width: 50, height: 50, 
+                                        sx={{
+                                            bgcolor: "#4caf50",
+                                            mx: "auto",
+                                            mb: 2,
+                                            width: 50,
+                                            height: 50,
                                         }}
                                     >
                                         <Assignment />
                                     </Avatar>
-                                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
-                                        {t.homePage.menu_list.warrantyFormHeadTitle}
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight="600"
+                                        sx={{ mb: 1 }}
+                                    >
+                                        {
+                                            t.homePage.menu_list
+                                                .warrantyFormHeadTitle
+                                        }
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {t.homePage.menu_list.warrantyFormSubTitle}
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
+                                        {
+                                            t.homePage.menu_list
+                                                .warrantyFormSubTitle
+                                        }
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -621,20 +655,35 @@ export default function WarrantyHome() {
                                     >
                                         <History />
                                     </Avatar>
-                                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
-                                        {t.homePage.menu_list.warrantyHistoryHeadTitle}
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight="600"
+                                        sx={{ mb: 1 }}
+                                    >
+                                        {
+                                            t.homePage.menu_list
+                                                .warrantyHistoryHeadTitle
+                                        }
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {t.homePage.menu_list.warrantyHistorySubTitle}
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
+                                        {
+                                            t.homePage.menu_list
+                                                .warrantyHistorySubTitle
+                                        }
                                     </Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
                     </Grid>
-                    <IconMenuCarousel 
-                        onCheckinClick={() => setShowCheckin(true)} 
+                    <IconMenuCarousel
+                        onCheckinClick={() => setShowCheckin(true)}
                         notificationsCount={notifications.length}
-                        onNotificationClick={() => setShowNotificationModal(true)}
+                        onNotificationClick={() =>
+                            setShowNotificationModal(true)
+                        }
                     />
                     {!loading && banners.length > 0 && (
                         <Box
@@ -677,8 +726,6 @@ export default function WarrantyHome() {
                     )}
                 </Box>
             </Container>
-
-
 
             <Dialog
                 open={showNotificationModal}
@@ -804,7 +851,7 @@ export default function WarrantyHome() {
                 open={showProfileQr}
                 onClose={() => setShowProfileQr(false)}
                 user={user}
-                lineAvatar={line_avatar}
+                lineAvatar={line_avatar ?? null}
                 customerCode={customer_code}
                 referralUrl={referral_url}
             />
