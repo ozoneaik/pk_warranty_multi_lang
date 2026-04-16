@@ -38,16 +38,15 @@ class WarrantyHomeController extends Controller
     {
         $user = Auth::user();
 
-        $customer = TblCustomerProd::query()
-            ->where(function ($q) use ($user) {
-                if (!empty($user->line_id)) {
-                    $q->where('cust_line', $user->line_id);
-                }
-                if (!empty($user->phone)) {
-                    $q->orWhere('cust_tel', $user->phone);
-                }
-            })
-            ->first();
+        $customer = null;
+
+        if (!empty($user->line_id)) {
+            $customer = TblCustomerProd::where('cust_line', $user->line_id)->first();
+        }
+
+        if (!$customer && !empty($user->phone)) {
+            $customer = TblCustomerProd::where('cust_tel', $user->phone)->first();
+        }
 
         if ($customer && !$customer->referral_code && !empty($user->line_id)) {
             $customer->update([
@@ -58,12 +57,13 @@ class WarrantyHomeController extends Controller
         // คำนวณ Tier ล่าสุด (เหมือน PrivilegeController)
         if ($customer) {
             $tierService->recalculate($customer);
+            $customer->refresh();
         }
 
         $point = $customer->point ?? 0;
         $tierKey = strtolower($customer->tier_key ?? 'silver');
 
-        $referralUrl = $customer->referral_code
+        $referralUrl = $customer?->referral_code
             ? route('line.login', ['ref' => $customer->referral_code])
             : null;
 
@@ -81,11 +81,12 @@ class WarrantyHomeController extends Controller
 
         return Inertia::render('Warranty/WarrantyHome', [
             'point'             => $point,
-            'tier'              => $tierKey,          // ← เพิ่ม
+            'tier'              => $tierKey,
             'joined_at'         => $customer->datetime ?? now(),
             'referral_url'      => $referralUrl,
             'customer_code'     => $customer->referral_code ?? '-',
             'point_expiry_date' => $pointExpiryDate,
+            'line_avatar'       => session('line_avatar') ?? $user->line_avatar ?? null,
         ]);
     }
 }

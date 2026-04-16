@@ -79,6 +79,7 @@ class TierService
                 'tier_updated_at' => $now,
                 'tier_expired_at' => $newExpiredAt,
             ]);
+            $customer->refresh();
 
             Log::info("🔄 Tier Updated: Customer {$customer->cust_uid}", [
                 'old' => $oldTierKey,
@@ -115,7 +116,8 @@ class TierService
                 'tier_new'      => $newTier,
                 'point_at_time' => $point,
                 'reason'        => $reason,
-                'expired_at'    => $oldExpiredAt, // วันหมดอายุของรอบเก่า
+                // 'expired_at'    => $oldExpiredAt, // วันหมดอายุของรอบเก่า
+                'expired_at'    => $oldExpiredAt ? Carbon::parse($oldExpiredAt) : null,
                 'changed_at'    => Carbon::now(),
             ]);
         } catch (\Exception $e) {

@@ -36,6 +36,7 @@ class PrivilegeController extends Controller
 
         // 2. ดึงค่าล่าสุดหลังจากคำนวณเสร็จแล้ว
         $point = (int)($customer->point ?? 0);
+        $customer = $customer->fresh();
         $tierKey = strtolower($customer->tier_key ?? 'silver');
         $tierExpiredAt = $customer->tier_expired_at ? Carbon::parse($customer->tier_expired_at) : null;
 

@@ -390,7 +390,15 @@ class RedeemController extends Controller
         return DB::transaction(function () use ($request, $user, $now) {
             try {
                 // ล็อคข้อมูลลูกค้า
-                $customer = TblCustomerProd::where('cust_line', $user->line_id)->lockForUpdate()->firstOrFail();
+                // $customer = TblCustomerProd::where('cust_line', $user->line_id)->lockForUpdate()->firstOrFail();
+                $customer = TblCustomerProd::where(function ($q) use ($user) {
+                    if (!empty($user->line_id)) {
+                        $q->where('cust_line', $user->line_id);
+                    }
+                    if (!empty($user->phone)) {
+                        $q->orWhere('cust_tel', $user->phone);
+                    }
+                })->lockForUpdate()->firstOrFail();
                 $tierKey = strtolower($customer->tier_key ?? 'silver');
 
                 // 2. ค้นหาข้อมูลสินค้าและตรวจสอบเงื่อนไข
@@ -714,7 +722,13 @@ class RedeemController extends Controller
         }
 
         // Common Validation
-        if (($rewardItem->start_date && $now->lt($rewardItem->start_date)) || ($rewardItem->end_date && $now->gt($rewardItem->end_date))) {
+        // if (($rewardItem->start_date && $now->lt($rewardItem->start_date)) || ($rewardItem->end_date && $now->gt($rewardItem->end_date))) {
+        //     throw new \Exception('ไม่อยู่ในช่วงเวลาที่สามารถทำรายการได้');
+        // }
+        if ($rewardItem && (
+            ($rewardItem->start_date && $now->lt($rewardItem->start_date)) ||
+            ($rewardItem->end_date && $now->gt($rewardItem->end_date))
+        )) {
             throw new \Exception('ไม่อยู่ในช่วงเวลาที่สามารถทำรายการได้');
         }
 

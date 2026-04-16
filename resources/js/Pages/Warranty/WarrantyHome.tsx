@@ -41,7 +41,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import IconMenuCarousel from "@/Components/IconMenuCarousel";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import CheckinModal from "./CheckinModal";
 import dayjs from "dayjs";
@@ -81,6 +81,11 @@ export default function WarrantyHome() {
 
     // State
     const [currentPoint, setCurrentPoint] = useState(point ?? 0);
+
+    React.useEffect(() => {
+        setCurrentPoint(point ?? 0);
+    }, [point]);
+
     const [banners, setBanners] = useState<string[]>([]);
     const [heroImage, setHeroImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -96,6 +101,9 @@ export default function WarrantyHome() {
     const [currentStreak, setCurrentStreak] = useState(0);
     const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
     const [checkedDays, setCheckedDays] = useState<string[]>([]);
+    
+    const notificationsLoadedRef = useRef(false);
+
     const tierConfig: Record<
         string,
         { label: string; color: string; bg: string; border: string }
@@ -171,6 +179,8 @@ export default function WarrantyHome() {
 
     // --- ดึงข้อมูลการแจ้งเตือนทั้งหมดมารวมกันโดยไม่เปิด Modal ทันที ---
     const loadNotifications = async () => {
+        if (notificationsLoadedRef.current) return; // กัน double call
+        notificationsLoadedRef.current = true;
         let newNotifs: NotificationItem[] = [];
 
         try {

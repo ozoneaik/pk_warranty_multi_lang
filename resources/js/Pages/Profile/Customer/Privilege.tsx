@@ -1023,28 +1023,65 @@ export default function PrivilegePage() {
         }
     };
 
-    let nextTier = "";
-    let nextTierGoal = 0;
-    if (tier === "silver") {
-        nextTier = "Gold";
-        nextTierGoal = 1001;
-    } else if (tier === "gold") {
-        nextTier = "Platinum";
-        nextTierGoal = 3001;
-    }
+    // let nextTier = "";
+    // let nextTierGoal = 0;
+    // if (tier === "silver") {
+    //     nextTier = "Gold";
+    //     nextTierGoal = 1001;
+    // } else if (tier === "gold") {
+    //     nextTier = "Platinum";
+    //     nextTierGoal = 3001;
+    // }
+    // const remainingPoints =
+    //     nextTierGoal > 0 ? Math.max(0, nextTierGoal - point) : 0;
+    // let progressPercent = 0;
+    // if (nextTierGoal > 0) {
+    //     const prevTierGoal = tier === "gold" ? 1001 : 0;
+    //     const totalRange = nextTierGoal - prevTierGoal;
+    //     const currentProgress = point - prevTierGoal;
+    //     progressPercent = Math.min(
+    //         100,
+    //         Math.max(0, (currentProgress / totalRange) * 100),
+    //     );
+    // } else {
+    //     progressPercent = 100; // Max tier
+    // }
+
+    // คำนวณ Progress Bar จาก tiers API (ไม่ hardcode)
+    const sortedTiers = [...tiers].sort((a, b) => a.level - b.level);
+
+    // หา Tier ถัดไปจาก level ปัจจุบัน
+    const nextTierConfig = sortedTiers.find(
+        (t) => t.level === userTierLevel + 1,
+    );
+    const prevTierConfig = sortedTiers.find(
+        (t) => t.level === userTierLevel - 1,
+    );
+
+    const nextTier = nextTierConfig?.name ?? "";
+    const nextTierGoal = nextTierConfig?.min_point ?? 0;
+
+    // จุดเริ่มต้นของ tier ปัจจุบัน
+    // - ถ้า Silver (level 1) → เริ่มจาก 0
+    // - ถ้า Gold ขึ้นไป → เริ่มจาก min_point ของ tier ปัจจุบัน
+    const currentTierStart = currentTierInfo?.min_point ?? 0;
+
     const remainingPoints =
         nextTierGoal > 0 ? Math.max(0, nextTierGoal - point) : 0;
+
     let progressPercent = 0;
     if (nextTierGoal > 0) {
-        const prevTierGoal = tier === "gold" ? 1001 : 0;
-        const totalRange = nextTierGoal - prevTierGoal;
-        const currentProgress = point - prevTierGoal;
+        const totalRange = nextTierGoal - currentTierStart;
+        const currentProgress = point - currentTierStart;
         progressPercent = Math.min(
             100,
-            Math.max(0, (currentProgress / totalRange) * 100),
+            Math.max(
+                0,
+                totalRange > 0 ? (currentProgress / totalRange) * 100 : 0,
+            ),
         );
     } else {
-        progressPercent = 100; // Max tier
+        progressPercent = 100; // Max tier (Platinum)
     }
 
     const getExpiryText = (item: ProductItem) => {
@@ -1259,7 +1296,6 @@ export default function PrivilegePage() {
                                                 (isThaiRes ? 543 : 0)}
                                         </Typography>
                                     )} */}
-                                    
                                 </Box>
                                 <Grid
                                     size={4}
