@@ -981,9 +981,37 @@ export default function PrivilegePage() {
                 setRedeemStep("result");
                 router.reload({ only: ["point", "products", "customer_info"] });
             }
+            // } catch (err: any) {
+            //     setMainDialog({ ...mainDialog, open: false });
+            //     setTimeout(() => {
+            //         Swal.fire({
+            //             title: "ขออภัย",
+            //             text: err.response?.data?.message || "ไม่สามารถทำรายการได้",
+            //             icon: "error",
+            //         });
+            //     }, 200);
+            // }
         } catch (err: any) {
             setMainDialog({ ...mainDialog, open: false });
             setTimeout(() => {
+                // เช็ค Status 401 (Unauthenticated) หรือ 419 (Session Expired)
+                if (
+                    err.response?.status === 401 ||
+                    err.response?.status === 419
+                ) {
+                    Swal.fire({
+                        title: "เซสชันหมดอายุ",
+                        text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง เพื่อทำรายการต่อ",
+                        icon: "warning",
+                        confirmButtonText: "ตกลง",
+                    }).then(() => {
+                        // รีเฟรชหน้าเพื่อให้ Laravel พาไปหน้า Login อัตโนมัติ
+                        window.location.reload();
+                    });
+                    return; // หยุดการทำงานตรงนี้ ไม่ให้รันแจ้งเตือน error ถัดไป
+                }
+
+                // กรณี Error อื่นๆ ปกติ (เช่น ของหมด, แต้มไม่พอ ที่ถูกส่งมาจาก Backend)
                 Swal.fire({
                     title: "ขออภัย",
                     text: err.response?.data?.message || "ไม่สามารถทำรายการได้",

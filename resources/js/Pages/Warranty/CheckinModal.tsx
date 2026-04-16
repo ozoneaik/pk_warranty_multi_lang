@@ -1,7 +1,24 @@
 import React, { useMemo, useState } from "react";
-import { Modal, Box, Typography, Button, CircularProgress, Stack, keyframes, Grid, IconButton, useTheme, Paper,
+import {
+    Modal,
+    Box,
+    Typography,
+    Button,
+    CircularProgress,
+    Stack,
+    keyframes,
+    Grid,
+    IconButton,
+    useTheme,
+    Paper,
 } from "@mui/material";
-import { CheckCircle, LocalFireDepartment, Close, EmojiEvents, CardGiftcard, MonetizationOn,
+import {
+    CheckCircle,
+    LocalFireDepartment,
+    Close,
+    EmojiEvents,
+    CardGiftcard,
+    MonetizationOn,
 } from "@mui/icons-material";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -35,7 +52,14 @@ interface CheckinModalProps {
     checkedDays: string[];
 }
 
-export default function CheckinModal({ open, onClose, onSuccess, currentStreak = 0, hasCheckedInToday, checkedDays = [], }: CheckinModalProps) {
+export default function CheckinModal({
+    open,
+    onClose,
+    onSuccess,
+    currentStreak = 0,
+    hasCheckedInToday,
+    checkedDays = [],
+}: CheckinModalProps) {
     const theme = useTheme();
     const { t, currentLocale } = useLanguage();
     const [loading, setLoading] = useState(false);
@@ -65,11 +89,45 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
             if (res.data.status === "success") {
                 onClose();
                 onSuccess(res.data.points);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
             }
+            // } catch (error: any) {
+            //     Swal.fire({
+            //         icon: "error",
+            //         title: t.Checkin.errorTitle,
+            //         text: error.response?.data?.message || t.Checkin.errorMsg,
+            //         target:
+            //             document.getElementById("checkin-modal-container") ||
+            //             "body",
+            //     });
+            // }
         } catch (error: any) {
+            // 1. เช็ค Status 401 (Unauthenticated) หรือ 419 (Session Expired)
+            if (
+                error.response?.status === 401 ||
+                error.response?.status === 419
+            ) {
+                Swal.fire({
+                    title: "เซสชันหมดอายุ",
+                    text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง เพื่อทำรายการต่อ",
+                    icon: "warning",
+                    confirmButtonText: "ตกลง",
+                    // ต้องใส่ target เพื่อให้ popup อยู่เหนือ Modal
+                    target:
+                        document.getElementById("checkin-modal-container") ||
+                        "body",
+                }).then(() => {
+                    // รีเฟรชหน้าเพื่อให้ Laravel พาไปหน้า Login อัตโนมัติ
+                    window.location.reload();
+                });
+                return; // หยุดการทำงาน
+            }
+            // 2. กรณี Error อื่นๆ ปกติ (เช่น กดรับไปแล้ว หรือระบบขัดข้อง)
             Swal.fire({
                 icon: "error",
-                title: t.Checkin.errorTitle,
+                title: t.Checkin.errorTitle || "เกิดข้อผิดพลาด",
                 text: error.response?.data?.message || t.Checkin.errorMsg,
                 target:
                     document.getElementById("checkin-modal-container") ||
@@ -165,14 +223,24 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                     </Stack>
                 </Box>
 
-
                 <Box sx={{ p: 1.2 }}>
                     <Grid>
                         <Paper
                             elevation={0}
-                            sx={{ p: 1, borderRadius: 3, mb: 1.2, bgcolor: "white", border: "1px solid #EDF2F7", }}
+                            sx={{
+                                p: 1,
+                                borderRadius: 3,
+                                mb: 1.2,
+                                bgcolor: "white",
+                                border: "1px solid #EDF2F7",
+                            }}
                         >
-                            <Typography variant="body2" align="center" fontWeight="bold" sx={{ mb: 1, color: "#2D3748" }}>
+                            <Typography
+                                variant="body2"
+                                align="center"
+                                fontWeight="bold"
+                                sx={{ mb: 1, color: "#2D3748" }}
+                            >
                                 {currentLocale === "th"
                                     ? dayjs().locale("th").format("MMMM") +
                                       " " +
@@ -184,21 +252,38 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
                             <Grid container columns={7} spacing={0.5}>
                                 {t.Checkin.daysOfWeek.map((d) => (
                                     <Grid size={1} key={d}>
-                                        <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ fontSize: "0.6rem", fontWeight: 800, mb: 0.5, }}>
+                                        <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                            align="center"
+                                            display="block"
+                                            sx={{
+                                                fontSize: "0.6rem",
+                                                fontWeight: 800,
+                                                mb: 0.5,
+                                            }}
+                                        >
                                             {d}
                                         </Typography>
                                     </Grid>
                                 ))}
                                 {calendarDays.map((day, idx) => {
-                                    if (day === null) return <Grid size={1} key={idx} />;
+                                    if (day === null)
+                                        return <Grid size={1} key={idx} />;
 
                                     const dateStr = dayjs()
-                                    .date(day)
-                                    .format("YYYY-MM-DD");
-                                    
-                                    const isToday = dateStr === dayjs().format("YYYY-MM-DD");
-                                    const isChecked = checkedDays.includes(dateStr);
-                                    const isFuture = dayjs(dateStr).isAfter(dayjs(), "day");
+                                        .date(day)
+                                        .format("YYYY-MM-DD");
+
+                                    const isToday =
+                                        dateStr ===
+                                        dayjs().format("YYYY-MM-DD");
+                                    const isChecked =
+                                        checkedDays.includes(dateStr);
+                                    const isFuture = dayjs(dateStr).isAfter(
+                                        dayjs(),
+                                        "day",
+                                    );
 
                                     return (
                                         <Grid size={1} key={idx}>

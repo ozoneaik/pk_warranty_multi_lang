@@ -296,30 +296,8 @@ export default function WarrantyHome() {
             return [...prev, today];
         });
 
-        setNotifications((prev) => {
-            const filtered = prev.filter((n) => n.type !== "CHECK_IN");
-            return [
-                ...filtered,
-                {
-                    id: `earned_checkin_${Date.now()}`,
-                    type: "EARN_POINT",
-                    title: "ยินดีด้วย! คุณได้รับแต้ม",
-                    message: "จากการเช็คอินประจำวัน",
-                    data: {
-                        point: earnedPoints,
-                        transaction_ids: [], 
-                        items: [
-                            {
-                                id: Date.now(),
-                                title: "การเช็คอินประจำวัน",
-                                point: earnedPoints,
-                                date: dayjs().format("DD/MM/YYYY HH:mm"),
-                            },
-                        ],
-                    },
-                },
-            ];
-        });
+        // ลบ notification CHECK_IN ออก โดยไม่ต้องเพิ่มรายการแจ้งเตือนรับแต้มใหม่
+        setNotifications((prev) => prev.filter((n) => n.type !== "CHECK_IN"));
     };
 
     // --- เมื่อกดรับแต้มเสร็จ ---
