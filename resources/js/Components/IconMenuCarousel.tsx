@@ -128,7 +128,7 @@ export default function IconMenuCarousel({
                 >
                   <CardContent
                     sx={{
-                      py: 1,
+                      py: 1.5,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
@@ -197,4 +197,4 @@ export default function IconMenuCarousel({
       </Slider>
     </Box>
   );
-}
+}

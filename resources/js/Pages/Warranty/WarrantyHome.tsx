@@ -168,22 +168,46 @@ export default function WarrantyHome() {
         let newNotifs: NotificationItem[] = [];
 
         try {
-            // 1. เช็คแต้มค้างรับ
+            // 1. เช็คแต้มค้างรับ (แบ่งกลุ่ม: เช็คอินลง FAB, อื่นๆ ลง Popup)
             const ptRes = await axios.get("/api/points/pending");
-            if (ptRes.data.has_points && ptRes.data.items) {
-                ptRes.data.items.forEach((item: any) => {
+            if (ptRes.data.has_points && ptRes.data.items && ptRes.data.items.length > 0) {
+                const items = ptRes.data.items;
+                // แยกรายการที่เป็นเช็คอิน
+                const checkinPoints = items.filter((item: any) => 
+                    item.title?.includes("เช็คอิน") || item.type === "checkin"
+                );
+                // รายการอื่นๆ
+                const otherPoints = items.filter((item: any) => 
+                    !(item.title?.includes("เช็คอิน") || item.type === "checkin")
+                );
+
+                // ส่งรายการเช็คอินเข้า FAB
+                checkinPoints.forEach((item: any) => {
                     newNotifs.push({
                         id: `pending_point_${item.id}`,
                         type: "EARN_POINT",
                         title: item.title,
                         message: item.message,
                         data: {
-                            ...item,
-                            transaction_ids: [item.id], // สำหรับ ack เมื่อคลิก
-                            items: [item], // สำหรับโชว์ใน Modal (โชว์รายการเดียว)
+                            point: item.point || 0,
+                            transaction_ids: [item.id],
+                            items: [item],
                         },
                     });
                 });
+
+                // แสดงรายการอื่นๆ เป็น Popup ทันที
+                if (otherPoints.length > 0) {
+                    const firstItem = otherPoints[0];
+                    setEarnedData({
+                        title: firstItem.title || "ยินดีด้วย! คุณได้รับแต้ม",
+                        points: otherPoints.reduce((sum: number, item: any) => sum + (item.point || 0), 0),
+                        ids: otherPoints.map((item: any) => item.id),
+                        message: firstItem.message || "คุณมีแต้มค้างรับ",
+                        items: otherPoints,
+                    });
+                    setShowEarnModal(true);
+                }
             }
 
             // 2. เช็คสถานะ Check-in
@@ -251,9 +275,9 @@ export default function WarrantyHome() {
         } else if (notif.type === "EARN_POINT") {
             setEarnedData({
                 title: notif.title,
-                points: notif.data.point || 0, // สังเกตว่าใช้ point (singular) จาก item
+                points: notif.data.point || 0,
                 ids: notif.data.transaction_ids || [],
-                message: notif.data.message || "",
+                message: notif.message || "",
                 items: notif.data.items || [],
                 notificationId: notif.id,
             });
@@ -282,8 +306,8 @@ export default function WarrantyHome() {
                     title: "ยินดีด้วย! คุณได้รับแต้ม",
                     message: "จากการเช็คอินประจำวัน",
                     data: {
-                        points: earnedPoints,
-                        ids: [], // ถ้า CheckinModal จัดการ ack ในตัวแล้ว ปล่อยว่างไว้
+                        point: earnedPoints,
+                        transaction_ids: [], 
                         items: [
                             {
                                 id: Date.now(),
@@ -310,10 +334,12 @@ export default function WarrantyHome() {
 
             // หมายเหตุ: ไม่ต้องบวกแต้ม (setCurrentPoint) เข้าไปอีก
             // เนื่องจากแต้มตั้งต้น (usePage().props.point) ได้รวมแต้มเหล่านี้มาจากฐานข้อมูลแล้ว
-            // ลบรายการแต้มนี้ออกจากการแจ้งเตือน
-            setNotifications((prev) =>
-                prev.filter((n) => n.id !== earnedData.notificationId),
-            );
+            // ลบรายการแต้มนี้ออกจากการแจ้งเตือน (ถ้ามี)
+            if (earnedData.notificationId) {
+                setNotifications((prev) =>
+                    prev.filter((n) => n.id !== earnedData.notificationId),
+                );
+            }
         } catch (error) {
             console.error(error);
         }

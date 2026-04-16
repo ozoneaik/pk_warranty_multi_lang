@@ -318,7 +318,7 @@ export default function Login({ status }: { status?: string }) {
                     <Grid size={{ md: 5, lg: 6 }} sx={{
                         display: { xs: 'none', md: 'block' },
                         backgroundImage: `url(${LoginPromotionImg})`,
-                        backgroundSize: 'cover',
+                        backgroundSize: 'contain',
                         backgroundPosition: 'center',
                         bgcolor: '#f25722'
                     }} />

@@ -1213,7 +1213,7 @@ export default function PrivilegePage() {
                                     )} */}
 
                                     {/* วันหมดอายุ Tier (แถวใหม่) */}
-                                    {tier_expired_at && (
+                                    {/* {tier_expired_at && (
                                         <Typography
                                             variant="caption"
                                             sx={{
@@ -1230,7 +1230,8 @@ export default function PrivilegePage() {
                                             {dayjs(tier_expired_at).year() +
                                                 (isThaiRes ? 543 : 0)}
                                         </Typography>
-                                    )}
+                                    )} */}
+                                    
                                 </Box>
                                 <Grid
                                     size={4}

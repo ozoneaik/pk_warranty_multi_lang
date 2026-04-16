@@ -63,12 +63,8 @@ export default function CheckinModal({ open, onClose, onSuccess, currentStreak =
         try {
             const res = await axios.post("/api/checkin");
             if (res.data.status === "success") {
-                // เรียก onSuccess เพื่ออัปเดต state ที่ตัวแม่ (WarrantyHome)
-                // ตัวแปร hasCheckedInToday จะกลายเป็น true และปุ่มจะเปลี่ยนสถานะอัตโนมัติ
+                onClose();
                 onSuccess(res.data.points);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
             }
         } catch (error: any) {
             Swal.fire({
