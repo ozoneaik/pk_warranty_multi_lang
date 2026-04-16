@@ -402,7 +402,7 @@ export default function WarrantyHome() {
                                 src={line_avatar ?? undefined}
                                 onClick={() => setShowProfileQr(true)}
                                 sx={{
-                                    bgcolor: line_avatar ? "transparent" : "#F54927",
+                                    bgcolor: line_avatar ? "transparent" : "#867e7cff",
                                     width: 60,
                                     height: 60,
                                     cursor: "pointer",
