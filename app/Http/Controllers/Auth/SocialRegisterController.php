@@ -185,34 +185,189 @@ class SocialRegisterController extends Controller
         return view('auth.register.step3-address', compact('data'));
     }
 
+    // public function storeStep3(Request $request)
+    // {
+    //     // [แก้ใหม่] เช็ค Guard เพื่อความปลอดภัยสูงสุด ตอน Post
+    //     if (!session()->has('social_register_data') || !session('step2_passed')) {
+    //         return redirect()->route('register.step1')->with('error', 'เกิดข้อผิดพลาดของเซสชัน กรุณาทำรายการใหม่');
+    //     }
+
+    //     $request->validate([
+    //         'cust_address'     => 'nullable|string|max:255',
+    //         'cust_province'    => 'required|string',
+    //         'cust_district'    => 'required|string',
+    //         'cust_subdistrict' => 'required|string',
+    //         'cust_zipcode'     => 'nullable|string|max:10',
+    //         'referral_code'    => 'nullable|string|max:20',
+    //     ]);
+
+    //     // Merge ข้อมูลจากทุก Step
+    //     $socialData = session('social_register_data');
+    //     $step1      = session('register_step1');
+    //     $step2      = session('register_step2');
+    //     $lineId     = $socialData['line_id'];
+
+    //     session(['register_step3' => [
+    //         'cust_address'     => $request->cust_address,
+    //         'cust_province'    => $request->cust_province,
+    //         'cust_district'    => $request->cust_district,
+    //         'cust_subdistrict' => $request->cust_subdistrict,
+    //         'cust_zipcode'     => $request->cust_zipcode,
+    //     ]]);
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $rawEmail = !empty($step2['cust_email']) ? $step2['cust_email'] : null;
+    //         if ($rawEmail === 'default@email.com' || trim((string)$rawEmail) === '') {
+    //             $rawEmail = null;
+    //         }
+
+    //         // ── 1. User (Laravel Auth) ──────────────────────────────
+    //         $user = User::updateOrCreate(
+    //             ['line_id' => $lineId],
+    //             [
+    //                 'name'     => $step2['cust_firstname'] . ' ' . $step2['cust_lastname'],
+    //                 // 'email'    => $step2['cust_email'],
+    //                 'email'    => $rawEmail,
+    //                 'password' => Hash::make($lineId),
+    //                 'phone'    => $step2['cust_tel'],
+    //             ]
+    //         );
+
+    //         // ── 2. TblCustomerProd ────────────────────────────────
+    //         $cust = TblCustomerProd::firstOrNew(['cust_uid' => $lineId]);
+
+    //         $cust->cust_firstname = $step2['cust_firstname'];
+    //         $cust->cust_lastname  = $step2['cust_lastname'];
+    //         $cust->cust_gender    = $step2['cust_gender'];
+    //         // $cust->cust_email     = $step2['cust_email'];
+    //         $cust->cust_email     = $rawEmail;
+    //         $cust->cust_birthdate = $step2['cust_birthdate'];
+    //         $cust->cust_tel       = $step2['cust_tel'];
+
+    //         $fullAddress = collect([
+    //             $request->cust_address,
+    //             'ตำบล/แขวง ' . $request->cust_subdistrict,
+    //             'อำเภอ/เขต ' . $request->cust_district,
+    //             'จังหวัด '   . $request->cust_province,
+    //             $request->cust_zipcode,
+    //         ])->filter()->implode(' ');
+
+    //         $cust->cust_full_address = $fullAddress;
+    //         $cust->cust_address      = $request->cust_address ?? '';
+    //         $cust->cust_subdistrict  = $request->cust_subdistrict;
+    //         $cust->cust_district     = $request->cust_district;
+    //         $cust->cust_province     = $request->cust_province;
+    //         $cust->cust_zipcode      = $request->cust_zipcode ?? '';
+
+    //         $cust->crm_user_type_id = $step1['crm_user_type_id'];
+    //         $cust->cust_type        = 'line';
+
+    //         $cust->cust_line  = $lineId;
+    //         $cust->cust_prefix = 'mr';
+    //         $cust->status     = 'enabled';
+    //         if (!$cust->datetime) {
+    //             $cust->datetime = now();
+    //         }
+
+    //         if (!$cust->exists) {
+    //             $cust->unlockkey     = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    //             $cust->referral_code = strtoupper(substr(md5($lineId . time()), 0, 8));
+    //             $cust->cre_key       = now();
+    //             $cust->accept_news         = 'N';
+    //             $cust->accept_policy       = 'N';
+    //             $cust->accept_pdpa         = 'N';
+    //             $cust->accept_analyze_prod = 'N';
+    //             $cust->accept_marketing    = 'N';
+    //         }
+
+    //         $cust->save();
+
+    //         // ── 3. Referral ────────────────────────────────────────
+    //         $refCode = $request->referral_code ?: session('referrer_code');
+    //         if ($refCode && empty($cust->referred_by)) {
+    //             $referrer = TblCustomerProd::where('referral_code', $refCode)->first();
+    //             if ($referrer && $referrer->cust_uid !== $lineId) {
+    //                 $cust->update(['referred_by' => $referrer->cust_uid]);
+    //                 $this->processReferralReward($referrer, $lineId, $user->name);
+    //             }
+    //         }
+
+    //         // ── 4. คะแนนสมัครสมาชิกครั้งแรก ──────────────────────
+    //         $hasPoint = PointTransaction::where('line_id', $lineId)
+    //             ->where('process_code', 'REGISTER')->exists();
+    //         if (!$hasPoint) {
+    //             $this->awardFirstRegistrationPoints($cust, $lineId);
+    //         }
+
+    //         DB::commit();
+
+    //         // ── 5. Login Log ────────────────────────────────────────
+    //         $logType = $cust->wasRecentlyCreated ? 'new_register' : 'update_profile';
+    //         LoginLog::create([
+    //             'user_id'    => $user->id,
+    //             'line_id'    => $lineId,
+    //             'status'     => 'success',
+    //             'login_at'   => now(),
+    //             'metadata'   => ['type' => $logType],
+    //             'ip_address' => request()->ip(),
+    //             'user_agent' => request()->userAgent(),
+    //         ]);
+
+    //         Auth::login($user);
+    //         $this->assignLineRichMenu($lineId);
+
+    //         // ── 6. Clear Session (เพิ่มตัวแปรที่ใช้เช็ค Flag เข้าไปให้เกลี้ยง) ──
+    //         session()->forget([
+    //             'social_register_data',
+    //             'register_step1',
+    //             'register_step2',
+    //             'register_step3',
+    //             'step1_passed', // เคลียร์ตราประทับ
+    //             'step2_passed', // เคลียร์ตราประทับ
+    //             'referrer_code',
+    //             'after_login_redirect',
+    //             'register_otp',
+    //             'register_otp_phone',
+    //             'register_otp_expire',
+    //             'register_otp_db_format',
+    //         ]);
+
+    //         session([
+    //             'line_avatar' => $socialData['avatar'],
+    //             'line_email'  => $step2['cust_email'],
+    //         ]);
+
+    //         return redirect()->to(session('after_login_redirect') ?? '/dashboard');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Register Step3 Error: ' . $e->getMessage());
+    //         return back()->withInput()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+    //     }
+    // }
+
+
     public function storeStep3(Request $request)
     {
-        // [แก้ใหม่] เช็ค Guard เพื่อความปลอดภัยสูงสุด ตอน Post
         if (!session()->has('social_register_data') || !session('step2_passed')) {
             return redirect()->route('register.step1')->with('error', 'เกิดข้อผิดพลาดของเซสชัน กรุณาทำรายการใหม่');
         }
 
+        // ✅ validate เหลือแค่ 2 ฟิลด์ ทั้งคู่ไม่บังคับ
         $request->validate([
-            'cust_address'     => 'nullable|string|max:255',
-            'cust_province'    => 'required|string',
-            'cust_district'    => 'required|string',
-            'cust_subdistrict' => 'required|string',
-            'cust_zipcode'     => 'nullable|string|max:10',
-            'referral_code'    => 'nullable|string|max:20',
+            'cust_province' => 'nullable|string|max:100',
+            'referral_code' => 'nullable|string|max:20',
         ]);
 
-        // Merge ข้อมูลจากทุก Step
         $socialData = session('social_register_data');
         $step1      = session('register_step1');
         $step2      = session('register_step2');
         $lineId     = $socialData['line_id'];
 
+        // ✅ บันทึก session step3 เฉพาะ province
         session(['register_step3' => [
-            'cust_address'     => $request->cust_address,
-            'cust_province'    => $request->cust_province,
-            'cust_district'    => $request->cust_district,
-            'cust_subdistrict' => $request->cust_subdistrict,
-            'cust_zipcode'     => $request->cust_zipcode,
+            'cust_province' => $request->cust_province,
         ]]);
 
         try {
@@ -223,58 +378,49 @@ class SocialRegisterController extends Controller
                 $rawEmail = null;
             }
 
-            // ── 1. User (Laravel Auth) ──────────────────────────────
+            // ── 1. User ──────────────────────────────────────────────
             $user = User::updateOrCreate(
                 ['line_id' => $lineId],
                 [
                     'name'     => $step2['cust_firstname'] . ' ' . $step2['cust_lastname'],
-                    // 'email'    => $step2['cust_email'],
                     'email'    => $rawEmail,
                     'password' => Hash::make($lineId),
                     'phone'    => $step2['cust_tel'],
                 ]
             );
 
-            // ── 2. TblCustomerProd ────────────────────────────────
+            // ── 2. TblCustomerProd ───────────────────────────────────
             $cust = TblCustomerProd::firstOrNew(['cust_uid' => $lineId]);
 
             $cust->cust_firstname = $step2['cust_firstname'];
             $cust->cust_lastname  = $step2['cust_lastname'];
             $cust->cust_gender    = $step2['cust_gender'];
-            // $cust->cust_email     = $step2['cust_email'];
             $cust->cust_email     = $rawEmail;
             $cust->cust_birthdate = $step2['cust_birthdate'];
             $cust->cust_tel       = $step2['cust_tel'];
 
-            $fullAddress = collect([
-                $request->cust_address,
-                'ตำบล/แขวง ' . $request->cust_subdistrict,
-                'อำเภอ/เขต ' . $request->cust_district,
-                'จังหวัด '   . $request->cust_province,
-                $request->cust_zipcode,
-            ])->filter()->implode(' ');
-
-            $cust->cust_full_address = $fullAddress;
-            $cust->cust_address      = $request->cust_address ?? '';
-            $cust->cust_subdistrict  = $request->cust_subdistrict;
-            $cust->cust_district     = $request->cust_district;
-            $cust->cust_province     = $request->cust_province;
-            $cust->cust_zipcode      = $request->cust_zipcode ?? '';
+            // ✅ บันทึกเฉพาะ province ถ้ามี / ไม่มีก็ปล่อยว่าง
+            $cust->cust_province     = $request->cust_province ?? '';
+            $cust->cust_address      = '';
+            $cust->cust_subdistrict  = '';
+            $cust->cust_district     = '';
+            $cust->cust_zipcode      = '';
+            $cust->cust_full_address = $request->cust_province ?? '';
 
             $cust->crm_user_type_id = $step1['crm_user_type_id'];
             $cust->cust_type        = 'line';
+            $cust->cust_line        = $lineId;
+            $cust->cust_prefix      = 'mr';
+            $cust->status           = 'enabled';
 
-            $cust->cust_line  = $lineId;
-            $cust->cust_prefix = 'mr';
-            $cust->status     = 'enabled';
             if (!$cust->datetime) {
                 $cust->datetime = now();
             }
 
             if (!$cust->exists) {
-                $cust->unlockkey     = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                $cust->referral_code = strtoupper(substr(md5($lineId . time()), 0, 8));
-                $cust->cre_key       = now();
+                $cust->unlockkey           = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $cust->referral_code       = strtoupper(substr(md5($lineId . time()), 0, 8));
+                $cust->cre_key             = now();
                 $cust->accept_news         = 'N';
                 $cust->accept_policy       = 'N';
                 $cust->accept_pdpa         = 'N';
@@ -284,7 +430,7 @@ class SocialRegisterController extends Controller
 
             $cust->save();
 
-            // ── 3. Referral ────────────────────────────────────────
+            // ── 3. Referral ──────────────────────────────────────────
             $refCode = $request->referral_code ?: session('referrer_code');
             if ($refCode && empty($cust->referred_by)) {
                 $referrer = TblCustomerProd::where('referral_code', $refCode)->first();
@@ -294,7 +440,7 @@ class SocialRegisterController extends Controller
                 }
             }
 
-            // ── 4. คะแนนสมัครสมาชิกครั้งแรก ──────────────────────
+            // ── 4. คะแนนสมัครครั้งแรก ────────────────────────────────
             $hasPoint = PointTransaction::where('line_id', $lineId)
                 ->where('process_code', 'REGISTER')->exists();
             if (!$hasPoint) {
@@ -303,7 +449,7 @@ class SocialRegisterController extends Controller
 
             DB::commit();
 
-            // ── 5. Login Log ────────────────────────────────────────
+            // ── 5. Login Log ─────────────────────────────────────────
             $logType = $cust->wasRecentlyCreated ? 'new_register' : 'update_profile';
             LoginLog::create([
                 'user_id'    => $user->id,
@@ -318,14 +464,14 @@ class SocialRegisterController extends Controller
             Auth::login($user);
             $this->assignLineRichMenu($lineId);
 
-            // ── 6. Clear Session (เพิ่มตัวแปรที่ใช้เช็ค Flag เข้าไปให้เกลี้ยง) ──
+            // ── 6. Clear Session ─────────────────────────────────────
             session()->forget([
                 'social_register_data',
                 'register_step1',
                 'register_step2',
                 'register_step3',
-                'step1_passed', // เคลียร์ตราประทับ
-                'step2_passed', // เคลียร์ตราประทับ
+                'step1_passed',
+                'step2_passed',
                 'referrer_code',
                 'after_login_redirect',
                 'register_otp',

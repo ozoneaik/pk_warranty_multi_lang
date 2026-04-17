@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>ลงทะเบียนสมาชิกใหม่ — ที่อยู่ & ยืนยัน</title>
+    <title>ลงทะเบียนสมาชิกใหม่ — ยืนยัน</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -32,19 +32,14 @@
 
         .step-circle.active {
             border-color: #f97316;
-            /* orange-500 */
             background: #f97316;
-            /* orange-500 */
             color: #fff;
         }
 
         .step-circle.done {
             border-color: #f97316;
-            /* orange-500 */
             background: #fff7ed;
-            /* orange-50 */
             color: #f97316;
-            /* orange-500 */
         }
 
         .form-label {
@@ -68,17 +63,10 @@
 
         .form-input:focus {
             border-color: #f97316;
-            /* orange-500 */
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
-            /* orange shadow */
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, .12);
         }
 
-        .form-input:read-only {
-            background: #f9fafb;
-            cursor: not-allowed;
-        }
-
-        /* Tom Select override */
+        /* Tom Select */
         .ts-wrapper {
             font-family: 'Sarabun', sans-serif;
         }
@@ -95,9 +83,7 @@
 
         .ts-control:focus-within {
             border-color: #f97316 !important;
-            /* orange-500 */
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12) !important;
-            /* orange shadow */
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, .12) !important;
         }
 
         .ts-dropdown {
@@ -106,12 +92,7 @@
             font-size: 1rem !important;
         }
 
-        .ts-wrapper.disabled .ts-control {
-            background: #f9fafb !important;
-            cursor: not-allowed;
-        }
-
-        /* Referral box */
+        /* Referral */
         .ref-toggle {
             cursor: pointer;
         }
@@ -123,7 +104,7 @@
         }
 
         .ref-box.open {
-            max-height: 120px;
+            max-height: 140px;
         }
 
         .spinner {
@@ -144,7 +125,7 @@
             }
         }
 
-        /* Summary card */
+        /* Summary */
         .summary-row {
             display: flex;
             gap: .5rem;
@@ -168,7 +149,7 @@
             font-weight: 600;
         }
 
-        /* Scanner Modal */
+        /* QR Modal */
         #qr-modal {
             display: none;
             position: fixed;
@@ -205,9 +186,9 @@
             background: #f97316 !important;
             color: white !important;
             border: none !important;
-            padding: 0.5rem 1rem !important;
-            border-radius: 0.5rem !important;
-            font-size: 0.875rem !important;
+            padding: .5rem 1rem !important;
+            border-radius: .5rem !important;
+            font-size: .875rem !important;
             margin-top: 1rem !important;
         }
     </style>
@@ -217,12 +198,13 @@
 
     <div class="w-full max-w-lg">
 
+        {{-- Avatar + Title --}}
         <div class="text-center mb-6">
             @isset($data['avatar'])
             <img src="{{ $data['avatar'] }}" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-orange-500 shadow">
             @endisset
             <h1 class="text-xl font-bold text-gray-800">สมัครสมาชิก (3/3)</h1>
-            <p class="text-sm text-gray-500 mt-1">กรอกที่อยู่และยืนยันข้อมูลของคุณ</p>
+            <p class="text-sm text-gray-500 mt-1">ยืนยันข้อมูลและสมัครสมาชิก</p>
         </div>
 
         {{-- Progress --}}
@@ -240,7 +222,7 @@
                 <div class="flex-1 h-0.5 bg-orange-400 mx-1 mb-5"></div>
                 <div class="flex flex-col items-center">
                     <div class="step-circle active">3</div>
-                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ที่อยู่ & ยืนยัน</span>
+                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ยืนยัน</span>
                 </div>
             </div>
         </div>
@@ -257,67 +239,46 @@
             <form action="{{ route('register.step3.store') }}" method="POST" id="step3Form">
                 @csrf
 
-                {{-- Address Section --}}
-                <h3 class="text-sm font-semibold text-gray-700 mb-4">📍 ที่อยู่</h3>
-
-                <div class="mb-4">
-                    <label class="form-label">ที่อยู่ (เลขที่, หมู่บ้าน, ซอย, ถนน)</label>
-                    <input type="text" name="cust_address" class="form-input"
-                        value="{{ old('cust_address', session('register_step3.cust_address', '')) }}"
-                        placeholder="เช่น 99/1 ซอยสุขุมวิท 11">
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label">จังหวัด <span class="text-red-500">*</span></label>
-                    <select id="sel_province" name="cust_province" placeholder="ค้นหาจังหวัด..." autocomplete="off" required></select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div>
-                        <label class="form-label">อำเภอ/เขต <span class="text-red-500">*</span></label>
-                        <select id="sel_district" name="cust_district" placeholder="เลือกอำเภอ..." autocomplete="off" required></select>
-                    </div>
-                    <div>
-                        <label class="form-label">ตำบล/แขวง <span class="text-red-500">*</span></label>
-                        <select id="sel_subdistrict" name="cust_subdistrict" placeholder="เลือกตำบล..." autocomplete="off" required></select>
-                    </div>
-                </div>
-
+                {{-- Province (Optional) --}}
                 <div class="mb-5">
-                    <label class="form-label">รหัสไปรษณีย์</label>
-                    <input type="text" id="cust_zipcode" name="cust_zipcode" class="form-input"
-                        value="{{ old('cust_zipcode', session('register_step3.cust_zipcode', '')) }}"
-                        readonly placeholder="กรอกอัตโนมัติ">
+                    <label class="form-label">
+                        จังหวัด
+                        <span class="text-gray-400 font-normal">(ไม่บังคับ)</span>
+                    </label>
+                    <select id="sel_province" name="cust_province" placeholder="ค้นหาจังหวัด..." autocomplete="off"></select>
                 </div>
 
                 <hr class="my-5 border-gray-100">
 
-                {{-- Referral Code --}}
+                {{-- Referral Code (Optional) --}}
                 <div class="mb-5">
-                    <div class="ref-toggle flex items-center gap-2 text-sm text-gray-500 select-none"
-                        onclick="toggleRef()">
+                    <div class="ref-toggle flex items-center gap-2 text-sm text-gray-500 select-none" onclick="toggleRef()">
                         <svg id="refArrow" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
-                        <span>มีรหัสแนะนำเพื่อน? (ถ้ามี)</span>
+                        <span>รหัสแนะนำเพื่อน (ไม่บังคับ)</span>
                     </div>
                     <div class="ref-box" id="refBox">
                         <div class="mt-3">
                             <label class="form-label">รหัสแนะนำเพื่อน</label>
                             <div class="flex gap-2">
                                 <div class="relative flex-grow">
-                                    <input type="text" name="referral_code" id="referral_code" class="form-input uppercase tracking-widest pl-10"
+                                    <input type="text" name="referral_code" id="referral_code"
+                                        class="form-input uppercase tracking-widest pl-10"
                                         value="{{ old('referral_code', request()->query('ref', session('referrer_code', ''))) }}"
                                         placeholder="เช่น AB12CD34" maxlength="20">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                         </svg>
                                     </div>
                                 </div>
-                                <button type="button" onclick="startScanner()" class="flex items-center justify-center gap-2 bg-orange-100 text-orange-600 px-4 py-2.5 rounded-xl hover:bg-orange-200 transition-colors">
+                                <button type="button" onclick="startScanner()"
+                                    class="flex items-center justify-center gap-2 bg-orange-100 text-orange-600 px-4 py-2.5 rounded-xl hover:bg-orange-200 transition-colors">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                     </svg>
                                     <span class="text-sm font-bold hidden sm:inline">สแกน</span>
                                 </button>
@@ -344,7 +305,7 @@
                     </div>
                     <div class="summary-row">
                         <span class="summary-key">ชื่อ-นามสกุล</span>
-                        <span class="summary-val">{{ ($step2['cust_firstname'] ?? '') . ' ' . ($step2['cust_lastname'] ?? '') ?: '—' }}</span>
+                        <span class="summary-val">{{ trim(($step2['cust_firstname'] ?? '').' '.($step2['cust_lastname'] ?? '')) ?: '—' }}</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-key">เบอร์โทร</span>
@@ -356,6 +317,7 @@
                     </div>
                 </div>
 
+                {{-- Actions --}}
                 <div class="flex gap-3">
                     <a href="{{ route('register.step2') }}"
                         class="flex-1 border border-gray-300 text-gray-600 font-semibold py-3 rounded-xl text-sm text-center hover:bg-gray-50 transition">
@@ -363,7 +325,7 @@
                     </a>
                     <button type="submit" id="btnSubmit"
                         class="flex-grow bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm
-                            flex items-center justify-center gap-2 transition">
+                           flex items-center justify-center gap-2 transition">
                         <span id="btnSpinner" class="spinner hidden"></span>
                         <span id="btnText">ยืนยันสมัครสมาชิก</span>
                     </button>
@@ -373,7 +335,7 @@
 
     </div>
 
-    {{-- Scanner Modal --}}
+    {{-- QR Modal --}}
     <div id="qr-modal" onclick="event.target.id === 'qr-modal' && stopScanner()">
         <div id="qr-container">
             <div class="flex items-center justify-between mb-4">
@@ -391,147 +353,48 @@
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
-        // ============================================================
-        // Address Dropdowns (TomSelect + Thai Province Data)
-        // ============================================================
-        let tsProvince, tsDistrict, tsSubDistrict;
-        let provincesData = [],
-            districtsData = [],
-            subDistrictsData = [];
-
-        // Restore values from old() / session
+        // ── Province Dropdown ─────────────────────────────────────────
+        let tsProvince;
+        let provincesData = [];
         const OLD_PROVINCE = @json(old('cust_province', session('register_step3.cust_province', '')));
-        const OLD_DISTRICT = @json(old('cust_district', session('register_step3.cust_district', '')));
-        const OLD_SUBDISTRICT = @json(old('cust_subdistrict', session('register_step3.cust_subdistrict', '')));
-
-        const tsConfig = {
-            create: false,
-            sortField: {
-                field: 'text',
-                direction: 'asc'
-            },
-            closeAfterSelect: true,
-        };
 
         document.addEventListener('DOMContentLoaded', async function() {
             tsProvince = new TomSelect('#sel_province', {
-                ...tsConfig,
-                placeholder: 'ค้นหาจังหวัด...'
-            });
-            tsDistrict = new TomSelect('#sel_district', {
-                ...tsConfig,
-                placeholder: 'กรุณาเลือกจังหวัดก่อน'
-            });
-            tsSubDistrict = new TomSelect('#sel_subdistrict', {
-                ...tsConfig,
-                placeholder: 'กรุณาเลือกอำเภอก่อน'
-            });
-
-            tsDistrict.disable();
-            tsSubDistrict.disable();
-
-            // Events
-            tsProvince.on('change', onProvinceChange);
-            tsDistrict.on('change', onDistrictChange);
-            tsSubDistrict.on('change', function(val) {
-                const opt = tsSubDistrict.options[val];
-                document.getElementById('cust_zipcode').value = opt ? (opt.zip || '') : '';
+                create: false,
+                sortField: {
+                    field: 'text',
+                    direction: 'asc'
+                },
+                closeAfterSelect: true,
+                placeholder: 'ค้นหาจังหวัด...',
+                // Allow clearing selection
+                plugins: ['clear_button'],
             });
 
-            await loadAddressData();
+            await loadProvinces();
+            if (OLD_PROVINCE) tsProvince.setValue(OLD_PROVINCE, true);
 
-            // Restore old values
-            if (OLD_PROVINCE) {
-                tsProvince.setValue(OLD_PROVINCE, true);
-                await onProvinceChange(OLD_PROVINCE, true);
-                if (OLD_DISTRICT) {
-                    tsDistrict.setValue(OLD_DISTRICT, true);
-                    await onDistrictChange(OLD_DISTRICT, true);
-                    if (OLD_SUBDISTRICT) {
-                        tsSubDistrict.setValue(OLD_SUBDISTRICT, true);
-                        const opt = tsSubDistrict.options[OLD_SUBDISTRICT];
-                        if (opt?.zip) document.getElementById('cust_zipcode').value = opt.zip;
-                    }
-                }
-            }
-
-            // Auto-open referral if ?ref= exists or session has code
+            // Auto-open referral if ?ref= or session has code
             const refCode = @json(request()->query('ref', session('referrer_code', '')));
             if (refCode) toggleRef(true);
         });
 
-        async function loadAddressData() {
+        async function loadProvinces() {
             try {
-                const BASE = 'https://raw.githubusercontent.com/kongvut/thai-province-data/master/api/latest/';
-                const [p, d, s] = await Promise.all([
-                    fetch(BASE + 'province.json').then(r => r.json()),
-                    fetch(BASE + 'district.json').then(r => r.json()),
-                    fetch(BASE + 'sub_district.json').then(r => r.json()),
-                ]);
-                provincesData = p;
-                districtsData = d;
-                subDistrictsData = s;
+                const res = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api/latest/province.json');
+                provincesData = await res.json();
                 tsProvince.clearOptions();
-                tsProvince.addOption(p.map(x => ({
+                tsProvince.addOption(provincesData.map(x => ({
                     value: x.name_th,
-                    text: x.name_th,
-                    id: x.id
+                    text: x.name_th
                 })));
                 tsProvince.refreshOptions(false);
             } catch (e) {
-                console.error('Address load error', e);
+                console.error('Province load error', e);
             }
         }
 
-        async function onProvinceChange(val, silent = false) {
-            tsDistrict.clear(true);
-            tsDistrict.clearOptions();
-            tsDistrict.disable();
-            tsSubDistrict.clear(true);
-            tsSubDistrict.clearOptions();
-            tsSubDistrict.disable();
-            document.getElementById('cust_zipcode').value = '';
-
-            if (val) {
-                const prov = provincesData.find(p => p.name_th === val);
-                if (prov) {
-                    const filtered = districtsData.filter(d => d.province_id == prov.id);
-                    tsDistrict.addOption(filtered.map(d => ({
-                        value: d.name_th,
-                        text: d.name_th,
-                        id: d.id
-                    })));
-                    tsDistrict.enable();
-                    tsDistrict.refreshOptions(false);
-                }
-            }
-        }
-
-        async function onDistrictChange(val, silent = false) {
-            tsSubDistrict.clear(true);
-            tsSubDistrict.clearOptions();
-            tsSubDistrict.disable();
-            document.getElementById('cust_zipcode').value = '';
-
-            if (val) {
-                const pObj = provincesData.find(p => p.name_th === tsProvince.getValue());
-                const dist = districtsData.find(d => d.name_th === val && d.province_id == pObj?.id);
-                if (dist) {
-                    const filtered = subDistrictsData.filter(s => s.district_id == dist.id);
-                    tsSubDistrict.addOption(filtered.map(s => ({
-                        value: s.name_th,
-                        text: s.name_th,
-                        zip: s.zip_code
-                    })));
-                    tsSubDistrict.enable();
-                    tsSubDistrict.refreshOptions(false);
-                }
-            }
-        }
-
-        // ============================================================
-        // Referral toggle
-        // ============================================================
+        // ── Referral toggle ───────────────────────────────────────────
         function toggleRef(forceOpen) {
             const box = document.getElementById('refBox');
             const arrow = document.getElementById('refArrow');
@@ -540,29 +403,22 @@
             arrow.style.transform = open ? 'rotate(90deg)' : 'rotate(0deg)';
         }
 
-        // ============================================================
-        // QR Scanner Logic
-        // ============================================================
+        // ── QR Scanner ────────────────────────────────────────────────
         let html5QrCode = null;
 
         async function startScanner() {
             document.getElementById('qr-modal').style.display = 'flex';
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
-            }
-
-            const config = {
-                fps: 10,
-                qrbox: {
-                    width: 250,
-                    height: 250
-                }
-            };
-
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
             try {
                 await html5QrCode.start({
                     facingMode: "environment"
-                }, config, onScanSuccess);
+                }, {
+                    fps: 10,
+                    qrbox: {
+                        width: 250,
+                        height: 250
+                    }
+                }, onScanSuccess);
             } catch (err) {
                 console.error("Scanner start error:", err);
                 alert("ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาตใช้งานกล้อง");
@@ -571,40 +427,26 @@
         }
 
         async function stopScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                await html5QrCode.stop();
-            }
+            if (html5QrCode?.isScanning) await html5QrCode.stop();
             document.getElementById('qr-modal').style.display = 'none';
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            // ดึงค่า Referral Code จาก URL หรือข้อความตรงๆ
+        function onScanSuccess(decodedText) {
             let code = decodedText;
             try {
-                if (code.includes('?ref=')) {
-                    code = new URL(code).searchParams.get('ref');
-                } else if (code.includes('/register?ref=')) {
-                    code = code.split('ref=')[1].split('&')[0];
+                if (code.includes('?ref=') || code.includes('&ref=')) {
+                    code = new URL(code).searchParams.get('ref') || code;
                 }
-            } catch (e) {
-                // If not URL, use raw text
-            }
+            } catch (e) {}
 
-            document.getElementById('referral_code').value = code.toUpperCase();
-            
-            // Visual feedback
             const input = document.getElementById('referral_code');
+            input.value = code.toUpperCase();
             input.classList.add('ring-2', 'ring-green-500', 'border-green-500');
-            setTimeout(() => {
-                input.classList.remove('ring-2', 'ring-green-500', 'border-green-500');
-            }, 2000);
-
+            setTimeout(() => input.classList.remove('ring-2', 'ring-green-500', 'border-green-500'), 2000);
             stopScanner();
         }
 
-        // ============================================================
-        // Submit
-        // ============================================================
+        // ── Submit guard ──────────────────────────────────────────────
         document.getElementById('step3Form').addEventListener('submit', function() {
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
