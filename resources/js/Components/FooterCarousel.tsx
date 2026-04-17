@@ -147,7 +147,7 @@ export default function FooterCarousel() {
                                     px: 0.1,
                                 }}
                             >
-                                {item.label}
+                                {(t.footerMenu as any)[item.label] || item.label}
                             </Typography>
                         </Box>
                     );
