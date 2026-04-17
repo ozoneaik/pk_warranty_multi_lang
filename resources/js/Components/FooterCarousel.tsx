@@ -81,7 +81,7 @@ export default function FooterCarousel() {
                 borderTopRightRadius: { md: "25px" },
                 boxShadow: "0 -3px 8px rgba(0,0,0,0.1)",
                 zIndex: (theme) => theme.zIndex.drawer + 1,
-                py: 0.8,
+                py: 0,
             }}
         >
             <Slider {...sliderSettings}>
@@ -105,13 +105,20 @@ export default function FooterCarousel() {
                                 color: isActive ? "#fff" : "rgba(255,255,255,0.7)",
                                 transition: "0.2s",
                                 "&:hover": { color: "#fff" },
+                                // เพิ่มส่วนนี้เพื่อให้แน่ใจว่า content ภายในกึ่งกลางจริงๆ
+                                display: "flex !important",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                outline: "none", // ลบเส้นขอบเวลาคลิก (slick-slide)
+                                minHeight: "60px", // กำหนดความสูงขั้นต่ำให้เท่ากันทุกเมนู
                             }}
                         >
                             {IconComponent ? (
                                 <IconComponent
                                     sx={{
                                         fontSize: 26,
-                                        mb: 0.3,
+                                        mb: 0.5,
                                         color: isActive ? "#fff" : "rgba(255,255,255,0.7)",
                                     }}
                                 />
@@ -137,7 +144,7 @@ export default function FooterCarousel() {
                                     overflow: "hidden",
                                     wordBreak: "break-word",
                                     lineHeight: 1.2,
-                                    px: 0.3,
+                                    px: 0.1,
                                 }}
                             >
                                 {item.label}

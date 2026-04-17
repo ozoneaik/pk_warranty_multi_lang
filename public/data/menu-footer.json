@@ -7,9 +7,9 @@
     },
     {
         "id": 2,
-        "label": "แลกของรางวัล",
-        "route": "customer.profile.privilege",
-        "icon": "WorkspacePremium"
+        "label": "รับประกัน",
+        "route": "warranty.form",
+        "icon": "Assignment"
     },
     {
         "id": 3,

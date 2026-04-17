@@ -83,48 +83,67 @@ export default function CheckinModal({
     }, []);
 
     const handleCheckin = async () => {
+        // ป้องกัน double-tap / double-click
+        if (loading || hasCheckedInToday) return;
         setLoading(true);
         try {
+            // ตรวจสอบ status ล่าสุดจาก server ก่อนเสมอ
+            // เผื่อ device อื่นเช็คอินไปแล้วแต่ UI ยังไม่ refresh
+            const statusRes = await axios.get("/api/checkin/status");
+            if (statusRes.data.has_checked_in) {
+                onClose();
+                Swal.fire({
+                    icon: "info",
+                    title: "เช็คอินแล้ว",
+                    text: "คุณได้เช็คอินวันนี้ไปแล้ว",
+                    timer: 2500,
+                    showConfirmButton: false,
+                });
+                // อัปเดต UI ให้ตรงกับ server
+                setTimeout(() => window.location.reload(), 500);
+                return;
+            }
+
             const res = await axios.post("/api/checkin");
             if (res.data.status === "success") {
                 onClose();
                 onSuccess(res.data.points);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
+                setTimeout(() => window.location.reload(), 500);
             }
-            // } catch (error: any) {
-            //     Swal.fire({
-            //         icon: "error",
-            //         title: t.Checkin.errorTitle,
-            //         text: error.response?.data?.message || t.Checkin.errorMsg,
-            //         target:
-            //             document.getElementById("checkin-modal-container") ||
-            //             "body",
-            //     });
-            // }
         } catch (error: any) {
-            // 1. เช็ค Status 401 (Unauthenticated) หรือ 419 (Session Expired)
+            // จับ case ที่ backend ตอบกลับว่าเช็คอินไปแล้ว
+            if (
+                error.response?.status === 400 &&
+                error.response?.data?.already_checked
+            ) {
+                onClose();
+                Swal.fire({
+                    icon: "info",
+                    title: "เช็คอินแล้ว",
+                    text: "คุณได้เช็คอินวันนี้ไปแล้ว",
+                    timer: 2500,
+                    showConfirmButton: false,
+                });
+                setTimeout(() => window.location.reload(), 500);
+                return;
+            }
+
             if (
                 error.response?.status === 401 ||
                 error.response?.status === 419
             ) {
                 Swal.fire({
                     title: "เซสชันหมดอายุ",
-                    text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง เพื่อทำรายการต่อ",
+                    text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
                     icon: "warning",
                     confirmButtonText: "ตกลง",
-                    // ต้องใส่ target เพื่อให้ popup อยู่เหนือ Modal
                     target:
                         document.getElementById("checkin-modal-container") ||
                         "body",
-                }).then(() => {
-                    // รีเฟรชหน้าเพื่อให้ Laravel พาไปหน้า Login อัตโนมัติ
-                    window.location.reload();
-                });
-                return; // หยุดการทำงาน
+                }).then(() => window.location.reload());
+                return;
             }
-            // 2. กรณี Error อื่นๆ ปกติ (เช่น กดรับไปแล้ว หรือระบบขัดข้อง)
+
             Swal.fire({
                 icon: "error",
                 title: t.Checkin.errorTitle || "เกิดข้อผิดพลาด",
