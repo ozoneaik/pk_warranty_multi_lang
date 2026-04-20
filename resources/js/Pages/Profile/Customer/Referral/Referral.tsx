@@ -245,10 +245,12 @@ import { Head, router, usePage } from "@inertiajs/react";
 import { QRCodeCanvas } from 'qrcode.react';
 import { ArrowBack, ContentCopy, Share } from "@mui/icons-material";
 import Swal from 'sweetalert2';
+import { useLanguage } from "@/context/LanguageContext";
 
 import PumpkinLogo from '../../../../assets/logo/pumpkin.png';
 
 export default function Referral() {
+    const { t } = useLanguage();
     const { auth, referral_url, referral_code } = usePage().props as any;
     const shareLink = referral_url;
 
@@ -300,7 +302,7 @@ export default function Referral() {
 
             Swal.fire({
                 icon: 'success',
-                title: 'คัดลอกลิงก์สำเร็จ',
+                title: t.Referral.copySuccess,
                 showConfirmButton: false,
                 timer: 1500,
                 toast: true,
@@ -310,7 +312,7 @@ export default function Referral() {
             console.error('Failed to copy: ', err);
             Swal.fire({
                 icon: 'error',
-                title: 'คัดลอกไม่สำเร็จ',
+                title: t.Referral.copyError,
                 toast: true,
                 position: 'top',
                 timer: 2000
@@ -322,8 +324,8 @@ export default function Referral() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'แนะนำเพื่อนรับแต้มฟรีจาก Pumpkin!',
-                    text: `สมัครสมาชิก Pumpkin วันนี้ รับแต้มสะสมทันที! รหัสแนะนำ: ${referral_code}`,
+                    title: t.Referral.shareTitle,
+                    text: t.Referral.shareText.replace('{code}', referral_code),
                     url: shareLink,
                 });
             } catch (error) {
@@ -339,8 +341,8 @@ export default function Referral() {
     };
 
     return (
-        <MobileAuthenticatedLayout title="แนะนำเพื่อน">
-            <Head title="แนะนำเพื่อน" />
+        <MobileAuthenticatedLayout title={t.Referral.title}>
+            <Head title={t.Referral.title} />
             <Box
                 sx={{
                     display: 'flex',
@@ -358,7 +360,7 @@ export default function Referral() {
                     align="center"
                     sx={{ color: '#F54927' }}
                 >
-                    ชวนเพื่อนมาเป็นครอบครัวเดียวกัน 🧡
+                    {t.Referral.headline}
                 </Typography>
 
                 <Typography
@@ -367,8 +369,7 @@ export default function Referral() {
                     color="text.secondary"
                     sx={{ maxWidth: 320, mb: 2 }}
                 >
-                    แชร์ลิงก์ให้เพื่อนสมัครสมาชิก Pumpkin
-                    รับแต้มสะสมพิเศษทั้งคุณและเพื่อน
+                    {t.Referral.subHeadline}
                 </Typography>
 
                 {/* QR Code Section */}
@@ -420,7 +421,7 @@ export default function Referral() {
                         }}
                     >
                         <Typography variant="caption" color="text.secondary">
-                            รหัสแนะนำของคุณ
+                            {t.Referral.myReferralCode}
                         </Typography>
 
                         <Typography
@@ -436,7 +437,7 @@ export default function Referral() {
                             onClick={() => {
                                 // Copy เฉพาะรหัส
                                 if (navigator.clipboard) navigator.clipboard.writeText(referral_code);
-                                Swal.fire({ icon: 'success', title: 'คัดลอกรหัสแล้ว', toast: true, position: 'top', timer: 1000, showConfirmButton: false });
+                                Swal.fire({ icon: 'success', title: t.Referral.copyCodeSuccess, toast: true, position: 'top', timer: 1000, showConfirmButton: false });
                             }}
                             sx={{ position: 'absolute', top: 8, right: 8 }}
                         >
@@ -447,7 +448,7 @@ export default function Referral() {
                     {/* Display Referral Link */}
                     <Box sx={{ width: '100%' }}>
                         <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                            ลิงก์แนะนำของคุณ
+                            {t.Referral.myReferralLink}
                         </Typography>
 
                         <Paper
@@ -494,7 +495,7 @@ export default function Referral() {
                             '&:hover': { bgcolor: '#d83d1f' },
                         }}
                     >
-                        แชร์ให้เพื่อน
+                        {t.Referral.shareToFriend}
                     </Button>
                 </Stack>
 
@@ -505,7 +506,7 @@ export default function Referral() {
                         color="text.secondary"
                         display="block"
                     >
-                        * คุณจะได้รับแต้มเมื่อเพื่อนสมัครผ่านลิงก์นี้และสมัครสมาชิกสำเร็จ
+                        {t.Referral.footerNote}
                     </Typography>
                 </Box>
             </Box>

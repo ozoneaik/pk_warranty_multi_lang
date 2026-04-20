@@ -355,5 +355,19 @@
         "share_title": "Pumpkin Membership",
         "share_text": "Sign up for Pumpkin today and get many special privileges! via this link",
         "save_success": "Image saved"
+    },
+    "Referral": {
+        "title": "Refer a Friend",
+        "headline": "Invite friends to join our family 🧡",
+        "subHeadline": "Share your link to invite friends to Pumpkin and earn special points for both of you",
+        "myReferralCode": "Your Referral Code",
+        "myReferralLink": "Your Referral Link",
+        "shareToFriend": "Share with Friends",
+        "footerNote": "* You will receive points when your friend successfully registers via this link",
+        "copySuccess": "Link copied successfully",
+        "copyCodeSuccess": "Code copied",
+        "copyError": "Copy failed",
+        "shareTitle": "Refer a friend and get free points from Pumpkin!",
+        "shareText": "Join Pumpkin today and get instant points! Referral code: {code}"
     }
 }
