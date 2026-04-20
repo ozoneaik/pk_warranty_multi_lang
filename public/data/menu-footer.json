@@ -14,7 +14,7 @@
     {
         "id": 3,
         "label": "privilege",
-        "route": "customer.profile.score",
+        "route": "customer.profile.privilege",
         "icon": "CardGiftcard"
     },
     {

@@ -147,9 +147,9 @@ export default function ScorePage() {
                                         fontSize={{ xs: "0.9rem", sm: "1rem" }}
                                         fontWeight={800}
                                     >
-                                        {point ?? 0} {t.Score.pts}
+                                        {point ?? 0} {t.Score.pts} 
                                     </Typography>
-                                    {/* <ChevronRightIcon size={20} color="#F55014" /> */}
+                                    <ChevronRightIcon size={20} color="#F55014" />
                                 </Box>
                             </Stack>
                         </Box>
