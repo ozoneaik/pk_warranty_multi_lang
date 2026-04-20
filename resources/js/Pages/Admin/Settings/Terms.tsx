@@ -21,7 +21,7 @@ export default function TermsEdit({ terms }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.settings.update'), {
+        post(route('admin.settings.terms.update'), {
             onSuccess: () => {
                 Swal.fire({
                     toast: true,

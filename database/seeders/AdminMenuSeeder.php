@@ -19,7 +19,7 @@ class AdminMenuSeeder extends Seeder
                 'icon_color' => 'text-indigo-600',
                 'order' => 0,
                 'is_active' => true,
-                'key' => 'dashboard', 
+                'key' => 'dashboard',
             ],
             [
                 'title' => 'จัดการผู้ใช้',
@@ -122,6 +122,17 @@ class AdminMenuSeeder extends Seeder
                 'order' => 10,
                 'is_active' => true,
                 'key' => 'member_points',
+            ],
+            [
+                'title' => 'จัดการร้านค้าตัวแทนจำหน่าย',
+                'description' => 'เพิ่ม ลบ แก้ไข รายชื่อร้านค้าตัวแทนจำหน่าย',
+                'icon_type' => 'store', // อย่าลืมนำไปทำ Switch Case เลือกลายไอคอนที่ Sidebar (React) ด้วยนะครับ
+                'route_name' => 'admin.dealers.index',
+                'color_class' => 'bg-teal-50 hover:bg-teal-100',
+                'icon_color' => 'text-teal-500',
+                'order' => 12, // เรียงต่อจาก 'ตั้งค่าระบบ'
+                'is_active' => true,
+                'key' => 'dealers',
             ],
         ];
 

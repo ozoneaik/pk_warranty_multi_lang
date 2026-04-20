@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminFGFReportController;
 use App\Http\Controllers\Admin\AdminOrderReportController;
 use App\Http\Controllers\Admin\AdminCustomerReportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminDealerController;
 use App\Http\Controllers\Admin\AdminLoginLogController;
 use App\Http\Controllers\Admin\AdminMemberPointController;
 use App\Http\Controllers\Admin\AdminPcRankingReportController;
@@ -44,7 +45,7 @@ Route::middleware('auth:admin')->group(function () {
     // })->name('dashboard');
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    
+
     Route::prefix('permissions')->name('permissions.')->middleware('check_menu:permissions')->group(function () {
         Route::get('/', [AdminPermissionController::class, 'index'])->name('index');
         Route::post('/update', [AdminPermissionController::class, 'update'])->name('update');
@@ -198,6 +199,13 @@ Route::middleware('auth:admin')->group(function () {
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/terms', [\App\Http\Controllers\Admin\AdminSettingController::class, 'editTerms'])->name('terms.edit');
         Route::post('/terms', [\App\Http\Controllers\Admin\AdminSettingController::class, 'updateTerms'])->name('terms.update');
+    });
+
+    Route::prefix('dealers')->name('dealers.')->middleware('check_menu:dealers')->group(function () {
+        Route::get('/', [AdminDealerController::class, 'index'])->name('index');
+        Route::post('/', [AdminDealerController::class, 'store'])->name('store');
+        Route::put('/{id}', [AdminDealerController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminDealerController::class, 'destroy'])->name('destroy');
     });
 });
 

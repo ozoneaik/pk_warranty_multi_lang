@@ -274,7 +274,7 @@ export default function AdminDashboard({ auth, menus, stats, filters }: { auth: 
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                         <h3 className="text-lg font-bold text-gray-800 mb-6">สถิติการเข้าใช้งาน 7 วันย้อนหลัง</h3>
                         <div className="h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 {/* แก้ไขตรงนี้ */}
                                 <LineChart data={stats.trendData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -293,7 +293,7 @@ export default function AdminDashboard({ auth, menus, stats, filters }: { auth: 
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                         <h3 className="text-lg font-bold text-gray-800 mb-6">ช่องทางการเข้าสู่ระบบ (Providers)</h3>
                         <div className="h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 {/* แก้ไขตรงนี้ */}
                                 <BarChart data={stats.providerData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />

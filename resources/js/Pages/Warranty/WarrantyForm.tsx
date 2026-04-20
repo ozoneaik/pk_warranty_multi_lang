@@ -479,6 +479,42 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
     //     }
     // };
 
+    // const handleChangeStoreName = async (buy_from: string) => {
+    //     console.log("📦 [handleChangeStoreName] เริ่มโหลดร้าน:", buy_from);
+
+    //     if (!buy_from || buy_from === 'เลือก') {
+    //         setLoadingBuyFrom(false);
+    //         return;
+    //     }
+
+    //     // ✅ หา ID จาก channel_list โดยเทียบกับชื่อ (buy_from)
+    //     // channel_list เป็น any[] หรือสร้าง interface ให้ชัดเจนก็ได้
+    //     const selectedChannel = channel_list.find((c: any) => c.name === buy_from);
+    //     const channelId = selectedChannel ? selectedChannel.id : null;
+
+    //     if (!channelId) {
+    //         console.warn("❌ ไม่พบ ID ของช่องทางนี้:", buy_from);
+    //         setLoadingBuyFrom(false);
+    //         return;
+    //     }
+
+    //     try {
+    //         // ✅ ส่ง ID ไปที่ Controller แทนการส่งชื่อ
+    //         const response = await axios.get(route('warranty.get_store_name', { id: channelId }));
+
+    //         console.log("✅ [handleChangeStoreName] ตอบกลับจาก API:", response.data);
+
+    //         // ✅ setStoreList ตามโครงสร้างที่ API ใหม่ส่งกลับมา (Array of Strings)
+    //         setStoreList(response.data.list || []);
+
+    //     } catch (error) {
+    //         console.error('Error fetching store names:', error);
+    //         setStoreList([]);
+    //     } finally {
+    //         setLoadingBuyFrom(false);
+    //     }
+    // };
+
     const handleChangeStoreName = async (buy_from: string) => {
         console.log("📦 [handleChangeStoreName] เริ่มโหลดร้าน:", buy_from);
 
@@ -487,24 +523,23 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
             return;
         }
 
-        // ✅ หา ID จาก channel_list โดยเทียบกับชื่อ (buy_from)
-        // channel_list เป็น any[] หรือสร้าง interface ให้ชัดเจนก็ได้
-        const selectedChannel = channel_list.find((c: any) => c.name === buy_from);
-        const channelId = selectedChannel ? selectedChannel.id : null;
-
-        if (!channelId) {
-            console.warn("❌ ไม่พบ ID ของช่องทางนี้:", buy_from);
-            setLoadingBuyFrom(false);
-            return;
-        }
+        const selectedChannel = channel_list.find((c: any) => 
+            (typeof c === 'object' ? c.name : c) === buy_from
+        );
+        
+        // ถ้า channel_list ของคุณส่งกลับมาเป็น array of object ให้ใช้ .id
+        // แต่ถ้า API เดิมของคุณมันดันส่งกลับมาเป็น Array of Strings (ดึง id ไม่ได้)
+        // คุณอาจจะต้องแก้ขัดโดยส่งเฉพาะชื่อไป แล้วฝั่ง Backend ค่อยไปเช็คชื่อเอาครับ
+        const channelId = selectedChannel && typeof selectedChannel === 'object' ? selectedChannel.id : 'unknown';
 
         try {
-            // ✅ ส่ง ID ไปที่ Controller แทนการส่งชื่อ
-            const response = await axios.get(route('warranty.get_store_name', { id: channelId }));
+            // ✅ แก้ไข: ส่ง channel_name แนบไปด้วยผ่าน Query Parameter
+            const response = await axios.get(route('warranty.get_store_name', { 
+                id: channelId, 
+                channel_name: buy_from // 👈 เพิ่มตรงนี้
+            }));
 
             console.log("✅ [handleChangeStoreName] ตอบกลับจาก API:", response.data);
-
-            // ✅ setStoreList ตามโครงสร้างที่ API ใหม่ส่งกลับมา (Array of Strings)
             setStoreList(response.data.list || []);
 
         } catch (error) {

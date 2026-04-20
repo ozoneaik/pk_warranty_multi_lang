@@ -1028,7 +1028,7 @@ export default function CustomerReport({ stats, customers, history, filters, age
 
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                             <div className="w-full h-56 relative">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <PieChart>
                                         <Pie
                                             data={age_chart}
@@ -1081,7 +1081,7 @@ export default function CustomerReport({ stats, customers, history, filters, age
 
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                             <div className="w-full h-56 relative">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                     <PieChart>
                                         <Pie
                                             data={tier_chart}
