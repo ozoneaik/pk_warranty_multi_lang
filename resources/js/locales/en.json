@@ -19,6 +19,15 @@
             "warrantyHistoryHeadTitle": "History",
             "warrantyHistorySubTitle": "View warranty history"
         },
+        "point_expiry": "Points expire {date}",
+        "notifications": {
+            "title": "Notifications",
+            "no_new": "No new notifications",
+            "checkin_title": "Time to check-in!",
+            "checkin_message": "Don't forget to check-in today to earn points",
+            "earn_title": "Congratulations! You earned points",
+            "earn_message": "You have pending points"
+        },
         "mainMenu": {
             "checkRepairStatus": "Repair Status",
             "warrantyProduct": "Warranty Products",
@@ -333,5 +342,18 @@
         "errorTitle": "Sorry",
         "errorMsg": "Could not check in",
         "daysOfWeek": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    },
+    "ProfileQr": {
+        "title": "Scan to Register",
+        "member_id": "Member ID",
+        "share_options": "Share Options",
+        "share_button": "Share",
+        "save_button": "Save",
+        "footer_note": "Your friends will receive special privileges when registering through this link.",
+        "copy_link": "Copy Link",
+        "copied": "Copied!",
+        "share_title": "Pumpkin Membership",
+        "share_text": "Sign up for Pumpkin today and get many special privileges! via this link",
+        "save_success": "Image saved"
     }
 }

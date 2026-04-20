@@ -109,19 +109,19 @@ export default function WarrantyHome() {
         { label: string; color: string; bg: string; border: string }
     > = {
         silver: {
-            label: "Silver",
+            label: t.Score.tiers.silver,
             color: "#5F5E5A",
             bg: "#F1EFE8",
             border: "#B4B2A9",
         },
         gold: {
-            label: "Gold",
+            label: t.Score.tiers.gold,
             color: "#854F0B",
             bg: "#FAEEDA",
             border: "#EF9F27",
         },
         platinum: {
-            label: "Platinum",
+            label: t.Score.tiers.platinum,
             color: "#3C3489",
             bg: "#EEEDFE",
             border: "#AFA9EC",
@@ -226,13 +226,13 @@ export default function WarrantyHome() {
                 if (otherPoints.length > 0) {
                     const firstItem = otherPoints[0];
                     setEarnedData({
-                        title: firstItem.title || "ยินดีด้วย! คุณได้รับแต้ม",
+                        title: t.homePage.notifications.earn_title,
                         points: otherPoints.reduce(
                             (sum: number, item: any) => sum + (item.point || 0),
                             0,
                         ),
                         ids: otherPoints.map((item: any) => item.id),
-                        message: firstItem.message || "คุณมีแต้มค้างรับ",
+                        message: t.homePage.notifications.earn_message,
                         items: otherPoints,
                     });
                     setShowEarnModal(true);
@@ -249,8 +249,8 @@ export default function WarrantyHome() {
                 newNotifs.push({
                     id: "daily_checkin",
                     type: "CHECK_IN",
-                    title: "ได้เวลาเช็คอินแล้ว!",
-                    message: "อย่าลืมเช็คอินวันนี้เพื่อรับแต้มพิเศษ",
+                    title: t.homePage.notifications.checkin_title,
+                    message: t.homePage.notifications.checkin_message,
                 });
             }
 
@@ -533,7 +533,7 @@ export default function WarrantyHome() {
                                                 lineHeight: 1.4,
                                             }}
                                         >
-                                            คะแนนหมดอายุ {point_expiry_date}
+                                            {t.homePage.point_expiry.replace("{date}", point_expiry_date)}
                                         </Typography>
                                     </Stack>
                                 )}
@@ -761,7 +761,7 @@ export default function WarrantyHome() {
                     }}
                 >
                     <Typography variant="subtitle1" fontWeight="bold">
-                        การแจ้งเตือน
+                        {t.homePage.notifications.title}
                     </Typography>
                     <IconButton
                         onClick={() => setShowNotificationModal(false)}
@@ -775,7 +775,7 @@ export default function WarrantyHome() {
                         {notifications.length === 0 ? (
                             <Box sx={{ py: 6, textAlign: "center" }}>
                                 <Typography color="text.secondary">
-                                    ไม่มีการแจ้งเตือนใหม่
+                                    {t.homePage.notifications.no_new}
                                 </Typography>
                             </Box>
                         ) : (

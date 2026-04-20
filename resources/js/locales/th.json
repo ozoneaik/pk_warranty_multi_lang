@@ -19,6 +19,15 @@
             "warrantyHistoryHeadTitle": "ดูประวัติ",
             "warrantyHistorySubTitle": "การรับประกันสินค้า"
         },
+        "point_expiry": "คะแนนหมดอายุ {date}",
+        "notifications": {
+            "title": "การแจ้งเตือน",
+            "no_new": "ไม่มีการแจ้งเตือนใหม่",
+            "checkin_title": "ได้เวลาเช็คอินแล้ว!",
+            "checkin_message": "อย่าลืมเช็คอินวันนี้เพื่อรับแต้มพิเศษ",
+            "earn_title": "ยินดีด้วย! คุณได้รับแต้ม",
+            "earn_message": "คุณมีแต้มค้างรับ"
+        },
         "mainMenu": {
             "checkRepairStatus": "ติดตามสถานะซ่อม",
             "warrantyProduct": "ข้อมูลรับประกัน",
@@ -335,5 +344,18 @@
         "errorTitle": "ขออภัย",
         "errorMsg": "ไม่สามารถเช็คอินได้",
         "daysOfWeek": ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"]
+    },
+    "ProfileQr": {
+        "title": "สแกนเพื่อสมัครสมาชิก",
+        "member_id": "Member ID",
+        "share_options": "ตัวเลือกการแชร์",
+        "share_button": "แชร์",
+        "save_button": "บันทึก",
+        "footer_note": "เพื่อนของคุณจะได้รับสิทธิพิเศษเมื่อสมัครผ่านลิงก์นี้",
+        "copy_link": "คัดลอกลิงก์",
+        "copied": "คัดลอกแล้ว!",
+        "share_title": "สมัครสมาชิก Pumpkin",
+        "share_text": "สมัครสมาชิก Pumpkin วันนี้ รับสิทธิพิเศษมากมาย! ผ่านลิงก์นี้",
+        "save_success": "บันทึกรูปภาพแล้ว"
     }
 }

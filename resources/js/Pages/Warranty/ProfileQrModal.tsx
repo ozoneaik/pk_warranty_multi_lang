@@ -23,6 +23,7 @@ import {
 } from "@mui/icons-material";
 import { QRCodeCanvas } from 'qrcode.react';
 import Swal from 'sweetalert2';
+import { useLanguage } from "@/context/LanguageContext";
 
 // Import Logo
 import PumpkinLogo from '../../assets/logo/pumpkin.png';
@@ -47,6 +48,7 @@ export default function ProfileQrModal({
     referralUrl
 }: ProfileQrModalProps) {
 
+    const { t } = useLanguage();
     const [logoBase64, setLogoBase64] = useState<string>("");
     const [isCopied, setIsCopied] = useState(false); // State สำหรับแสดงสถานะว่าคัดลอกแล้ว
     const inputRef = useRef<HTMLInputElement>(null); // Ref เพื่ออ้างอิง Input ใน Modal
@@ -101,8 +103,8 @@ export default function ProfileQrModal({
         if (navigator.share && referralUrl) {
             try {
                 await navigator.share({
-                    title: 'สมัครสมาชิก Pumpkin',
-                    text: `สมัครสมาชิก Pumpkin วันนี้ รับสิทธิพิเศษมากมาย! ผ่านลิงก์นี้`,
+                    title: t.ProfileQr.share_title,
+                    text: t.ProfileQr.share_text,
                     url: referralUrl,
                 });
             } catch (error) { }
@@ -124,7 +126,7 @@ export default function ProfileQrModal({
                 document.body.removeChild(downloadLink);
                 Swal.fire({
                     icon: 'success',
-                    title: 'บันทึกรูปภาพแล้ว',
+                    title: t.ProfileQr.save_success,
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
@@ -159,7 +161,7 @@ export default function ProfileQrModal({
                         sx={{ width: 80, height: 80, border: '3px solid white', mx: 'auto', mb: 1.5, boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}
                     />
                     <Typography variant="h6" fontWeight="bold">{user.name}</Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>Member ID: {customerCode || '-'}</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>{t.ProfileQr.member_id}: {customerCode || '-'}</Typography>
                 </Box>
 
                 <Box sx={{ mt: -6, px: 3 }}>
@@ -175,7 +177,7 @@ export default function ProfileQrModal({
                         }}
                     >
                         <Typography variant="subtitle1" fontWeight="bold" color="text.secondary" sx={{ mb: 2 }}>
-                            สแกนเพื่อสมัครสมาชิก
+                            {t.ProfileQr.title}
                         </Typography>
 
                         <Box
@@ -220,7 +222,7 @@ export default function ProfileQrModal({
                                 readOnly: true,
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <Tooltip title={isCopied ? "คัดลอกแล้ว!" : "คัดลอกลิงก์"}>
+                                        <Tooltip title={isCopied ? t.ProfileQr.copied : t.ProfileQr.copy_link}>
                                             <IconButton
                                                 onClick={handleCopy}
                                                 edge="end"
@@ -244,7 +246,7 @@ export default function ProfileQrModal({
                         />
 
                         <Divider flexItem sx={{ mb: 2 }}>
-                            <Typography variant="caption" color="text.secondary">ตัวเลือกการแชร์</Typography>
+                            <Typography variant="caption" color="text.secondary">{t.ProfileQr.share_options}</Typography>
                         </Divider>
 
                         <Stack direction="row" spacing={2} width="100%">
@@ -260,7 +262,7 @@ export default function ProfileQrModal({
                                     '&:hover': { bgcolor: '#D83A1E', boxShadow: 'none' }
                                 }}
                             >
-                                แชร์
+                                {t.ProfileQr.share_button}
                             </Button>
                             <Button
                                 variant="outlined"
@@ -274,15 +276,14 @@ export default function ProfileQrModal({
                                     '&:hover': { borderColor: '#D83A1E', bgcolor: '#FFF5F2' }
                                 }}
                             >
-                                บันทึก
+                                {t.ProfileQr.save_button}
                             </Button>
                         </Stack>
-
                     </Paper>
                 </Box>
 
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
-                    เพื่อนของคุณจะได้รับสิทธิพิเศษเมื่อสมัครผ่านลิงก์นี้
+                    {t.ProfileQr.footer_note}
                 </Typography>
             </DialogContent>
         </Dialog>

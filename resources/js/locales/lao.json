@@ -19,6 +19,15 @@
             "warrantyHistoryHeadTitle": "ປະຫວັດ",
             "warrantyHistorySubTitle": "ເບິ່ງປະຫວັດການຮັບປະກັນ"
         },
+        "point_expiry": "ຄະແນນໝົດອາຍຸ {date}",
+        "notifications": {
+            "title": "ການແຈ້ງເຕືອນ",
+            "no_new": "ບໍ່ມີການແຈ້ງເຕືອນໃໝ່",
+            "checkin_title": "ໄດ້ເວລາເຊັກອິນແລ້ວ!",
+            "checkin_message": "ຢ່າລືມເຊັກອິນມື້ນີ້ເພື່ອຮັບແຕ້ມພິເສດ",
+            "earn_title": "ຍິນດີດ້ວຍ! ທ່ານໄດ້ຮັບຄະແນນ",
+            "earn_message": "ທ່ານມີຄະແນນລໍຖ້າຮັບ"
+        },
         "mainMenu": {
             "checkRepairStatus": "ກວດສະຖານະການສ້ອມແປງ",
             "warrantyProduct": "ສິນຄ້າຮັບປະກັນ",
@@ -333,5 +342,18 @@
         "errorTitle": "ຂໍອະໄພ",
         "errorMsg": "ບໍ່ສາມາດເຊັກອິນໄດ້",
         "daysOfWeek": ["ອາ", "ຈ", "ອ", "ພ", "ພຶ", "ສ", "ສ"]
+    },
+    "ProfileQr": {
+        "title": "ສະແກນເພື່ອສະໝັກສະມາຊິກ",
+        "member_id": "Member ID",
+        "share_options": "ຕົວເລືອກການແຊຣ໌",
+        "share_button": "ແຊຣ໌",
+        "save_button": "ບັນທຶກ",
+        "footer_note": "ເພື່ອນຂອງທ່ານຈະໄດ້ຮັບສິດທິພິເສດເມື່ອສະໝັກຜ່ານລິ້ງນີ້",
+        "copy_link": "ຄັດລອກລິ້ງ",
+        "copied": "ຄັດລອກແລ້ວ!",
+        "share_title": "ສະໝັກສະມາຊິກ Pumpkin",
+        "share_text": "ສະໝັກສະມາຊິກ Pumpkin ມື້ນີ້ ຮັບສິດທິພິເສດມາກມາຍ! ຜ່ານລິ້ງນີ້",
+        "save_success": "ບັນທຶກຮູບພາບແລ້ວ"
     }
 }
