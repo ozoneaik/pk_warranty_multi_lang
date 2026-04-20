@@ -25,7 +25,25 @@ class SocialRegisterController extends Controller
         if (!session()->has('social_register_data')) {
             return redirect()->route('login');
         }
-        $data = session('social_register_data');
+
+        $socialData = session('social_register_data');
+        $lineId     = $socialData['line_id'];
+
+        // ป้องกันการสมัครซ้ำ: ถ้ามีข้อมูลใน TblCustomerProd แล้ว และไม่ได้อยู่ในโหมด Update Profile
+        // ให้ส่งไปหน้า Dashboard เลย (หากสมัครเสร็จแล้ว)
+        if (empty($socialData['is_update_mode'])) {
+            $isExists = TblCustomerProd::where('cust_uid', $lineId)->where('status', 'enabled')->exists();
+            if ($isExists) {
+                // พยายามหาก่อนว่ามี User row หรือยัง ถ้ามีให้ล็อกอินเลยเพื่อความชัวร์
+                $user = User::where('line_id', $lineId)->first();
+                if ($user) {
+                    Auth::login($user);
+                }
+                return redirect()->to('/dashboard');
+            }
+        }
+
+        $data = $socialData;
         return view('auth.register.step1-user-type', compact('data'));
     }
 
@@ -279,6 +297,9 @@ class SocialRegisterController extends Controller
             if (!$hasPoint) {
                 $this->awardFirstRegistrationPoints($cust, $lineId);
             }
+
+            // [เพิ่มใหม่] ซิงค์คะแนนให้ตรงกับรายการธุรกรรมทั้งหมดเป็นขั้นตอนสุดท้าย
+            $cust->syncPoints();
 
             DB::commit();
 

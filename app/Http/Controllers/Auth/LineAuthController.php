@@ -322,6 +322,9 @@ class LineAuthController extends Controller
         $cust->status = 'enabled';
         $cust->save();
 
+        // [เพิ่มใหม่] ซิงค์คะแนนจากประวัติธุรกรรมเสมอเมื่อ Login เพื่อความแม่นยำ
+        $cust->syncPoints();
+
         // 4. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม
         $hasRegisteredPoint = PointTransaction::where('line_id', $lineId)
             ->where('process_code', 'REGISTER')

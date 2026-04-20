@@ -66,4 +66,35 @@ class TblCustomerProd extends Model
         'remark'
     ];
     public $timestamps = false;
+
+    /**
+     * คืนค่าคะแนนรวมที่คำนวณจากประวัติธุรกรรมทั้งหมด
+     */
+    public function syncPoints()
+    {
+        $lineId = $this->cust_line;
+        if (!$lineId) return 0;
+
+        // ดึงแต้มรวมจากตารางธุรกรรม
+        // Earn (+) / Adjust (+) / Redeem (-)
+        $earn = (int) PointTransaction::where('line_id', $lineId)
+            ->whereIn('transaction_type', ['earn', 'adjust'])
+            ->sum('point_tran');
+        
+        $redeem = (int) PointTransaction::where('line_id', $lineId)
+            ->where('transaction_type', 'redeem')
+            ->sum('point_tran');
+
+        $totalPoints = $earn - $redeem;
+
+        // 1. อัปเดตยอดแต้มลง DB ก่อนเพื่อให้ TierService นำไปใช้คำนวณต่อได้
+        $this->update([
+            'point' => $totalPoints,
+        ]);
+
+        // 2. ให้ TierService จัดการเรื่องระดับสมาชิก (Upgrade/Expire/History) ตามเงื่อนไขในไฟล์ TierService.php
+        app(\App\Services\TierService::class)->recalculate($this);
+
+        return $totalPoints;
+    }
 }
