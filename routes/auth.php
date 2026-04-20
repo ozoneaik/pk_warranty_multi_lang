@@ -77,7 +77,7 @@ Route::middleware('guest')->group(function () {
         Route::post('step2', [SocialRegisterController::class, 'storeStep2'])->name('step2.store');
         Route::post('send-otp', [SocialRegisterController::class, 'sendOtp'])->name('send_otp');
 
-        // STEP 3: ที่อยู่ (Dropdown) + รหัสแนะนำเพื่อน
+        // STEP 3: ที่อยู่ (Dropdown) + รหัสแนะนำเพื่อน + ยอมรับเงื่อนไข (Final)
         Route::get('step3', [SocialRegisterController::class, 'showStep3'])->name('step3');
         Route::post('step3', [SocialRegisterController::class, 'storeStep3'])->name('step3.store');
     });

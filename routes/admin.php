@@ -195,6 +195,10 @@ Route::middleware('auth:admin')->group(function () {
                 ]);
             })->name('index');
         });
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/terms', [\App\Http\Controllers\Admin\AdminSettingController::class, 'editTerms'])->name('terms.edit');
+        Route::post('/terms', [\App\Http\Controllers\Admin\AdminSettingController::class, 'updateTerms'])->name('terms.update');
+    });
 });
 
 Route::get('/admin/reports/customers/export', [AdminCustomerReportController::class, 'exportExcel'])

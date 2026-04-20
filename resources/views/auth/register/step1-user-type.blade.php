@@ -89,36 +89,11 @@
             </div>
             @endisset
 
-            @php
-            $isUpdateMode = !empty($data['is_update_mode']);
-            @endphp
-
-            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">
-                {{ $isUpdateMode ? 'สมัครสมาชิก (1/3)' : 'สมัครสมาชิก (1/3)' }}
-            </h1>
-            <p class="text-sm text-slate-500 mt-2">
-                {{ $isUpdateMode ? 'กรุณาเลือกประเภทการใช้งาน' : 'กรุณาเลือกประเภทการใช้งาน' }}
-            </p>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">สมัครสมาชิก (1/3)</h1>
+            <p class="text-sm text-slate-500 mt-2">กรุณาเลือกประเภทการใช้งาน</p>
         </div>
 
-        {{-- Minimal Progress Bar --}}
-        <div class="mb-8 px-8">
-            <div class="flex items-center justify-between relative">
-                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-200 rounded-full -z-10"></div>
-                <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold shadow-md border-4 border-white ring-1 ring-orange-100">1</div>
-                    <span class="text-xs font-semibold text-orange-600 mt-2">ประเภท</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center font-semibold border-2 border-slate-200">2</div>
-                    <span class="text-xs text-slate-400 mt-2">ข้อมูลส่วนตัว</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 rounded-full bg-white text-slate-400 flex items-center justify-center font-semibold border-2 border-slate-200">3</div>
-                    <span class="text-xs text-slate-400 mt-2">ที่อยู่</span>
-                </div>
-            </div>
-        </div>
+        @include('auth.register._progress', ['currentStep' => 1])
 
         {{-- Form Container --}}
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8">

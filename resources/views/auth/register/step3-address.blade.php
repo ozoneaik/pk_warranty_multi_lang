@@ -208,24 +208,7 @@
         </div>
 
         {{-- Progress --}}
-        <div class="bg-white rounded-2xl shadow-sm px-6 py-4 mb-5">
-            <div class="flex items-center">
-                <div class="flex flex-col items-center">
-                    <div class="step-circle done">✓</div>
-                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ประเภท</span>
-                </div>
-                <div class="flex-1 h-0.5 bg-orange-400 mx-1 mb-5"></div>
-                <div class="flex flex-col items-center">
-                    <div class="step-circle done">✓</div>
-                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ข้อมูลส่วนตัว</span>
-                </div>
-                <div class="flex-1 h-0.5 bg-orange-400 mx-1 mb-5"></div>
-                <div class="flex flex-col items-center">
-                    <div class="step-circle active">3</div>
-                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ยืนยัน</span>
-                </div>
-            </div>
-        </div>
+        @include('auth.register._progress', ['currentStep' => 3])
 
         {{-- Errors --}}
         @if(session('error') || $errors->any())
@@ -290,6 +273,49 @@
 
                 <hr class="my-5 border-gray-100">
 
+                {{-- Consents --}}
+                <div class="space-y-4 mb-6">
+                    <label class="flex items-start gap-3 cursor-pointer group">
+                        <div class="relative flex items-center mt-0.5">
+                            <input type="checkbox" name="accept_news" value="Y" checked
+                                class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 transition-all checked:border-orange-500 checked:bg-orange-500">
+                            <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <span class="text-sm text-slate-600 leading-tight select-none">
+                            ต้องการรับข่าวสารจากบริษัท พัมคิน คอร์ปอเรชั่น จำกัด
+                        </span>
+                    </label>
+
+                    {{-- ใหม่ --}}
+                    <label class="flex items-start gap-3 cursor-pointer group">
+                        <div class="relative flex items-center mt-0.5">
+                            <input type="checkbox" name="accept_terms" id="accept_terms" value="Y" required
+                                class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 transition-all checked:border-orange-500 checked:bg-orange-500">
+                            <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <span class="text-sm text-slate-600 leading-tight select-none">
+                            ยอมรับ <button type="button" onclick="openTermsModal()" class="text-orange-500 underline decoration-orange-300 underline-offset-2 font-semibold">ข้อกำหนดและเงื่อนไขการใช้บริการ</button>
+                            <span class="text-red-500 font-bold">*</span>
+                        </span>
+                    </label>
+
+                    {{--  เพิ่ม inline error --}}
+                    <p id="termsError" class="hidden items-center gap-1 text-red-500 text-xs mt-1.5 ml-8">
+                        <svg class="w-3.5 h-3.5 inline-block flex-shrink-0 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        กรุณายอมรับข้อกำหนดและเงื่อนไขการใช้บริการ
+                    </p>
+                </div>
+
                 {{-- Summary --}}
                 @php
                 $typeLabels = [1 => ['เจ้าของธุรกิจ','🏢'], 2 => ['ผู้ใช้งานทั่วไป','👤'], 3 => ['ช่าง','🔧'], 4 => ['ดีลเลอร์','🤝']];
@@ -327,7 +353,7 @@
                         class="flex-grow bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm
                            flex items-center justify-center gap-2 transition">
                         <span id="btnSpinner" class="spinner hidden"></span>
-                        <span id="btnText">ยืนยันสมัครสมาชิก</span>
+                        <span id="btnText">บันทึก สมัครสมาชิก</span>
                     </button>
                 </div>
             </form>
@@ -335,19 +361,25 @@
 
     </div>
 
-    {{-- QR Modal --}}
-    <div id="qr-modal" onclick="event.target.id === 'qr-modal' && stopScanner()">
-        <div id="qr-container">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-gray-800">สแกนรหัสแนะนำเพื่อน</h3>
-                <button type="button" onclick="stopScanner()" class="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+    {{-- Terms Modal --}}
+    <div id="terms-modal" class="hidden fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target.id==='terms-modal') closeTermsModal()">
+        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 class="font-bold text-gray-800 text-lg">ข้อกำหนดและเงื่อนไข</h3>
+                <button type="button" onclick="closeTermsModal()" class="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-400">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <div id="reader"></div>
-            <p class="text-center text-xs text-gray-400 mt-4">วางรหัส QR ให้อยู่ในกรอบเพื่อทำการสแกน</p>
+            <div class="p-6 overflow-y-auto text-sm text-gray-600 space-y-3 leading-relaxed custom-scrollbar">
+                @include('auth.register._terms-content')
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-100 text-center">
+                <button type="button" onclick="acceptAndCloseTerms()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-2xl hover:bg-slate-900 transition shadow-lg">
+                    ยอมรับและปิดหน้าต่าง
+                </button>
+            </div>
         </div>
     </div>
 
@@ -446,15 +478,83 @@
             stopScanner();
         }
 
+        // ── Terms Modal ──────────────────────────────────────────────
+        function openTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function acceptAndCloseTerms() {
+            const checkbox = document.getElementById('accept_terms');
+            checkbox.checked = true;
+            // Trigger change event to hide error messages
+            checkbox.dispatchEvent(new Event('change'));
+            closeTermsModal();
+        }
+
         // ── Submit guard ──────────────────────────────────────────────
-        document.getElementById('step3Form').addEventListener('submit', function() {
+        document.getElementById('step3Form').addEventListener('submit', function(e) {
+            const termsCheckbox = document.getElementById('accept_terms');
+            const termsError = document.getElementById('termsError');
+
+            if (!termsCheckbox.checked) {
+                e.preventDefault();
+                termsError.classList.remove('hidden');
+                termsError.classList.add('flex');
+                termsCheckbox.closest('label').querySelector('input').classList.add('border-red-400');
+                termsError.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                return;
+            }
+
+            // ซ่อน error ถ้าผ่านแล้ว
+            termsError.classList.add('hidden');
+            termsError.classList.remove('flex');
+
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
             document.getElementById('btnSpinner').classList.remove('hidden');
             document.getElementById('btnText').innerText = 'กำลังบันทึก...';
         });
+
+        // ซ่อน error ทันทีเมื่อกด checkbox
+        document.getElementById('accept_terms').addEventListener('change', function() {
+            const termsError = document.getElementById('termsError');
+            if (this.checked) {
+                termsError.classList.add('hidden');
+                termsError.classList.remove('flex');
+                this.classList.remove('border-red-400');
+            }
+        });
     </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+    </style>
 </body>
 
 </html>

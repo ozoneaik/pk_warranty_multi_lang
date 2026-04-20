@@ -267,5 +267,37 @@ class AdminMenuSeeder extends Seeder
                 'key' => 'coupons'
             ]
         );
+
+        //================================================================================
+        // เมนูตั้งค่าระบบ
+        $settingParent = AdminMenu::updateOrCreate(
+            ['route_name' => 'admin.settings.terms.edit'], // ใช้หน้า terms เป็นหน้าหลักไปก่อน
+            [
+                'title' => 'ตั้งค่าระบบ',
+                'description' => 'จัดการข้อมูลพื้นฐานและข้อกำหนดต่างๆ',
+                'icon_type' => 'setting',
+                'color_class' => 'bg-slate-50 hover:bg-slate-100',
+                'icon_color' => 'text-slate-600',
+                'order' => 11,
+                'parent_id' => null,
+                'is_active' => true,
+                'key' => 'settings',
+            ]
+        );
+
+        AdminMenu::updateOrCreate(
+            ['route_name' => 'admin.settings.terms.edit'],
+            [
+                'title' => 'จัดการข้อกำหนดและเงื่อนไข',
+                'description' => 'แก้ไขเนื้อหา Terms & Conditions',
+                'icon_type' => 'sub_setting',
+                'color_class' => 'bg-gray-50 hover:bg-gray-100',
+                'icon_color' => 'text-gray-500',
+                'order' => 1,
+                'parent_id' => $settingParent->id,
+                'is_active' => true,
+                'key' => 'settings.terms',
+            ]
+        );
     }
 }

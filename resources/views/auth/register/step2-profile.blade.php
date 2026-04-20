@@ -145,24 +145,7 @@
         </div>
 
         {{-- Progress --}}
-        <div class="bg-white rounded-2xl shadow-sm px-6 py-4 mb-5">
-            <div class="flex items-center">
-                <div class="flex flex-col items-center">
-                    <div class="step-circle done">✓</div>
-                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ประเภท</span>
-                </div>
-                <div class="flex-1 h-0.5 bg-orange-400 mx-1 mb-5"></div>
-                <div class="flex flex-col items-center">
-                    <div class="step-circle active">2</div>
-                    <span class="text-xs mt-1 text-orange-600 font-semibold whitespace-nowrap">ข้อมูลส่วนตัว</span>
-                </div>
-                <div class="flex-1 h-0.5 bg-gray-200 mx-1 mb-5"></div>
-                <div class="flex flex-col items-center">
-                    <div class="step-circle">3</div>
-                    <span class="text-xs mt-1 text-gray-400 whitespace-nowrap">ที่อยู่ & ยืนยัน</span>
-                </div>
-            </div>
-        </div>
+        @include('auth.register._progress', ['currentStep' => 2])
 
         {{-- Errors --}}
         @if(session('error') || $errors->any())
@@ -260,7 +243,7 @@
 
                 <div class="mb-6">
                     <label class="form-label">รหัส OTP (4 หลัก) <span class="text-red-500">*</span></label>
-                    <input type="text" name="otp" maxlength="4" class="form-input text-center tracking-widest text-lg"
+                    <input type="tel" name="otp" maxlength="4" class="form-input text-center tracking-widest text-lg"
                         placeholder="0000" required>
                 </div>
 
@@ -380,7 +363,7 @@
                 return;
             }
             document.getElementById('cust_tel_hidden').value = iti.getNumber();
-            
+
             // Email Validation
             if (emailInput.value.trim() !== '' && !emailRegex.test(emailInput.value)) {
                 e.preventDefault();
