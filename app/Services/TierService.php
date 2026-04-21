@@ -81,7 +81,7 @@ class TierService
             ]);
             $customer->refresh();
 
-            Log::info("🔄 Tier Updated: Customer {$customer->cust_uid}", [
+            Log::channel('tier')->info("🔄 Tier Updated: Customer {$customer->cust_uid}", [
                 'old' => $oldTierKey,
                 'new' => $newTierKey,
                 'reason' => $reason,
@@ -121,7 +121,7 @@ class TierService
                 'changed_at'    => Carbon::now(),
             ]);
         } catch (\Exception $e) {
-            Log::error("❌ Failed to log tier history: " . $e->getMessage());
+            Log::channel('tier')->error("❌ Failed to log tier history: " . $e->getMessage());
         }
     }
 }

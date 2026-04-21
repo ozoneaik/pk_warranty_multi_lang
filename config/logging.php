@@ -215,6 +215,20 @@ return [
             'replace_placeholders'=> true,
         ],
 
+        'tier' => [
+            'driver'   => 'stack',
+            'channels' => ['tier_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'tier_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/tier.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
         'admin' => [
             'driver'   => 'stack',
             'channels' => ['admin_file', 'single'],
