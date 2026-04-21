@@ -444,7 +444,7 @@ export default function WarrantyHome() {
                                     <Stack
                                         direction="row"
                                         alignItems="center"
-                                        spacing={0.4}
+                                        spacing={0.1}
                                         onClick={() => setOpenPointModal(true)}
                                         sx={{
                                             cursor: "pointer",
@@ -454,7 +454,7 @@ export default function WarrantyHome() {
                                         <WorkspacePremium
                                             sx={{
                                                 color: "#F5B301",
-                                                fontSize: 18,
+                                                fontSize: 16,
                                             }}
                                         />
                                         <Typography
