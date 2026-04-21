@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\LoginLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AdminLoginLogController extends Controller
@@ -33,6 +35,10 @@ class AdminLoginLogController extends Controller
             });
         }
         
+        Log::channel('admin')->info('Admin เข้าชมหน้า Login Logs', [
+            'admin_id' => Auth::guard('admin')->id() ?? Auth::id()
+        ]);
+
         return Inertia::render('Admin/LoginLogs/Index', [
             'logs' => $query->paginate(20)->withQueryString(),
             'filters' => $request->only(['search'])

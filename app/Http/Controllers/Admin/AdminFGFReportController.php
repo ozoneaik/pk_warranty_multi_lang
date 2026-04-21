@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\ReferralHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AdminFGFReportController extends Controller
@@ -42,6 +44,10 @@ class AdminFGFReportController extends Controller
         $items = $query->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();
+
+        Log::channel('admin')->info('Admin เข้าชมหน้ารายงาน FGF', [
+            'admin_id' => Auth::guard('admin')->id() ?? Auth::id()
+        ]);
 
         return Inertia::render('Admin/Reports/ReportFGF', [
             'items' => $items,

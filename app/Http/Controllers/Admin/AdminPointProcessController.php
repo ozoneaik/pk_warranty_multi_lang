@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\TypeProcessPoint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AdminPointProcessController extends Controller
@@ -48,6 +49,11 @@ class AdminPointProcessController extends Controller
 
         TypeProcessPoint::create($validated);
 
+        Log::channel('admin')->info('Admin สร้าง Point Process', [
+            'admin_id'     => $adminId,
+            'process_code' => $validated['process_code']
+        ]);
+
         return redirect()->route('admin.points.index')
             ->with('message', 'เพิ่มเงื่อนไขแต้มเรียบร้อยแล้ว');
     }
@@ -84,6 +90,11 @@ class AdminPointProcessController extends Controller
 
         $process->update($validated);
 
+        Log::channel('admin')->info('Admin แก้ไข Point Process', [
+            'admin_id'   => $adminId,
+            'process_id' => $id
+        ]);
+
         return redirect()->route('admin.points.index')
             ->with('message', 'อัปเดตข้อมูลเรียบร้อยแล้ว');
     }
@@ -93,6 +104,11 @@ class AdminPointProcessController extends Controller
     {
         $process = TypeProcessPoint::findOrFail($id);
         $process->delete();
+
+        Log::channel('admin')->info('Admin ลบ Point Process', [
+            'admin_id'   => Auth::guard('admin')->id() ?? Auth::id(),
+            'process_id' => $id
+        ]);
 
         return redirect()->route('admin.points.index')
             ->with('message', 'ลบข้อมูลเรียบร้อยแล้ว');

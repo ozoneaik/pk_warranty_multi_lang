@@ -10,7 +10,9 @@ use App\Models\MasterWaaranty\TblHistoryProd;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AdminCustomerReportController extends Controller
@@ -210,6 +212,12 @@ class AdminCustomerReportController extends Controller
         $history = TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])
             ->select('id', 'model_code', 'serial_number', 'buy_date')
             ->orderBy('buy_date', 'desc')->get();
+
+        Log::channel('admin')->info('Admin ส่งออกรายงาน Customer Report', [
+            'admin_id'   => Auth::guard('admin')->id() ?? Auth::id(),
+            'start_date' => $startDate,
+            'end_date'   => $endDate
+        ]);
 
         return Excel::download(new CustomerReportExport([
             'stats' => $stats,

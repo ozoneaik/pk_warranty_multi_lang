@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\Dealer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AdminDealerController extends Controller
@@ -55,12 +57,23 @@ class AdminDealerController extends Controller
             'is_active' => $request->has('is_active') ? $request->is_active : $dealer->is_active,
         ]);
 
+        Log::channel('admin')->info('Admin แก้ไข Dealer', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'dealer_id' => $id
+        ]);
+
         return redirect()->back()->with('success', 'อัปเดตข้อมูลสำเร็จ');
     }
 
     public function destroy($id)
     {
         Dealer::findOrFail($id)->delete();
+
+        Log::channel('admin')->info('Admin ลบ Dealer', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'dealer_id' => $id
+        ]);
+
         return redirect()->back()->with('success', 'ลบร้านค้าสำเร็จ');
     }
 }

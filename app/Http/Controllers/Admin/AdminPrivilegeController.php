@@ -7,6 +7,7 @@ use App\Models\MasterWaaranty\Privilege;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -101,6 +102,11 @@ class AdminPrivilegeController extends Controller
 
         Privilege::create($validated);
 
+        Log::channel('admin')->info('Admin สร้าง Privilege', [
+            'admin_id'  => $adminId,
+            'privilege' => $validated['privilege_name']
+        ]);
+
         return redirect()->route('admin.privileges.index')->with('success', 'สร้างสิทธิพิเศษเรียบร้อยแล้ว');
     }
 
@@ -178,6 +184,11 @@ class AdminPrivilegeController extends Controller
 
         $privilege->update($validated);
 
+        Log::channel('admin')->info('Admin แก้ไข Privilege', [
+            'admin_id'     => $adminId,
+            'privilege_id' => $id
+        ]);
+
         return redirect()->route('admin.privileges.index')->with('success', 'อัปเดตสิทธิพิเศษเรียบร้อยแล้ว');
     }
 
@@ -188,6 +199,12 @@ class AdminPrivilegeController extends Controller
             Storage::disk('public')->delete(str_replace('/storage/', '', $privilege->image_url));
         }
         $privilege->delete();
+
+        Log::channel('admin')->info('Admin ลบ Privilege', [
+            'admin_id'     => Auth::guard('admin')->id() ?? Auth::id(),
+            'privilege_id' => $id
+        ]);
+
         return redirect()->route('admin.privileges.index')->with('success', 'ลบข้อมูลเรียบร้อยแล้ว');
     }
 }

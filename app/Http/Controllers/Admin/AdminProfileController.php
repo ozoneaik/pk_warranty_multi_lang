@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -38,6 +39,12 @@ class AdminProfileController extends Controller
         $user->fill($validated);
         $user->save();
 
+        Log::channel('admin')->info('Admin อัปเดตข้อมูลโปรไฟล์', [
+            'admin_id' => $user->id,
+            'email'    => $user->email,
+            'ip'       => $request->ip()
+        ]);
+
         return redirect()->route('admin.profile.edit')->with('message', 'อัปเดตข้อมูลส่วนตัวเรียบร้อยแล้ว');
     }
 
@@ -51,8 +58,15 @@ class AdminProfileController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
-        $request->user('admin')->update([
+        $user = $request->user('admin');
+        $user->update([
             'password' => Hash::make($validated['password']),
+        ]);
+
+        Log::channel('admin')->info('Admin เปลี่ยนรหัสผ่าน', [
+            'admin_id' => $user->id,
+            'email'    => $user->email,
+            'ip'       => $request->ip()
         ]);
 
         return back()->with('message', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');

@@ -215,6 +215,20 @@ return [
             'replace_placeholders'=> true,
         ],
 
+        'admin' => [
+            'driver'   => 'stack',
+            'channels' => ['admin_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'admin_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/admin.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
     ],
 
 ];

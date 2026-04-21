@@ -8,6 +8,7 @@ use App\Models\MasterWaaranty\TblCustomerProd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -203,6 +204,11 @@ class AdminRewardController extends Controller
         // 4. บันทึกข้อมูล
         Reward::create($validated);
 
+        Log::channel('admin')->info('Admin สร้าง Reward', [
+            'admin_id'    => $adminId,
+            'reward_name' => $validated['reward_name']
+        ]);
+
         return redirect()->route('admin.rewards.index')->with('success', 'สร้างของรางวัลเรียบร้อยแล้ว');
     }
 
@@ -298,6 +304,11 @@ class AdminRewardController extends Controller
         // อัปเดตข้อมูล
         $reward->update($validated);
 
+        Log::channel('admin')->info('Admin แก้ไข Reward', [
+            'admin_id'  => $adminId,
+            'reward_id' => $id
+        ]);
+
         return redirect()->route('admin.rewards.index')->with('success', 'อัปเดตของรางวัลเรียบร้อยแล้ว');
     }
 
@@ -313,6 +324,11 @@ class AdminRewardController extends Controller
         }
 
         $reward->delete();
+
+        Log::channel('admin')->info('Admin ลบ Reward', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'reward_id' => $id
+        ]);
 
         return redirect()->route('admin.rewards.index')->with('success', 'ลบของรางวัลเรียบร้อยแล้ว');
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\Banner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -44,6 +45,11 @@ class AdminBannerController extends Controller
             'is_active' => true,
             'type' => $request->type,
             'created_by' => $adminId
+        ]);
+
+        Log::channel('admin')->info('Admin สร้าง Banner', [
+            'admin_id' => $adminId,
+            'title'    => $request->title
         ]);
 
         return redirect()->back();
@@ -91,6 +97,11 @@ class AdminBannerController extends Controller
 
         $banner->update($validated);
 
+        Log::channel('admin')->info('Admin แก้ไข Banner', [
+            'admin_id'  => $adminId,
+            'banner_id' => $id
+        ]);
+
         return redirect()->route('admin.banners.index')->with('success', 'Banner updated successfully');
     }
 
@@ -106,6 +117,12 @@ class AdminBannerController extends Controller
         }
 
         $banner->delete();
+
+        Log::channel('admin')->info('Admin ลบ Banner', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'banner_id' => $id
+        ]);
+
         return redirect()->back();
     }
 }

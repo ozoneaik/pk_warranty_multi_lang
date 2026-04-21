@@ -164,7 +164,7 @@ class AdminMemberPointController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Admin Point Adjust Error: ' . $e->getMessage());
+            Log::channel('admin')->error('Admin Point Adjust Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,

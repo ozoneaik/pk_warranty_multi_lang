@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\ReferralHistory;
 use App\Models\MasterWaaranty\TblHistoryProd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 
@@ -87,6 +89,10 @@ class AdminPcRankingReportController extends Controller
         }
 
         $rankings = $query->paginate(20)->withQueryString();
+
+        Log::channel('admin')->info('Admin เข้าชมหน้ารายงาน PC Ranking', [
+            'admin_id' => Auth::guard('admin')->id() ?? Auth::id()
+        ]);
 
         return Inertia::render('Admin/Reports/PcRanking/Index', [
             'rankings' => $rankings,

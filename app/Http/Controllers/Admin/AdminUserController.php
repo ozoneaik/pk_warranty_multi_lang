@@ -7,6 +7,7 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
 
@@ -70,6 +71,11 @@ class AdminUserController extends Controller
             // 'status' => $request->status ?? 'active',
         ]);
 
+        Log::channel('admin')->info('Admin สร้าง User ใหม่', [
+            'admin_id'  => Auth::guard('admin')->id(),
+            'new_email' => $validated['email']
+        ]);
+
         return redirect()->route('admin.users.index')->with('message', 'สร้างผู้ดูแลระบบใหม่สำเร็จ');
     }
 
@@ -111,6 +117,11 @@ class AdminUserController extends Controller
             $admin->update(['password' => Hash::make($request->password)]);
         }
 
+        Log::channel('admin')->info('Admin แก้ไข User', [
+            'admin_id'  => Auth::guard('admin')->id(),
+            'target_id' => $id
+        ]);
+
         return redirect()->route('admin.users.index')->with('message', 'อัปเดตข้อมูลผู้ใช้สำเร็จ');
     }
 
@@ -129,6 +140,11 @@ class AdminUserController extends Controller
         }
 
         $admin->delete();
+
+        Log::channel('admin')->info('Admin ลบ User', [
+            'admin_id'  => Auth::guard('admin')->id(),
+            'target_id' => $id
+        ]);
 
         return back()->with('message', 'ลบผู้ดูแลระบบเรียบร้อยแล้ว');
     }

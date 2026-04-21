@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\Reward;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -145,6 +147,11 @@ class AdminProductController extends Controller
 
         Reward::create($validated);
 
+        Log::channel('admin')->info('Admin สร้าง Product Reward', [
+            'admin_id'    => Auth::guard('admin')->id() ?? Auth::id(),
+            'reward_name' => $validated['reward_name']
+        ]);
+
         return redirect()->route('products.index')
             ->with('message', 'สร้างของรางวัลเรียบร้อยแล้ว');
     }
@@ -198,6 +205,11 @@ class AdminProductController extends Controller
 
         $reward->update($validated);
 
+        Log::channel('admin')->info('Admin แก้ไข Product Reward', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'reward_id' => $id
+        ]);
+
         return redirect()->route('products.index')
             ->with('message', 'อัปเดตข้อมูลเรียบร้อยแล้ว');
     }
@@ -205,6 +217,12 @@ class AdminProductController extends Controller
     public function destroy($id)
     {
         Reward::findOrFail($id)->delete();
+
+        Log::channel('admin')->info('Admin ลบ Product Reward', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'reward_id' => $id
+        ]);
+
         return redirect()->route('products.index')->with('message', 'ลบข้อมูลเรียบร้อย');
     }
 }

@@ -117,7 +117,7 @@ class AdminOrderReportController extends Controller
         $order = Order::findOrFail($id);
 
         try {
-            Log::info("[SyncStatus] เริ่มเช็คสถานะ Order #{$order->order_number} (ID: {$id})");
+            Log::channel('admin')->info("[SyncStatus] เริ่มเช็คสถานะ Order #{$order->order_number} (ID: {$id})");
 
             // 1. ยิง API ไปตรวจสอบ
             $response = Http::timeout(5)->post('https://afterservice-sv.pumpkin.tools/sv/callpsc.php', [
@@ -125,11 +125,11 @@ class AdminOrderReportController extends Controller
             ]);
 
             $apiData = $response->json();
-            Log::info("[SyncStatus] API Response for #{$order->order_number}: " . json_encode($apiData, JSON_UNESCAPED_UNICODE));
+            Log::channel('admin')->info("[SyncStatus] API Response for #{$order->order_number}: " . json_encode($apiData, JSON_UNESCAPED_UNICODE));
 
             // ตรวจสอบว่ามีข้อมูลส่งกลับมาไหม
             if (!isset($apiData['status'])) {
-                Log::warning("[SyncStatus] ไม่พบ status ใน API response สำหรับ Order #{$order->order_number}");
+                Log::channel('admin')->warning("[SyncStatus] ไม่พบ status ใน API response สำหรับ Order #{$order->order_number}");
                 return back()->with('error', 'ไม่พบข้อมูลสถานะจากระบบภายนอก');
             }
 
@@ -150,21 +150,21 @@ class AdminOrderReportController extends Controller
             };
 
             if (!$mappedStatus) {
-                Log::warning("[SyncStatus] สถานะ '$apiStatusText' จาก API ไม่ตรงกับ mapping สำหรับ Order #{$order->order_number}");
+                Log::channel('admin')->warning("[SyncStatus] สถานะ '$apiStatusText' จาก API ไม่ตรงกับ mapping สำหรับ Order #{$order->order_number}");
                 return back()->with('error', "สถานะจาก API คือ '$apiStatusText' ซึ่งไม่ตรงกับระบบ");
             }
 
             // 3. ถ้าสถานะเปลี่ยน ให้เรียกใช้ฟังก์ชันอัปเดต
             if ($order->status !== $mappedStatus) {
-                Log::info("[SyncStatus] Order #{$order->order_number} สถานะเปลี่ยน: {$order->status} → {$mappedStatus} (API: {$apiStatusText})");
+                Log::channel('admin')->info("[SyncStatus] Order #{$order->order_number} สถานะเปลี่ยน: {$order->status} → {$mappedStatus} (API: {$apiStatusText})");
                 $this->processOrderStatusUpdate($order, $mappedStatus);
                 return back()->with('success', "อัปเดตสถานะเป็น '$apiStatusText' ($mappedStatus) เรียบร้อยแล้ว");
             }
 
-            Log::info("[SyncStatus] Order #{$order->order_number} สถานะไม่เปลี่ยนแปลง: {$mappedStatus} (API: {$apiStatusText})");
+            Log::channel('admin')->info("[SyncStatus] Order #{$order->order_number} สถานะไม่เปลี่ยนแปลง: {$mappedStatus} (API: {$apiStatusText})");
             return back()->with('info', "สถานะปัจจุบันเป็นปัจจุบันแล้ว: $apiStatusText ($mappedStatus)");
         } catch (\Exception $e) {
-            Log::error("Sync Order Error: " . $e->getMessage());
+            Log::channel('admin')->error("Sync Order Error: " . $e->getMessage());
             return back()->with('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อ API');
         }
     }

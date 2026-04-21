@@ -7,6 +7,7 @@ use App\Models\MasterWaaranty\Coupons;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Pest\Support\Str;
@@ -105,6 +106,11 @@ class AdminCouponController extends Controller
         
         Coupons::create($validated);
 
+        Log::channel('admin')->info('Admin สร้าง Coupon', [
+            'admin_id' => $validated['created_by'],
+            'coupon'   => $validated['name']
+        ]);
+
         return redirect()->route('admin.coupons.index')->with('success', 'สร้างคูปองเรียบร้อยแล้ว');
     }
 
@@ -184,6 +190,11 @@ class AdminCouponController extends Controller
 
         $coupon->update($validated);
 
+        Log::channel('admin')->info('Admin แก้ไข Coupon', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'coupon_id' => $id
+        ]);
+
         return redirect()->route('admin.coupons.index')->with('success', 'อัปเดตคูปองเรียบร้อยแล้ว');
     }
 
@@ -198,6 +209,11 @@ class AdminCouponController extends Controller
         }
 
         $coupon->delete();
+
+        Log::channel('admin')->info('Admin ลบ Coupon', [
+            'admin_id'  => Auth::guard('admin')->id() ?? Auth::id(),
+            'coupon_id' => $id
+        ]);
 
         return redirect()->route('admin.coupons.index')->with('success', 'ลบคูปองเรียบร้อยแล้ว');
     }

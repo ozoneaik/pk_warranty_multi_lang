@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MasterWaaranty\Popup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -43,6 +44,11 @@ class AdminPopupController extends Controller
             'created_by' => $adminId
         ]);
 
+        Log::channel('admin')->info('Admin สร้าง Popup', [
+            'admin_id' => $adminId,
+            'title'    => $request->title
+        ]);
+
         return redirect()->back();
     }
 
@@ -61,6 +67,12 @@ class AdminPopupController extends Controller
         $data['updated_by'] = $adminId;
 
         $popup->update($data);
+
+        Log::channel('admin')->info('Admin แก้ไข Popup', [
+            'admin_id' => $adminId,
+            'popup_id' => $id
+        ]);
+
         return redirect()->back();
     }
 
@@ -78,6 +90,12 @@ class AdminPopupController extends Controller
         }
 
         $popup->delete();
+
+        Log::channel('admin')->info('Admin ลบ Popup', [
+            'admin_id' => Auth::guard('admin')->id() ?? Auth::id(),
+            'popup_id' => $id
+        ]);
+
         return redirect()->back();
     }
 }
