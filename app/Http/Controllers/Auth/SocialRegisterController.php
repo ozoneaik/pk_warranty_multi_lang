@@ -690,7 +690,7 @@ class SocialRegisterController extends Controller
 
     protected function assignLineRichMenu(string $lineId)
     {
-        $richMenuId = 'richmenu-fa10adc8c2d762cc23238fc9954547f7';
+        $richMenuId = env('RICH_MENU_NEW_REGISTER');
 
         // อย่าลืมเอา Channel Access Token ของ LINE Messaging API ไปใส่ในไฟล์ .env ด้วยนะครับ
         $accessToken = env('LINE_CHANNEL_ACCESS_TOKEN');
