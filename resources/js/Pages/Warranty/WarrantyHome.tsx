@@ -473,7 +473,7 @@ export default function WarrantyHome() {
                                     </Stack>
 
                                     {/* Divider จุด */}
-                                    <Typography
+                                    {/* <Typography
                                         sx={{
                                             color: "text.disabled",
                                             fontSize: "0.6rem",
@@ -481,7 +481,7 @@ export default function WarrantyHome() {
                                         }}
                                     >
                                         •
-                                    </Typography>
+                                    </Typography> */}
 
                                     {/* Tier Badge */}
                                     {(() => {
