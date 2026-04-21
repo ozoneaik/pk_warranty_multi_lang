@@ -121,10 +121,10 @@ class WarrantyFormController extends Controller
         }
 
         // ตัวแทนจำหน่าย: รวมกับ DB
-        $dbStoreList = [];
-        if ($channelName === 'ตัวแทนจำหน่าย') {
-            $dbStoreList = Dealer::where('is_active', true)->pluck('name')->toArray();
-        }
+        $dbStoreList = Dealer::where('channel_id', $id)
+            ->where('is_active', true)
+            ->pluck('name')
+            ->toArray();
 
         $finalStoreList = array_values(array_unique(array_merge($apiStoreList, $dbStoreList)));
 

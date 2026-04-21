@@ -12,24 +12,44 @@ import {
     Switch,
     Typography,
     IconButton,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Chip,
 } from "@mui/material";
 import { Edit, Trash2, Plus } from "lucide-react";
 import Swal from "sweetalert2";
 
+interface Channel {
+    id: number;
+    name: string;
+}
+
 interface Dealer {
     id: number;
+    channel_id: number;
+    CustID: string | null;
     name: string;
     branch: string | null;
     is_active: boolean;
 }
 
-export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
+export default function DealerIndex({
+    dealers,
+    channels,
+}: {
+    dealers: Dealer[];
+    channels: Channel[];
+}) {
     const [openDialog, setOpenDialog] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
 
     const { data, setData, post, put, processing, reset, errors, clearErrors } =
         useForm({
             id: null as number | null,
+            channel_id: 1, // กำหนดค่าเริ่มต้น
+            CustID: "",
             name: "",
             branch: "",
             is_active: true,
@@ -46,6 +66,8 @@ export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
         clearErrors();
         setData({
             id: dealer.id,
+            channel_id: dealer.channel_id || 1,
+            CustID: dealer.CustID || "",
             name: dealer.name,
             branch: dealer.branch || "",
             is_active: !!dealer.is_active,
@@ -92,11 +114,13 @@ export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
         }
     };
 
-    // ✅ แก้ไข: ตอน Toggle ให้ส่งข้อมูลเดิมไปด้วย ไม่งั้น Validation Backend จะเด้ง Error ว่า name หาย
+    // ✅ ตอน Toggle ส่งข้อมูลไปให้ครบ เพื่อไม่ให้โดน Validate Error ฝั่ง Backend
     const toggleActive = (dealer: Dealer) => {
         router.put(
             route("admin.dealers.update", dealer.id),
             {
+                channel_id: dealer.channel_id,
+                CustID: dealer.CustID,
                 name: dealer.name,
                 branch: dealer.branch,
                 is_active: !dealer.is_active, // สลับสถานะ
@@ -134,6 +158,13 @@ export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
         });
     };
 
+    // ฟังก์ชันแปลง ID เป็นชื่อ Channel เพื่อแสดงในตาราง
+    const getChannelName = (id: number) => {
+        if (!channels) return "ไม่ระบุ";
+        const channel = channels.find((c) => c.id === id);
+        return channel ? channel.name : "ไม่ระบุ";
+    };
+
     return (
         <AdminLayout
             header={
@@ -166,85 +197,107 @@ export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    ชื่อร้านค้า
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    สาขา
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 text-center uppercase tracking-wider">
-                                    สถานะ
-                                </th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right uppercase tracking-wider">
-                                    จัดการ
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {dealers.length === 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left whitespace-nowrap">
+                            <thead className="bg-gray-50 border-b border-gray-100">
                                 <tr>
-                                    <td
-                                        colSpan={4}
-                                        className="px-6 py-8 text-center text-gray-500"
-                                    >
-                                        ยังไม่มีข้อมูลร้านค้าตัวแทนจำหน่าย
-                                    </td>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        ช่องทาง (Channel)
+                                    </th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        Cust ID
+                                    </th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        ชื่อร้านค้า
+                                    </th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        สาขา
+                                    </th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 text-center uppercase tracking-wider">
+                                        สถานะ
+                                    </th>
+                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right uppercase tracking-wider">
+                                        จัดการ
+                                    </th>
                                 </tr>
-                            ) : (
-                                dealers.map((dealer) => (
-                                    <tr
-                                        key={dealer.id}
-                                        className="hover:bg-gray-50/50 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 font-medium text-gray-900">
-                                            {dealer.name}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-500 text-sm">
-                                            {dealer.branch || "-"}
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <Switch
-                                                checked={!!dealer.is_active}
-                                                onChange={() =>
-                                                    toggleActive(dealer)
-                                                }
-                                                color="success"
-                                                size="small"
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <IconButton
-                                                onClick={() =>
-                                                    handleOpenEdit(dealer)
-                                                }
-                                                size="small"
-                                                color="primary"
-                                                sx={{
-                                                    mr: 1,
-                                                    bgcolor: "primary.50",
-                                                }}
-                                            >
-                                                <Edit size={16} />
-                                            </IconButton>
-                                            <IconButton
-                                                onClick={() =>
-                                                    handleDelete(dealer.id)
-                                                }
-                                                size="small"
-                                                color="error"
-                                                sx={{ bgcolor: "error.50" }}
-                                            >
-                                                <Trash2 size={16} />
-                                            </IconButton>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {dealers.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={6}
+                                            className="px-6 py-8 text-center text-gray-500"
+                                        >
+                                            ยังไม่มีข้อมูลร้านค้าตัวแทนจำหน่าย
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    dealers.map((dealer) => (
+                                        <tr
+                                            key={dealer.id}
+                                            className="hover:bg-gray-50/50 transition-colors"
+                                        >
+                                            <td className="px-6 py-4">
+                                                <Chip
+                                                    label={getChannelName(
+                                                        dealer.channel_id,
+                                                    )}
+                                                    size="small"
+                                                    color="primary"
+                                                    variant="outlined"
+                                                    sx={{ fontWeight: "bold" }}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-600 font-mono text-sm">
+                                                {dealer.CustID || "-"}
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-gray-900">
+                                                {dealer.name}
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-500 text-sm">
+                                                {dealer.branch || "-"}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <Switch
+                                                    checked={!!dealer.is_active}
+                                                    onChange={() =>
+                                                        toggleActive(dealer)
+                                                    }
+                                                    color="success"
+                                                    size="small"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        handleOpenEdit(dealer)
+                                                    }
+                                                    size="small"
+                                                    color="primary"
+                                                    sx={{
+                                                        mr: 1,
+                                                        bgcolor: "primary.50",
+                                                    }}
+                                                >
+                                                    <Edit size={16} />
+                                                </IconButton>
+                                                <IconButton
+                                                    onClick={() =>
+                                                        handleDelete(dealer.id)
+                                                    }
+                                                    size="small"
+                                                    color="error"
+                                                    sx={{ bgcolor: "error.50" }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </IconButton>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* Dialog เพิ่ม/แก้ไข */}
@@ -267,6 +320,40 @@ export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
                             {isEdit ? "แก้ไขข้อมูลร้านค้า" : "เพิ่มร้านค้าใหม่"}
                         </DialogTitle>
                         <DialogContent className="space-y-5 pt-6 pb-2">
+                            <FormControl fullWidth sx={{ mt: 1 }}>
+                                <InputLabel id="channel-label">
+                                    ช่องทางหลัก (Channel)
+                                </InputLabel>
+                                <Select
+                                    labelId="channel-label"
+                                    value={data.channel_id}
+                                    label="ช่องทางหลัก (Channel)"
+                                    onChange={(e) =>
+                                        setData(
+                                            "channel_id",
+                                            Number(e.target.value),
+                                        )
+                                    }
+                                >
+                                    {channels?.map((c) => (
+                                        <MenuItem key={c.id} value={c.id}>
+                                            {c.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <TextField
+                                fullWidth
+                                label="รหัสลูกค้า (Cust ID)"
+                                value={data.CustID}
+                                onChange={(e) =>
+                                    setData("CustID", e.target.value)
+                                }
+                                helperText="ปล่อยว่างได้หากไม่มีรหัสลูกค้า"
+                                error={!!errors.CustID}
+                            />
+
                             <TextField
                                 fullWidth
                                 label="ชื่อร้านค้า"
@@ -277,7 +364,6 @@ export default function DealerIndex({ dealers }: { dealers: Dealer[] }) {
                                 required
                                 error={!!errors.name}
                                 helperText={errors.name}
-                                sx={{ mt: 1 }}
                             />
                             <TextField
                                 fullWidth

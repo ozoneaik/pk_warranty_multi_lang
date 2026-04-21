@@ -12,6 +12,8 @@ class Dealer extends Model
     protected $table = 'dealers';
 
     protected $fillable = [
+        'channel_id',
+        'CustID',
         'name',
         'branch',
         'is_active',
