@@ -42,6 +42,9 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import PointExpiryModal from "../Partials/PointExpiryModal";
 import { useLanguage } from "@/context/LanguageContext";
+import PROVINCES_JSON from "@/data/province.json";
+import DISTRICTS_JSON from "@/data/district.json";
+import SUBDISTRICTS_JSON from "@/data/sub_district.json";
 
 // --- Types ---
 type Tier = "silver" | "gold" | "platinum";
@@ -802,6 +805,10 @@ export default function PrivilegePage() {
     // --- Fetch Address Data on Mount ---
     React.useEffect(() => {
         const loadAddressData = async () => {
+            let provinces: Province[] = [];
+            let amphures: Amphure[] = [];
+            let tambons: Tambon[] = [];
+
             try {
                 const [provRes, ampRes, tamRes] = await Promise.all([
                     fetch(
@@ -815,13 +822,28 @@ export default function PrivilegePage() {
                     ),
                 ]);
 
-                if (provRes.ok) setProvinces(await provRes.json());
-                if (ampRes.ok) setAllAmphures(await ampRes.json());
-                if (tamRes.ok) setAllTambons(await tamRes.json());
-            } catch (err) {
-                console.error("Failed to load address data", err);
+                if (!provRes.ok || !ampRes.ok || !tamRes.ok)
+                    throw new Error("API failed");
+
+                [provinces, amphures, tambons] = await Promise.all([
+                    provRes.json(),
+                    ampRes.json(),
+                    tamRes.json(),
+                ]);
+
+                console.log("✅ Loaded address data from API");
+            } catch {
+                console.warn("⚠️ API failed, using local JSON fallback");
+                provinces = PROVINCES_JSON as Province[];
+                amphures = DISTRICTS_JSON as Amphure[];
+                tambons = SUBDISTRICTS_JSON as Tambon[];
             }
+
+            setProvinces(provinces);
+            setAllAmphures(amphures);
+            setAllTambons(tambons);
         };
+
         loadAddressData();
     }, []);
 

@@ -414,16 +414,27 @@
         async function loadProvinces() {
             try {
                 const res = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api/latest/province.json');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
                 provincesData = await res.json();
-                tsProvince.clearOptions();
-                tsProvince.addOption(provincesData.map(x => ({
-                    value: x.name_th,
-                    text: x.name_th
-                })));
-                tsProvince.refreshOptions(false);
             } catch (e) {
-                console.error('Province load error', e);
+                console.warn('⚠️ Province API failed, using local fallback', e);
+                // Fallback: โหลดจาก local JSON ที่ serve ผ่าน Laravel
+                try {
+                    const res = await fetch('/data/province.json');
+                    if (!res.ok) throw new Error('Local fallback also failed');
+                    provincesData = await res.json();
+                } catch (e2) {
+                    console.error('❌ Cannot load provinces at all', e2);
+                    return;
+                }
             }
+
+            tsProvince.clearOptions();
+            tsProvince.addOption(provincesData.map(x => ({
+                value: x.name_th,
+                text: x.name_th
+            })));
+            tsProvince.refreshOptions(false);
         }
 
         // ── Referral toggle ───────────────────────────────────────────

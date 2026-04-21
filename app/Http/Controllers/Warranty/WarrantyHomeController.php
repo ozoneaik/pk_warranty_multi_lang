@@ -48,6 +48,20 @@ class WarrantyHomeController extends Controller
             $customer = TblCustomerProd::where('cust_tel', $user->phone)->first();
         }
 
+        if (!$customer) {
+            session([
+                'social_register_data' => [
+                    'provider' => 'line',
+                    'line_id'  => $user->line_id,
+                    'name'     => $user->name,
+                    'email'    => $user->email,
+                    'avatar'   => session('line_avatar') ?? $user->line_avatar ?? null,
+                ]
+            ]);
+            return redirect()->route('register.step1')
+                ->with('error', 'ไม่พบข้อมูลสมาชิก กรุณาลงทะเบียนใหม่');
+        }
+
         if ($customer && !$customer->referral_code && !empty($user->line_id)) {
             $customer->update([
                 'referral_code' => strtoupper(substr(md5($user->line_id), 0, 8))

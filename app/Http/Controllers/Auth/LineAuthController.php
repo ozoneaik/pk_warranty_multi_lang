@@ -126,7 +126,10 @@ class LineAuthController extends Controller
                 'email'   => $email,
             ]);
 
-            $cust = TblCustomerProd::where('cust_uid', $lineId)->first();
+            // $cust = TblCustomerProd::where('cust_uid', $lineId)->first();
+            $cust = TblCustomerProd::where('cust_uid', $lineId)
+                ->where('status', 'enabled')  // เพิ่มเงื่อนไขนี้
+                ->first();
 
             if ($cust) {
                 Log::channel('line_auth')->info('✅ [LineAuth] พบข้อมูลลูกค้าในระบบ', [
