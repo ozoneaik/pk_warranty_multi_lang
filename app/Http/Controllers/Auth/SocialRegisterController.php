@@ -53,6 +53,12 @@ class SocialRegisterController extends Controller
             return redirect()->route('login');
         }
 
+        $socialData = session('social_register_data');
+        Log::channel('register')->info('📝 [Register] storeStep1 เริ่มต้น', [
+            'line_id'          => $socialData['line_id'] ?? null,
+            'crm_user_type_id' => $request->crm_user_type_id,
+        ]);
+
         $request->validate([
             'crm_user_type_id' => 'required|integer|in:1,2,3,4',
         ], [
@@ -65,9 +71,10 @@ class SocialRegisterController extends Controller
             'crm_user_type_id' => (int) $request->crm_user_type_id,
         ]]);
 
-         // [เพิ่มใหม่] ประทับตราว่าผ่าน Step 1 อย่างถูกต้องแล้ว
+        // [เพิ่มใหม่] ประทับตราว่าผ่าน Step 1 อย่างถูกต้องแล้ว
         session(['step1_passed' => true]);
 
+        Log::channel('register')->info('✅ [Register] storeStep1 สำเร็จ → ไป Step 2', ['line_id' => $socialData['line_id'] ?? null]);
         return redirect()->route('register.step2');
     }
 
@@ -95,6 +102,13 @@ class SocialRegisterController extends Controller
 
         $socialData = session('social_register_data');
         $lineId     = $socialData['line_id'];
+
+        Log::channel('register')->info('📝 [Register] storeStep2 เริ่มต้น', [
+            'line_id'        => $lineId,
+            'cust_firstname' => $request->cust_firstname,
+            'cust_tel'       => $request->cust_tel,
+            'has_email'      => !empty($request->cust_email),
+        ]);
         $timezone   = $request->input('timezone', 'Asia/Bangkok');
         $isThailand = ($timezone === 'Asia/Bangkok');
 
@@ -135,7 +149,7 @@ class SocialRegisterController extends Controller
             }
         }
 
-         // ตรวจสอบ OTP
+        // ตรวจสอบ OTP
         $phoneToSave = '';
         if ($isThailand && $this->isOtpVerificationEnabled()) {
             $sessionOtp = session('register_otp');
@@ -179,6 +193,7 @@ class SocialRegisterController extends Controller
         // [เพิ่มใหม่] ประทับตราว่าผ่าน OTP และ Step 2 อย่างถูกต้องแล้ว
         session(['step2_passed' => true]);
 
+        Log::channel('register')->info('✅ [Register] storeStep2 สำเร็จ → ไป Step 3', ['line_id' => $lineId]);
         return redirect()->route('register.step3');
     }
 
@@ -223,6 +238,12 @@ class SocialRegisterController extends Controller
         $step2            = session('register_step2'); // Profile
         $step3            = session('register_step3'); // Address & Consents
         $lineId           = $socialData['line_id'];
+
+        Log::channel('register')->info('📝 [Register] storeStep3 เริ่ม Final Submission', [
+            'line_id'       => $lineId,
+            'province'      => $step3['cust_province'] ?? null,
+            'referral_code' => $step3['referral_code'] ?? null,
+        ]);
 
         try {
             DB::beginTransaction();
@@ -282,26 +303,55 @@ class SocialRegisterController extends Controller
 
             $cust->save();
 
+            Log::channel('register')->info('✅ [Register] บันทึก TblCustomerProd สำเร็จ', [
+                'line_id' => $lineId,
+                'cust_id' => $cust->id,
+                'is_new'  => $cust->wasRecentlyCreated,
+            ]);
+
             // 3. Referral
             $refCode = $step3['referral_code'] ?? session('referrer_code');
+            Log::channel('register')->info('🔗 [Register] ตรวจสอบ Referral Code', [
+                'line_id'      => $lineId,
+                'ref_code'     => $refCode,
+                'referred_by'  => $cust->referred_by,
+            ]);
             if ($refCode && empty($cust->referred_by)) {
                 $referrer = TblCustomerProd::where('referral_code', $refCode)->first();
+                Log::channel('register')->info('👥 [Register] ค้นหา Referrer', [
+                    'ref_code'     => $refCode,
+                    'found'        => !is_null($referrer),
+                    'referrer_uid' => $referrer?->cust_uid,
+                    'same_user'    => $referrer ? ($referrer->cust_uid === $lineId) : null,
+                ]);
                 if ($referrer && $referrer->cust_uid !== $lineId) {
                     $cust->update(['referred_by' => $referrer->cust_uid]);
                     $this->processReferralReward($referrer, $lineId, $user->name);
                 }
+            } else {
+                Log::channel('register')->info('⚪ [Register] ข้ามการให้คะแนน Referral', [
+                    'reason' => !$refCode ? 'ไม่มี ref_code' : 'มี referred_by แล้ว',
+                ]);
             }
 
             // 4. Points
             $hasPoint = PointTransaction::where('line_id', $lineId)->where('process_code', 'REGISTER')->exists();
+            Log::channel('register')->info('🎯 [Register] ตรวจสอบแต้มสมัครสมาชิก', [
+                'line_id'   => $lineId,
+                'has_point' => $hasPoint,
+            ]);
             if (!$hasPoint) {
+                Log::channel('register')->info('🎁 [Register] กำลังให้แต้มสมัครสมาชิก', ['line_id' => $lineId]);
                 $this->awardFirstRegistrationPoints($cust, $lineId);
             }
 
             // [เพิ่มใหม่] ซิงค์คะแนนให้ตรงกับรายการธุรกรรมทั้งหมดเป็นขั้นตอนสุดท้าย
+            Log::channel('register')->info('🔄 [Register] กำลัง syncPoints', ['line_id' => $lineId]);
             $cust->syncPoints();
+            Log::channel('register')->info('✅ [Register] syncPoints เสร็จสิ้น', ['line_id' => $lineId, 'point' => $cust->fresh()->point]);
 
             DB::commit();
+            Log::channel('register')->info('🎉 [Register] Final Submission สำเร็จทั้งหมด', ['line_id' => $lineId, 'cust_id' => $cust->id]);
 
             // 5. Login Log
             $logType = $cust->wasRecentlyCreated ? 'new_register' : 'update_profile';
@@ -343,12 +393,85 @@ class SocialRegisterController extends Controller
             return redirect()->to(session('after_login_redirect') ?? '/dashboard');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Register Final Submission Error: ' . $e->getMessage());
+            Log::channel('register')->error('❌ [Register] Final Submission Error', [
+                'line_id' => $lineId ?? null,
+                'error'   => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
             return redirect()->route('register.step3')->with('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
         }
     }
 
     // OTP — ใช้ร่วมกับ Step 2
+    // public function sendOtp(Request $request)
+    // {
+    //     if (!session()->has('social_register_data')) {
+    //         return response()->json(['success' => false, 'message' => 'Session expired'], 401);
+    //     }
+
+    //     $socialData = session('social_register_data');
+    //     $lineId     = $socialData['line_id'];
+
+    //     $request->validate(['phone' => 'required']);
+
+    //     $rawPhone = $request->phone;
+    //     $dbPhone  = $this->normalizePhone($rawPhone);
+
+    //     // ตรวจซ้ำเบอร์
+    //     $exists = TblCustomerProd::where('cust_tel', $dbPhone)
+    //         ->where('cust_uid', '!=', $lineId)->exists();
+    //     if ($exists) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'เบอร์โทรศัพท์นี้ถูกใช้งานโดยสมาชิกท่านอื่นแล้ว'
+    //         ], 422);
+    //     }
+
+    //     // Credit check (non-blocking)
+    //     try {
+    //         Http::timeout(2)->get('http://192.168.9.32:9000/api/check-credit-lk.php', [
+    //             'system_name' => 'ระบบลงทะเบียนรับประกันสินค้าออนไลน์พัมคิน'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::channel('register')->error('SMS Credit Check Failed: ' . $e->getMessage());
+    //     }
+
+    //     $otp      = (string) rand(1000, 9999);
+    //     $smsPhone = str_replace('+', '', $rawPhone);
+
+    //     session([
+    //         'register_otp'           => $otp,
+    //         'register_otp_phone'     => $rawPhone,
+    //         'register_otp_db_format' => $dbPhone,
+    //         'register_otp_expire'    => now('Asia/Bangkok')->addMinutes(5),
+    //     ]);
+
+    //     try {
+    //         $response = Http::asForm()->post(env('SEND_OTP_URI'), [
+    //             'ACCOUNT'  => env('SEND_OTP_ACCOUNT'),
+    //             'PASSWORD' => env('SEND_OTP_PASSWORD'),
+    //             'MOBILE'   => $smsPhone,
+    //             'MESSAGE'  => "รหัส OTP ของคุณคือ {$otp} (ใช้ได้ภายใน 5 นาที)",
+    //             'OPTION'   => 'SEND_TYPE=General',
+    //         ]);
+
+    //         Log::channel('register')->info("OTP Sent to {$smsPhone}", ['otp_debug' => $otp]);
+
+    //         if ($response->successful()) {
+    //             return response()->json(['success' => true, 'message' => 'ส่งรหัส OTP เรียบร้อยแล้ว']);
+    //         }
+    //         throw new \Exception('SMS Gateway Error: ' . $response->status());
+    //     } catch (\Exception $e) {
+    //         Log::channel('register')->error('Send OTP Failed: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'ไม่สามารถส่ง OTP ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง'
+    //         ], 500);
+    //     }
+    // }
+
+
     public function sendOtp(Request $request)
     {
         if (!session()->has('social_register_data')) {
@@ -373,16 +496,17 @@ class SocialRegisterController extends Controller
             ], 422);
         }
 
-        // Credit check (non-blocking)
+        // ย้าย credit check มาทำแบบ fire-and-forget (ไม่บล็อก)
+        // หรือลด timeout เหลือ 1 วิ
         try {
-            Http::timeout(2)->get('http://192.168.9.32:9000/api/check-credit-lk.php', [
+            Http::timeout(1)->get('http://192.168.9.32:9000/api/check-credit-lk.php', [
                 'system_name' => 'ระบบลงทะเบียนรับประกันสินค้าออนไลน์พัมคิน'
             ]);
         } catch (\Exception $e) {
-            Log::error('SMS Credit Check Failed: ' . $e->getMessage());
+            Log::channel('register')->error('SMS Credit Check Failed: ' . $e->getMessage());
         }
 
-        $otp      = (string) rand(1000, 9999);
+        $otp      = str_pad((string) random_int(1000, 9999), 4, '0', STR_PAD_LEFT); // แก้ rand → random_int
         $smsPhone = str_replace('+', '', $rawPhone);
 
         session([
@@ -393,22 +517,25 @@ class SocialRegisterController extends Controller
         ]);
 
         try {
-            $response = Http::asForm()->post(env('SEND_OTP_URI'), [
-                'ACCOUNT'  => env('SEND_OTP_ACCOUNT'),
-                'PASSWORD' => env('SEND_OTP_PASSWORD'),
-                'MOBILE'   => $smsPhone,
-                'MESSAGE'  => "รหัส OTP ของคุณคือ {$otp} (ใช้ได้ภายใน 5 นาที)",
-                'OPTION'   => 'SEND_TYPE=General',
-            ]);
+            $response = Http::timeout(8)          
+                ->connectTimeout(5)
+                ->asForm()
+                ->post(env('SEND_OTP_URI'), [
+                    'ACCOUNT'  => env('SEND_OTP_ACCOUNT'),
+                    'PASSWORD' => env('SEND_OTP_PASSWORD'),
+                    'MOBILE'   => $smsPhone,
+                    'MESSAGE'  => "รหัส OTP ของคุณคือ {$otp} (ใช้ได้ภายใน 5 นาที)",
+                    'OPTION'   => 'SEND_TYPE=General',
+                ]);
 
-            Log::info("OTP Sent to {$smsPhone}", ['otp_debug' => $otp]);
+                Log::channel('register')->info("OTP Sent to {$smsPhone}", ['otp_debug' => $otp]);
 
             if ($response->successful()) {
                 return response()->json(['success' => true, 'message' => 'ส่งรหัส OTP เรียบร้อยแล้ว']);
             }
             throw new \Exception('SMS Gateway Error: ' . $response->status());
         } catch (\Exception $e) {
-            Log::error('Send OTP Failed: ' . $e->getMessage());
+            Log::channel('register')->error('Send OTP Failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'ไม่สามารถส่ง OTP ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง'
@@ -436,8 +563,17 @@ class SocialRegisterController extends Controller
 
     private function awardFirstRegistrationPoints($cust, $lineId): void
     {
+        Log::channel('register')->info('🎁 [Register] awardFirstRegistrationPoints เริ่มต้น', [
+            'line_id'     => $lineId,
+            'point_before'=> (int) $cust->point,
+        ]);
+
         $process = TypeProcessPoint::where('process_code', 'REGISTER')->where('is_active', 1)->first();
         $initialPoint = $process?->default_point ?? 50;
+        Log::channel('register')->info('🔍 [Register] ดึง TypeProcessPoint REGISTER', [
+            'found'         => !is_null($process),
+            'initial_point' => $initialPoint,
+        ]);
         $pointBefore = (int) $cust->point;
         $pointAfter  = $pointBefore + $initialPoint;
 
@@ -474,6 +610,15 @@ class SocialRegisterController extends Controller
 
     private function processReferralReward($referrer, $refereeUid, $refereeName): void
     {
+        Log::channel('register')->info('🎁 [Referral] processReferralReward เริ่มต้น', [
+            'referrer_uid'  => $referrer->cust_uid,
+            'referrer_name' => $referrer->cust_firstname,
+            'referee_uid'   => $refereeUid,
+            'referee_name'  => $refereeName,
+            'referrer_tier' => $referrer->tier_key,
+            'referrer_point'=> $referrer->point,
+        ]);
+
         // 1. Create History
         $refHistory = ReferralHistory::create([
             'referrer_uid'    => $referrer->cust_uid,
@@ -485,9 +630,11 @@ class SocialRegisterController extends Controller
             'status_referrer' => 'pending',
             'status_referee'  => 'rewarded',
         ]);
+        Log::channel('register')->info('📋 [Referral] สร้าง ReferralHistory สำเร็จ', ['history_id' => $refHistory->id]);
 
         // 2. Give Points to Referrer
         $master = TypeProcessPoint::where('process_code', 'FRIEND_REFERRAL')->where('is_active', 1)->first();
+        Log::channel('register')->info('🔍 [Referral] ค้นหา TypeProcessPoint FRIEND_REFERRAL', ['found' => !is_null($master)]);
         if ($master) {
             $pointEarn = match ($referrer->tier_key) {
                 'platinum' => $master->point_platinum,
@@ -497,6 +644,12 @@ class SocialRegisterController extends Controller
             };
 
             $pointBefore = $referrer->point;
+            Log::channel('register')->info('💰 [Referral] คำนวณคะแนนให้ Referrer', [
+                'referrer_uid' => $referrer->cust_uid,
+                'tier_key'     => $referrer->tier_key,
+                'point_earn'   => $pointEarn,
+                'point_before' => $pointBefore,
+            ]);
             $referrer->increment('point', $pointEarn);
 
             PointTransaction::create([
@@ -517,6 +670,12 @@ class SocialRegisterController extends Controller
             ]);
 
             $refHistory->update(['status_referrer' => 'rewarded', 'points_referrer' => $pointEarn]);
+            Log::channel('register')->info('✅ [Referral] processReferralReward สำเร็จ', [
+                'referrer_uid' => $referrer->cust_uid,
+                'point_earn'   => $pointEarn,
+            ]);
+        } else {
+            Log::channel('register')->warning('⚠️ [Referral] ไม่พบ TypeProcessPoint FRIEND_REFERRAL หรือ is_active=0');
         }
     }
 
@@ -543,10 +702,10 @@ class SocialRegisterController extends Controller
                 ->post("https://api.line.me/v2/bot/user/{$lineId}/richmenu/{$richMenuId}");
 
             if (!$response->successful()) {
-                Log::error("Assign Rich Menu Failed for {$lineId}: " . $response->body());
+                Log::channel('register')->error("Assign Rich Menu Failed for {$lineId}: " . $response->body());
             }
         } catch (\Exception $e) {
-            Log::error("Assign Rich Menu Error: " . $e->getMessage());
+            Log::channel('register')->error("Assign Rich Menu Error: " . $e->getMessage());
         }
     }
 }

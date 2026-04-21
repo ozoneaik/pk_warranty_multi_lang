@@ -118,7 +118,7 @@ class RedeemController extends Controller
     //         DB::rollBack();
     //         // ถ้า Error ไม่ใช่ Exception ที่เรา throw เอง ให้ Log ไว้
     //         if ($e->getMessage() !== 'คะแนนสะสมของคุณไม่เพียงพอ' && !str_contains($e->getMessage(), 'ไม่พบ')) {
-    //             Log::error('Redeem Error', ['msg' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    //             Log::channel('redeem')->error('Redeem Error', ['msg' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
     //         }
     //         return response()->json(['success' => false, 'message' => $e->getMessage()], 400); // ส่ง 400 เพื่อให้ Frontend รู้ว่าเป็น Error จาก Logic
     //     }
@@ -387,6 +387,15 @@ class RedeemController extends Controller
         $user = Auth::user();
         $now = Carbon::now();
 
+        Log::channel('redeem')->info('🔵 [Redeem] store เริ่มต้น', [
+            'user_id'      => $user->id,
+            'line_id'      => $user->line_id,
+            'pid'          => $request->pid,
+            'product_type' => $request->product_type,
+            'redeem_point' => $request->redeem_point,
+            'delivery_type'=> $request->delivery_type,
+        ]);
+
         return DB::transaction(function () use ($request, $user, $now) {
             try {
                 // ล็อคข้อมูลลูกค้า
@@ -401,6 +410,12 @@ class RedeemController extends Controller
                 })->lockForUpdate()->firstOrFail();
                 $tierKey = strtolower($customer->tier_key ?? 'silver');
 
+                Log::channel('redeem')->info('👤 [Redeem] พบข้อมูลลูกค้า', [
+                    'cust_id'  => $customer->id,
+                    'tier_key' => $tierKey,
+                    'point'    => $customer->point,
+                ]);
+
                 // 2. ค้นหาข้อมูลสินค้าและตรวจสอบเงื่อนไข
                 $data = $this->prepareRewardData($request, $customer, $tierKey, $now);
 
@@ -414,8 +429,20 @@ class RedeemController extends Controller
                 $expiryDate = $data['expiry_date'];
                 $couponCodeToReturn = $data['code_to_return'];
 
+                Log::channel('redeem')->info('📦 [Redeem] prepareRewardData สำเร็จ', [
+                    'item_name'       => $itemName,
+                    'required_point'  => $requiredPoint,
+                    'transaction_type'=> $transactionType,
+                    'process_code'    => $processCode,
+                    'is_delivery'     => $isDeliveryItem,
+                ]);
+
                 // 3. ตรวจสอบคะแนนคงเหลือ
                 if ($transactionType === 'redeem' && $customer->point < $requiredPoint) {
+                    Log::channel('redeem')->warning('❌ [Redeem] คะแนนไม่เพียงพอ', [
+                        'point'          => $customer->point,
+                        'required_point' => $requiredPoint,
+                    ]);
                     // ส่งเป็น JSON 400 เพื่อให้ Frontend Handle ได้ง่าย
                     return response()->json(['success' => false, 'message' => 'คะแนนสะสมของคุณไม่เพียงพอ'], 400);
                 }
@@ -435,6 +462,13 @@ class RedeemController extends Controller
                 $pointBefore = $customer->point;
                 $pointTran = 0;
 
+                Log::channel('redeem')->info('💰 [Redeem] กำลังอัปเดตคะแนน', [
+                    'type'         => $transactionType,
+                    'point_before' => $pointBefore,
+                    'earn_point'   => $earnPoint,
+                    'redeem_point' => $requiredPoint,
+                ]);
+
                 if ($transactionType === 'earn') {
                     $customer->increment('point', $earnPoint);
                     $customer->update(['last_earn_at' => $now]);
@@ -446,6 +480,12 @@ class RedeemController extends Controller
                 }
 
                 $pointAfter = $customer->fresh()->point; // ดึงค่าล่าสุด
+
+                Log::channel('redeem')->info('✅ [Redeem] อัปเดตคะแนนเสร็จ', [
+                    'point_before' => $pointBefore,
+                    'point_tran'   => $pointTran,
+                    'point_after'  => $pointAfter,
+                ]);
 
                 // 5. ✅ บันทึก Transaction
                 $transaction = $this->createTransaction(
@@ -467,10 +507,12 @@ class RedeemController extends Controller
 
                 if ($transactionType === 'redeem') {
                     if ($isDeliveryItem) {
+                        Log::channel('redeem')->info('📦 [Redeem] สร้าง Delivery Order', ['transaction_id' => $transaction->id]);
                         // สินค้าจัดส่ง -> สร้าง Order (Pending)
                         $this->createDeliveryOrder($user, $transaction, $request, $itemName, $requiredPoint, $now);
                         $couponData = ['code' => 'DELIVERY', 'expired_at' => '-'];
                     } else {
+                        Log::channel('redeem')->info('🎟️ [Redeem] สร้าง Digital Coupon', ['transaction_id' => $transaction->id]);
                         // คูปอง Digital -> สร้าง Code เลย
                         $couponData = $this->createDigitalCoupon($user, $transaction, $couponCodeToReturn, $expiryDate);
                     }
@@ -479,6 +521,12 @@ class RedeemController extends Controller
                 $msg = ($transactionType === 'earn' && $earnPoint > 0)
                     ? "สุขสันต์วันเกิด! คุณได้รับ {$earnPoint} คะแนน"
                     : "ทำรายการสำเร็จ";
+
+                Log::channel('redeem')->info('🎉 [Redeem] store สำเร็จทั้งหมด', [
+                    'transaction_type' => $transactionType,
+                    'point_after'      => $pointAfter,
+                    'coupon'           => $couponData,
+                ]);
 
                 return response()->json([
                     'success'      => true,
@@ -491,7 +539,12 @@ class RedeemController extends Controller
                 ]);
             } catch (\Exception $e) {
                 // ถ้า Error ใน Transaction มันจะ Rollback เอง
-                Log::error('Redeem Error', ['msg' => $e->getMessage()]);
+                Log::channel('redeem')->error('❌ [Redeem] store Error', [
+                    'msg'   => $e->getMessage(),
+                    'file'  => $e->getFile(),
+                    'line'  => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
                 throw $e;
             }
         });
@@ -588,7 +641,7 @@ class RedeemController extends Controller
     //     } catch (\Throwable $e) {
     //         DB::rollBack();
     //         if ($e->getMessage() !== 'คะแนนสะสมของคุณไม่เพียงพอ' && !str_contains($e->getMessage(), 'ไม่พบ')) {
-    //             Log::error('Redeem Error', ['msg' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    //             Log::channel('redeem')->error('Redeem Error', ['msg' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
     //         }
     //         return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
     //     }

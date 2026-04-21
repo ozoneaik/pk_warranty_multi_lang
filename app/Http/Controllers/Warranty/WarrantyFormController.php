@@ -46,7 +46,7 @@ class WarrantyFormController extends Controller
                 $channel_list = $data;
             }
         } catch (\Throwable $e) {
-            Log::error('Load channel list failed', ['error' => $e->getMessage()]);
+            Log::channel('warranty')->error('Load channel list failed', ['error' => $e->getMessage()]);
         }
         return Inertia::render('Warranty/WarrantyForm', [
             'channel_list'   => $channel_list,
@@ -61,7 +61,7 @@ class WarrantyFormController extends Controller
     //         // เส้น API ใหม่ที่ต้องการใช้
     //         $uri = "https://pk-api.pumpkin-th.com/api/get-store-name/{$id}";
 
-    //         Log::info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้าจาก Pumpkin API', [
+    //         Log::channel('warranty')->info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้าจาก Pumpkin API', [
     //             'id'  => $id,
     //             'uri' => $uri,
     //         ]);
@@ -71,7 +71,7 @@ class WarrantyFormController extends Controller
     //             'verify' => false, // ✅ ปิดตรวจสอบ SSL (ถ้าจำเป็น)
     //         ])->get($uri);
 
-    //         Log::info('📡 [get_store_name] ตอบกลับจาก API', [
+    //         Log::channel('warranty')->info('📡 [get_store_name] ตอบกลับจาก API', [
     //             'status' => $response->status(),
     //             'successful' => $response->successful(),
     //         ]);
@@ -87,7 +87,7 @@ class WarrantyFormController extends Controller
     //             throw new \Exception('ไม่สามารถดึงข้อมูลร้านค้าได้ (HTTP ' . $response->status() . ')');
     //         }
     //     } catch (\Exception $e) {
-    //         Log::error('❌ [get_store_name] Error', ['message' => $e->getMessage()]);
+    //         Log::channel('warranty')->error('❌ [get_store_name] Error', ['message' => $e->getMessage()]);
 
     //         return response()->json([
     //             'message' => $e->getMessage(),
@@ -106,7 +106,7 @@ class WarrantyFormController extends Controller
             // 2. ดึงจาก Pumpkin API
             $uri = "https://pk-api.pumpkin-th.com/api/get-store-name/{$id}";
 
-            Log::info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้าจาก Pumpkin API', [
+            Log::channel('warranty')->info('🛰 [get_store_name] เริ่มดึงรายชื่อร้านค้าจาก Pumpkin API', [
                 'id'  => $id,
                 'channel_name' => $channelName,
                 'uri' => $uri,
@@ -119,9 +119,9 @@ class WarrantyFormController extends Controller
             $apiStoreList = [];
             if ($response->successful()) {
                 $apiStoreList = $response->json() ?? [];
-                Log::info('✅ [get_store_name] ดึงจาก Pumpkin API สำเร็จ', ['count' => count($apiStoreList)]);
+                Log::channel('warranty')->info('✅ [get_store_name] ดึงจาก Pumpkin API สำเร็จ', ['count' => count($apiStoreList)]);
             } else {
-                Log::warning('⚠️ [get_store_name] Pumpkin API ไม่สำเร็จ หรือไม่มีข้อมูล', [
+                Log::channel('warranty')->warning('⚠️ [get_store_name] Pumpkin API ไม่สำเร็จ หรือไม่มีข้อมูล', [
                     'status' => $response->status()
                 ]);
             }
@@ -131,7 +131,7 @@ class WarrantyFormController extends Controller
             $dbStoreList = [];
             if ($channelName === 'ตัวแทนจำหน่าย') {
                 $dbStoreList = Dealer::where('is_active', true)->pluck('name')->toArray();
-                Log::info('🏠 [get_store_name] ดึงร้านค้าจาก Database', ['count' => count($dbStoreList)]);
+                Log::channel('warranty')->info('🏠 [get_store_name] ดึงร้านค้าจาก Database', ['count' => count($dbStoreList)]);
             }
 
             // 4. เอาข้อมูล 2 แหล่งมารวมกัน
@@ -140,7 +140,7 @@ class WarrantyFormController extends Controller
             // ตัดตัวซ้ำ (Unique) เผื่อ Admin พิมพ์ชื่อร้านซ้ำกับใน API
             $finalStoreList = array_values(array_unique($finalStoreList));
 
-            Log::info('✨ [get_store_name] รวมรายการร้านค้าเสร็จสิ้น', [
+            Log::channel('warranty')->info('✨ [get_store_name] รวมรายการร้านค้าเสร็จสิ้น', [
                 'total_before' => count($apiStoreList) + count($dbStoreList),
                 'total_unique' => count($finalStoreList)
             ]);
@@ -150,7 +150,7 @@ class WarrantyFormController extends Controller
                 'list' => $finalStoreList
             ]);
         } catch (\Exception $e) {
-            Log::error('❌ [get_store_name] Error', ['message' => $e->getMessage()]);
+            Log::channel('warranty')->error('❌ [get_store_name] Error', ['message' => $e->getMessage()]);
 
             return response()->json([
                 'message' => $e->getMessage(),
@@ -179,7 +179,7 @@ class WarrantyFormController extends Controller
     //             throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
     //         }
 
-    //         Log::info('🛰 [WarrantyFormController] เริ่มตรวจสอบ SN จาก API ใหม่', ['sn' => $sn]);
+    //         Log::channel('warranty')->info('🛰 [WarrantyFormController] เริ่มตรวจสอบ SN จาก API ใหม่', ['sn' => $sn]);
 
     //         $apiUrl = 'https://warranty-sn.pumpkin.tools/api/getdata';
 
@@ -195,7 +195,7 @@ class WarrantyFormController extends Controller
 
     //         $apiData = $response->json();
 
-    //         Log::info('📡 [WarrantyFormController] ผลลัพธ์จาก API', [
+    //         Log::channel('warranty')->info('📡 [WarrantyFormController] ผลลัพธ์จาก API', [
     //             'status' => $apiData['status'] ?? 'N/A',
     //             'is_combo' => $apiData['is_combo'] ?? false,
     //             'skuset' => $apiData['skuset'] ?? []
@@ -320,7 +320,7 @@ class WarrantyFormController extends Controller
     //             'data'    => $data_response
     //         ], 200);
     //     } catch (\Exception $e) {
-    //         Log::error('❌ [WarrantyFormController] Check SN Error', [
+    //         Log::channel('warranty')->error('❌ [WarrantyFormController] Check SN Error', [
     //             'sn'    => $sn,
     //             'error' => $e->getMessage(),
     //         ]);
@@ -353,7 +353,7 @@ class WarrantyFormController extends Controller
                 throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
             }
 
-            Log::info('🛰 [WarrantyFormController] เริ่มตรวจสอบ SN จาก API ใหม่', ['sn' => $sn]);
+            Log::channel('warranty')->info('🛰 [WarrantyFormController] เริ่มตรวจสอบ SN จาก API ใหม่', ['sn' => $sn]);
 
             $apiUrl = 'https://warranty-sn.pumpkin.tools/api/getdata';
 
@@ -369,7 +369,7 @@ class WarrantyFormController extends Controller
 
             $apiData = $response->json();
 
-            Log::info('📡 [WarrantyFormController] ผลลัพธ์จาก API', [
+            Log::channel('warranty')->info('📡 [WarrantyFormController] ผลลัพธ์จาก API', [
                 'status' => $apiData['status'] ?? 'N/A',
                 'is_combo' => $apiData['is_combo'] ?? false,
                 'skuset' => $apiData['skuset'] ?? []
@@ -503,7 +503,7 @@ class WarrantyFormController extends Controller
                 'data'    => $data_response
             ], 200);
         } catch (\Exception $e) {
-            Log::error('❌ [WarrantyFormController] Check SN Error', [
+            Log::channel('warranty')->error('❌ [WarrantyFormController] Check SN Error', [
                 'sn'    => $sn,
                 'error' => $e->getMessage(),
             ]);
@@ -518,7 +518,7 @@ class WarrantyFormController extends Controller
     //เพิ่มโลจิกสินค้าที่เป็น Comboset
     public function store(WrFormRequest $request)
     {
-        Log::info('🚀 [store] เริ่มบันทึกการลงทะเบียนการรับประกัน', [
+        Log::channel('warranty')->info('🚀 [store] เริ่มบันทึกการลงทะเบียนการรับประกัน', [
             'serial_number' => $request->serial_number,
             'user_id' => Auth::id()
         ]);
@@ -598,14 +598,14 @@ class WarrantyFormController extends Controller
 
                 if ($apiResponse->successful()) {
                     $apiData = $apiResponse->json();
-                    Log::info('📡 [store] ดึงข้อมูลจาก Warranty API สำเร็จ', [
+                    Log::channel('warranty')->info('📡 [store] ดึงข้อมูลจาก Warranty API สำเร็จ', [
                         'is_combo' => $apiData['is_combo'] ?? false
                     ]);
                 } else {
-                    Log::warning('⚠️ [store] ดึงข้อมูลจาก Warranty API ไม่สำเร็จ', ['status' => $apiResponse->status()]);
+                    Log::channel('warranty')->warning('⚠️ [store] ดึงข้อมูลจาก Warranty API ไม่สำเร็จ', ['status' => $apiResponse->status()]);
                 }
             } catch (\Exception $e) {
-                Log::warning('⚠️ [Store] API Fetch Error: ' . $e->getMessage());
+                Log::channel('warranty')->warning('⚠️ [Store] API Fetch Error: ' . $e->getMessage());
             }
 
             // 2.1 ตรวจสอบว่าเป็น COMBO SET หรือไม่?
@@ -700,7 +700,7 @@ class WarrantyFormController extends Controller
                 }
             }
             
-            Log::info('📦 [store] เตรียมบันทึกข้อมูลสินค้า', ['count' => count($itemsToSave)]);
+            Log::channel('warranty')->info('📦 [store] เตรียมบันทึกข้อมูลสินค้า', ['count' => count($itemsToSave)]);
 
             $mainStoreRecord = null;
 
@@ -732,7 +732,7 @@ class WarrantyFormController extends Controller
                     'pc_code'       => $req['pc_code'] ?? null,
                 ]);
 
-                Log::info('✅ [store] บันทึกลง TblHistoryProd สำเร็จ', [
+                Log::channel('warranty')->info('✅ [store] บันทึกลง TblHistoryProd สำเร็จ', [
                     'id' => $store->id,
                     'model_code' => $store->model_code,
                     'type' => $store->product_type
@@ -803,9 +803,9 @@ class WarrantyFormController extends Controller
                         ])
                         ->post($rocketUrl, $payload);
                     
-                    Log::info('🚀 [store] Sync to Rocket API สำเร็จ', ['warranty_id' => $payload['warranty_id']]);
+                    Log::channel('warranty')->info('🚀 [store] Sync to Rocket API สำเร็จ', ['warranty_id' => $payload['warranty_id']]);
                 } catch (\Exception $e) {
-                    Log::error('❌ [Rocket Sync] Failed', [
+                    Log::channel('warranty')->error('❌ [Rocket Sync] Failed', [
                         'sku' => $item['model_code'],
                         'error' => $e->getMessage()
                     ]);
@@ -815,7 +815,7 @@ class WarrantyFormController extends Controller
             // if (!empty($req['pc_code'])) {
             //     // เช็คว่าไม่ได้ใส่รหัสของตัวเอง
             //     if ($customer && $customer->referral_code === $req['pc_code']) {
-            //         Log::info('⚪ [Point System] ข้ามการแจกคะแนน: ผู้ใช้ใส่รหัส PC ของตัวเอง');
+            //         Log::channel('warranty')->info('⚪ [Point System] ข้ามการแจกคะแนน: ผู้ใช้ใส่รหัส PC ของตัวเอง');
             //     } else {
             //         try {
             //             $processPoint = TypeProcessPoint::where('process_code', 'PC_CODE')
@@ -846,13 +846,13 @@ class WarrantyFormController extends Controller
             //                     'created_at'       => now(),
             //                 ]);
 
-            //                 Log::info('🟢 [Point System] บันทึกคะแนนสำเร็จ', [
+            //                 Log::channel('warranty')->info('🟢 [Point System] บันทึกคะแนนสำเร็จ', [
             //                     'pc_code' => $req['pc_code'],
             //                     'point'   => $pointTran,
             //                 ]);
             //             }
             //         } catch (\Exception $e) {
-            //             Log::error('❌ [Point System] เกิดข้อผิดพลาดในการแจกคะแนน', ['error' => $e->getMessage()]);
+            //             Log::channel('warranty')->error('❌ [Point System] เกิดข้อผิดพลาดในการแจกคะแนน', ['error' => $e->getMessage()]);
             //         }
             //     }
             // }
@@ -890,13 +890,13 @@ class WarrantyFormController extends Controller
                             'created_at'       => now(),
                         ]);
 
-                        Log::info('🟢 [Point System] บันทึกคะแนนสำเร็จ', [
+                        Log::channel('warranty')->info('🟢 [Point System] บันทึกคะแนนสำเร็จ', [
                             'pc_code' => $req['pc_code'],
                             'point'   => $pointTran,
                         ]);
                     }
                 } catch (\Exception $e) {
-                    Log::error('❌ [Point System] เกิดข้อผิดพลาดในการแจกคะแนน', [
+                    Log::channel('warranty')->error('❌ [Point System] เกิดข้อผิดพลาดในการแจกคะแนน', [
                         'error' => $e->getMessage()
                     ]);
                 }
@@ -936,10 +936,10 @@ class WarrantyFormController extends Controller
             //                 ]
             //             ]);
 
-            //         Log::info('📩 [Chat API] บันทึกสำเร็จสำหรับลูกค้า: ' . $realCustomerName);
+            //         Log::channel('warranty')->info('📩 [Chat API] บันทึกสำเร็จสำหรับลูกค้า: ' . $realCustomerName);
             //     }
             // } catch (\Exception $ex) {
-            //     Log::error('❌ [Chat API] Error: ' . $ex->getMessage());
+            //     Log::channel('warranty')->error('❌ [Chat API] Error: ' . $ex->getMessage());
             // }
 
             try {
@@ -973,13 +973,13 @@ class WarrantyFormController extends Controller
                     ])->post('https://api.line.me/v2/bot/message/push', $message);
                 }
             } catch (\Exception $ex) {
-                Log::error('❌ LINE Push Error', ['error' => $ex->getMessage()]);
+                Log::channel('warranty')->error('❌ LINE Push Error', ['error' => $ex->getMessage()]);
             }
 
             return redirect()->route('warranty.history');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('❌ [store] บันทึกไม่สำเร็จ', [
+            Log::channel('warranty')->error('❌ [store] บันทึกไม่สำเร็จ', [
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile()

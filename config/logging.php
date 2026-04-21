@@ -127,6 +127,94 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // ─────────────────────────────────────────────────────────────
+        // Custom Channels — แต่ละ Feature มีไฟล์ Log แยก + เขียนลง laravel.log ด้วย
+        // ─────────────────────────────────────────────────────────────
+
+        'line_auth' => [
+            'driver'   => 'stack',
+            'channels' => ['line_auth_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'line_auth_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/line_auth.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
+        'register' => [
+            'driver'   => 'stack',
+            'channels' => ['register_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'register_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/register.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
+        'privilege' => [
+            'driver'   => 'stack',
+            'channels' => ['privilege_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'privilege_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/privilege.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
+        'redeem' => [
+            'driver'   => 'stack',
+            'channels' => ['redeem_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'redeem_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/redeem.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
+        'warranty' => [
+            'driver'   => 'stack',
+            'channels' => ['warranty_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'warranty_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/warranty.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
+        'checkin' => [
+            'driver'   => 'stack',
+            'channels' => ['checkin_file', 'single'],
+            'ignore_exceptions' => false,
+        ],
+
+        'checkin_file' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/checkin.log'),
+            'level'               => env('LOG_LEVEL', 'debug'),
+            'days'                => 14,
+            'replace_placeholders'=> true,
+        ],
+
     ],
 
 ];

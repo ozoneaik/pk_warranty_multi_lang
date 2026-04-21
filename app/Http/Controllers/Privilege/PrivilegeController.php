@@ -16,6 +16,7 @@ use App\Services\TierService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PrivilegeController extends Controller
@@ -28,10 +29,28 @@ class PrivilegeController extends Controller
         $today = $now->toDateString();
 
         // 1. ตรวจสอบข้อมูลลูกค้า
-        if (empty($user->line_id)) return $this->renderEmptyPrivilege($user, $avatar);
+        if (empty($user->line_id)) {
+            Log::channel('privilege')->warning('⚠️ [Privilege] ไม่พบ line_id → แสดงหน้าว่าง', ['user_id' => $user->id]);
+            return $this->renderEmptyPrivilege($user, $avatar);
+        }
         $customer = TblCustomerProd::where('cust_line', $user->line_id)->first();
-        if (!$customer) return $this->renderEmptyPrivilege($user, $avatar);
+        if (!$customer) {
+            Log::channel('privilege')->warning('⚠️ [Privilege] ไม่พบข้อมูลลูกค้า → แสดงหน้าว่าง', [
+                'user_id' => $user->id,
+                'line_id' => $user->line_id,
+            ]);
+            return $this->renderEmptyPrivilege($user, $avatar);
+        }
 
+        Log::channel('privilege')->info('🔵 [Privilege] index เริ่มต้น', [
+            'user_id'  => $user->id,
+            'line_id'  => $user->line_id,
+            'cust_id'  => $customer->id,
+            'tier_key' => $customer->tier_key,
+            'point'    => $customer->point,
+        ]);
+
+        Log::channel('privilege')->info('🔄 [Privilege] เรียก TierService->recalculate', ['line_id' => $user->line_id]);
         $tierService->recalculate($customer);
 
         // 2. ดึงค่าล่าสุดหลังจากคำนวณเสร็จแล้ว
@@ -39,6 +58,13 @@ class PrivilegeController extends Controller
         $customer = $customer->fresh();
         $tierKey = strtolower($customer->tier_key ?? 'silver');
         $tierExpiredAt = $customer->tier_expired_at ? Carbon::parse($customer->tier_expired_at) : null;
+
+        Log::channel('privilege')->info('✅ [Privilege] เดือง tier หลัง recalculate', [
+            'line_id'         => $user->line_id,
+            'tier_key'        => $tierKey,
+            'point'           => $point,
+            'tier_expired_at' => $tierExpiredAt?->toDateString(),
+        ]);
 
         // 3. ตรวจสอบเดือนเกิด
         $isBirthMonth = false;
@@ -86,6 +112,18 @@ class PrivilegeController extends Controller
             ->whereYear('trandate', $now->year)
             ->where('process_code', 'BIRTHDAY')
             ->exists();
+
+        Log::channel('privilege')->info('🎂 [Privilege] ตรวจสอบเดือนเกิด', [
+            'line_id'           => $user->line_id,
+            'is_birth_month'    => $isBirthMonth,
+            'has_claimed_bday'  => $hasClaimedBirthday,
+        ]);
+
+        Log::channel('privilege')->info('📦 [Privilege] ดึงข้อมูล Rewards/Privileges/Coupons', [
+            'rewards_count'    => $rewards->count(),
+            'privileges_count' => $privileges->count(),
+            'coupons_count'    => $newCoupons->count(),
+        ]);
 
         // 5. Map Data Function
         $mapData = function ($item, $sourceType) use ($tierKey, $isBirthMonth, $birthdayProcessConfig, $hasClaimedBirthday) {
@@ -247,6 +285,13 @@ class PrivilegeController extends Controller
         $pointExpiryDate = $latestEarn
             ? Carbon::parse($latestEarn)->addYear()->format('d/m/Y')
             : null;
+
+        Log::channel('privilege')->info('🏁 [Privilege] index สำเร็จ เรนเดอร์ Inertia', [
+            'line_id'         => $user->line_id,
+            'rewards_count'   => count($products['reward']),
+            'coupon_count'    => count($products['coupon']),
+            'privilege_count' => count($products['privilege']),
+        ]);
 
         return Inertia::render('Profile/Customer/Privilege', [
             'point_expiry_date' => $pointExpiryDate,

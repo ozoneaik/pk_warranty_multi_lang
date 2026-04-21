@@ -180,7 +180,7 @@ class CheckinController extends Controller
     //         ]);
     //     } catch (\Exception $e) {
     //         DB::connection('mysql_slip')->rollBack();
-    //         Log::error("Checkin Error: " . $e->getMessage());
+    //         Log::channel('checkin')->error("Checkin Error: " . $e->getMessage());
     //         return response()->json(['message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()], 500);
     //     }
     // }
@@ -194,11 +194,17 @@ class CheckinController extends Controller
 
         // ── Guard: ตรวจ LINE ID ──────────────────────────────────
         if (!$lineId) {
+            Log::channel('checkin')->warning('⚠️ [Checkin] ไม่พบ LINE ID', ['user_id' => $user?->id]);
             return response()->json(['message' => 'ไม่พบข้อมูล LINE ID'], 400);
         }
 
         $today     = Carbon::now()->format('Y-m-d');
         $yesterday = Carbon::yesterday()->format('Y-m-d');
+
+        Log::channel('checkin')->info('🔵 [Checkin] store เริ่มต้น', [
+            'line_id' => $lineId,
+            'today'   => $today,
+        ]);
 
         DB::connection('mysql_slip')->beginTransaction();
 
@@ -213,8 +219,15 @@ class CheckinController extends Controller
 
             if (!$customer) {
                 DB::connection('mysql_slip')->rollBack();
+                Log::channel('checkin')->warning('⚠️ [Checkin] ไม่พบข้อมูลลูกค้า', ['line_id' => $lineId]);
                 return response()->json(['message' => 'ไม่พบข้อมูลลูกค้า'], 404);
             }
+
+            Log::channel('checkin')->info('👤 [Checkin] พบลูกค้า', [
+                'cust_id'  => $customer->id,
+                'tier_key' => $customer->tier_key,
+                'point'    => $customer->point,
+            ]);
 
             // ── 2. Double-check หลัง lock ─────────────────────────
             //    เผื่อ request อีกตัวเพิ่งเช็คอินเสร็จก่อนหน้าเราได้ lock
@@ -224,6 +237,7 @@ class CheckinController extends Controller
 
             if ($exists) {
                 DB::connection('mysql_slip')->rollBack();
+                Log::channel('checkin')->info('ℹ️ [Checkin] เช็คอินซ้ำ (Double-check block)', ['line_id' => $lineId, 'date' => $today]);
                 return response()->json([
                     'message'         => 'วันนี้คุณ Check-in ไปแล้ว',
                     'already_checked' => true,
@@ -248,6 +262,15 @@ class CheckinController extends Controller
                 }
                 // ถ้าไม่ใช่เมื่อวาน streak reset เป็น 1 (ค่า default ด้านบนแล้ว)
             }
+
+            Log::channel('checkin')->info('📅 [Checkin] คำนวณ Streak', [
+                'line_id'        => $lineId,
+                'streak'         => $streak,
+                'last_checkin'   => $lastCheckin?->checkin_date,
+                'is_consecutive' => $lastCheckin && $lastCheckin->checkin_date
+                    ? (Carbon::parse($lastCheckin->checkin_date)->format('Y-m-d') === $yesterday)
+                    : false,
+            ]);
 
             // ── 5. คำนวณ Points ───────────────────────────────────
             $points  = $basePoint;
@@ -312,6 +335,15 @@ class CheckinController extends Controller
 
             DB::connection('mysql_slip')->commit();
 
+            Log::channel('checkin')->info('🎉 [Checkin] Check-in สำเร็จ', [
+                'line_id'      => $lineId,
+                'date'         => $today,
+                'streak'       => $streak,
+                'points'       => $points,
+                'is_bonus'     => $isBonus,
+                'point_after'  => $pointAfter,
+            ]);
+
             return response()->json([
                 'status'   => 'success',
                 'points'   => $points,
@@ -325,18 +357,18 @@ class CheckinController extends Controller
             // ── Unique Constraint Violation (Duplicate Entry) ─────
             // error code 23000 = integrity constraint violation
             if ($e->getCode() === '23000') {
-                Log::warning("Checkin duplicate blocked by DB constraint: lineId={$lineId}, date={$today}");
+                Log::channel('checkin')->warning("Checkin duplicate blocked by DB constraint: lineId={$lineId}, date={$today}");
                 return response()->json([
                     'message'         => 'วันนี้คุณ Check-in ไปแล้ว',
                     'already_checked' => true,
                 ], 400);
             }
 
-            Log::error("Checkin QueryException: " . $e->getMessage());
+            Log::channel('checkin')->error("Checkin QueryException: " . $e->getMessage());
             return response()->json(['message' => 'เกิดข้อผิดพลาดในฐานข้อมูล'], 500);
         } catch (\Exception $e) {
             DB::connection('mysql_slip')->rollBack();
-            Log::error("Checkin Error: lineId={$lineId}, error=" . $e->getMessage());
+            Log::channel('checkin')->error("Checkin Error: lineId={$lineId}, error=" . $e->getMessage());
             return response()->json(['message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()], 500);
         }
     }
