@@ -287,28 +287,34 @@ class WarrantyHistoryController extends Controller
             $mainData = [];
             $isAccessory = false;
 
+            $finalAsset = null;
             if ($responseSN->successful()) {
                 $jsonSN = $responseSN->json();
 
                 if (($jsonSN['status'] ?? '') === 'SUCCESS') {
-                    // เช็คว่า SKU ใน Database ตรงกับ Main SKU ของ API หรือไม่
-                    // ถ้าไม่ตรง ($current_sku != $jsonSN['skumain']) แสดงว่าเป็น Accessory (เช่น แบตเตอรี่)
-                    if (isset($jsonSN['skumain']) && $current_sku != $jsonSN['skumain']) {
-                        $isAccessory = true;
-                    }
-                    // กรณีไม่มี skumain ให้เช็คจาก assets key โดยตรง
-                    elseif (!isset($jsonSN['assets'][$current_sku])) {
-                        // ถ้าหา key SKU ใน assets ชุดแรกไม่เจอ ก็มีโอกาสเป็น Accessory
-                        $isAccessory = true;
-                    }
-
                     $mainData = $jsonSN;
+
+                    // 1. เช็คว่าเป็นเครื่องหลักจาก main_assets หรือไม่ (กรณี Combo)
+                    if (isset($mainData['main_assets']['pid']) && $current_sku == $mainData['main_assets']['pid']) {
+                        $finalAsset = $mainData['main_assets'];
+                    }
+                    // 2. เช็คใน assets ปกติ (กรณีสินค้าเดี่ยว หรือสินค้าลูกในชุด)
+                    elseif (isset($mainData['assets'][$current_sku])) {
+                        $finalAsset = $mainData['assets'][$current_sku];
+                    }
+                    // 3. ถ้าไม่ตรงเลย และรหัสไม่ตรงกับ skumain แสดงว่าเป็น Accessory ที่ต้องหาแยก
+                    elseif (isset($mainData['skumain']) && $current_sku != $mainData['skumain']) {
+                        $isAccessory = true;
+                    } 
+                    // 4. กรณีพิเศษ: ถ้ายังไม่เจอ finalAsset แต่เป็นสินค้าหลัก (skumain) ให้ fallback ไปเอาตัวแรกใน assets
+                    elseif (!$finalAsset && !empty($mainData['assets'])) {
+                        $finalAsset = reset($mainData['assets']);
+                    }
                 }
             }
 
-            // Step 2: เลือกดึงข้อมูล Asset (ถ้าเป็น Accessory ให้ค้นด้วย SKU)
-            $finalAsset = null;
-            if ($isAccessory) {
+            // Step 2: ถ้ายังไม่เจอข้อมูล (และคาดว่าเป็น Accessory) ให้ค้นหาด้วย SKU รายตัว
+            if (!$finalAsset && $isAccessory) {
                 // Case: Accessory -> ค้นหา API อีกครั้งด้วย SKU
                 $responseSku = Http::timeout(15)
                     ->withOptions(['verify' => false])
@@ -322,16 +328,6 @@ class WarrantyHistoryController extends Controller
                             $finalAsset = $assets[$current_sku];
                         }
                     }
-                }
-            } else {
-                // Case: Main Product -> ใช้ข้อมูลจาก SN Response ได้เลย
-                $assets = $mainData['assets'] ?? [];
-
-                if (isset($assets[$current_sku])) {
-                    $finalAsset = $assets[$current_sku];
-                } elseif (!empty($assets)) {
-                    // Fallback: เอาตัวแรก
-                    $finalAsset = reset($assets);
                 }
             }
 
