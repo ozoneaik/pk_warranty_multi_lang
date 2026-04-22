@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 import en from "@/locales/en.json";
 import th from "@/locales/th.json";
 import lao from "@/locales/lao.json";
@@ -14,19 +14,16 @@ interface LanguageContextType {
     t: Translations;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+    undefined,
+);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children,
+}) => {
     const [language, setLanguageState] = useState<Language>("en");
-
-    useEffect(() => {
-        const saved = localStorage.getItem("language") as Language;
-        if (saved) setLanguageState(saved);
-    }, []);
 
     const setLanguage = (lang: Language) => {
         setLanguageState(lang);
-        localStorage.setItem("language", lang);
     };
     const translations: Record<Language, Translations> = { en, th, lao, myanmar };
     const t = useMemo(() => {
@@ -41,7 +38,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                         return target[prop];
                     }
                     return String(prop);
-                }
+                },
             });
 
         return makeProxy(current);
