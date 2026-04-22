@@ -1049,7 +1049,7 @@ function WarrantyDetail({ id }: { id: number }) {
                             <Box mt={2}>
                                 <Divider sx={{ mb: 1, borderStyle: 'dashed' }} />
                                 <Typography variant="subtitle2" sx={{ color: "#F54927", fontWeight: 600, mb: 1, fontSize: '0.85rem' }}>
-                                    อุปกรณ์เสริม (Accessories)
+                                    {t.History.Information.accessories}
                                 </Typography>
 
                                 <List disablePadding dense>
@@ -1317,7 +1317,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                             ml: { xs: -1, sm: -2 },
                         }}
                     >
-                        <Tab value="all" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>ทั้งหมด</Typography><Chip label={counts.total} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 110 }} />
+                        <Tab value="all" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.All}</Typography><Chip label={counts.total} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 110 }} />
                         <Tab value="pending" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.isChecking}</Typography><Chip label={counts.pending} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 120 }} />
                         <Tab value="in" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.isTrue}</Typography><Chip label={counts.inWarranty} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 140 }} />
                         <Tab value="expired" label={<Stack direction="row" spacing={1} alignItems="center"><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.History.Card.Warranty.expired}</Typography><Chip label={counts.expired} size="small" sx={{ height: 22, fontSize: "0.7rem" }} /></Stack>} sx={{ textTransform: "none", minWidth: 120 }} />
@@ -1378,7 +1378,7 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                             <Stack direction="row" spacing={1} alignItems="center">
                                                                 <Inventory sx={{ fontSize: 16, color: "text.secondary" }} />
                                                                 <Typography variant="body2" color="text.secondary" fontWeight="500" sx={{ fontSize: "0.8rem" }}>
-                                                                    หมายเลขเครื่อง (S/N):
+                                                                    {t.Warranty.Form.serial_number}:
                                                                 </Typography>
                                                                 <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 600, color: "primary.main", fontSize: "0.8rem" }}>
                                                                     {item.serial_number ?? "-"}

@@ -129,6 +129,7 @@
             "ProductModelCode": "ລະຫັດແບບ",
             "ProductName": "ຊື່ສິນຄ້າ",
             "Warranty": {
+                "All": "ທັງໝົດ",
                 "isTrue": "ຢູ່ໃນການຮັບປະກັນ",
                 "isFalse": "ບໍ່ຢູ່ໃນການຮັບປະກັນ",
                 "isChecking": "ຢູ່ໃນການກວດສອບ",
@@ -146,6 +147,8 @@
             "noteWaranty": "ໝາຍເຫດ",
             "loading": "ກຳລັງໂຫຼດຂໍ້ມູນການຮັບປະກັນ...",
             "noData": "ບໍ່ພົບຂໍ້ມູນການຮັບປະກັນ",
+            "accessories": "ອຸປະກອນເສີມ",
+            "code": "ລະຫັດ",
             "spareWarranty": "ອາໄຫຼ່ທີ່ຢູ່ໃນການຮັບປະກັນ",
             "spareCode": "ລະຫັດອາໄຫຼ່",
             "items": "ລາຍການ"
@@ -321,7 +324,7 @@
     },
     "footerMenu": {
         "home": "ໜ້າຫຼັກ",
-        "form": "ແບບຟອມ",
+        "form": "ການຮັບປະກັນ",
         "privilege": "ລາງວັນ",
         "pumpkinCorner": "Pumpkin Corner",
         "tools": "ປະຫວັດ",

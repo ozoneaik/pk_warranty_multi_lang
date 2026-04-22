@@ -133,6 +133,7 @@
             "ProductModelCode": "မော်ဒယ်ကုဒ်",
             "ProductName": "ထုတ်ကုန်အမည်",
             "Warranty": {
+                "All": "အားလုံး",
                 "isTrue": "အာမခံထားသည်",
                 "isFalse": "အာမခံမရှိတော့ပါ",
                 "isChecking": "កំពុងពិនិត្យ",
@@ -150,6 +151,8 @@
             "noteWaranty": "မှတ်ချက်",
             "loading": "အာမခံချက်အချက်အလက်ကို တင်နေသည်...",
             "noData": "အာမခံချက်အချက်အလက် မတွေ့ပါ",
+            "accessories": "ဆက်စပ်ပစ္စည်းများ",
+            "code": "ကုဒ်",
             "spareWarranty": "အာမခံထားသော ပစ္စည်းအပိုပစ္စည်းများ",
             "spareCode": "အပိုပစ္စည်းကုဒ်",
             "items": "ပစ္စည်းများ"
@@ -325,7 +328,7 @@
     },
     "footerMenu": {
         "home": "မူလ",
-        "form": "ဖောင်",
+        "form": "ការធានា",
         "privilege": "အခွင့်အရေး",
         "pumpkinCorner": "Pumpkin Corner",
         "tools": "မှတ်တမ်း",

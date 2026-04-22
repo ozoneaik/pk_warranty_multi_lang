@@ -129,6 +129,7 @@
             "ProductModelCode": "Model Code",
             "ProductName": "Product Name",
             "Warranty": {
+                "All": "All",
                 "isTrue": "Under Warranty",
                 "isFalse": "Out of Warranty",
                 "isChecking": "Under review",
@@ -146,6 +147,8 @@
             "noteWaranty": "Note",
             "loading": "Loading warranty information...",
             "noData": "No warranty information found",
+            "accessories": "Accessories",
+            "code": "Code",
             "spareWarranty": "Spare Parts under Warranty",
             "spareCode": "Spare Part Code",
             "items": "items"
