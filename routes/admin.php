@@ -207,6 +207,12 @@ Route::middleware('auth:admin')->group(function () {
         Route::put('/{id}', [AdminDealerController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminDealerController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('logs')->name('logs.')->middleware('check_menu:logs')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\AdminLogController::class, 'index'])->name('index');
+        Route::get('/download/{filename}', [App\Http\Controllers\Admin\AdminLogController::class, 'download'])->name('download');
+        Route::delete('/{filename}', [App\Http\Controllers\Admin\AdminLogController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::get('/admin/reports/customers/export', [AdminCustomerReportController::class, 'exportExcel'])
