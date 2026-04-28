@@ -160,11 +160,14 @@ class SocialRegisterController extends Controller
             if (!$sessionExpire || now('Asia/Bangkok')->greaterThan($sessionExpire)) {
                 return back()->withInput()->withErrors(['otp' => 'รหัส OTP หมดอายุ กรุณากดส่งใหม่']);
             }
-            if ($request->cust_tel !== $sessionPhone) {
-                return back()->withInput()->withErrors(['cust_tel' => 'เบอร์โทรศัพท์ไม่ตรงกับที่ขอรหัส OTP']);
-            }
             if ($request->otp !== $sessionOtp) {
                 return back()->withInput()->withErrors(['otp' => 'รหัส OTP ไม่ถูกต้อง']);
+            }
+
+            // [SECURITY] ตรวจสอบว่าเบอร์ปัจจุบันตรงกับเบอร์ที่ขอ OTP หรือไม่ (ป้องกัน user แก้เบอร์หลังขอ OTP)
+            $submittedPhone = $this->normalizePhone($request->cust_tel);
+            if ($submittedPhone !== $sessionDbFormat) {
+                return back()->withInput()->withErrors(['cust_tel' => 'เบอร์โทรศัพท์มีการเปลี่ยนแปลงหลังจากขอ OTP กรุณากดส่งรหัสใหม่อีกครั้ง']);
             }
 
             $phoneToSave = $sessionDbFormat;
@@ -498,13 +501,13 @@ class SocialRegisterController extends Controller
 
         // ย้าย credit check มาทำแบบ fire-and-forget (ไม่บล็อก)
         // หรือลด timeout เหลือ 1 วิ
-        try {
-            Http::timeout(1)->get('http://192.168.9.32:9000/api/check-credit-lk.php', [
-                'system_name' => 'ระบบลงทะเบียนรับประกันสินค้าออนไลน์พัมคิน'
-            ]);
-        } catch (\Exception $e) {
-            Log::channel('register')->error('SMS Credit Check Failed: ' . $e->getMessage());
-        }
+        // try {
+        //     Http::timeout(1)->get('http://192.168.9.32:9000/api/check-credit-lk.php', [
+        //         'system_name' => 'ระบบลงทะเบียนรับประกันสินค้าออนไลน์พัมคิน'
+        //     ]);
+        // } catch (\Exception $e) {
+        //     Log::channel('register')->error('SMS Credit Check Failed: ' . $e->getMessage());
+        // }
 
         $otp      = str_pad((string) random_int(1000, 9999), 4, '0', STR_PAD_LEFT); // แก้ rand → random_int
         $smsPhone = str_replace('+', '', $rawPhone);
@@ -517,7 +520,7 @@ class SocialRegisterController extends Controller
         ]);
 
         try {
-            $response = Http::timeout(8)          
+            $response = Http::timeout(8)
                 ->connectTimeout(5)
                 ->asForm()
                 ->post(env('SEND_OTP_URI'), [
@@ -528,17 +531,21 @@ class SocialRegisterController extends Controller
                     'OPTION'   => 'SEND_TYPE=General',
                 ]);
 
-                Log::channel('register')->info("OTP Sent to {$smsPhone}", ['otp_debug' => $otp]);
+            Log::channel('register')->info("OTP Sent to {$smsPhone}", [
+                'otp_debug' => $otp,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
 
             if ($response->successful()) {
                 return response()->json(['success' => true, 'message' => 'ส่งรหัส OTP เรียบร้อยแล้ว']);
             }
-            throw new \Exception('SMS Gateway Error: ' . $response->status());
+            throw new \Exception('SMS Gateway Error: ' . $response->status() . ' - ' . $response->body());
         } catch (\Exception $e) {
             Log::channel('register')->error('Send OTP Failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'ไม่สามารถส่ง OTP ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง'
+                'message' => 'ไม่สามารถส่ง OTP ได้ในขณะนี้ กรุณาลองใหม่ภายหลัง: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -550,9 +557,19 @@ class SocialRegisterController extends Controller
 
     private function normalizePhone($phone): string
     {
+        // ลบช่องว่างและอักขระพิเศษออกก่อน
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // ถ้าขึ้นต้นด้วย +66 แปลงเป็น 0
         if (str_starts_with($phone, '+66')) {
             return '0' . substr($phone, 3);
         }
+
+        // ถ้าไม่มี + แต่ขึ้นต้นด้วย 66 ให้แปลงเป็น 0
+        if (str_starts_with($phone, '66')) {
+            return '0' . substr($phone, 2);
+        }
+
         return $phone;
     }
 

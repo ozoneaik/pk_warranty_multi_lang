@@ -99,6 +99,7 @@ class WarrantyHomeController extends Controller
             'joined_at'         => $customer->datetime ?? now(),
             'referral_url'      => $referralUrl,
             'customer_code'     => $customer->referral_code ?? '-',
+            'customer_name'     => trim(($customer->cust_firstname ?? '') . ' ' . ($customer->cust_lastname ?? '')),
             'point_expiry_date' => $pointExpiryDate,
             'line_avatar'       => session('line_avatar') ?? $user->line_avatar ?? null,
         ]);

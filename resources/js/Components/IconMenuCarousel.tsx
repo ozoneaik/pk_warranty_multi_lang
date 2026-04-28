@@ -70,7 +70,7 @@ export default function IconMenuCarousel({
     dots: true,
     infinite: false,
     speed: 400,
-    slidesToShow: 5.5,
+    slidesToShow: 6,
     slidesToScroll: 1,
     swipeToSlide: true,
     arrows: false,

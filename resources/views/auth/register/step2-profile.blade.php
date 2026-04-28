@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {
@@ -213,8 +214,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label">วันเกิด <span class="text-red-500">*</span></label>
-                        <input type="date" name="cust_birthdate" class="form-input"
+                        <label class="form-label">วันเกิด (ค.ศ.) <span class="text-red-500">*</span></label>
+                        <input type="text" name="cust_birthdate" class="form-input bg-white" placeholder="เลือกวันเกิด"
                             value="{{ old('cust_birthdate', $data['cust_birthdate'] ?? '') }}" required>
                     </div>
                 </div>
@@ -267,6 +268,8 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
     <script>
         let iti;
         let countdownTimer;
@@ -282,6 +285,23 @@
             });
             input.addEventListener('input', () => {
                 hidden.value = iti.getNumber();
+                resetOtpState(); // Reset OTP when user types
+            });
+
+            // บังคับให้ใช้ Flatpickr แบบเลือก ค.ศ. เท่านั้น
+            flatpickr("input[name='cust_birthdate']", {
+                locale: "th",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y", // จะแสดงเช่น 5 ตุลาคม 1990
+                disableMobile: "true", // ข้าม Native Datepicker ของมือถือเพื่อป้องกันปี พ.ศ.
+                maxDate: "today"
+            });
+
+            // Listen to country change as well
+            input.addEventListener("countrychange", function() {
+                hidden.value = iti.getNumber();
+                resetOtpState();
             });
 
             // Real-time Email Validation
@@ -342,6 +362,15 @@
             }
         }
 
+        function resetOtpState() {
+            clearInterval(countdownTimer);
+            const btn = document.getElementById('btnSendOtp');
+            btn.disabled = false;
+            btn.innerText = 'ขอรหัส OTP';
+            document.getElementById('otpMessage').innerText = '';
+            document.querySelector('input[name="otp"]').value = '';
+        }
+
         function startCountdown(s) {
             const btn = document.getElementById('btnSendOtp');
             btn.disabled = true;
@@ -357,6 +386,9 @@
         }
 
         document.getElementById('step2Form').addEventListener('submit', function(e) {
+            // ปลดล็อก input ก่อนเพื่อให้ค่าส่งไปพร้อม form
+            document.querySelector('#phone_input').readOnly = false;
+
             if (!iti || !iti.isValidNumber()) {
                 e.preventDefault();
                 alert('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง');
@@ -364,7 +396,10 @@
             }
             document.getElementById('cust_tel_hidden').value = iti.getNumber();
 
-            // Email Validation
+            // Email Validation (จาก code เดิมของคุณ)
+            const emailInput = document.getElementById('cust_email');
+            const emailError = document.getElementById('emailError');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (emailInput.value.trim() !== '' && !emailRegex.test(emailInput.value)) {
                 e.preventDefault();
                 emailInput.classList.add('border-red-500');
@@ -373,9 +408,9 @@
                 return;
             }
 
-            const btn = document.getElementById('btnSubmit');
-            btn.disabled = true;
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-75', 'cursor-not-allowed');
             document.getElementById('btnSpinner').classList.remove('hidden');
             document.getElementById('btnText').innerText = 'กำลังบันทึก...';
         });

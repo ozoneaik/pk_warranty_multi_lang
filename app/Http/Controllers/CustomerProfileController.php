@@ -39,7 +39,8 @@ class CustomerProfileController extends Controller
             'point' => $point,
             'joined_at' => $customer->datetime ?? now(),
             'referral_code' => $referralCode,
-            'referral_url' => $referralUrl
+            'referral_url' => $referralUrl,
+            'customer_name' => trim(($customer->cust_firstname ?? '') . ' ' . ($customer->cust_lastname ?? ''))
         ]);
     }
 
@@ -428,10 +429,8 @@ class CustomerProfileController extends Controller
             $customer->fill($validatedCustomer);
             $customer->save();
 
-            // ✅ อัปเดตชื่อในตาราง users ด้วย
+            // ไม่ต้องอัปเดตชื่อในตาราง users ปล่อยให้เป็นชื่อจาก LINE
             Auth::setUser($user);
-            $user->name = trim($validatedCustomer['cust_firstname']);
-            $user->save();
 
             // ✅ จัดการข้อมูลภาษี (VAT)
             $vat = TblCustomerProdVat::where('cust_line', $customer->cust_line)->first();

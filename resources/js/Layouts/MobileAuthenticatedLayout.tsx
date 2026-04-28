@@ -246,12 +246,12 @@ export default function MobileAuthenticatedLayout({
                 <Box
                     sx={{
                         flex: 1,
-                        pt: "64px", // ความสูง AppBar
-                        pb: "65px", // FooterCarousel
+                        pt: "65px", // ความสูง AppBar
+                        pb: "55px", // FooterCarousel
                         overflowY: "auto",
                         WebkitOverflowScrolling: "touch",
-                        px: 2,
-                        py: 1,
+                        px: 0,
+                        py: 0,
                         scrollbarWidth: "none",
                         msOverflowStyle: "none",
                         "&::-webkit-scrollbar": { display: "none" },

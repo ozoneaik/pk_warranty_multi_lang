@@ -76,6 +76,7 @@ export default function WarrantyHome() {
         referral_url,
         point_expiry_date,
         tier,
+        customer_name,
     } = usePage().props as any;
     const user = auth.user;
 
@@ -101,7 +102,7 @@ export default function WarrantyHome() {
     const [currentStreak, setCurrentStreak] = useState(0);
     const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
     const [checkedDays, setCheckedDays] = useState<string[]>([]);
-    
+
     const notificationsLoadedRef = useRef(false);
 
     const tierConfig: Record<
@@ -382,6 +383,7 @@ export default function WarrantyHome() {
                             paddingTop: "60px",
                             width: "100%",
                             height: "100%",
+                            // minHeight: "300px",
                             objectFit: "cover",
                             borderBottomRightRadius: "12px",
                             borderBottomLeftRadius: "12px",
@@ -429,7 +431,8 @@ export default function WarrantyHome() {
                                         component="span"
                                         sx={{ color: "#F54927" }}
                                     >
-                                        {user.name}
+                                        {/* {user.name} */}
+                                        {customer_name || user.name}
                                     </Box>
                                 </Typography>
 
@@ -552,12 +555,12 @@ export default function WarrantyHome() {
                 sx={{
                     flexGrow: 1,
                     mt: { xs: 6, sm: 8, md: 8 },
-                    mb: 7,
-                    px: 2,
-                    py: 2,
+                    mb: 6,
+                    px: 0,
+                    py: 0,
                 }}
             >
-                <Box>
+                <Box sx={{ px: 1, pt: 3.5 }}>
                     {/* Quick Actions */}
                     <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
                         {t.homePage.menu_list.title}
@@ -698,7 +701,7 @@ export default function WarrantyHome() {
                     {!loading && banners.length > 0 && (
                         <Box
                             sx={{
-                                mt: { xs: -5, sm: -1, md: -2 },
+                                mt: { xs: -3, sm: -1, md: -2 },
                                 borderRadius: 3,
                                 overflow: "hidden",
                                 position: "relative",

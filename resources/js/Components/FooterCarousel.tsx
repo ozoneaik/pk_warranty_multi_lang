@@ -57,7 +57,7 @@ export default function FooterCarousel() {
                     left: "50%",
                     transform: "translateX(-50%)",
                     backgroundColor: "#F54927",
-                    py: 2,
+                    py: 0,
                     textAlign: "center",
                 }}
             >

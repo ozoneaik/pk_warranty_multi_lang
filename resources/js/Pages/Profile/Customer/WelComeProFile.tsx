@@ -16,7 +16,7 @@ import ProfileQrModal from "@/Pages/Warranty/ProfileQrModal";
 export default function WelComeProFile() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-    const { auth, line_avatar, point, referral_code, referral_url } = usePage().props as any;
+    const { auth, line_avatar, point, referral_code, referral_url, customer_name } = usePage().props as any;
     const user = auth.user;
     const { t } = useLanguage();
     const [showProfileQr, setShowProfileQr] = useState(false);
@@ -129,7 +129,7 @@ export default function WelComeProFile() {
                             <Typography fontWeight="bold">
                                 {t.ProfileWelcome.hello}{" "}
                                 <Box component="span" sx={{ color: "#F54927" }}>
-                                    {user.name}
+                                    {customer_name || user.name}
                                 </Box>
                             </Typography>
 
