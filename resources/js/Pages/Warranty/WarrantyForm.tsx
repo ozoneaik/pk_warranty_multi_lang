@@ -1056,6 +1056,14 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                             variant="outlined"
                                             onChange={(e: SelectChangeEvent) => handleBuyFromChange(e.target.value)}
                                             sx={{ borderRadius: 2 }}
+                                            MenuProps={{
+                                                disableScrollLock: true,
+                                                ...(isMobile && {
+                                                    anchorOrigin: { vertical: 'top', horizontal: 'left' },
+                                                    transformOrigin: { vertical: 'bottom', horizontal: 'left' },
+                                                }),
+                                                PaperProps: { sx: { maxHeight: '40vh' } },
+                                            }}
                                         >
                                             <MenuItem disabled value={'เลือก'}>{t.Warranty.Form.SelectBuyFrom}</MenuItem>
                                             {/* {channel_list.map((channel, index) => (
@@ -1089,10 +1097,15 @@ export default function WarrantyForm({ channel_list, has_phone, current_phone }:
                                         ) : (
                                             <Autocomplete
                                                 options={Array.from(new Set(storeList))}
-                                                // ถ้าต้องการมั่นใจว่าไม่มีค่าว่างหลุดมา ให้ใช้แบบนี้แทนก็ได้ครับ
-                                                // options={Array.from(new Set(storeList)).filter(Boolean)}
                                                 value={data.store_name}
                                                 onChange={(_, newValue) => setData('store_name', newValue || '')}
+                                                slotProps={{
+                                                    popper: {
+                                                        placement: isMobile ? 'top-start' : 'bottom-start',
+                                                        modifiers: [{ name: 'flip', enabled: false }],
+                                                    },
+                                                    listbox: { sx: { maxHeight: '40vh' } },
+                                                }}
                                                 renderInput={(params) => (
                                                     <TextField
                                                         {...params}

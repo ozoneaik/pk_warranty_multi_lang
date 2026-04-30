@@ -45,6 +45,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
     });
 
     const [sameAsProfile, setSameAsProfile] = useState(false);
+    const originalTel = customer?.cust_tel || "";
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [amphures, setAmphures] = useState<Amphure[]>([]);
     const [tambons, setTambons] = useState<Tambon[]>([]);
@@ -269,126 +270,128 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
         }
     };
 
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
-        Swal.fire({
-            title: 'คุณต้องการบันทึกข้อมูลใช่หรือไม่',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#F54927',
-        }).then((confirm) => {
-            if (confirm.isConfirmed) {
-                patch(route("customer.profile.update"), {
-                    onSuccess: () => {
-                        Swal.fire({
-                            title: 'บันทึกข้อมูลเสร็จสิ้น',
-                            icon: 'success',
-                            timer: 2000,
-                            confirmButtonColor: 'green',
-                        });
-                    },
-                    onError: (err) => {
-                        console.error("❌ Validation error:", err);
-                        Swal.fire({
-                            title: 'บันทึกข้อมูลผิดพลาด',
-                            html: Object.values(err).join('<br>'),
-                            icon: 'error',
-                            confirmButtonColor: '#F54927',
-                        });
-                    },
+    const saveProfile = () => {
+        patch(route("customer.profile.update"), {
+            onSuccess: () => {
+                Swal.fire({
+                    title: 'บันทึกข้อมูลเสร็จสิ้น',
+                    icon: 'success',
+                    timer: 2000,
+                    confirmButtonColor: 'green',
                 });
+            },
+            onError: (err) => {
+                console.error("❌ Validation error:", err);
+                Swal.fire({
+                    title: 'บันทึกข้อมูลผิดพลาด',
+                    html: Object.values(err).join('<br>'),
+                    icon: 'error',
+                    confirmButtonColor: '#F54927',
+                });
+            },
+        });
+    };
+
+    const showOtpDialog = (phone: string, onVerified: () => void) => {
+        let otpSent = false;
+
+        Swal.fire({
+            title: 'ยืนยันตัวตนด้วยรหัส OTP',
+            html: `
+                <p style="margin-bottom:10px;">ระบบจะส่งรหัส OTP ไปยังเบอร์ <b>${phone}</b></p>
+                <button id="send-otp-btn" class="swal2-styled" style="background-color:#F54927;margin-bottom:10px;">ส่ง OTP</button>
+                <br/>
+                <input id="otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="กรอกรหัส OTP" class="swal2-input" style="width:200px;text-align:center;" disabled>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยันรหัส',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#F54927',
+            allowOutsideClick: false,
+            preConfirm: async () => {
+                const otp = (document.getElementById('otp-input') as HTMLInputElement)?.value?.trim();
+                if (!otp) {
+                    Swal.showValidationMessage('กรุณากรอกรหัส OTP');
+                    return false;
+                }
+                if (!otpSent) {
+                    Swal.showValidationMessage('กรุณากดปุ่ม "ส่ง OTP" ก่อนยืนยัน');
+                    return false;
+                }
+                try {
+                    const res = await axios.post(route('verify.otp'), { otp });
+                    if (!res.data.success) {
+                        Swal.showValidationMessage(res.data.message || 'OTP ไม่ถูกต้อง');
+                        return false;
+                    }
+                    return true;
+                } catch {
+                    Swal.showValidationMessage('ตรวจสอบ OTP ไม่สำเร็จ');
+                    return false;
+                }
+            },
+            didOpen: () => {
+                const sendBtn = document.getElementById('send-otp-btn');
+                const otpInput = document.getElementById('otp-input') as HTMLInputElement;
+                sendBtn?.addEventListener('click', async () => {
+                    sendBtn.setAttribute('disabled', 'true');
+                    sendBtn.textContent = 'กำลังส่ง...';
+                    try {
+                        const res = await axios.post(route('send.otp'), { phone });
+                        if (res.data.success) {
+                            otpSent = true;
+                            otpInput.removeAttribute('disabled');
+                            otpInput.focus();
+                            sendBtn.textContent = 'ส่ง OTP อีกครั้ง';
+                            sendBtn.removeAttribute('disabled');
+                            Swal.showValidationMessage('ส่ง OTP สำเร็จ กรุณาตรวจสอบ SMS');
+                            setTimeout(() => Swal.resetValidationMessage(), 3000);
+                        } else {
+                            sendBtn.textContent = 'ส่ง OTP';
+                            sendBtn.removeAttribute('disabled');
+                            Swal.showValidationMessage(res.data.message || 'ส่ง OTP ล้มเหลว');
+                        }
+                    } catch {
+                        sendBtn.textContent = 'ส่ง OTP';
+                        sendBtn.removeAttribute('disabled');
+                        Swal.showValidationMessage('ไม่สามารถส่ง OTP ได้');
+                    }
+                });
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                onVerified();
             }
         });
     };
 
-      // OTP
-    // const submit: FormEventHandler = async (e) => {
-    //     e.preventDefault();
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
 
-    //     const phone = data.cust_tel;
+        const telChanged = data.cust_tel !== originalTel;
 
-    //     // 🔹 Popup ยืนยันตัวตน
-    //     Swal.fire({
-    //         title: 'ยืนยันตัวตนด้วยรหัส OTP',
-    //         html: `
-    //         <p style="margin-bottom:10px;">ระบบจะส่งรหัส OTP ไปยังเบอร์ <b>${phone}</b></p>
-    //         <input id="otp-input" type="text" maxlength="4" placeholder="กรอกรหัส 4 หลัก" class="swal2-input" style="width:200px;text-align:center;">
-    //         <button id="send-otp-btn" class="swal2-styled" style="background-color:#F54927;margin-top:8px;">ส่ง OTP</button>
-    //     `,
-    //         showCancelButton: true,
-    //         confirmButtonText: 'ยืนยันรหัส',
-    //         cancelButtonText: 'ยกเลิก',
-    //         allowOutsideClick: false,
-    //         preConfirm: async () => {
-    //             const otp = (document.getElementById('otp-input') as HTMLInputElement)?.value;
-    //             if (!otp || otp.length !== 4) {
-    //                 Swal.showValidationMessage('กรุณากรอกรหัส OTP 4 หลัก');
-    //                 return false;
-    //             }
-
-    //             try {
-    //                 // ✅ ตรวจรหัสกับ backend
-    //                 const res = await axios.post(route('verify.otp'), { otp });
-    //                 if (!res.data.success) {
-    //                     Swal.showValidationMessage(res.data.message || 'OTP ไม่ถูกต้อง');
-    //                     return false;
-    //                 }
-    //                 return otp;
-    //             } catch {
-    //                 Swal.showValidationMessage('❌ ตรวจสอบ OTP ไม่สำเร็จ');
-    //                 return false;
-    //             }
-    //         },
-    //         didOpen: () => {
-    //             const sendOtpBtn = document.getElementById('send-otp-btn');
-    //             sendOtpBtn?.addEventListener('click', async () => {
-    //                 const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
-    //                 Swal.showLoading();
-    //                 try {
-    //                     // ✅ ส่ง OTP ไป backend (จะส่ง SMS และเก็บ session)
-    //                     const res = await axios.post(route('send.otp'), {
-    //                         phone,
-    //                         otp: otpCode,
-    //                     });
-    //                     if (res.data.success) {
-    //                         Swal.hideLoading();
-    //                         Swal.showValidationMessage('✅ ส่ง OTP สำเร็จ กรุณาตรวจสอบ SMS');
-    //                         setTimeout(() => Swal.resetValidationMessage(), 2000);
-    //                     } else {
-    //                         Swal.showValidationMessage(res.data.message || '❌ ส่ง OTP ล้มเหลว');
-    //                     }
-    //                 } catch (err) {
-    //                     Swal.showValidationMessage('❌ ไม่สามารถส่ง OTP ได้');
-    //                 }
-    //             });
-    //         },
-    //     }).then((result) => {
-    //         if (result.isConfirmed && result.value) {
-    //             Swal.fire({
-    //                 title: 'กำลังบันทึกข้อมูล...',
-    //                 allowOutsideClick: false,
-    //                 didOpen: () => Swal.showLoading(),
-    //             });
-
-    //             patch(route("customer.profile.update"), {
-    //                 onFinish: () => {
-    //                     Swal.fire({
-    //                         title: 'บันทึกข้อมูลสำเร็จ',
-    //                         icon: 'success',
-    //                         timer: 2000,
-    //                         confirmButtonColor: 'green',
-    //                     });
-    //                 },
-    //                 onError: () => {
-    //                     Swal.fire({
-    //                         title: 'บันทึกข้อมูลผิดพลาด',
-    //                         icon: 'error',
-    //                     });
-    //                 },
-    //             });
-    //         }
-    //     });
-    // };
+        if (telChanged) {
+            showOtpDialog(data.cust_tel, () => {
+                Swal.fire({
+                    title: 'กำลังบันทึกข้อมูล...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                });
+                saveProfile();
+            });
+        } else {
+            Swal.fire({
+                title: 'คุณต้องการบันทึกข้อมูลใช่หรือไม่',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#F54927',
+            }).then((confirm) => {
+                if (confirm.isConfirmed) {
+                    saveProfile();
+                }
+            });
+        }
+    };
 
     const handleDelete = () => {
         Swal.fire({

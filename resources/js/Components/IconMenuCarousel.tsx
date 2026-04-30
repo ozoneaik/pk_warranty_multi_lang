@@ -179,7 +179,7 @@ export default function IconMenuCarousel({
                         whiteSpace: "normal",
                         overflow: "hidden",
                         display: "-webkit-box",
-                        WebkitLineClamp: 2,
+                        WebkitLineClamp: 3,
                         WebkitBoxOrient: "vertical",
                         fontSize: "0.70rem",
                         maxWidth: 100,

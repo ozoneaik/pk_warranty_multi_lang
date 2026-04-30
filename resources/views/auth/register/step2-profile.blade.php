@@ -236,10 +236,18 @@
 
                 <div class="mb-4">
                     <button type="button" id="btnSendOtp" onclick="sendOtp()"
-                        class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded-xl text-sm">
-                        ขอรหัส OTP
+                        class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2">
+                        <span id="otpSpinner" class="spinner hidden"></span>
+                        <span id="otpBtnText">ขอรหัส OTP</span>
                     </button>
                     <p id="otpMessage" class="text-xs mt-1.5 text-gray-400"></p>
+                    <div id="otpWaiting" class="hidden mt-2 flex items-center gap-2 text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                        <svg class="animate-spin w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        <span>กำลังส่ง SMS ไปยังเบอร์ของคุณ กรุณารอสักครู่...</span>
+                    </div>
                 </div>
 
                 <div class="mb-6">
@@ -331,6 +339,9 @@
 
         async function sendOtp() {
             const btn = document.getElementById('btnSendOtp');
+            const btnText = document.getElementById('otpBtnText');
+            const spinner = document.getElementById('otpSpinner');
+            const waiting = document.getElementById('otpWaiting');
             const msg = document.getElementById('otpMessage');
             const hidden = document.getElementById('cust_tel_hidden');
 
@@ -341,8 +352,11 @@
 
             const fullPhone = iti.getNumber();
             hidden.value = fullPhone;
+
             btn.disabled = true;
-            btn.innerText = 'กำลังส่ง...';
+            spinner.classList.remove('hidden');
+            btnText.innerText = 'กำลังส่ง...';
+            waiting.classList.remove('hidden');
             msg.innerText = '';
 
             try {
@@ -351,14 +365,17 @@
                 });
                 if (res.data.success) {
                     msg.className = 'text-xs mt-1.5 text-orange-600';
-                    msg.innerText = 'ส่งรหัส OTP สำเร็จแล้ว';
+                    msg.innerText = '✅ ส่งรหัส OTP สำเร็จแล้ว กรุณาตรวจสอบ SMS';
                     startCountdown(60);
                 }
             } catch (err) {
                 msg.className = 'text-xs mt-1.5 text-red-500';
                 msg.innerText = err.response?.data?.message || 'เกิดข้อผิดพลาดในการส่ง OTP';
                 btn.disabled = false;
-                btn.innerText = 'ขอรหัส OTP';
+                btnText.innerText = 'ขอรหัส OTP';
+            } finally {
+                spinner.classList.add('hidden');
+                waiting.classList.add('hidden');
             }
         }
 
@@ -366,7 +383,9 @@
             clearInterval(countdownTimer);
             const btn = document.getElementById('btnSendOtp');
             btn.disabled = false;
-            btn.innerText = 'ขอรหัส OTP';
+            document.getElementById('otpBtnText').innerText = 'ขอรหัส OTP';
+            document.getElementById('otpSpinner').classList.add('hidden');
+            document.getElementById('otpWaiting').classList.add('hidden');
             document.getElementById('otpMessage').innerText = '';
             document.querySelector('input[name="otp"]').value = '';
         }
