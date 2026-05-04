@@ -27,7 +27,7 @@ class AdminBannerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|max:2048',
+            'image' => 'required|image|max:2048|dimensions:width=1400,height=800',
             'title' => 'nullable|string',
             'sort_order' => 'nullable|integer',
             'type' => 'required|in:slider,background',
@@ -72,7 +72,7 @@ class AdminBannerController extends Controller
             'sort_order' => 'nullable|integer',
             'type' => 'sometimes|required|in:slider,background',
             'is_active' => 'sometimes|boolean',
-            'image' => 'nullable|image|max:2048', // รูปเป็น nullable ตอน edit
+            'image' => 'nullable|image|max:2048|dimensions:width=1400,height=800', // รูปเป็น nullable ตอน edit
         ]);
 
         // ถ้ามีการอัปโหลดรูปใหม่

@@ -206,6 +206,12 @@ Route::middleware('auth:admin')->group(function () {
         Route::post('/', [AdminDealerController::class, 'store'])->name('store');
         Route::put('/{id}', [AdminDealerController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminDealerController::class, 'destroy'])->name('destroy');
+
+        Route::prefix('channels')->name('channels.')->group(function () {
+            Route::post('/', [AdminDealerController::class, 'storeChannel'])->name('store');
+            Route::put('/{id}', [AdminDealerController::class, 'updateChannel'])->name('update');
+            Route::delete('/{id}', [AdminDealerController::class, 'destroyChannel'])->name('destroy');
+        });
     });
 
     Route::prefix('logs')->name('logs.')->middleware('check_menu:logs')->group(function () {

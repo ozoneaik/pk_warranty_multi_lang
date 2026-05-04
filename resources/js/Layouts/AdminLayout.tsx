@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, PropsWithChildren, ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { LogOut, UserCircle } from 'lucide-react'; // เพิ่ม Icon สำหรับแถบบน
+import { LogOut, UserCircle, Menu, X } from 'lucide-react'; // เพิ่ม Icon สำหรับแถบบนและ Mobile Menu
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 // Interface ของเมนู
@@ -35,6 +35,7 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
     const { url } = usePage();
 
     const [openMenus, setOpenMenus] = useState<number[]>([]);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     const toggleMenu = (id: number) => {
         setOpenMenus((prev) =>
@@ -66,6 +67,11 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
             });
         }
     }, [url, menus]);
+
+    // ปิด Sidebar เมื่อเปลี่ยนหน้าบน mobile
+    useEffect(() => {
+        setIsMobileSidebarOpen(false);
+    }, [url]);
 
     // แปลงข้อมูลแบนให้เป็น Tree
     const menuTree = useMemo(() => {
@@ -99,18 +105,35 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
     }, [menus]);
 
     return (
-        // ปรับเป็น h-screen เพื่อล็อกความสูงหน้าจอ และซ่อนส่วนที่ล้นออก
         <div className="flex h-screen bg-gray-50 overflow-hidden font-prompt">
 
+            {/* ---------- Mobile Backdrop ---------- */}
+            {isMobileSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-30 lg:hidden transition-opacity duration-300"
+                    onClick={() => setIsMobileSidebarOpen(false)}
+                />
+            )}
+
             {/* ---------- ซ้าย: Sidebar ---------- */}
-            <aside className="w-[280px] bg-white shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-gray-100 flex flex-col z-20 flex-shrink-0">
+            <aside className={`
+                fixed inset-y-0 left-0 z-40 w-[280px] bg-white shadow-2xl border-r border-gray-100 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)] flex-shrink-0
+                ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}>
 
                 {/* Logo Area */}
-                <div className="h-16 flex items-center px-6 border-b border-gray-100">
+                <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100">
                     <div className="flex items-center gap-2 text-orange-600">
                         <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                         <span className="text-xl font-black tracking-wider">Admin<span className="text-gray-800">Panel</span></span>
                     </div>
+                    {/* ปุ่มปิดบน Mobile */}
+                    <button
+                        onClick={() => setIsMobileSidebarOpen(false)}
+                        className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
 
                 {/* Menus (Scrollable) */}
@@ -191,10 +214,19 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
                 {/* แถบ Top Navbar (แทนที่ของเดิมใน AuthenticatedLayout) */}
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 lg:px-6 z-10 flex-shrink-0">
-                    <div className="flex-1">
-                        {/* เรนเดอร์ Header prop (เช่น ปุ่มย้อนกลับ และชื่อหน้า) ตรงนี้ */}
-                        {header}
+                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 z-10 flex-shrink-0">
+                    <div className="flex items-center flex-1 min-w-0">
+                        {/* ปุ่มเปิด Menu บน Mobile */}
+                        <button
+                            onClick={() => setIsMobileSidebarOpen(true)}
+                            className="mr-3 lg:hidden p-2 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors"
+                        >
+                            <Menu size={24} />
+                        </button>
+                        <div className="flex-1 min-w-0">
+                            {/* เรนเดอร์ Header prop (เช่น ปุ่มย้อนกลับ และชื่อหน้า) ตรงนี้ */}
+                            {header}
+                        </div>
                     </div>
 
                     {/* ข้อมูลผู้ใช้งานฝั่งขวา */}
@@ -235,7 +267,7 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
 
                 {/* ---------- พื้นที่ Content โชว์ข้อมูล ---------- */}
                 {/* overflow-y-auto คือการให้ Content scroll ได้อิสระ ไม่ดึง Sidebar ตามลงไป */}
-                <main className="flex-1 overflow-y-auto p-6 lg:p-8 custom-scrollbar">
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
                     <div className="max-w-8xl mx-auto">
                         {children}
                     </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Warranty\WrFormRequest;
+use App\Models\MasterWaaranty\Channel;
 use App\Models\MasterWaaranty\Dealer;
 use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
@@ -64,6 +65,14 @@ class WarrantyFormController extends Controller
             // ใช้ fallback
             $channel_list = $fallback->getChannels();
         }
+
+        // ดึง channels จาก DB แล้วต่อท้ายในส่วนที่ชื่อยังไม่มีใน API
+        $apiNames = collect($channel_list)->map(fn($c) => is_array($c) ? ($c['name'] ?? '') : (string) $c)->filter()->values()->all();
+        Channel::where('is_active', true)->orderBy('id')->get()->each(function ($ch) use (&$channel_list, $apiNames) {
+            if (!in_array($ch->name, $apiNames)) {
+                $channel_list[] = ['id' => $ch->id, 'name' => $ch->name];
+            }
+        });
 
         return Inertia::render('Warranty/WarrantyForm', [
             'channel_list'   => $channel_list,

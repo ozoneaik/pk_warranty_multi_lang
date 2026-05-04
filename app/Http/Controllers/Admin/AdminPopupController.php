@@ -63,7 +63,7 @@ class AdminPopupController extends Controller
             // (เอา logic ปิดตัวอื่นออกแล้ว เพื่อให้โชว์หลายตัว)
             $data['is_active'] = $request->is_active;
         }
-        
+
         $data['updated_by'] = $adminId;
 
         $popup->update($data);
@@ -92,7 +92,8 @@ class AdminPopupController extends Controller
         $popup->delete();
 
         Log::channel('admin')->info('Admin ลบ Popup', [
-            'admin_id' => Auth::guard('admin')->id() ?? Auth::id(),
+            // 'admin_id' => Auth::guard('admin')->id() ?? Auth::id(),
+            'admin_id' => Auth::guard('admin')->id(),
             'popup_id' => $id
         ]);
 
