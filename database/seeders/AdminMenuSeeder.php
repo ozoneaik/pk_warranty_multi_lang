@@ -134,6 +134,17 @@ class AdminMenuSeeder extends Seeder
                 'is_active' => true,
                 'key' => 'dealers',
             ],
+            [
+                'title' => 'ข้อมูลลงทะเบียนรับประกัน CRM',
+                'description' => 'ข้อมูลการลงทะเบียนรับประกันสินค้าผ่านระบบ Pumpkin',
+                'icon_type' => 'warranty',
+                'route_name' => 'admin.warranty-registrations.index',
+                'color_class' => 'bg-blue-50 hover:bg-blue-100',
+                'icon_color' => 'text-blue-500',
+                'order' => 13,
+                'is_active' => true,
+                'key' => 'warranty-registrations',
+            ]
         ];
 
         foreach ($menus as $menu) {

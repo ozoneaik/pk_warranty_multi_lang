@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminCustomerReportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDealerController;
 use App\Http\Controllers\Admin\AdminLoginLogController;
+use App\Http\Controllers\Admin\AdminWarrantyRegistrationController;
 use App\Http\Controllers\Admin\AdminMemberPointController;
 use App\Http\Controllers\Admin\AdminPcRankingReportController;
 use App\Http\Controllers\Admin\AdminPopupController;
@@ -175,6 +176,11 @@ Route::middleware('auth:admin')->group(function () {
 
     Route::prefix('login-logs')->name('login-logs.')->middleware('check_menu:login_logs')->group(function () {
         Route::get('/', [AdminLoginLogController::class, 'index'])->name('index');
+    });
+
+    Route::prefix('warranty-registrations')->name('warranty-registrations.')->middleware('check_menu:warranty_registrations')->group(function () {
+        Route::get('/', [AdminWarrantyRegistrationController::class, 'index'])->name('index');
+        Route::get('/export', [AdminWarrantyRegistrationController::class, 'exportExcel'])->name('export');
     });
 
     Route::prefix('reward-management')
