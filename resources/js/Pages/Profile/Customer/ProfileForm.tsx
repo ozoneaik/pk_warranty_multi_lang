@@ -519,9 +519,9 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     <div className="mt-4">
                         <div className="flex justify-between items-center">
                             <InputLabel htmlFor="cust_birthdate" value={t.Customer.form.birthdate} required />
-                            <span className="text-[10px] text-gray-500 font-medium bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                            {/* <span className="text-[10px] text-gray-500 font-medium bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
                                 ค.ศ. (เช่น 1995)
-                            </span>
+                            </span> */}
                         </div>
                         <TextInput
                             id="cust_birthdate"
