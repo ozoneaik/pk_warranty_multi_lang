@@ -1,4 +1,5 @@
 import * as React from "react";
+import PumpkinLogo from '../../../../assets/logo/pumpkin.png';
 import {
     Box,
     Card,
@@ -209,7 +210,7 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
 
                             <Box
                                 component="img"
-                                src="https://pumpkin.co.th/wp-content/uploads/2022/02/Rectangle.png"
+                                src={PumpkinLogo}
                                 alt="Pumpkin"
                                 sx={{
                                     height: { xs: 28, sm: 32 },
