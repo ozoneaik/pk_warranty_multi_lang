@@ -1008,6 +1008,10 @@ export default function PrivilegePage() {
                 title: t.Privilege.fillAllInfo,
                 timer: 1500,
                 showConfirmButton: false,
+                didOpen: (popup) => {
+                    const container = popup.closest(".swal2-container") as HTMLElement | null;
+                    if (container) container.style.zIndex = "99999";
+                },
             });
             return;
         }

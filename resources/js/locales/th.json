@@ -281,7 +281,7 @@
         "redeemConfirm": "ยินยอมและเริ่มทำรายการ",
         "addressInputTitle": "ข้อมูลสำหรับจัดส่ง",
         "addressConfirmTitle": "ยืนยันที่อยู่จัดส่ง",
-        "updateProfileCheckbox": "อัพเดทข้อมูลในโปรไฟล์ด้วย",
+        "updateProfileCheckbox": "อัพเดทข้อมูลในโปรไฟล์",
         "redeemSuccess": "ทำรายการสำเร็จ",
         "qrDescription": "แสดงรหัสนี้ให้พนักงานเพื่อรับสิทธิ์",
         "back": "กลับ",
