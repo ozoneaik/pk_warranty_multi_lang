@@ -29,7 +29,8 @@ class PointTransaction extends Model
         'created_at',
         'expired_at',
         'is_shown',
-        'adjust_by'
+        'adjust_by',
+        'process_code_id'
     ];
 
     protected $casts = [
@@ -38,6 +39,20 @@ class PointTransaction extends Model
         'expired_at' => 'date',
         'created_at' => 'datetime',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($transaction) {
+            if ($transaction->process_code && !$transaction->process_code_id) {
+                $process = TypeProcessPoint::where('process_code', $transaction->process_code)->first();
+                if ($process) {
+                    $transaction->process_code_id = $process->id;
+                }
+            }
+        });
+    }
 
     /**
      * ความสัมพันธ์กับลูกค้า
