@@ -342,12 +342,27 @@ class CustomerProfileController extends Controller
         $validatedVat = $request->validate([
             'tax_name'        => 'required|string|max:255',
             'tax_tel'         => 'required|string|max:20',
-            'tax_address'     => 'required|string|max:500',
-            'tax_province'    => 'required|string|max:255',
-            'tax_district'    => 'required|string|max:255',
-            'tax_subdistrict' => 'required|string|max:255',
-            'tax_zipcode'     => 'required|string|max:10',
+            'tax_address'     => 'nullable|string|max:500',
+            'tax_province'    => 'nullable|string|max:255',
+            'tax_district'    => 'nullable|string|max:255',
+            'tax_subdistrict' => 'nullable|string|max:255',
+            'tax_zipcode'     => 'nullable|string|max:10',
         ]);
+
+        // ปรับปีจาก พ.ศ. เป็น ค.ศ. หากมีค่าปี > 2400 (ใช้ Carbon ช่วยจัดการ)
+        if (!empty($validatedCustomer['cust_birthdate'])) {
+            try {
+                $birthDate = Carbon::parse($validatedCustomer['cust_birthdate']);
+                if ($birthDate->year > 2400) {
+                    $birthDate->subYears(543);
+                    $validatedCustomer['cust_birthdate'] = $birthDate->toDateString();
+                }
+            } catch (\Exception $e) {
+                Log::warning('CustomerProfileController@update - Invalid birthdate format', [
+                    'birthdate' => $validatedCustomer['cust_birthdate']
+                ]);
+            }
+        }
 
         // ✅ ตรวจสอบเบอร์โทรซ้ำในฐานข้อมูล (ยกเว้นของตัวเอง)
         $exists = TblCustomerProd::query()
@@ -403,6 +418,24 @@ class CustomerProfileController extends Controller
         }
 
         $validatedCustomer['cust_address'] = $validatedCustomer['cust_full_address'] ?? '';
+
+        // ป้องกัน Error: SQL Column cannot be null หากฐานข้อมูลไม่ได้ตั้งเป็น Nullable
+        $nullableFields = [
+            'cust_full_address', 'cust_subdistrict', 'cust_district', 
+            'cust_province', 'cust_zipcode', 'cust_email'
+        ];
+        foreach ($nullableFields as $field) {
+            if (!isset($validatedCustomer[$field]) || is_null($validatedCustomer[$field])) {
+                $validatedCustomer[$field] = '';
+            }
+        }
+
+        $vatFields = ['tax_address', 'tax_province', 'tax_district', 'tax_subdistrict', 'tax_zipcode'];
+        foreach ($vatFields as $f) {
+            if (!isset($validatedVat[$f]) || is_null($validatedVat[$f])) {
+                $validatedVat[$f] = '';
+            }
+        }
 
         // ✅ หาข้อมูลลูกค้า
         $customer = TblCustomerProd::where(function ($q) use ($user) {

@@ -63,6 +63,9 @@ interface NotificationItem {
     data?: any;
 }
 
+// ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
+const SHOW_POINTS = false;
+
 export default function WarrantyHome() {
     const { t } = useLanguage();
     const theme = useTheme();
@@ -444,36 +447,55 @@ export default function WarrantyHome() {
                                     sx={{ mt: 0.5 }}
                                 >
                                     {/* Point (กดเปิด Modal) */}
-                                    <Stack
-                                        direction="row"
-                                        alignItems="center"
-                                        spacing={0.1}
-                                        onClick={() => setOpenPointModal(true)}
-                                        sx={{
-                                            cursor: "pointer",
-                                            "&:active": { opacity: 0.6 },
-                                        }}
-                                    >
-                                        <WorkspacePremium
+                                    {SHOW_POINTS ? (
+                                        <Stack
+                                            direction="row"
+                                            alignItems="center"
+                                            spacing={0.1}
+                                            onClick={() => setOpenPointModal(true)}
                                             sx={{
-                                                color: "#F5B301",
-                                                fontSize: 16,
-                                            }}
-                                        />
-                                        <Typography
-                                            fontWeight="bold"
-                                            sx={{
-                                                color: "#F5B301",
-                                                fontSize: "0.9rem",
+                                                cursor: "pointer",
+                                                "&:active": { opacity: 0.6 },
                                             }}
                                         >
-                                            {currentPoint.toLocaleString()} P
+                                            <WorkspacePremium
+                                                sx={{
+                                                    color: "#F5B301",
+                                                    fontSize: 16,
+                                                }}
+                                            />
+                                            <Typography
+                                                fontWeight="bold"
+                                                sx={{
+                                                    color: "#F5B301",
+                                                    fontSize: "0.9rem",
+                                                }}
+                                            >
+                                                {currentPoint.toLocaleString()} P
+                                            </Typography>
+                                            <ChevronRightIcon
+                                                size={13}
+                                                color="#F5B301"
+                                            />
+                                        </Stack>
+                                    ) : (
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "#aaa",
+                                                fontSize: "0.72rem",
+                                                fontWeight: 600,
+                                                bgcolor: "#f5f5f5",
+                                                border: "1px solid #ddd",
+                                                borderRadius: "20px",
+                                                px: 1.2,
+                                                py: 0.3,
+                                                letterSpacing: "0.04em",
+                                            }}
+                                        >
+                                            Coming Soon
                                         </Typography>
-                                        <ChevronRightIcon
-                                            size={13}
-                                            color="#F5B301"
-                                        />
-                                    </Stack>
+                                    )}
 
                                     {/* Divider จุด */}
                                     {/* <Typography
@@ -521,7 +543,7 @@ export default function WarrantyHome() {
                                 </Stack>
 
                                 {/* วันหมดอายุแต้ม */}
-                                {point_expiry_date && (
+                                {SHOW_POINTS && point_expiry_date && (
                                     <Stack
                                         direction="row"
                                         alignItems="center"

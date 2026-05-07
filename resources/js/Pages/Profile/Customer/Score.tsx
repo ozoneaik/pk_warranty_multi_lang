@@ -35,6 +35,8 @@ const pulse = keyframes`
   50% { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1); opacity: 0.8; }
 `;
+// ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
+const SHOW_POINTS = false;
 
 export default function ScorePage() {
     const { t } = useLanguage();
@@ -117,41 +119,63 @@ export default function ScorePage() {
                                 </Link>
                             </Box>
 
-                            <Stack
-                                direction="row"
-                                alignItems="center"
-                                spacing={0.5}
-                                ml={1}
-                                onClick={() => setOpenPointModal(true)}
-                            >
-                                {/* วงกลม P พร้อม Gradient */}
-                                <Box
-                                    sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
+                            {SHOW_POINTS ? (
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={0.5}
+                                    ml={1}
+                                    onClick={() => setOpenPointModal(true)}
                                 >
-                                    <Typography
-                                        variant="caption"
-                                        fontWeight={900}
-                                        sx={{
-                                            // color: '#fff',
-                                            color: "black",
-                                            fontSize: { xs: "0.9rem", sm: "0.9rem" },
-                                            lineHeight: 1,
-                                            userSelect: 'none',
-                                        }}
+                                    {/* วงกลม P พร้อม Gradient */}
+                                    <Box
+                                        sx={{ display: "flex", alignItems: "center", paddingTop: 0.5 }}
                                     >
-                                        <WorkspacePremium sx={{ color: "#F5B301" }} />
-                                    </Typography>
-                                    {/* คะแนน */}
-                                    <Typography
-                                        sx={{ color: "#F5B301" }}
-                                        fontSize={{ xs: "0.9rem", sm: "1rem" }}
-                                        fontWeight={800}
-                                    >
-                                        {point ?? 0} {t.Score.pts} 
-                                    </Typography>
-                                    <ChevronRightIcon size={20} color="#F55014" />
-                                </Box>
-                            </Stack>
+                                        <Typography
+                                            variant="caption"
+                                            fontWeight={900}
+                                            sx={{
+                                                 // color: '#fff',
+                                                color: "black",
+                                                fontSize: { xs: "0.9rem", sm: "0.9rem" },
+                                                lineHeight: 1,
+                                                userSelect: 'none',
+                                            }}
+                                        >
+                                            <WorkspacePremium sx={{ color: "#F5B301" }} />
+                                        </Typography>
+                                        {/* คะแนน */}
+                                        <Typography
+                                            sx={{ color: "#F5B301" }}
+                                            fontSize={{ xs: "0.9rem", sm: "1rem" }}
+                                            fontWeight={800}
+                                        >
+                                            {point ?? 0} {t.Score.pts}
+                                        </Typography>
+                                        <ChevronRightIcon size={20} color="#F55014" />
+                                    </Box>
+                                </Stack>
+                            ) : (
+                                <Typography
+                                    variant="caption"
+                                    ml={1}
+                                    sx={{
+                                        color: "#aaa",
+                                        fontSize: "0.72rem",
+                                        fontWeight: 600,
+                                        bgcolor: "#f5f5f5",
+                                        border: "1px solid #ddd",
+                                        borderRadius: "20px",
+                                        px: 1.2,
+                                        py: 0.3,
+                                        letterSpacing: "0.04em",
+                                        display: "inline-block",
+                                        mt: 0.5,
+                                    }}
+                                >
+                                    Coming Soon
+                                </Typography>
+                            )}
                         </Box>
                     </Stack>
 
@@ -243,23 +267,46 @@ export default function ScorePage() {
                                 </Stack>
 
                                 <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 1 }}>
-                                    <Box
-                                        sx={{
-                                            bgcolor: cardThemes[tier].badgeBg,
-                                            px: 2,
-                                            py: 1,
-                                            borderRadius: "16px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1,
-                                            border: tier === "silver" ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.1)"
-                                        }}
-                                    >
-                                        <WorkspacePremium sx={{ color: cardThemes[tier].iconColor, fontSize: 24 }} />
-                                        <Typography fontWeight={800} sx={{ color: cardThemes[tier].text, fontSize: "1.1rem" }}>
-                                            {point?.toLocaleString() ?? 0} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>{t.Score.pts}</Box>
-                                        </Typography>
-                                    </Box>
+                                    {SHOW_POINTS ? (
+                                        <Box
+                                            sx={{
+                                                bgcolor: cardThemes[tier].badgeBg,
+                                                px: 2,
+                                                py: 1,
+                                                borderRadius: "16px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 1,
+                                                border: tier === "silver" ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.1)"
+                                            }}
+                                        >
+                                            <WorkspacePremium sx={{ color: cardThemes[tier].iconColor, fontSize: 24 }} />
+                                            <Typography fontWeight={800} sx={{ color: cardThemes[tier].text, fontSize: "1.1rem" }}>
+                                                {point?.toLocaleString() ?? 0} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>{t.Score.pts}</Box>
+                                            </Typography>
+                                        </Box>
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                bgcolor: "rgba(255,255,255,0.15)",
+                                                px: 2,
+                                                py: 0.8,
+                                                borderRadius: "16px",
+                                                border: "1px solid rgba(255,255,255,0.25)",
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{
+                                                    color: "rgba(255,255,255,0.7)",
+                                                    fontSize: "0.75rem",
+                                                    fontWeight: 700,
+                                                    letterSpacing: "0.04em",
+                                                }}
+                                            >
+                                                Coming Soon
+                                            </Typography>
+                                        </Box>
+                                    )}
 
                                     {/* <Fade in={true}>
                                         <Box
@@ -338,6 +385,7 @@ export default function ScorePage() {
                     </Card>
 
                     {/* Progress Section */}
+                    {SHOW_POINTS && (
                     <RewardProgress
                         cardColors={{
                             silver: cardThemes.silver.main,
@@ -349,6 +397,7 @@ export default function ScorePage() {
                         tier_expired_at={tier_expired_at}
                         tier={tier}
                     />
+                    )}
 
                     {/* Reward Banner */}
                     <Box

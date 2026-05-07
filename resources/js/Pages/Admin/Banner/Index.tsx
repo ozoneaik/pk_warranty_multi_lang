@@ -377,7 +377,7 @@ export default function BannerIndex({ banners }: { banners: any[] }) {
                     </button> */}
                     <div>
                         <h2 className="font-bold text-2xl text-gray-800 leading-tight">จัดการ Banner</h2>
-                        <p className="text-sm text-gray-500 font-normal mt-0.5">จัดการรูปภาพแบนเนอร์และสไลเดอร์ในหน้าแรก (1400 x 800 px)</p>
+                        <p className="text-sm text-gray-500 font-normal mt-0.5">จัดการรูปภาพแบนเนอร์และสไลเดอร์ในหน้าแรก (ขนาดที่แนะนำ 1400 * 800 px)</p>
                     </div>
                 </div>
             }
@@ -576,7 +576,7 @@ export default function BannerIndex({ banners }: { banners: any[] }) {
                                     </Button>
                                 </label>
                                 <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary', fontWeight: 600 }}>
-                                    ต้องการขนาด 1400 x 800 พิกเซลเท่านั้น
+                                    ขนาดที่แนะนำคือ 1400 * 800 px
                                 </Typography>
                                 {data.image && (
                                     <Typography variant="body2" sx={{ mt: 2, color: '#059669', fontWeight: 500 }}>

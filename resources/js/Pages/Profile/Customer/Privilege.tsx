@@ -82,6 +82,7 @@ interface ProductItem {
     usage_limit_amount?: number;
     delivery_type?: "delivery" | "receive_at_store";
     is_claimed?: boolean;
+    is_birthday?: boolean;
 }
 
 interface ProductsByType {
@@ -421,9 +422,54 @@ function PrivilegeList({
                                     </Typography>
                                 </Box>
                             )}
+                            {/* {item.is_birthday && (
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        top: 8,
+                                        left: 8,
+                                        zIndex: 2,
+                                        bgcolor: "#FF5722",
+                                        color: "white",
+                                        borderRadius: 1,
+                                        px: 1,
+                                        py: 0.4,
+                                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            fontWeight: 900,
+                                            fontSize: 10,
+                                            letterSpacing: 0.5,
+                                        }}
+                                    >
+                                        BIRTHDAY 🎂
+                                    </Typography>
+                                </Box>
+                            )} */}
                             {/* {isClaimed && (
-                                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 2, bgcolor: '#4CAF50', color: 'white', borderRadius: 1, px: 1, py: 0.4 }}>
-                                    <Typography variant="caption" sx={{ fontWeight: 800, fontSize: 10 }}>CHECKED</Typography>
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        top: item.is_birthday ? 40 : 8,
+                                        right: 8,
+                                        zIndex: 2,
+                                        bgcolor: "#4CAF50",
+                                        color: "white",
+                                        borderRadius: 1,
+                                        px: 1,
+                                        py: 0.4,
+                                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        sx={{ fontWeight: 900, fontSize: 10 }}
+                                    >
+                                        {t.Privilege.claimed.toUpperCase()} ✓
+                                    </Typography>
                                 </Box>
                             )} */}
                             <Box
@@ -728,6 +774,9 @@ function CouponList({
         </Grid>
     );
 }
+
+// ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
+const SHOW_POINTS = false;
 
 // --- Main Page ---
 export default function PrivilegePage() {
@@ -1188,42 +1237,63 @@ export default function PrivilegePage() {
                                         spacing={0.5}
                                         sx={{
                                             mt: 1,
-                                            cursor: "pointer",
-                                            "&:active": { opacity: 0.6 },
+                                            cursor: SHOW_POINTS ? "pointer" : "default",
+                                            "&:active": { opacity: SHOW_POINTS ? 0.6 : 1 },
                                         }}
-                                        onClick={() => setOpenPointModal(true)}
+                                        onClick={() => SHOW_POINTS && setOpenPointModal(true)}
                                     >
-                                        <Box
-                                            sx={{
-                                                width: 20,
-                                                height: 20,
-                                                borderRadius: "50%",
-                                                background:
-                                                    "linear-gradient(135deg, #FF8A00 0%, #FF5500 100%)",
-                                                color: "white",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                fontSize: 12,
-                                                fontWeight: "bold",
-                                            }}
-                                        >
-                                            P
-                                        </Box>
-                                        <Typography
-                                            variant="h6"
-                                            fontWeight={900}
-                                            sx={{
-                                                color: "#F55014",
-                                                lineHeight: 1,
-                                            }}
-                                        >
-                                            {fmt.format(point)}
-                                        </Typography>
-                                        <ChevronRightIcon
-                                            size={14}
-                                            color="#F55014"
-                                        />
+                                        {SHOW_POINTS ? (
+                                            <>
+                                                <Box
+                                                    sx={{
+                                                        width: 20,
+                                                        height: 20,
+                                                        borderRadius: "50%",
+                                                        background:
+                                                            "linear-gradient(135deg, #FF8A00 0%, #FF5500 100%)",
+                                                        color: "white",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontSize: 12,
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    P
+                                                </Box>
+                                                <Typography
+                                                    variant="h6"
+                                                    fontWeight={900}
+                                                    sx={{
+                                                        color: "#F55014",
+                                                        lineHeight: 1,
+                                                    }}
+                                                >
+                                                    {fmt.format(point)}
+                                                </Typography>
+                                                <ChevronRightIcon
+                                                    size={14}
+                                                    color="#F55014"
+                                                />
+                                            </>
+                                        ) : (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    color: "#aaa",
+                                                    fontSize: "0.72rem",
+                                                    fontWeight: 600,
+                                                    bgcolor: "#f5f5f5",
+                                                    border: "1px solid #ddd",
+                                                    borderRadius: "20px",
+                                                    px: 1.2,
+                                                    py: 0.3,
+                                                    letterSpacing: "0.04em",
+                                                }}
+                                            >
+                                                Coming Soon
+                                            </Typography>
+                                        )}
 
                                         {/* Tier Badge */}
                                         {(() => {
@@ -1416,7 +1486,9 @@ export default function PrivilegePage() {
                                     pl: 1,
                                 }}
                             >
-                                {nextTier ? (
+                                {!SHOW_POINTS ? (
+                                    <span style={{ color: "#bbb", fontStyle: "italic" }}>Coming Soon</span>
+                                ) : nextTier ? (
                                     <span
                                         dangerouslySetInnerHTML={{
                                             __html: t.Privilege.collectMorePoints

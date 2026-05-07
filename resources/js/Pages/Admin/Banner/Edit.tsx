@@ -130,7 +130,7 @@ export default function Edit({ banner }: { banner: Banner }) {
                                         (หากไม่ต้องการเปลี่ยน ให้ปล่อยว่างไว้)
                                     </Typography>
                                     <Typography variant="caption" className="text-blue-600 block mt-2 font-bold bg-blue-50 py-1 px-3 rounded-full inline-block">
-                                        ต้องการขนาด 1400 x 800 พิกเซลเท่านั้น
+                                        ขนาดที่แนะนำคือ 1400 * 800 px
                                     </Typography>
                                     
                                     {data.image && (

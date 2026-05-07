@@ -168,11 +168,15 @@ class PrivilegeController extends Controller
 
             if ($sourceType === 'privilege') {
                 if (stripos($itemName, 'BIRTHDAY') !== false) {
-                    if (!$isBirthMonth) return null;
                     $isBirthdayItem = true;
                     if ($hasClaimedBirthday) {
                         $isClaimed = true;
                     }
+
+                    // ถ้าไม่ใช่เดือนเกิด และยังไม่ได้กดรับ ก็ไม่โชว์ (เพื่อไม่ให้รก)
+                    // แต่ถ้ากดรับแล้ว ให้โชว์ตลอดปี เพื่อให้เห็นประวัติว่าได้รับแล้ว
+                    if (!$isBirthMonth && !$isClaimed) return null;
+
                     if ($birthdayProcessConfig) {
                         $earnPointField = "point_{$tierKey}";
                         $earnPoint = $birthdayProcessConfig->$earnPointField > 0 ? $birthdayProcessConfig->$earnPointField : ($birthdayProcessConfig->default_point ?? 0);
@@ -250,6 +254,7 @@ class PrivilegeController extends Controller
                 'usage_limit_amount' => $limitAmount,
                 'delivery_type'     => $item->delivery_type ?? 'receive_at_store',
                 'is_claimed'        => $isClaimed,
+                'is_birthday'       => $isBirthdayItem,
             ];
         };
 
@@ -262,7 +267,7 @@ class PrivilegeController extends Controller
         $products = [
             'reward'    => $mappedRewards->where('product_type', 'reward')->values(),
             'coupon'    => $mappedRewards->where('product_type', 'coupon')->merge($mappedNewCoupons)->values(),
-            'privilege' => $mappedPrivileges->values(),
+            'privilege' => $mappedPrivileges->sortByDesc('is_birthday')->values(),
         ];
 
         $tiers = MembershipTier::orderBy('level')->get(['key', 'name', 'min_point', 'level', 'duration_years']);

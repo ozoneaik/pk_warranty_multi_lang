@@ -517,10 +517,16 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.cust_tel} />
                     </div>
                     <div className="mt-4">
-                        <InputLabel htmlFor="cust_birthdate" value={t.Customer.form.birthdate} required />
+                        <div className="flex justify-between items-center">
+                            <InputLabel htmlFor="cust_birthdate" value={t.Customer.form.birthdate} required />
+                            <span className="text-[10px] text-gray-500 font-medium bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                ค.ศ. (เช่น 1995)
+                            </span>
+                        </div>
                         <TextInput
                             id="cust_birthdate"
                             type="date"
+                            lang="en-US"
                             className="mt-1 block w-full"
                             value={data.cust_birthdate}
                             max={new Date().toISOString().split("T")[0]}
@@ -548,19 +554,18 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.cust_email} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="cust_full_address" value={t.Customer.form.address} required />
+                        <InputLabel htmlFor="cust_full_address" value={t.Customer.form.address} />
                         <TextInput
                             id="cust_full_address"
                             className="mt-1 block w-full"
                             value={data.cust_full_address}
                             onChange={(e) => setData('cust_full_address', e.target.value)}
-                            required
                         />
                         <InputError className="mt-2" message={errors.cust_full_address} />
                     </div>
                     <div className="grid grid-cols-1 gap-4 mt-4">
                         <div>
-                            <InputLabel htmlFor="cust_province" value={t.Customer.form.province} required />
+                            <InputLabel htmlFor="cust_province" value={t.Customer.form.province} />
                             <Autocomplete
                                 options={provinces}
                                 getOptionLabel={(option) => option.name_th}
@@ -573,7 +578,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div className="grid grid-cols-1 gap-4 mt-4">
                         <div>
-                            <InputLabel htmlFor="cust_district" value={t.Customer.form.district} required />
+                            <InputLabel htmlFor="cust_district" value={t.Customer.form.district} />
                             <Autocomplete
                                 options={amphures}
                                 getOptionLabel={(option) => option.name_th}
@@ -588,7 +593,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div className="grid grid-cols-1 gap-4 mt-4">
                         <div>
-                            <InputLabel htmlFor="cust_subdistrict" value={t.Customer.form.subdistrict} required />
+                            <InputLabel htmlFor="cust_subdistrict" value={t.Customer.form.subdistrict} />
                             <Autocomplete
                                 options={tambons}
                                 getOptionLabel={(option) => option.name_th}
@@ -599,13 +604,12 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             <InputError className="mt-2" message={errors.cust_subdistrict} />
                         </div>
                         <div>
-                            <InputLabel htmlFor="cust_zipcode" value={t.Customer.form.zipcode} required />
+                            <InputLabel htmlFor="cust_zipcode" value={t.Customer.form.zipcode} />
                             <TextInput
                                 id="cust_zipcode"
                                 className="mt-1 block w-full"
                                 value={data.cust_zipcode}
                                 onChange={(e) => setData("cust_zipcode", e.target.value)}
-                                required
                                 disabled
                             />
                             <InputError className="mt-2" message={errors.cust_zipcode} />
@@ -651,19 +655,18 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         <InputError className="mt-2" message={errors.tax_tel} />
                     </div>
                     <div className='mt-4'>
-                        <InputLabel htmlFor="tax_address" value={t.Customer.form.address} required />
+                        <InputLabel htmlFor="tax_address" value={t.Customer.form.address} />
                         <TextInput
                             id="tax_address"
                             className="mt-1 block w-full"
                             value={data.tax_address}
                             onChange={(e) => setData('tax_address', e.target.value)}
-                            required
                         />
                         <InputError className="mt-2" message={errors.tax_address} />
                     </div>
                     <div className='mt-4'>
                         <div>
-                            <InputLabel htmlFor="tax_province" value={t.Customer.form.province} required />
+                            <InputLabel htmlFor="tax_province" value={t.Customer.form.province} />
                             <Autocomplete
                                 options={taxProvinces}
                                 getOptionLabel={(option) => option.name_th}
@@ -674,7 +677,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                             <InputError className="mt-2" message={errors.tax_province} />
                         </div>
                         <div className='mt-4'>
-                            <InputLabel htmlFor="tax_district" value={t.Customer.form.district} required />
+                            <InputLabel htmlFor="tax_district" value={t.Customer.form.district} />
                             <Autocomplete
                                 options={taxAmphures}
                                 getOptionLabel={(option) => option.name_th}
@@ -687,7 +690,7 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                     </div>
                     <div>
                         <div className='mt-4'>
-                            <InputLabel htmlFor="tax_subdistrict" value={t.Customer.form.subdistrict} required />
+                            <InputLabel htmlFor="tax_subdistrict" value={t.Customer.form.subdistrict} />
                             <Autocomplete
                                 options={taxTambons}
                                 getOptionLabel={(option) => option.name_th}
@@ -699,13 +702,12 @@ export default function ProfileForm({ customer, vat, className = '' }: ProfileFo
                         </div>
 
                         <div className='mt-4'>
-                            <InputLabel htmlFor="tax_zipcode" value={t.Customer.form.zipcode} required />
+                            <InputLabel htmlFor="tax_zipcode" value={t.Customer.form.zipcode} />
                             <TextInput
                                 id="tax_zipcode"
                                 className="mt-1 block w-full"
                                 value={data.tax_zipcode}
                                 onChange={(e) => setData('tax_zipcode', e.target.value)}
-                                required
                                 disabled
                             />
                             <InputError className="mt-2" message={errors.tax_zipcode} />

@@ -63,6 +63,8 @@ const GlassBox = styled(Box)(({ theme }) => ({
     alignItems: "center",
     gap: "6px",
 }));
+// ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
+const SHOW_POINTS = false;
 
 const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
     open,
@@ -217,23 +219,46 @@ const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
                         </Stack>
 
                         <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 1 }}>
-                            <Box
-                                sx={{
-                                    bgcolor: colors.badgeBg,
-                                    px: 2,
-                                    py: 1,
-                                    borderRadius: "16px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    border: isSilver ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.1)"
-                                }}
-                            >
-                                <WorkspacePremium sx={{ color: colors.iconColor, fontSize: 24 }} />
-                                <Typography fontWeight={800} sx={{ color: colors.text, fontSize: "1.1rem" }}>
-                                    {point.toLocaleString()} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>Pts</Box>
-                                </Typography>
-                            </Box>
+                            {SHOW_POINTS ? (
+                                <Box
+                                    sx={{
+                                        bgcolor: colors.badgeBg,
+                                        px: 2,
+                                        py: 1,
+                                        borderRadius: "16px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        border: isSilver ? "1px solid rgba(0,0,0,0.05)" : "1px solid rgba(255,255,255,0.1)"
+                                    }}
+                                >
+                                    <WorkspacePremium sx={{ color: colors.iconColor, fontSize: 24 }} />
+                                    <Typography fontWeight={800} sx={{ color: colors.text, fontSize: "1.1rem" }}>
+                                        {point.toLocaleString()} <Box component="span" sx={{ fontSize: "0.8rem", opacity: 0.7 }}>Pts</Box>
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        bgcolor: "rgba(255,255,255,0.15)",
+                                        px: 2,
+                                        py: 0.8,
+                                        borderRadius: "16px",
+                                        border: "1px solid rgba(255,255,255,0.25)",
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            color: "rgba(255,255,255,0.7)",
+                                            fontSize: "0.75rem",
+                                            fontWeight: 700,
+                                            letterSpacing: "0.04em",
+                                        }}
+                                    >
+                                        Coming Soon
+                                    </Typography>
+                                </Box>
+                            )}
 
                             {isOwnTier && (
                                 <Fade in={true}>
