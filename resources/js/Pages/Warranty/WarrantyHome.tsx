@@ -742,6 +742,7 @@ export default function WarrantyHome() {
                         <Box
                             sx={{
                                 mt: { xs: -3, sm: -1, md: -2 },
+                                mb: { sm: 8 },
                                 borderRadius: 3,
                                 overflow: "hidden",
                                 position: "relative",

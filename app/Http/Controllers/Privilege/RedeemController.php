@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -396,7 +397,7 @@ class RedeemController extends Controller
             'delivery_type'=> $request->delivery_type,
         ]);
 
-        return DB::transaction(function () use ($request, $user, $now) {
+        $result = DB::transaction(function () use ($request, $user, $now) {
             try {
                 // ล็อคข้อมูลลูกค้า
                 // $customer = TblCustomerProd::where('cust_line', $user->line_id)->lockForUpdate()->firstOrFail();
@@ -443,8 +444,7 @@ class RedeemController extends Controller
                         'point'          => $customer->point,
                         'required_point' => $requiredPoint,
                     ]);
-                    // ส่งเป็น JSON 400 เพื่อให้ Frontend Handle ได้ง่าย
-                    return response()->json(['success' => false, 'message' => 'คะแนนสะสมของคุณไม่เพียงพอ'], 400);
+                    return ['error' => true, 'message' => 'คะแนนสะสมของคุณไม่เพียงพอ'];
                 }
 
                 // อัปเดตข้อมูล Profile (ถ้ามี)
@@ -504,12 +504,13 @@ class RedeemController extends Controller
 
                 // 6. ✅ สร้าง Order หรือ Coupon
                 $couponData = null;
+                $orderNumber = null;
 
                 if ($transactionType === 'redeem') {
                     if ($isDeliveryItem) {
                         Log::channel('redeem')->info('📦 [Redeem] สร้าง Delivery Order', ['transaction_id' => $transaction->id]);
-                        // สินค้าจัดส่ง -> สร้าง Order (Pending)
-                        $this->createDeliveryOrder($user, $transaction, $request, $itemName, $requiredPoint, $now);
+                        $order = $this->createDeliveryOrder($user, $transaction, $request, $itemName, $requiredPoint, $now);
+                        $orderNumber = $order->order_number;
                         $couponData = ['code' => 'DELIVERY', 'expired_at' => '-'];
                     } else {
                         Log::channel('redeem')->info('🎟️ [Redeem] สร้าง Digital Coupon', ['transaction_id' => $transaction->id]);
@@ -528,15 +529,20 @@ class RedeemController extends Controller
                     'coupon'           => $couponData,
                 ]);
 
-                return response()->json([
-                    'success'      => true,
+                return [
+                    'error'           => false,
                     'message'      => $msg,
                     'new_point'    => $pointAfter,
                     'new_tier'     => $tierKey,
                     'coupon'       => $couponData,
                     'product_type' => $request->product_type,
-                    'is_delivery'  => $isDeliveryItem
-                ]);
+                    'is_delivery'  => $isDeliveryItem,
+                    'item_name'       => $itemName,
+                    'transaction_type'=> $transactionType,
+                    'earn_point'      => $earnPoint,
+                    'required_point'  => $requiredPoint,
+                    'order_number'    => $orderNumber,
+                ];
             } catch (\Exception $e) {
                 // ถ้า Error ใน Transaction มันจะ Rollback เอง
                 Log::channel('redeem')->error('❌ [Redeem] store Error', [
@@ -548,6 +554,83 @@ class RedeemController extends Controller
                 throw $e;
             }
         });
+
+        if (!empty($result['error'])) {
+            return response()->json(['success' => false, 'message' => $result['message']], 400);
+        }
+
+        // ส่ง LINE Notification หลัง transaction commit สำเร็จ
+        $this->sendRedeemNotification($user, $result);
+
+        return response()->json([
+            'success'      => true,
+            'message'      => $result['message'],
+            'new_point'    => $result['new_point'],
+            'new_tier'     => $result['new_tier'],
+            'coupon'       => $result['coupon'],
+            'product_type' => $result['product_type'],
+            'is_delivery'  => $result['is_delivery'],
+        ]);
+    }
+
+    private function sendRedeemNotification($user, array $data): void
+    {
+        if (!env('LINE_REDEEM_NOTIFY', true)) {
+            return;
+        }
+
+        try {
+            $lineId = $user->line_id ?? null;
+            $token  = env('LINE_CHANNEL_ACCESS_TOKEN');
+
+            if (!$lineId || !$token) {
+                return;
+            }
+
+            $itemName    = $data['item_name'] ?? '-';
+            $type        = $data['transaction_type'] ?? 'redeem';
+            $earnPoint   = (int)($data['earn_point'] ?? 0);
+            $reqPoint    = (int)($data['required_point'] ?? 0);
+            $pointAfter  = (int)($data['new_point'] ?? 0);
+            $coupon      = $data['coupon'] ?? null;
+            $isDelivery  = (bool)($data['is_delivery'] ?? false);
+            $orderNumber = $data['order_number'] ?? null;
+
+            if ($type === 'earn' && $earnPoint > 0) {
+                $text = "🎂 สุขสันต์วันเกิด!\n"
+                    . "คุณได้รับ {$earnPoint} คะแนน\n"
+                    . "คะแนนสะสมของคุณ: {$pointAfter} คะแนน";
+            } else {
+                $text = "🎃 แลกของรางวัลสำเร็จ!\n"
+                    . "รายการ: {$itemName}\n\n"
+                    . "ใช้คะแนน: {$reqPoint} คะแนน\n"
+                    . "คะแนนคงเหลือ: {$pointAfter} คะแนน\n";
+
+                if ($isDelivery) {
+                    $text .= "\n📦 กำลังเตรียมจัดส่งให้คุณ";
+                    if ($orderNumber) {
+                        $text .= "\nหมายเลขออเดอร์: {$orderNumber}";
+                    }
+                } elseif ($coupon && !empty($coupon['code']) && $coupon['code'] !== 'DELIVERY') {
+                    $text .= "\n🎟️ รหัสคูปอง: {$coupon['code']}";
+                    if (!empty($coupon['expired_at']) && $coupon['expired_at'] !== '-') {
+                        $text .= "\nหมดอายุ: {$coupon['expired_at']}";
+                    }
+                }
+            }
+
+            Http::withHeaders([
+                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+            ])->post('https://api.line.me/v2/bot/message/push', [
+                'to'       => $lineId,
+                'messages' => [['type' => 'text', 'text' => $text]],
+            ]);
+
+            Log::channel('redeem')->info('📩 [Redeem] ส่ง LINE Notification สำเร็จ', ['line_id' => $lineId]);
+        } catch (\Throwable $e) {
+            Log::channel('redeem')->error('❌ [Redeem] LINE Notification Error', ['error' => $e->getMessage()]);
+        }
     }
 
     // public function store(Request $request)
