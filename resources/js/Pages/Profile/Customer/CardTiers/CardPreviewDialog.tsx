@@ -65,7 +65,7 @@ const GlassBox = styled(Box)(({ theme }) => ({
     gap: "6px",
 }));
 // ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
-const SHOW_POINTS = false;
+const SHOW_POINTS = true;
 
 const CardPreviewDialog: React.FC<CardPreviewDialogProps> = ({
     open,

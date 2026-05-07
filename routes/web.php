@@ -70,9 +70,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('/', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
         Route::delete('/', [CustomerProfileController::class, 'destroy'])->name('customer.profile.destroy');
 
-        // Route::get('/privilege/blank', function () {
-        //     return Inertia::render('Profile/Customer/Blank/PrivilegeBlank');
-        // })->name('customer.profile.blank.privilege.blank');
+        Route::get('/privilege/blank', function () {
+            return Inertia::render('Profile/Customer/Blank/PrivilegeBlank');
+        })->name('customer.profile.blank.privilege.blank');
 
         Route::get('/privilege', [PrivilegeController::class, 'index'])
             ->name('customer.profile.privilege');

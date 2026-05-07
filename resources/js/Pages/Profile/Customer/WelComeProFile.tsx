@@ -22,7 +22,8 @@ export default function WelComeProFile() {
     const [showProfileQr, setShowProfileQr] = useState(false);
     const myReferralCode = referral_code || "-";
 
-    const handleShowScore = () => router.get(route("customer.profile.score"));
+    // const handleShowScore = () => router.get(route("customer.profile.score"));
+    const handleShowScore = () => router.get(route("customer.profile.score.blank"));
 
     const handleCopy = async () => {
         if (!myReferralCode) return;

@@ -417,7 +417,9 @@ export default function WarrantyHome() {
                                 src={line_avatar ?? undefined}
                                 onClick={() => setShowProfileQr(true)}
                                 sx={{
-                                    bgcolor: line_avatar ? "transparent" : "#867e7cff",
+                                    bgcolor: line_avatar
+                                        ? "transparent"
+                                        : "#867e7cff",
                                     width: 60,
                                     height: 60,
                                     cursor: "pointer",
@@ -452,7 +454,9 @@ export default function WarrantyHome() {
                                             direction="row"
                                             alignItems="center"
                                             spacing={0.1}
-                                            onClick={() => setOpenPointModal(true)}
+                                            onClick={() =>
+                                                setOpenPointModal(true)
+                                            }
                                             sx={{
                                                 cursor: "pointer",
                                                 "&:active": { opacity: 0.6 },
@@ -471,7 +475,8 @@ export default function WarrantyHome() {
                                                     fontSize: "0.9rem",
                                                 }}
                                             >
-                                                {currentPoint.toLocaleString()} P
+                                                {currentPoint.toLocaleString()}{" "}
+                                                P
                                             </Typography>
                                             <ChevronRightIcon
                                                 size={13}
@@ -483,16 +488,26 @@ export default function WarrantyHome() {
                                             variant="caption"
                                             sx={{
                                                 color: "#aaa",
-                                                fontSize: "0.72rem",
+                                                fontSize: "0.60rem",
                                                 fontWeight: 600,
                                                 bgcolor: "#f5f5f5",
                                                 border: "1px solid #ddd",
                                                 borderRadius: "20px",
-                                                px: 1.2,
+                                                px: 1,
                                                 py: 0.3,
                                                 letterSpacing: "0.04em",
+
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 0.5,
                                             }}
                                         >
+                                            <WorkspacePremium
+                                                sx={{
+                                                    color: "#F5B301",
+                                                    fontSize: 16,
+                                                }}
+                                            />
                                             Coming Soon
                                         </Typography>
                                     )}
@@ -558,7 +573,10 @@ export default function WarrantyHome() {
                                                 lineHeight: 1.4,
                                             }}
                                         >
-                                            {t.homePage.point_expiry.replace("{date}", point_expiry_date)}
+                                            {t.homePage.point_expiry.replace(
+                                                "{date}",
+                                                point_expiry_date,
+                                            )}
                                         </Typography>
                                     </Stack>
                                 )}

@@ -59,7 +59,7 @@ const pulse = keyframes`
   100% { transform: scale(1); opacity: 0.8; }
 `;
 // ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
-const SHOW_POINTS = false;
+const SHOW_POINTS = true;
 
 export default function ScorePage() {
     const { t } = useLanguage();

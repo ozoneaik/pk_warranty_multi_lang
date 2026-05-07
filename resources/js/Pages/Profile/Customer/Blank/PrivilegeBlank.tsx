@@ -28,10 +28,10 @@ export default function PrivilegeBlank() {
                 {/* Content */}
                 <div className="text-center space-y-3">
                     <h2 className="text-2xl font-bold text-gray-800">
-                        Privilege
+                        สิทธิพิเศษของคุณ
                     </h2>
                     <p className="text-gray-600 text-lg">
-                        กำลังพัฒนา
+                        Coming Soon
                     </p>
                     <p className="text-gray-500 text-sm max-w-md">
                         ฟีเจอร์สิทธิพิเศษกำลังอยู่ระหว่างการพัฒนา<br />

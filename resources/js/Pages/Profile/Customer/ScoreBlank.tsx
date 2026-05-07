@@ -31,11 +31,11 @@ export default function ScoreBlank() {
                         คะแนนของคุณ
                     </h2>
                     <p className="text-gray-600 text-lg">
-                        กำลังพัฒนา
+                        Coming Soon
                     </p>
                     <p className="text-gray-500 text-sm max-w-md">
                         ระบบคะแนนกำลังอยู่ระหว่างการพัฒนา<br />
-                        เร็วๆ นี้ คุณจะสามารถดูและใช้คะแนนสะสมได้
+                        เร็วๆ นี้ คุณจะสามารถดูคะแนนสะสมได้
                     </p>
                 </div>
 

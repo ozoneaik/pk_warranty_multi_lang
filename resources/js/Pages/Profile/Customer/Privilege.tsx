@@ -776,7 +776,7 @@ function CouponList({
 }
 
 // ตั้งค่า false = ซ่อนคะแนน (แสดง Coming Soon), true = แสดงคะแนนปกติ
-const SHOW_POINTS = false;
+const SHOW_POINTS = true;
 
 // --- Main Page ---
 export default function PrivilegePage() {
