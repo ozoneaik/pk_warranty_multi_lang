@@ -15,4 +15,17 @@ return [
         'enabled' => env('WARRANTY_LEGACY_UPDATE_ENABLED', true),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Status / Approval Check
+    |--------------------------------------------------------------------------
+    | เปิด/ปิด การตรวจสอบฟิลด์ status และ approval ก่อนนับว่าซีเรียลลงทะเบียนแล้ว
+    | ถ้าเปิด: serial ที่มี status=disabled/ว่าง หรือ approval≠Y จะลงทะเบียนซ้ำได้
+    |
+    | ตั้งค่าผ่าน .env: WARRANTY_STATUS_APPROVAL_CHECK_ENABLED=true
+    */
+    'status_approval_check' => [
+        'enabled' => env('WARRANTY_STATUS_APPROVAL_CHECK_ENABLED', true),
+    ],
+
 ];

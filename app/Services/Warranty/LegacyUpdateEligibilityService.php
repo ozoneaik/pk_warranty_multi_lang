@@ -89,20 +89,19 @@ class LegacyUpdateEligibilityService
             $updateData['slip'] = $data['slip'];
         }
 
-        $beforeFields = ['warranty_from', 'lineid', 'cust_tel', 'buy_from', 'store_name', 'buy_date', 'slip', 'pc_code', 'approval', 'approver', 'dt_approve', 'notation'];
-
         foreach ($records as $record) {
-            $beforeSnapshot = $record->only($beforeFields);
+            $beforeSnapshot = $record->toArray();
             $sourceKey = $this->resolve($record) ?: 'unknown';
 
             $record->update($updateData);
+            $record->refresh();
 
             LegacyUpdateLog::create([
                 'serial_number'       => $serialNumber,
                 'source_key'          => $sourceKey,
                 'history_prod_id'     => $record->id,
                 'before_data'         => $beforeSnapshot,
-                'after_data'          => $updateData,
+                'after_data'          => $record->toArray(),
                 'triggered_by_lineid' => $data['lineid'] ?? null,
             ]);
         }

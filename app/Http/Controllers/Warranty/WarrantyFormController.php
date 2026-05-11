@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Warranty\WrFormRequest;
+use App\Models\LegacyUpdateLog;
 use App\Models\MasterWaaranty\Channel;
 use App\Models\MasterWaaranty\Dealer;
 use App\Models\MasterWaaranty\PointTransaction;
@@ -163,8 +164,20 @@ class WarrantyFormController extends Controller
             // 1. เช็คว่า Serial นี้เคยลงทะเบียนไปแล้วหรือยัง
             $check_form_history = TblHistoryProd::query()
                 ->where('serial_number', $sn)
-                ->select('serial_number', 'model_code', 'product_name', 'model_name', 'warranty_from', 'buy_from', 'store_name', 'buy_date', 'slip')
+                ->select('id', 'serial_number', 'model_code', 'product_name', 'model_name', 'warranty_from', 'buy_from', 'store_name', 'buy_date', 'slip', 'status', 'approval')
+                ->orderByDesc('id')
                 ->first();
+
+            // ถ้า status เป็น disabled หรือว่าง หรือ approval ไม่ใช่ Y ให้ถือว่ายังไม่ได้ลงทะเบียน
+            $is_status_approval_bypass = false;
+            if ($check_form_history && config('warranty.status_approval_check.enabled', true)) {
+                $recordStatus   = $check_form_history->status ?? '';
+                $recordApproval = $check_form_history->approval ?? '';
+                if (($recordStatus === 'disabled' || $recordStatus === '') && $recordApproval !== 'Y') {
+                    $is_status_approval_bypass = true;
+                    $check_form_history = null;
+                }
+            }
 
             $is_service_center_update = false;
             $update_source = null;
@@ -330,6 +343,7 @@ class WarrantyFormController extends Controller
                 'serial_info'    => ['status' => 'SUCCESS', 'sn' => $display_serial], // ✅ ส่ง Serial ของตัวแม่กลับไป
                 'product_detail' => $mappedProductDetail,
                 'is_service_center_update' => $is_service_center_update,
+                'is_status_approval_bypass'  => $is_status_approval_bypass,
                 'update_source'    => $update_source,
             ];
 
@@ -373,6 +387,7 @@ class WarrantyFormController extends Controller
             $user = Auth::user();
             $req = $request->validated();
             $isServiceCenterUpdate = filter_var($req['is_service_center_update'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $isStatusApprovalBypass   = filter_var($req['is_status_approval_bypass'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
             // 1. จัดการข้อมูลลูกค้าและไฟล์แนบ
             $phone = $req['phone'] ?? $user->phone ?? null;
@@ -423,6 +438,67 @@ class WarrantyFormController extends Controller
                 return redirect()->route('warranty.history');
             }
             // ===== END UPDATE MODE =====
+
+            // ===== STATUS/APPROVAL BYPASS: อัพเดททับ record เดิม =====
+            if ($isStatusApprovalBypass) {
+                $existingRecord = TblHistoryProd::where('serial_number', $req['serial_number'])->orderByDesc('id')->first();
+
+                if ($existingRecord) {
+                    $beforeData = $existingRecord->toArray();
+
+                    $updateData = [
+                        'lineid'        => $user->line_id,
+                        'cust_tel'      => $phone,
+                        'buy_from'      => $req['buy_from'],
+                        'store_name'    => $req['store_name'],
+                        'buy_date'      => $req['buy_date'],
+                        'pc_code'       => $req['pc_code'] ?? null,
+                        'warranty_from' => 'warranty_pupmkin_crm',
+                        'status'        => 'enabled',
+                        'approval'      => '',
+                        'approver'      => '',
+                        'dt_approve'    => null,
+                        'notation'      => null,
+                    ];
+
+                    if ($full_path) {
+                        $updateData['slip'] = $full_path;
+                    }
+
+                    $existingRecord->update($updateData);
+                    $existingRecord->refresh();
+
+                    LegacyUpdateLog::create([
+                        'serial_number'       => $req['serial_number'],
+                        'source_key'          => 'status_approval_bypass',
+                        'history_prod_id'     => $existingRecord->id,
+                        'before_data'         => $beforeData,
+                        'after_data'          => $existingRecord->toArray(),
+                        'triggered_by_lineid' => $user->line_id,
+                    ]);
+                }
+
+                DB::commit();
+
+                try {
+                    $lineUid = $user->line_id;
+                    $token = env('LINE_CHANNEL_ACCESS_TOKEN');
+                    if ($lineUid && $token) {
+                        Http::withHeaders([
+                            'Content-Type'  => 'application/json',
+                            'Authorization' => 'Bearer ' . $token,
+                        ])->post('https://api.line.me/v2/bot/message/push', [
+                            'to'       => $lineUid,
+                            'messages' => [['type' => 'text', 'text' => "ขอบพระคุณสำหรับการลงทะเบียน 🙏\nแอดมินกำลังตรวจสอบข้อมูลของท่าน"]],
+                        ]);
+                    }
+                } catch (\Exception $ex) {
+                    Log::channel('warranty')->error('❌ LINE Push Error (bypass update)', ['error' => $ex->getMessage()]);
+                }
+
+                return redirect()->route('warranty.history');
+            }
+            // ===== END STATUS/APPROVAL BYPASS =====
 
             // จัดการ Customer (Find or Create)
             $customer = TblCustomerProd::where('cust_line', $user->line_id)

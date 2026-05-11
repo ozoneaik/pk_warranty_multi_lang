@@ -11,6 +11,7 @@ class TblHistoryProd extends Model
 
     protected $fillable = [
         'approval',
+        'status',
         'lineid',
         'cust_tel',
         'reward',

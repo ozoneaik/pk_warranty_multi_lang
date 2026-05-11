@@ -22,15 +22,18 @@ class WrFormRequest extends FormRequest
     public function rules(): array
     {
         $isUpdate = filter_var($this->input('is_service_center_update', false), FILTER_VALIDATE_BOOLEAN);
+        $isBypass  = filter_var($this->input('is_status_approval_bypass', false), FILTER_VALIDATE_BOOLEAN);
+        $skipFile  = $isUpdate || $isBypass;
 
         return [
-            'is_service_center_update' => 'nullable|boolean',
-            'warranty_file' => $isUpdate ? 'nullable' : 'required',
+            'is_service_center_update'  => 'nullable|boolean',
+            'is_status_approval_bypass' => 'nullable|boolean',
+            'warranty_file' => $skipFile ? 'nullable' : 'required',
             'serial_number' => 'required',
             'phone' => 'nullable|digits:10',
-            'model_code' => $isUpdate ? 'nullable' : 'required',
+            'model_code' => $skipFile ? 'nullable' : 'required',
             'model_name' => 'nullable',
-            'product_name' => $isUpdate ? 'nullable' : 'required',
+            'product_name' => $skipFile ? 'nullable' : 'required',
             'buy_from' => 'required',
             'buy_date' => 'required',
             'store_name' => 'required',

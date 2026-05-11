@@ -280,6 +280,7 @@ export default function WarrantyForm({
             customer_code: "",
             pc_code: "",
             is_service_center_update: false,
+            is_status_approval_bypass: false,
         });
 
     const [preview, setPreview] = useState<string | null>(null);
@@ -304,6 +305,7 @@ export default function WarrantyForm({
 
     const [openPcQrScanner, setOpenPcQrScanner] = useState(false);
     const [isServiceCenterUpdate, setIsServiceCenterUpdate] = useState(false);
+    const [isStatusApprovalBypass, setIsStatusApprovalBypass] = useState(false);
     const [scUpdateSource, setScUpdateSource] = useState<string | null>(null);
     const [datePickerValue, setDatePickerValue] = useState<dayjs.Dayjs | null>(null);
 
@@ -340,6 +342,7 @@ export default function WarrantyForm({
             setPreview(null);
             setFileName("");
             setIsServiceCenterUpdate(false);
+            setIsStatusApprovalBypass(false);
             setScUpdateSource(null);
             setDatePickerValue(null);
 
@@ -350,6 +353,7 @@ export default function WarrantyForm({
                 model_name: "",
                 product_name: "",
                 is_service_center_update: false,
+                is_status_approval_bypass: false,
             }));
             return;
         }
@@ -408,6 +412,7 @@ export default function WarrantyForm({
             // ไม่ว่าซ้ำหรือไม่ ถ้ามี product_detail ให้แสดงกล่องสินค้าได้
             const pd = response.data?.data?.product_detail;
             const isScUpdate = response.data?.data?.is_service_center_update === true;
+            const isBypass = response.data?.data?.is_status_approval_bypass === true;
             const updateSource = response.data?.data?.update_source as string | null;
             if (pd) {
                 setProductDetail(pd);
@@ -415,6 +420,7 @@ export default function WarrantyForm({
                 setShowForm(false);
                 setSnVerified(false);
                 setIsServiceCenterUpdate(isScUpdate);
+                setIsStatusApprovalBypass(isBypass);
                 setScUpdateSource(isScUpdate ? updateSource : null);
 
                 // เติม field อัตโนมัติ (ถ้าไม่มีในฟอร์ม)
@@ -426,6 +432,7 @@ export default function WarrantyForm({
                     model_code: prev.model_code || pd.pid || "",
                     model_name: pd.fac_model || "",
                     product_name: pd.pname || "",
+                    is_status_approval_bypass: isBypass || prev.is_status_approval_bypass,
                 }));
 
                 // if (isScUpdate) {
@@ -510,6 +517,7 @@ export default function WarrantyForm({
                 status === "duplicate" ||
                 response.data?.data?.duplicate === true;
             const isScUpdate = response.data?.data?.is_service_center_update === true;
+            const isBypass = response.data?.data?.is_status_approval_bypass === true;
             const updateSource = response.data?.data?.update_source as string | null;
 
             if (!isScUpdate && isDup) {
@@ -525,6 +533,7 @@ export default function WarrantyForm({
             setShowForm(true);
             setSnVerified(true);
             setIsServiceCenterUpdate(isScUpdate);
+            setIsStatusApprovalBypass(isBypass);
             setScUpdateSource(isScUpdate ? updateSource : null);
 
             if (response.data?.data?.product_detail) {
@@ -563,6 +572,9 @@ export default function WarrantyForm({
                 //     }
                 // }
                 setData((prev: any) => ({ ...prev, is_service_center_update: true }));
+            }
+            if (isBypass) {
+                setData((prev: any) => ({ ...prev, is_status_approval_bypass: true }));
             }
         } catch (error: any) {
             const msg =
@@ -991,6 +1003,7 @@ export default function WarrantyForm({
                                                     customer_code: "",
                                                     pc_code: "",
                                                     is_service_center_update: false,
+                                                    is_status_approval_bypass: false,
                                                 });
                                                 setShowForm(false);
                                                 setShowProduct(false);
@@ -998,6 +1011,7 @@ export default function WarrantyForm({
                                                 setFileName("");
                                                 setSnVerified(false);
                                                 setIsServiceCenterUpdate(false);
+                                                setIsStatusApprovalBypass(false);
                                                 setScUpdateSource(null);
                                                 setDatePickerValue(null);
                                             }}
