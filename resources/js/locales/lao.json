@@ -79,7 +79,32 @@
             "scanQr": "ສະແກນ QR Code",
             "scanQrMsg": "ນຳກ້ອງໄປສະແກນ QR Code ເພື່ອຮັບລະຫັດລູກຄ້າອັດຕະໂນມັດ",
             "branchName": "ຊື່ສາຂາ (Branch Name)",
-            "registerWarranty": "ລົງທະບຽນ"
+            "registerWarranty": "ລົງທະບຽນ",
+            "noFileSelected": "ຍັງບໍ່ໄດ້ເລືອກໄຟລ໌",
+            "changeFile": "ປ່ຽນໄຟລ໌ໃໝ່",
+            "takePhoto": "ຖ່າຍຮູບໃໝ່",
+            "chooseFromGallery": "ເລືອກຈາກຄັງຮູບ",
+            "loadingStores": "ກຳລັງໂຫລດຮ້ານຄ້າ...",
+            "noStoreFound": "ບໍ່ພົບຮ້ານຄ້າ",
+            "submitting": "ກຳລັງສົ່ງຂໍ້ມູນ...",
+            "scanPcCode": "ສະແກນລະຫັດ PC",
+            "scanPcCodeInstruction": "ວາງ QR Code ໃຫ້ຢູ່ໃນກອບເພື່ອສະແກນ",
+            "alreadyRegistered": "ລາຍການນີ້ໄດ້ລົງທະບຽນຮັບປະກັນແລ້ວ",
+            "phoneHelperText": "ກະລຸນາປ້ອນເບີໂທ 10 ຫຼັກໃຫ້ຄົບ",
+            "legacyUpdate": {
+                "foundFromServiceCenter": "ພົບຂໍ້ມູນຈາກ Service Center",
+                "foundFromTexusBull": "ພົບຂໍ້ມູນຈາກ Texus Bull",
+                "foundFromPumpkinWebsite": "ພົບຂໍ້ມູນຈາກເວັບໄຊ Pumpkin",
+                "msgServiceCenter": "ຊີລຽນນີ້ລົງທະບຽນຜ່ານ Service Center ແລ້ວ ສາມາດລົງທະບຽນໃໝ່ເພື່ອອັບເດດຂໍ້ມູນໄດ້",
+                "msgTexusBull": "ຊີລຽນນີ້ລົງທະບຽນຜ່ານ Texus Bull ແລ້ວ ສາມາດລົງທະບຽນໃໝ່ເພື່ອອັບເດດຂໍ້ມູນໄດ້",
+                "msgPumpkinWebsite": "ຊີລຽນນີ້ລົງທະບຽນຜ່ານເວັບໄຊ Pumpkin ແລ້ວ ສາມາດລົງທະບຽນໃໝ່ເພື່ອອັບເດດຂໍ້ມູນໄດ້",
+                "slipServiceCenter": "ໃບຮັບເງິນຈາກ Service Center",
+                "slipTexusBull": "ໃບຮັບເງິນຈາກ Texus Bull",
+                "slipPumpkinWebsite": "ໃບຮັບເງິນຈາກເວັບໄຊ Pumpkin",
+                "alertServiceCenter": "ຊີລຽນນີ້ລົງທະບຽນຜ່ານ Service Center — ກະລຸນາຕື່ມຂໍ້ມູນດ້ານລຸ່ມເພື່ອອັບເດດການລົງທະບຽນ",
+                "alertTexusBull": "ຊີລຽນນີ້ລົງທະບຽນຜ່ານ Texus Bull — ກະລຸນາຕື່ມຂໍ້ມູນດ້ານລຸ່ມເພື່ອອັບເດດການລົງທະບຽນ",
+                "alertPumpkinWebsite": "ຊີລຽນນີ້ລົງທະບຽນຜ່ານເວັບໄຊ Pumpkin — ກະລຸນາຕື່ມຂໍ້ມູນດ້ານລຸ່ມເພື່ອອັບເດດການລົງທະບຽນ"
+            }
         },
         "Validate": {
             "file": "ກະລຸນາອັບໂຫລດໄຟລ໌",

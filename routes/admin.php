@@ -16,14 +16,10 @@ use App\Http\Controllers\Admin\AdminWarrantyRegistrationController;
 use App\Http\Controllers\Admin\AdminMemberPointController;
 use App\Http\Controllers\Admin\AdminPcRankingReportController;
 use App\Http\Controllers\Admin\AdminPopupController;
-use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminRewardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Models\AdminMenu;
-use App\Models\RoleMenuPermission;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -167,6 +163,7 @@ Route::middleware('auth:admin')->group(function () {
 
         Route::middleware('check_menu:reports.customers')->group(function () {
             Route::get('/customers', [AdminCustomerReportController::class, 'index'])->name('customers');
+            Route::get('/customers/export', [AdminCustomerReportController::class, 'exportExcel'])->name('customers.export');
         });
 
         Route::middleware('check_menu:reports.pc-ranking')->group(function () {
@@ -227,5 +224,3 @@ Route::middleware('auth:admin')->group(function () {
     });
 });
 
-Route::get('/admin/reports/customers/export', [AdminCustomerReportController::class, 'exportExcel'])
-    ->name('reports.customers.export');

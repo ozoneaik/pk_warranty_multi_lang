@@ -10,6 +10,7 @@ use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblHistoryProd;
 use App\Models\MasterWaaranty\TypeProcessPoint;
+use App\Services\Warranty\LegacyUpdateEligibilityService;
 use App\Services\WarrantyFallbackService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,6 +23,10 @@ use Inertia\Inertia;
 
 class WarrantyFormController extends Controller
 {
+    public function __construct(
+        private readonly LegacyUpdateEligibilityService $eligibility,
+    ) {}
+
     public function form()
     {
         $channel_list = [];
@@ -158,11 +163,27 @@ class WarrantyFormController extends Controller
             // 1. เช็คว่า Serial นี้เคยลงทะเบียนไปแล้วหรือยัง
             $check_form_history = TblHistoryProd::query()
                 ->where('serial_number', $sn)
-                ->select('serial_number', 'model_code', 'product_name', 'model_name')
+                ->select('serial_number', 'model_code', 'product_name', 'model_name', 'warranty_from', 'buy_from', 'store_name', 'buy_date', 'slip')
                 ->first();
 
+            $is_service_center_update = false;
+            $update_source = null;
             if ($check_form_history) {
-                throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
+                $resolved = $this->eligibility->resolve($check_form_history);
+                if ($resolved === false) {
+                    // feature disabled — treat same as normal duplicate
+                    throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
+                } elseif ($resolved === 'service_center') {
+                    $is_service_center_update = true;
+                    $update_source = $resolved;
+                } elseif ($resolved !== null) {
+                    // texus_bull / pumpkin_website — ยังไม่เปิดให้ update
+                    // $is_service_center_update = true;
+                    // $update_source = $resolved;
+                    throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
+                } else {
+                    throw new \Exception('หมายเลขซีเรียลนี้ถูกลงทะเบียนในระบบแล้ว');
+                }
             }
 
             Log::channel('warranty')->info('🛰 [WarrantyFormController] เริ่มตรวจสอบ SN จาก API ใหม่', ['sn' => $sn]);
@@ -196,7 +217,7 @@ class WarrantyFormController extends Controller
             }
 
             $isExpired = $apiData['warrantyexpire'] ?? false;
-            if ($isExpired === true || $isExpired === 'true') {
+            if (($isExpired === true || $isExpired === 'true') && !$is_service_center_update) {
                 throw new \Exception('หมายเลขซีเรียลนี้หมดอายุรับประกัน หรือถูกใช้งานไปแล้ว');
             }
 
@@ -308,7 +329,18 @@ class WarrantyFormController extends Controller
             $data_response = [
                 'serial_info'    => ['status' => 'SUCCESS', 'sn' => $display_serial], // ✅ ส่ง Serial ของตัวแม่กลับไป
                 'product_detail' => $mappedProductDetail,
+                'is_service_center_update' => $is_service_center_update,
+                'update_source'    => $update_source,
             ];
+
+            if ($is_service_center_update) {
+                $data_response['existing_data'] = [
+                    'buy_from'   => $check_form_history->buy_from,
+                    'store_name' => $check_form_history->store_name,
+                    'buy_date'   => $check_form_history->buy_date,
+                    'slip'       => $check_form_history->slip,
+                ];
+            }
 
             return response()->json([
                 'message' => "ตรวจสอบข้อมูลสำเร็จ",
@@ -340,6 +372,7 @@ class WarrantyFormController extends Controller
 
             $user = Auth::user();
             $req = $request->validated();
+            $isServiceCenterUpdate = filter_var($req['is_service_center_update'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
             // 1. จัดการข้อมูลลูกค้าและไฟล์แนบ
             $phone = $req['phone'] ?? $user->phone ?? null;
@@ -356,6 +389,40 @@ class WarrantyFormController extends Controller
                 Storage::disk('s3')->put($path, file_get_contents($file), 'private');
                 $full_path = Storage::disk('s3')->url($path);
             }
+
+            // ===== UPDATE MODE: Legacy source → warranty_pupmkin_crm =====
+            if ($isServiceCenterUpdate) {
+                $this->eligibility->performUpdate($req['serial_number'], [
+                    'lineid'     => $user->line_id,
+                    'cust_tel'   => $phone,
+                    'buy_from'   => $req['buy_from'],
+                    'store_name' => $req['store_name'],
+                    'buy_date'   => $req['buy_date'],
+                    'pc_code'    => $req['pc_code'] ?? null,
+                    'slip'       => $full_path ?: null,
+                ]);
+
+                DB::commit();
+
+                try {
+                    $lineUid = $user->line_id;
+                    $token = env('LINE_CHANNEL_ACCESS_TOKEN');
+                    if ($lineUid && $token) {
+                        Http::withHeaders([
+                            'Content-Type'  => 'application/json',
+                            'Authorization' => 'Bearer ' . $token,
+                        ])->post('https://api.line.me/v2/bot/message/push', [
+                            'to'       => $lineUid,
+                            'messages' => [['type' => 'text', 'text' => "ขอบพระคุณสำหรับการลงทะเบียน 🙏\nแอดมินกำลังตรวจสอบข้อมูลของท่าน"]],
+                        ]);
+                    }
+                } catch (\Exception $ex) {
+                    Log::channel('warranty')->error('❌ LINE Push Error (SC update)', ['error' => $ex->getMessage()]);
+                }
+
+                return redirect()->route('warranty.history');
+            }
+            // ===== END UPDATE MODE =====
 
             // จัดการ Customer (Find or Create)
             $customer = TblCustomerProd::where('cust_line', $user->line_id)

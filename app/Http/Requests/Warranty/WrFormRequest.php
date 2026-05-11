@@ -21,20 +21,22 @@ class WrFormRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isUpdate = filter_var($this->input('is_service_center_update', false), FILTER_VALIDATE_BOOLEAN);
+
         return [
-            'warranty_file' => 'required',
+            'is_service_center_update' => 'nullable|boolean',
+            'warranty_file' => $isUpdate ? 'nullable' : 'required',
             'serial_number' => 'required',
-            // 'phone' => 'required',
             'phone' => 'nullable|digits:10',
-            'model_code' => 'required',
+            'model_code' => $isUpdate ? 'nullable' : 'required',
             'model_name' => 'nullable',
-            'product_name' => 'required',
+            'product_name' => $isUpdate ? 'nullable' : 'required',
             'buy_from' => 'required',
             'buy_date' => 'required',
             'store_name' => 'required',
             'customer_code' => 'nullable',
             'pc_code' => 'nullable|string|max:50',
-            
+
             'power_accessories' => 'nullable|array',
             'power_accessories.*.serial_number' => 'required|string',
             'power_accessories.*.model_code'    => 'nullable|string',

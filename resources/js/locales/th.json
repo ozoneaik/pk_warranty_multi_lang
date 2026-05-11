@@ -79,7 +79,32 @@
             "scanQr": "สแกน QR Code",
             "scanQrMsg": "นำกล้องไปสแกน QR Code เพื่อรับรหัสลูกค้าอัตโนมัติ",
             "branchName": "ชื่อสาขา (Branch Name)",
-            "registerWarranty": "ลงทะเบียนรับประกัน"
+            "registerWarranty": "ลงทะเบียนรับประกัน",
+            "noFileSelected": "ยังไม่ได้เลือกไฟล์",
+            "changeFile": "เปลี่ยนไฟล์ใหม่",
+            "takePhoto": "ถ่ายรูปใหม่",
+            "chooseFromGallery": "เลือกจากคลังภาพ",
+            "loadingStores": "กำลังโหลดร้านค้า...",
+            "noStoreFound": "ไม่พบร้านค้า",
+            "submitting": "กำลังส่งข้อมูล...",
+            "scanPcCode": "สแกนรหัส PC",
+            "scanPcCodeInstruction": "วาง QR Code ให้อยู่ในกรอบเพื่อสแกน",
+            "alreadyRegistered": "รายการนี้ถูกลงทะเบียนรับประกันแล้ว",
+            "phoneHelperText": "กรุณากรอกเบอร์โทรให้ครบ 10 หลัก",
+            "legacyUpdate": {
+                "foundFromServiceCenter": "พบข้อมูลจาก Service Center",
+                "foundFromTexusBull": "พบข้อมูลจาก Texus Bull",
+                "foundFromPumpkinWebsite": "พบข้อมูลจากเว็บไซต์ Pumpkin",
+                "msgServiceCenter": "หมายเลขเครื่องนี้เคยลงทะเบียนผ่าน Service Center สามารถลงทะเบียนใหม่เพื่ออัพเดทข้อมูลได้",
+                "msgTexusBull": "หมายเลขเครื่องนี้เคยลงทะเบียนผ่าน Texus Bull สามารถลงทะเบียนใหม่เพื่ออัพเดทข้อมูลได้",
+                "msgPumpkinWebsite": "หมายเลขเครื่องนี้เคยลงทะเบียนผ่านเว็บไซต์ Pumpkin สามารถลงทะเบียนใหม่เพื่ออัพเดทข้อมูลได้",
+                "slipServiceCenter": "ใบเสร็จจาก Service Center",
+                "slipTexusBull": "ใบเสร็จจาก Texus Bull",
+                "slipPumpkinWebsite": "ใบเสร็จจากเว็บไซต์ Pumpkin",
+                "alertServiceCenter": "หมายเลขเครื่องนี้เคยลงทะเบียนผ่าน Service Center กรุณากรอกข้อมูลด้านล่างเพื่ออัพเดทการลงทะเบียน",
+                "alertTexusBull": "หมายเลขเครื่องนี้เคยลงทะเบียนผ่าน Texus Bull กรุณากรอกข้อมูลด้านล่างเพื่ออัพเดทการลงทะเบียน",
+                "alertPumpkinWebsite": "หมายเลขเครื่องนี้เคยลงทะเบียนผ่านเว็บไซต์ Pumpkin กรุณากรอกข้อมูลด้านล่างเพื่ออัพเดทการลงทะเบียน"
+            }
         },
         "Validate": {
             "file": "กรุณาอัพโหลดไฟล์",

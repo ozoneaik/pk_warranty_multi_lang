@@ -30,7 +30,9 @@ class TblHistoryProd extends Model
         'warranty_from',
         'customer_code',
         'customer_name',
-        'pc_code'
+        'pc_code',
+        'dt_approve',
+        'notation',
     ];
 
     public $timestamps = false;

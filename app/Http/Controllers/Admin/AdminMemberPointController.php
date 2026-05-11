@@ -51,6 +51,11 @@ class AdminMemberPointController extends Controller
 
     public function adjustPoints(Request $request)
     {
+        $admin = Auth::guard('admin')->user();
+        if (!in_array($admin->role, ['super_admin', 'admin'])) {
+            abort(403, 'เฉพาะ Admin ขึ้นไปเท่านั้นที่ปรับแต้มสมาชิกได้');
+        }
+
         // 1. Validate Form & Image
         $request->validate([
             'cust_line' => 'required',

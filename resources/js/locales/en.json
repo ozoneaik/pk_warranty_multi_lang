@@ -79,7 +79,32 @@
             "scanQr": "Scan QR Code",
             "scanQrMsg": "Scan QR Code to get customer code automatically",
             "branchName": "Branch Name",
-            "registerWarranty": "Register Warranty"
+            "registerWarranty": "Register Warranty",
+            "noFileSelected": "No file selected",
+            "changeFile": "Change File",
+            "takePhoto": "Take Photo",
+            "chooseFromGallery": "Choose from Gallery",
+            "loadingStores": "Loading stores...",
+            "noStoreFound": "No store found",
+            "submitting": "Submitting...",
+            "scanPcCode": "Scan PC Code",
+            "scanPcCodeInstruction": "Place the QR Code within the frame to scan",
+            "alreadyRegistered": "This item is already registered.",
+            "phoneHelperText": "Please enter a complete 10-digit phone number",
+            "legacyUpdate": {
+                "foundFromServiceCenter": "Data found from Service Center",
+                "foundFromTexusBull": "Data found from Texus Bull",
+                "foundFromPumpkinWebsite": "Data found from Pumpkin Website",
+                "msgServiceCenter": "This serial was previously registered via Service Center. You can re-register to update the information.",
+                "msgTexusBull": "This serial was previously registered via Texus Bull. You can re-register to update the information.",
+                "msgPumpkinWebsite": "This serial was previously registered via Pumpkin Website. You can re-register to update the information.",
+                "slipServiceCenter": "Receipt from Service Center",
+                "slipTexusBull": "Receipt from Texus Bull",
+                "slipPumpkinWebsite": "Receipt from Pumpkin Website",
+                "alertServiceCenter": "This serial was registered via Service Center — fill in the details below to update the registration.",
+                "alertTexusBull": "This serial was registered via Texus Bull — fill in the details below to update the registration.",
+                "alertPumpkinWebsite": "This serial was registered via Pumpkin Website — fill in the details below to update the registration."
+            }
         },
         "Validate": {
             "file": "pload File is required",

@@ -7,8 +7,9 @@ use App\Models\AdminMenu;
 use App\Models\RoleMenuPermission;
 use App\Models\Admin; // <--- 1. เปลี่ยนจาก User เป็น Admin
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth; // <--- เพิ่ม Facade Auth
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -55,6 +56,8 @@ class AdminPermissionController extends Controller
                 }
             }
         });
+
+        Cache::increment('admin_perms_version');
 
         Log::channel('admin')->info('Admin อัปเดตสิทธิ์ (Global)', [
             'admin_id' => Auth::guard('admin')->id()
@@ -151,6 +154,8 @@ class AdminPermissionController extends Controller
                 DB::table('admin_menu_permissions')->insert($insertData);
             }
         });
+
+        Cache::increment('admin_perms_version');
 
         Log::channel('admin')->info('Admin อัปเดตสิทธิ์รายบุคคล', [
             'admin_id'  => Auth::guard('admin')->id(),

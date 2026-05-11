@@ -279,6 +279,7 @@ export default function WarrantyForm({
             store_name: "",
             customer_code: "",
             pc_code: "",
+            is_service_center_update: false,
         });
 
     const [preview, setPreview] = useState<string | null>(null);
@@ -302,6 +303,9 @@ export default function WarrantyForm({
     );
 
     const [openPcQrScanner, setOpenPcQrScanner] = useState(false);
+    const [isServiceCenterUpdate, setIsServiceCenterUpdate] = useState(false);
+    const [scUpdateSource, setScUpdateSource] = useState<string | null>(null);
+    const [datePickerValue, setDatePickerValue] = useState<dayjs.Dayjs | null>(null);
 
     useEffect(() => {
         return () => {
@@ -335,6 +339,9 @@ export default function WarrantyForm({
             setProductDetail(null);
             setPreview(null);
             setFileName("");
+            setIsServiceCenterUpdate(false);
+            setScUpdateSource(null);
+            setDatePickerValue(null);
 
             setData((prev: any) => ({
                 ...prev,
@@ -342,6 +349,7 @@ export default function WarrantyForm({
                 model_code: "",
                 model_name: "",
                 product_name: "",
+                is_service_center_update: false,
             }));
             return;
         }
@@ -399,11 +407,15 @@ export default function WarrantyForm({
 
             // ไม่ว่าซ้ำหรือไม่ ถ้ามี product_detail ให้แสดงกล่องสินค้าได้
             const pd = response.data?.data?.product_detail;
+            const isScUpdate = response.data?.data?.is_service_center_update === true;
+            const updateSource = response.data?.data?.update_source as string | null;
             if (pd) {
                 setProductDetail(pd);
                 setShowProduct(true);
                 setShowForm(false);
                 setSnVerified(false);
+                setIsServiceCenterUpdate(isScUpdate);
+                setScUpdateSource(isScUpdate ? updateSource : null);
 
                 // เติม field อัตโนมัติ (ถ้าไม่มีในฟอร์ม)
                 setData((prev: any) => ({
@@ -416,12 +428,32 @@ export default function WarrantyForm({
                     product_name: pd.pname || "",
                 }));
 
-                Swal.fire({
-                    title: t.Warranty.Form.checkProductSuccess,
-                    text: t.Warranty.Form.checkProductSuccessMsg,
-                    icon: "success",
-                    confirmButtonColor: "#28a745",
-                });
+                // if (isScUpdate) {
+                //     const swalTitle = updateSource === "pumpkin_website"
+                //         ? t.Warranty.Form.legacyUpdate.foundFromPumpkinWebsite
+                //         : updateSource === "texus_bull"
+                //         ? t.Warranty.Form.legacyUpdate.foundFromTexusBull
+                //         : t.Warranty.Form.legacyUpdate.foundFromServiceCenter;
+                //     const swalText = updateSource === "pumpkin_website"
+                //         ? t.Warranty.Form.legacyUpdate.msgPumpkinWebsite
+                //         : updateSource === "texus_bull"
+                //         ? t.Warranty.Form.legacyUpdate.msgTexusBull
+                //         : t.Warranty.Form.legacyUpdate.msgServiceCenter;
+                //     Swal.fire({
+                //         title: swalTitle,
+                //         text: swalText,
+                //         icon: "info",
+                //         confirmButtonColor: "#1976d2",
+                //     });
+                // } else {
+                if (!isScUpdate) {
+                    Swal.fire({
+                        title: t.Warranty.Form.checkProductSuccess,
+                        text: t.Warranty.Form.checkProductSuccessMsg,
+                        icon: "success",
+                        confirmButtonColor: "#28a745",
+                    });
+                }
             } else {
                 Swal.fire({
                     title: t.Warranty.Form.productNotFound,
@@ -477,12 +509,14 @@ export default function WarrantyForm({
             const isDup =
                 status === "duplicate" ||
                 response.data?.data?.duplicate === true;
+            const isScUpdate = response.data?.data?.is_service_center_update === true;
+            const updateSource = response.data?.data?.update_source as string | null;
 
-            if (isDup) {
+            if (!isScUpdate && isDup) {
                 return Swal.fire({
                     title:
                         response.data?.message ||
-                        "รายการนี้ถูกลงทะเบียนรับประกันแล้ว",
+                        t.Warranty.Form.alreadyRegistered,
                     icon: "error",
                     confirmButtonColor: "#F54927",
                 });
@@ -490,10 +524,45 @@ export default function WarrantyForm({
 
             setShowForm(true);
             setSnVerified(true);
+            setIsServiceCenterUpdate(isScUpdate);
+            setScUpdateSource(isScUpdate ? updateSource : null);
 
             if (response.data?.data?.product_detail) {
                 setProductDetail(response.data.data.product_detail);
                 setShowProduct(true);
+            }
+
+            if (isScUpdate) {
+                // const existing = response.data?.data?.existing_data;
+                // if (existing) {
+                //     setData((prev: any) => ({
+                //         ...prev,
+                //         buy_from: existing.buy_from || prev.buy_from,
+                //         store_name: existing.store_name || "",
+                //         buy_date: existing.buy_date || "",
+                //         is_service_center_update: true,
+                //     }));
+                //     if (existing.buy_date) {
+                //         setDatePickerValue(dayjs(existing.buy_date));
+                //     }
+                //     if (existing.slip) {
+                //         const slipUrl = existing.slip.startsWith("/")
+                //             ? `https://service-center.pumpkin-th.com${existing.slip}`
+                //             : existing.slip;
+                //         setPreview(slipUrl);
+                //         setFileName(
+                //             updateSource === "pumpkin_website"
+                //                 ? t.Warranty.Form.legacyUpdate.slipPumpkinWebsite
+                //                 : updateSource === "texus_bull"
+                //                 ? t.Warranty.Form.legacyUpdate.slipTexusBull
+                //                 : t.Warranty.Form.legacyUpdate.slipServiceCenter
+                //         );
+                //     }
+                //     if (existing.buy_from) {
+                //         handleChangeStoreName(existing.buy_from);
+                //     }
+                // }
+                setData((prev: any) => ({ ...prev, is_service_center_update: true }));
             }
         } catch (error: any) {
             const msg =
@@ -515,7 +584,7 @@ export default function WarrantyForm({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!data.warranty_file) {
+        if (!isServiceCenterUpdate && !data.warranty_file) {
             Swal.fire(t.Warranty.Validate.AlertMessage.file, "", "warning");
             return;
         }
@@ -921,12 +990,16 @@ export default function WarrantyForm({
                                                     store_name: "",
                                                     customer_code: "",
                                                     pc_code: "",
+                                                    is_service_center_update: false,
                                                 });
                                                 setShowForm(false);
                                                 setShowProduct(false);
                                                 setPreview(null);
                                                 setFileName("");
                                                 setSnVerified(false);
+                                                setIsServiceCenterUpdate(false);
+                                                setScUpdateSource(null);
+                                                setDatePickerValue(null);
                                             }}
                                         >
                                             {t.Warranty.Form.ChangeSerial}
@@ -1217,6 +1290,19 @@ export default function WarrantyForm({
                             </Grid>
                         )}
 
+                        {/* Notice: Update Mode */}
+                        {/* {isServiceCenterUpdate && showForm && (
+                            <Grid size={12}>
+                                <Alert severity="info" sx={{ borderRadius: 2 }}>
+                                    {scUpdateSource === "pumpkin_website"
+                                        ? t.Warranty.Form.legacyUpdate.alertPumpkinWebsite
+                                        : scUpdateSource === "texus_bull"
+                                        ? t.Warranty.Form.legacyUpdate.alertTexusBull
+                                        : t.Warranty.Form.legacyUpdate.alertServiceCenter}
+                                </Alert>
+                            </Grid>
+                        )} */}
+
                         {/* ฟิลด์ลงทะเบียน */}
                         {showForm && (
                             <>
@@ -1275,7 +1361,7 @@ export default function WarrantyForm({
                                                                 .length > 0 &&
                                                             (data.phone ?? "")
                                                                 .length < 10
-                                                          ? "กรุณากรอกเบอร์โทรให้ครบ 10 หลัก"
+                                                          ? t.Warranty.Form.phoneHelperText
                                                           : " "
                                                 }
                                                 sx={{
@@ -1364,10 +1450,10 @@ export default function WarrantyForm({
                                                             }}
                                                         >
                                                             {fileName ||
-                                                                "ยังไม่ได้เลือกไฟล์"}
+                                                                t.Warranty.Form.noFileSelected}
                                                         </Typography>
                                                         <Chip
-                                                            label="เปลี่ยนไฟล์ใหม่"
+                                                            label={t.Warranty.Form.changeFile}
                                                             color="primary"
                                                             variant="outlined"
                                                             size="small"
@@ -1455,7 +1541,7 @@ export default function WarrantyForm({
                                                     }
                                                     startIcon={<CameraAlt />}
                                                 >
-                                                    ถ่ายรูปใหม่
+                                                    {t.Warranty.Form.takePhoto}
                                                 </Button>
                                                 <Button
                                                     fullWidth={isMobile}
@@ -1469,7 +1555,7 @@ export default function WarrantyForm({
                                                     }
                                                     startIcon={<FileUpload />}
                                                 >
-                                                    เลือกจากคลังภาพ
+                                                    {t.Warranty.Form.chooseFromGallery}
                                                 </Button>
                                             </Stack>
                                         </Box>
@@ -1576,7 +1662,7 @@ export default function WarrantyForm({
                                             >
                                                 <CircularProgress size={20} />
                                                 <Typography variant="body2">
-                                                    กำลังโหลดร้านค้า...
+                                                    {t.Warranty.Form.loadingStores}
                                                 </Typography>
                                             </Box>
                                         ) : (
@@ -1626,7 +1712,7 @@ export default function WarrantyForm({
                                                         }}
                                                     />
                                                 )}
-                                                noOptionsText="ไม่พบร้านค้า"
+                                                noOptionsText={t.Warranty.Form.noStoreFound}
                                             />
                                         )}
                                     </FormControl>
@@ -1825,7 +1911,9 @@ export default function WarrantyForm({
                                         </FormLabel>
                                         <DatePicker
                                             name="buy_date"
-                                            onChange={(newValue) =>
+                                            value={datePickerValue}
+                                            onChange={(newValue) => {
+                                                setDatePickerValue(newValue);
                                                 setData(
                                                     "buy_date",
                                                     newValue
@@ -1833,12 +1921,12 @@ export default function WarrantyForm({
                                                               "YYYY-MM-DD",
                                                           )
                                                         : "",
-                                                )
-                                            }
+                                                );
+                                            }}
                                             maxDate={dayjs()}
-                                            minDate={dayjs().subtract(
+                                            minDate={isServiceCenterUpdate ? undefined : dayjs().subtract(
                                                 15,
-                                                "days",
+                                                "days"
                                             )}
                                             sx={{
                                                 "& .MuiOutlinedInput-root": {
@@ -1870,7 +1958,7 @@ export default function WarrantyForm({
                                         }}
                                     >
                                         {processing
-                                            ? "กำลังส่งข้อมูล..."
+                                            ? t.Warranty.Form.submitting
                                             : t.Warranty.Form.submit}
                                     </Button>
                                 </Grid>
@@ -1913,7 +2001,7 @@ export default function WarrantyForm({
                         variant="h6"
                         sx={{ color: "white", fontWeight: "bold" }}
                     >
-                        สแกนรหัส PC
+                        {t.Warranty.Form.scanPcCode}
                     </Typography>
                     <IconButton
                         onClick={() => setOpenPcQrScanner(false)}
@@ -1945,7 +2033,7 @@ export default function WarrantyForm({
                             variant="body2"
                             sx={{ color: "#ccc", textAlign: "center", mt: 2 }}
                         >
-                            วาง QR Code ให้อยู่ในกรอบเพื่อสแกน
+                            {t.Warranty.Form.scanPcCodeInstruction}
                         </Typography>
                     </Box>
                 </DialogContent>

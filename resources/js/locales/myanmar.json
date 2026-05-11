@@ -79,7 +79,32 @@
             "scanQr": "QR Code စကင်န်ဖတ်ပါ",
             "scanQrMsg": "အော်တိုရယူရန် QR Code ကို စကင်န်ဖတ်ပါ",
             "branchName": "ဘဏ်ခွဲအမည် (Branch Name)",
-            "registerWarranty": "စာရင်းသွင်းရန်"
+            "registerWarranty": "စာရင်းသွင်းရန်",
+            "noFileSelected": "ဖိုင်ရွေးချယ်မထားသေးပါ",
+            "changeFile": "ဖိုင်ပြောင်းရန်",
+            "takePhoto": "ဓာတ်ပုံရိုက်ရန်",
+            "chooseFromGallery": "ပုံပြခန်းမှ ရွေးချယ်ရန်",
+            "loadingStores": "ဆိုင်များ တင်နေပါသည်...",
+            "noStoreFound": "ဆိုင်မတွေ့ပါ",
+            "submitting": "ပေးပို့နေပါသည်...",
+            "scanPcCode": "PC ကုဒ် စကင်န်ဖတ်ပါ",
+            "scanPcCodeInstruction": "QR Code ကို ဘောင်ထဲ ထားပြီး စကင်န်ဖတ်ပါ",
+            "alreadyRegistered": "ဤပစ္စည်းသည် မှတ်ပုံတင်ပြီးဖြစ်သည်",
+            "phoneHelperText": "ဖုန်းနံပါတ် ၁၀ လုံးပြည့်ပြည့်ရိုက်ထည့်ပါ",
+            "legacyUpdate": {
+                "foundFromServiceCenter": "Service Center မှ ဒေတာတွေ့ပါသည်",
+                "foundFromTexusBull": "Texus Bull မှ ဒေတာတွေ့ပါသည်",
+                "foundFromPumpkinWebsite": "Pumpkin ဝဘ်ဆိုဒ်မှ ဒေတာတွေ့ပါသည်",
+                "msgServiceCenter": "ဤဆီးရီးယယ်နံပါတ်သည် Service Center မှ မှတ်ပုံတင်ထားပြီးဖြစ်သည်။ အချက်အလက်များကို ပြန်မှတ်ပုံတင်၍ အပ်ဒိတ်လုပ်နိုင်ပါသည်",
+                "msgTexusBull": "ဤဆီးရီးယယ်နံပါတ်သည် Texus Bull မှ မှတ်ပုံတင်ထားပြီးဖြစ်သည်။ အချက်အလက်များကို ပြန်မှတ်ပုံတင်၍ အပ်ဒိတ်လုပ်နိုင်ပါသည်",
+                "msgPumpkinWebsite": "ဤဆီးရီးယယ်နံပါတ်သည် Pumpkin ဝဘ်ဆိုဒ်မှ မှတ်ပုံတင်ထားပြီးဖြစ်သည်။ အချက်အလက်များကို ပြန်မှတ်ပုံတင်၍ အပ်ဒိတ်လုပ်နိုင်ပါသည်",
+                "slipServiceCenter": "Service Center မှ ဘောင်ချာ",
+                "slipTexusBull": "Texus Bull မှ ဘောင်ချာ",
+                "slipPumpkinWebsite": "Pumpkin ဝဘ်ဆိုဒ်မှ ဘောင်ချာ",
+                "alertServiceCenter": "ဤဆီးရီးယယ်နံပါတ်ကို Service Center မှ မှတ်ပုံတင်ထားပြီးဖြစ်သည် — မှတ်ပုံတင်မှုကို အပ်ဒိတ်လုပ်ရန် အောက်ပါ အချက်အလက်များ ဖြည့်ပါ",
+                "alertTexusBull": "ဤဆီးရီးယယ်နံပါတ်ကို Texus Bull မှ မှတ်ပုံတင်ထားပြီးဖြစ်သည် — မှတ်ပုံတင်မှုကို အပ်ဒိတ်လုပ်ရန် အောက်ပါ အချက်အလက်များ ဖြည့်ပါ",
+                "alertPumpkinWebsite": "ဤဆီးရီးယယ်နံပါတ်ကို Pumpkin ဝဘ်ဆိုဒ်မှ မှတ်ပုံတင်ထားပြီးဖြစ်သည် — မှတ်ပုံတင်မှုကို အပ်ဒိတ်လုပ်ရန် အောက်ပါ အချက်အလက်များ ဖြည့်ပါ"
+            }
         },
         "Validate": {
             "file": "ဖိုင်ကိုအပ်လုဒ်ရန် လိုအပ်ပါသည်",

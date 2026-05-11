@@ -7,6 +7,7 @@ use App\Models\MasterWaaranty\Order;
 use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +52,10 @@ class AdminOrderReportController extends Controller
     //เพิ่มฟังก์ชันเปลี่ยนสถานะและคืนแต้ม
     public function updateStatus(Request $request, $id)
     {
+        if (!in_array(Auth::user()->role, ['super_admin', 'admin'])) {
+            abort(403, 'เฉพาะ Admin ขึ้นไปเท่านั้นที่เปลี่ยนสถานะ Order ได้');
+        }
+
         $order = Order::findOrFail($id);
         $newStatus = $request->input('status'); // รับค่า status มา
 
