@@ -88,9 +88,6 @@ class AdminPermissionController extends Controller
         $menus = AdminMenu::where('is_active', true)->orderBy('order')->get();
 
         // 4. ดึงสิทธิ์จากตาราง admin_menu_permissions
-        $currentPermissions = DB::table('admin_menu_permissions') 
-            ->where('admin_id', $id) 
-            ->pluck('admin_menu_id');
         $individualPermissions = DB::table('admin_menu_permissions')
             ->where('admin_id', $id)
             ->pluck('admin_menu_id');

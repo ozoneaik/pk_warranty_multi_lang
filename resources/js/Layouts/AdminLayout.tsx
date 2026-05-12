@@ -157,7 +157,7 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
                                                     <div className={`transition-transform group-hover:scale-110`}>
                                                         <MenuIcon type={menu.icon_type} className={`h-5 w-5 ${menu.icon_color}`} />
                                                     </div>
-                                                    <span className="font-semibold text-sm">{menu.title}</span>
+                                                    <span className="font-bold text-sm text-black">{menu.title}</span>
                                                 </div>
                                                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isParentOpen ? 'rotate-180 text-indigo-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -198,7 +198,8 @@ export default function AdminLayout({ header, children }: PropsWithChildren<{ he
                                                 }`}
                                         >
                                             <div className={`transition-transform group-hover:scale-110 ${url.startsWith(route(menu.route_name, undefined, false)) ? '' : 'text-gray-400'}`}>
-                                                <MenuIcon type={menu.icon_type} className={`h-5 w-5 ${url.startsWith(route(menu.route_name, undefined, false)) ? menu.icon_color : ''}`} />
+                                                {/* <MenuIcon type={menu.icon_type} className={`h-5 w-5 ${url.startsWith(route(menu.route_name, undefined, false)) ? menu.icon_color : ''}`} /> */}
+                                                <span>-</span>
                                             </div>
                                             <span>{menu.title}</span>
                                         </Link>

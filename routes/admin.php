@@ -47,8 +47,6 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/', [AdminPermissionController::class, 'index'])->name('index');
         Route::post('/update', [AdminPermissionController::class, 'update'])->name('update');
     });
-    Route::get('users/{id}/permissions', [AdminPermissionController::class, 'userPermissions'])->name('users.permissions.edit');
-    Route::post('users/{id}/permissions', [AdminPermissionController::class, 'updateUserPermissions'])->name('users.permissions.update');
 
     // Route::prefix('products')->name('products.')->middleware('check_menu:products')->group(function () {
     //     Route::get('/', [AdminProductController::class, 'index'])->name('index');
@@ -104,6 +102,8 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/{id}/edit', [AdminUserController::class, 'edit'])->name('edit');
         Route::put('/{id}', [AdminUserController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/permissions', [AdminPermissionController::class, 'userPermissions'])->name('permissions.edit');
+        Route::post('/{id}/permissions', [AdminPermissionController::class, 'updateUserPermissions'])->name('permissions.update');
     });
 
     Route::prefix('popups')->name('popups.')->middleware('check_menu:popups')->group(function () {
@@ -199,7 +199,7 @@ Route::middleware('auth:admin')->group(function () {
                 ]);
             })->name('index');
         });
-    Route::prefix('settings')->name('settings.')->group(function () {
+    Route::prefix('settings')->name('settings.')->middleware('check_menu:settings')->group(function () {
         Route::get('/terms', [\App\Http\Controllers\Admin\AdminSettingController::class, 'editTerms'])->name('terms.edit');
         Route::post('/terms', [\App\Http\Controllers\Admin\AdminSettingController::class, 'updateTerms'])->name('terms.update');
     });
