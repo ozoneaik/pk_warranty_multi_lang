@@ -33,10 +33,17 @@ class CheckinController extends Controller
 
         $today = Carbon::today()->format('Y-m-d');
 
-        // เช็ควันนี้
-        $checkinToday = TblCustomerCheckins::where('customer_id', $customer->id)
+        // เช็ควันนี้ — cross-check ทั้งสองตารางเผื่อ checkin record หายแต่ transaction ยังอยู่
+        $checkinTodayInTable = TblCustomerCheckins::where('customer_id', $customer->id)
             ->whereDate('checkin_date', $today)
             ->exists();
+
+        $checkinTodayInTxn = PointTransaction::where('line_id', $user->line_id)
+            ->where('process_code', 'CHECKIN')
+            ->whereDate('docdate', $today)
+            ->exists();
+
+        $checkinToday = $checkinTodayInTable || $checkinTodayInTxn;
 
         // streak ล่าสุด
         $lastCheckin = TblCustomerCheckins::where('customer_id', $customer->id)
@@ -230,14 +237,62 @@ class CheckinController extends Controller
             ]);
 
             // ── 2. Double-check หลัง lock ─────────────────────────
-            //    เผื่อ request อีกตัวเพิ่งเช็คอินเสร็จก่อนหน้าเราได้ lock
-            $exists = TblCustomerCheckins::where('customer_id', $customer->id)
+            //    เช็คทั้งสองตาราง ป้องกันกรณี checkin record หาย แต่ transaction ยังอยู่
+            $existsInCheckins = TblCustomerCheckins::where('customer_id', $customer->id)
                 ->where('checkin_date', $today)
                 ->exists();
 
-            if ($exists) {
-                DB::connection('mysql_slip')->rollBack();
-                Log::channel('checkin')->info('ℹ️ [Checkin] เช็คอินซ้ำ (Double-check block)', ['line_id' => $lineId, 'date' => $today]);
+            // ใช้ ->first() เลย เผื่อต้องใช้ record ใน repair branch ด้วย (ไม่ต้อง query ซ้ำ)
+            $txnToday = PointTransaction::where('line_id', $lineId)
+                ->where('process_code', 'CHECKIN')
+                ->where('docdate', $today)
+                ->first();
+
+            if ($existsInCheckins || $txnToday) {
+                // ── Fallback: transaction มีแต่ checkin record หาย → repair ──
+                if ($txnToday && !$existsInCheckins) {
+
+                    // คำนวณ streak จาก record ก่อนหน้าวันนี้
+                    $prevCheckin = TblCustomerCheckins::where('customer_id', $customer->id)
+                        ->where('checkin_date', '<', $today)
+                        ->orderBy('checkin_date', 'desc')
+                        ->first();
+
+                    $repairedStreak = 1;
+                    if ($prevCheckin?->checkin_date) {
+                        if ($prevCheckin->checkin_date->format('Y-m-d') === $yesterday) {
+                            $repairedStreak = (int) $prevCheckin->streak_count + 1;
+                        }
+                    }
+
+                    TblCustomerCheckins::create([
+                        'customer_id'  => $customer->id,
+                        'checkin_date' => $today,
+                        'checkin_at'   => $txnToday->created_at ?? Carbon::now(),
+                        'streak_count' => $repairedStreak,
+                        'reward_point' => $txnToday->point_tran ?? 0,
+                    ]);
+
+                    DB::connection('mysql_slip')->commit();
+
+                    Log::channel('checkin')->warning('🔧 [Checkin] Repaired missing checkin record from transaction', [
+                        'line_id'        => $lineId,
+                        'date'           => $today,
+                        'streak_count'   => $repairedStreak,
+                        'reward_point'   => $txnToday->point_tran,
+                        'txn_reference'  => $txnToday->reference_id,
+                    ]);
+                } else {
+                    DB::connection('mysql_slip')->rollBack();
+                }
+
+                Log::channel('checkin')->info('ℹ️ [Checkin] เช็คอินซ้ำ (Double-check block)', [
+                    'line_id'         => $lineId,
+                    'date'            => $today,
+                    'in_checkins'     => $existsInCheckins,
+                    'in_transactions' => (bool) $txnToday,
+                ]);
+
                 return response()->json([
                     'message'         => 'วันนี้คุณ Check-in ไปแล้ว',
                     'already_checked' => true,
@@ -293,7 +348,7 @@ class CheckinController extends Controller
             $pointAfter  = $pointBefore + $points;
 
             // ── 6. บันทึก Check-in Log ────────────────────────────
-            TblCustomerCheckins::create([
+            $checkinRecord = TblCustomerCheckins::create([
                 'customer_id'  => $customer->id,
                 'checkin_date' => $today,
                 'checkin_at'   => Carbon::now(),
@@ -319,6 +374,7 @@ class CheckinController extends Controller
                 'transaction_type' => 'earn',
                 'process_code'     => 'CHECKIN',
                 'reference_id'     => uniqid('CHK-'),
+                'checkin_id'       => $checkinRecord->id,
                 'pid'              => null,
                 'pname'            => $txnName,
                 'product_type'     => 'privilege',

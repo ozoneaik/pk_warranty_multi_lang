@@ -16,6 +16,7 @@ class PointTransaction extends Model
         'transaction_type',
         'process_code',
         'reference_id',
+        'checkin_id',
         'pid',
         'pname',
         'product_type',
@@ -60,6 +61,11 @@ class PointTransaction extends Model
     public function customer()
     {
         return $this->belongsTo(TblCustomerProd::class, 'line_id', 'cust_line');
+    }
+
+    public function checkin()
+    {
+        return $this->belongsTo(TblCustomerCheckins::class, 'checkin_id');
     }
 
     public function process()

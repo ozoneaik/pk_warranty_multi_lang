@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LoginLog;
 use App\Models\MasterWaaranty\MembershipTierHistory;
 use App\Models\MasterWaaranty\PointTransaction;
+use App\Models\MasterWaaranty\TblCustomerCheckins;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TypeProcessPoint;
 use App\Models\MasterWaaranty\ReferralHistory;
@@ -366,7 +367,10 @@ class LineAuthController extends Controller
         $cust->syncPoints();
         Log::channel('line_auth')->info('✅ [LineAuth] syncPoints เสร็จสิ้น', ['line_id' => $lineId, 'point_after_sync' => $cust->fresh()->point]);
 
-        // 4. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม
+        // 4. Fallback: ซ่อม checkin record ถ้า transaction มีแต่ checkin หาย
+        $this->repairCheckinRecord($cust, $lineId);
+
+        // 5. เพิ่ม Fallback Logic: เช็คว่าเคยได้แต้มสมัครสมาชิกหรือยัง ถ้ายังให้บวกแต้ม
         $hasRegisteredPoint = PointTransaction::where('line_id', $lineId)
             ->where('process_code', 'REGISTER')
             ->exists();
@@ -454,6 +458,66 @@ class LineAuthController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('line_auth')->error("❌ [Fallback Point Error] แจกแต้มคนเก่าไม่สำเร็จ: " . $e->getMessage());
+        }
+    }
+
+    private function repairCheckinRecord($cust, $lineId)
+    {
+        $today     = Carbon::today()->toDateString();
+        $yesterday = Carbon::yesterday()->toDateString();
+
+        $hasTransaction = PointTransaction::where('line_id', $lineId)
+            ->where('process_code', 'CHECKIN')
+            ->whereDate('docdate', $today)
+            ->exists();
+
+        if (!$hasTransaction) return;
+
+        $hasCheckin = TblCustomerCheckins::where('customer_id', $cust->id)
+            ->whereDate('checkin_date', $today)
+            ->exists();
+
+        if ($hasCheckin) return;
+
+        // transaction มีแต่ checkin record หาย → repair
+        try {
+            $txn = PointTransaction::where('line_id', $lineId)
+                ->where('process_code', 'CHECKIN')
+                ->whereDate('docdate', $today)
+                ->first();
+
+            $prevCheckin = TblCustomerCheckins::where('customer_id', $cust->id)
+                ->where('checkin_date', '<', $today)
+                ->orderBy('checkin_date', 'desc')
+                ->first();
+
+            $streak = 1;
+            if ($prevCheckin?->checkin_date) {
+                if ($prevCheckin->checkin_date->format('Y-m-d') === $yesterday) {
+                    $streak = (int) $prevCheckin->streak_count + 1;
+                }
+            }
+
+            TblCustomerCheckins::create([
+                'customer_id'  => $cust->id,
+                'checkin_date' => $today,
+                'checkin_at'   => $txn?->created_at ?? Carbon::now(),
+                'streak_count' => $streak,
+                'reward_point' => $txn?->point_tran ?? 0,
+            ]);
+
+            Log::channel('line_auth')->warning('🔧 [LineAuth] Repaired missing checkin record on login', [
+                'line_id'       => $lineId,
+                'date'          => $today,
+                'streak_count'  => $streak,
+                'reward_point'  => $txn?->point_tran,
+                'txn_reference' => $txn?->reference_id,
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('line_auth')->error('❌ [LineAuth] repairCheckinRecord failed: ' . $e->getMessage(), [
+                'line_id' => $lineId,
+                'date'    => $today,
+            ]);
         }
     }
 
