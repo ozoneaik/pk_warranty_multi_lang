@@ -123,13 +123,15 @@ class Admin extends Authenticatable
                 ->get();
         }
 
-        // 2. ดึง ID ของเมนูที่ได้รับอนุญาต (จาก Roles และรายบุคคล)
+        // 2. ดึง ID ของเมนูที่ได้รับอนุญาต (เฉพาะที่มี can_read = true)
         $roleMenuIds = DB::table('role_menu_permissions')
             ->where('role', $this->role)
+            ->where('can_read', true)
             ->pluck('admin_menu_id');
 
         $userMenuIds = DB::table('admin_menu_permissions')
             ->where('admin_id', $this->id)
+            ->where('can_read', true)
             ->pluck('admin_menu_id');
 
         // รวม ID ของเมนูลูกและแม่ที่ได้รับสิทธิ์ตรงๆ

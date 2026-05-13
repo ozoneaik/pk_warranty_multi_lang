@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RoleMenuPermission extends Model
 {
-    protected $fillable = ['role', 'admin_menu_id'];
+    protected $fillable = ['role', 'admin_menu_id', 'can_read', 'can_create', 'can_update', 'can_delete'];
 
     public function menu()
     {

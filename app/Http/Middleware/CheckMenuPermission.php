@@ -11,12 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckMenuPermission
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, string $menuKey): Response
+    public function handle(Request $request, Closure $next, string $menuKey, string $action = 'read'): Response
     {
         $user = Auth::user();
 
@@ -25,25 +20,31 @@ class CheckMenuPermission
             return $next($request);
         }
 
-        // 2. ดึงสิทธิ์จาก Role และ สิทธิ์รายบุคคล มารวมกัน (cache 5 นาที)
         $version = Cache::get('admin_perms_version', 1);
-        $cacheKey = "admin_perm_{$version}_{$user->id}_{$menuKey}";
+        $cacheKey = "admin_perm_{$version}_{$user->id}_{$menuKey}_{$action}";
+        $column   = 'can_' . $action;
 
-        $hasPermission = Cache::remember($cacheKey, 300, function () use ($user, $menuKey) {
-            return DB::table('admin_menus')
-                ->where('key', $menuKey)
-                ->where(function ($query) use ($user) {
-                    $query->whereIn('id', function ($q) use ($user) {
-                        $q->select('admin_menu_id')
-                            ->from('role_menu_permissions')
-                            ->where('role', $user->role);
-                    })
-                        ->orWhereIn('id', function ($q) use ($user) {
-                            $q->select('admin_menu_id')
-                                ->from('admin_menu_permissions')
-                                ->where('admin_id', $user->id);
-                        });
-                })
+        $hasPermission = Cache::remember($cacheKey, 300, function () use ($user, $menuKey, $column) {
+            $menuId = DB::table('admin_menus')->where('key', $menuKey)->value('id');
+
+            if (!$menuId) {
+                return false;
+            }
+
+            $fromRole = DB::table('role_menu_permissions')
+                ->where('role', $user->role)
+                ->where('admin_menu_id', $menuId)
+                ->where($column, true)
+                ->exists();
+
+            if ($fromRole) {
+                return true;
+            }
+
+            return DB::table('admin_menu_permissions')
+                ->where('admin_id', $user->id)
+                ->where('admin_menu_id', $menuId)
+                ->where($column, true)
                 ->exists();
         });
 
