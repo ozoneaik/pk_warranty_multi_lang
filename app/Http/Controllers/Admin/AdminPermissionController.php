@@ -95,16 +95,28 @@ class AdminPermissionController extends Controller
             ->get(['admin_menu_id', 'can_read', 'can_create', 'can_update', 'can_delete'])
             ->keyBy('admin_menu_id');
 
-        // Merge: OR ของ role + individual (สิ่งที่ user เข้าถึงได้จริง)
-        $allMenuIds = $rolePerms->keys()->merge($individualPerms->keys())->unique();
-        $currentPermissions = $allMenuIds->mapWithKeys(fn($menuId) => [
-            (int) $menuId => [
-                'can_read'   => (bool) (($rolePerms[$menuId]->can_read   ?? false) || ($individualPerms[$menuId]->can_read   ?? false)),
-                'can_create' => (bool) (($rolePerms[$menuId]->can_create ?? false) || ($individualPerms[$menuId]->can_create ?? false)),
-                'can_update' => (bool) (($rolePerms[$menuId]->can_update ?? false) || ($individualPerms[$menuId]->can_update ?? false)),
-                'can_delete' => (bool) (($rolePerms[$menuId]->can_delete ?? false) || ($individualPerms[$menuId]->can_delete ?? false)),
-            ]
-        ]);
+        // ลำดับความสำคัญ: ถ้ามีสิทธิ์รายบุคคลให้ใช้ตามนั้น ถ้าไม่มีให้ใช้สิทธิ์จาก Role
+        $currentPermissions = $menus->mapWithKeys(function($menu) use ($rolePerms, $individualPerms) {
+            $menuId = $menu->id;
+            
+            if ($individualPerms->has($menuId)) {
+                $p = $individualPerms[$menuId];
+                return [(int) $menuId => [
+                    'can_read'   => (bool) $p->can_read,
+                    'can_create' => (bool) $p->can_create,
+                    'can_update' => (bool) $p->can_update,
+                    'can_delete' => (bool) $p->can_delete,
+                ]];
+            }
+
+            $p = $rolePerms[$menuId] ?? null;
+            return [(int) $menuId => [
+                'can_read'   => (bool) ($p->can_read   ?? false),
+                'can_create' => (bool) ($p->can_create ?? false),
+                'can_update' => (bool) ($p->can_update ?? false),
+                'can_delete' => (bool) ($p->can_delete ?? false),
+            ]];
+        });
 
         // Role defaults map (สำหรับ autofill เมื่อเปลี่ยน role บน frontend)
         $rolePermissionsMap = RoleMenuPermission::all()
@@ -148,15 +160,15 @@ class AdminPermissionController extends Controller
             $insertData = [];
 
             foreach ($permissions as $menuId => $actions) {
-                if ($this->hasAnyAction($actions)) {
-                    $insertData[] = [
-                        'admin_id'      => $id,
-                        'admin_menu_id' => $menuId,
-                        'created_at'    => $now,
-                        'updated_at'    => $now,
-                        ...$this->sanitizeActions($actions),
-                    ];
-                }
+                // บันทึกทั้งหมดเพื่อให้เป็น "สิทธิ์ที่ตั้งใจกำหนดไว้" (Explicit Setting)
+                // เพื่อให้สามารถ override ค่าจาก Role ได้ (แม้จะเป็น false ทั้งหมดก็ตาม)
+                $insertData[] = [
+                    'admin_id'      => $id,
+                    'admin_menu_id' => $menuId,
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                    ...$this->sanitizeActions($actions),
+                ];
             }
 
             if (!empty($insertData)) {

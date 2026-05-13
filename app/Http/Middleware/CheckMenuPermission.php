@@ -31,18 +31,19 @@ class CheckMenuPermission
                 return false;
             }
 
-            $fromRole = DB::table('role_menu_permissions')
-                ->where('role', $user->role)
+            // 1. เช็คสิทธิ์รายบุคคลก่อน (Priority)
+            $userPerm = DB::table('admin_menu_permissions')
+                ->where('admin_id', $user->id)
                 ->where('admin_menu_id', $menuId)
-                ->where($column, true)
-                ->exists();
+                ->first();
 
-            if ($fromRole) {
-                return true;
+            if ($userPerm) {
+                return (bool) $userPerm->$column;
             }
 
-            return DB::table('admin_menu_permissions')
-                ->where('admin_id', $user->id)
+            // 2. ถ้าไม่มีรายบุคคล ค่อยเช็คสิทธิ์ตาม Role
+            return DB::table('role_menu_permissions')
+                ->where('role', $user->role)
                 ->where('admin_menu_id', $menuId)
                 ->where($column, true)
                 ->exists();
