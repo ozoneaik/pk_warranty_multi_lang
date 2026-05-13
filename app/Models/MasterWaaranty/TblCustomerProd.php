@@ -63,9 +63,16 @@ class TblCustomerProd extends Model
         'tier_locked',
         'last_redeem_at',
         'last_earn_at',
-        'remark'
+        'remark',
+
+        'crm_user_type_id',
     ];
     public $timestamps = false;
+
+    public function crmUserType()
+    {
+        return $this->belongsTo(CrmUserType::class, 'crm_user_type_id', 'id');
+    }
 
     /**
      * คืนค่าคะแนนรวมที่คำนวณจากประวัติธุรกรรมทั้งหมด

@@ -704,6 +704,13 @@ interface Stats {
     count_coupons: number;
 }
 
+interface CrmUserType {
+    id: number;
+    type_code: string;
+    type_name: string;
+    type_name_en: string | null;
+}
+
 interface Customer {
     cust_firstname: string;
     cust_lastname: string;
@@ -712,6 +719,10 @@ interface Customer {
     datetime: string;
     status: string;
     tier_key?: string | null;
+    crm_user_type_id?: number | null;
+    crm_type_name?: string | null;
+    crm_type_name_en?: string | null;
+    crm_type_code?: string | null;
 }
 
 interface HistoryItem {
@@ -740,6 +751,7 @@ interface Filters {
     end_date: string;
     status?: string;
     tier?: string;
+    crm_user_type_id?: string | number;
 }
 
 interface ChartData {
@@ -755,16 +767,18 @@ interface Props {
     filters: Filters;
     age_chart: ChartData[];
     tier_chart: ChartData[];
+    crm_user_types: CrmUserType[];
 }
 
 // --- Component ---
-export default function CustomerReport({ stats, customers, history, filters, age_chart, tier_chart }: Props) {
+export default function CustomerReport({ stats, customers, history, filters, age_chart, tier_chart, crm_user_types }: Props) {
     // 1. Filter State
     const [searchValues, setSearchValues] = useState({
         start_date: filters.start_date || '',
         end_date: filters.end_date || '',
         status: filters.status || '',
         tier: filters.tier || '',
+        crm_user_type_id: filters.crm_user_type_id ? String(filters.crm_user_type_id) : '',
     });
 
     // 2. Toggle States for Tables
@@ -887,7 +901,7 @@ export default function CustomerReport({ stats, customers, history, filters, age
                     </div>
 
                     <form onSubmit={handleSearch}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">วันที่เริ่มต้น</label>
                                 <input
@@ -919,6 +933,22 @@ export default function CustomerReport({ stats, customers, history, filters, age
                                     <option value="silver">Silver (ซิลเวอร์)</option>
                                     <option value="gold">Gold (โกลด์)</option>
                                     <option value="platinum">Platinum (แพลตินั่ม)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ประเภทผู้ใช้ CRM</label>
+                                <select
+                                    value={searchValues.crm_user_type_id}
+                                    onChange={(e) => setSearchValues({ ...searchValues, crm_user_type_id: e.target.value })}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all text-sm py-2.5"
+                                >
+                                    <option value="">ทั้งหมด</option>
+                                    {crm_user_types.map((t) => (
+                                        <option key={t.id} value={String(t.id)}>
+                                            {t.type_name}{t.type_name_en ? ` (${t.type_name_en})` : ''}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 
@@ -1154,6 +1184,7 @@ export default function CustomerReport({ stats, customers, history, filters, age
                                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">เบอร์โทรศัพท์</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">อีเมล</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">วันที่สมัคร</th>
+                                            <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ประเภทผู้ใช้</th>
                                             <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">ระดับ</th>
                                             <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">สถานะ</th>
                                         </tr>
@@ -1169,6 +1200,15 @@ export default function CustomerReport({ stats, customers, history, filters, age
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.cust_email || '-'}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(customer.datetime)}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                        {customer.crm_type_name ? (
+                                                            <span className="px-2.5 py-1 inline-flex text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200" title={customer.crm_type_name_en ?? ''}>
+                                                                {customer.crm_type_name}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400">-</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-center">
                                                         <span className={`px-2.5 py-1 inline-flex text-xs font-bold rounded-full border ${getTierColor(customer.tier_key)}`}>
                                                             {getTierLabel(customer.tier_key)}
                                                         </span>
@@ -1182,7 +1222,7 @@ export default function CustomerReport({ stats, customers, history, filters, age
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={6} className="px-6 py-12 text-center">
+                                                <td colSpan={7} className="px-6 py-12 text-center">
                                                     <UsersIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                                                     <p className="text-sm font-medium text-gray-900">ไม่พบข้อมูลลูกค้า</p>
                                                     <p className="text-xs text-gray-500 mt-1">ลองเปลี่ยนเงื่อนไขการค้นหาใหม่</p>

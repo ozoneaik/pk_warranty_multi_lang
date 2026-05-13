@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\CustomerReportExport;
 use App\Http\Controllers\Controller;
+use App\Models\MasterWaaranty\CrmUserType;
 use App\Models\MasterWaaranty\PointTransaction;
 use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblHistoryProd;
@@ -23,7 +24,8 @@ class AdminCustomerReportController extends Controller
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
         $status = $request->input('status');
-        $tier = $request->input('tier'); 
+        $tier = $request->input('tier');
+        $crmUserTypeId = $request->input('crm_user_type_id');
 
         $queryStart = $startDate . ' 00:00:00';
         $queryEnd = $endDate . ' 23:59:59';
@@ -35,20 +37,32 @@ class AdminCustomerReportController extends Controller
         $totalRegistrations = TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])->count();
 
         // 3. ดึงรายชื่อลูกค้าใหม่ (Table 1)
-        $customersList = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])
-            // Filter Status (Enabled/Disabled)
-            ->when($status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            // [ใหม่] Filter Tier (Silver/Gold/Platinum) -> เช็คจาก column tier_key
-            ->when($tier, function ($query, $tier) {
-                return $query->where('tier_key', $tier);
-            })
-            // เพิ่ม tier_key เข้าไปใน select เพื่อเอาไปโชว์หน้าบ้าน
-            ->select('cust_firstname', 'cust_lastname', 'cust_tel', 'cust_email', 'datetime', 'status', 'tier_key')
-            ->orderBy('datetime', 'desc')
+        $customersList = TblCustomerProd::leftJoin('crm_user_types', 'tbl_customer_prod.crm_user_type_id', '=', 'crm_user_types.id')
+            ->whereBetween('tbl_customer_prod.datetime', [$queryStart, $queryEnd])
+            ->when($status, fn($q) => $q->where('tbl_customer_prod.status', $status))
+            ->when($tier, fn($q) => $q->where('tbl_customer_prod.tier_key', $tier))
+            ->when($crmUserTypeId, fn($q) => $q->where('tbl_customer_prod.crm_user_type_id', $crmUserTypeId))
+            ->select(
+                'tbl_customer_prod.cust_firstname',
+                'tbl_customer_prod.cust_lastname',
+                'tbl_customer_prod.cust_tel',
+                'tbl_customer_prod.cust_email',
+                'tbl_customer_prod.datetime',
+                'tbl_customer_prod.status',
+                'tbl_customer_prod.tier_key',
+                'tbl_customer_prod.crm_user_type_id',
+                'crm_user_types.type_name as crm_type_name',
+                'crm_user_types.type_name_en as crm_type_name_en',
+                'crm_user_types.type_code as crm_type_code',
+            )
+            ->orderBy('tbl_customer_prod.datetime', 'desc')
             ->paginate(10, ['*'], 'cust_page')
             ->withQueryString();
+
+        // ดึง CRM User Types ทั้งหมด สำหรับ filter dropdown
+        $crmUserTypes = CrmUserType::where('is_active', 1)
+            ->orderBy('sort_order')
+            ->get(['id', 'type_code', 'type_name', 'type_name_en']);
 
         // 4. ดึงรายละเอียดการลงทะเบียน (Table 2)
         $historyList = TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])
@@ -172,10 +186,12 @@ class AdminCustomerReportController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'status' => $status,
-                'tier' => $tier, // [ใหม่] ส่งค่า tier กลับไป
+                'tier' => $tier,
+                'crm_user_type_id' => $crmUserTypeId,
             ],
             'age_chart' => $formattedAgeData,
             'tier_chart' => $tierChartData,
+            'crm_user_types' => $crmUserTypes,
         ]);
     }
 
