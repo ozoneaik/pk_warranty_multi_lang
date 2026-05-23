@@ -219,12 +219,38 @@
                     <div>
                         <label class="form-label">เพศ <span class="text-red-500">*</span></label>
                         @php $g = old('cust_gender', $data['cust_gender'] ?? ''); @endphp
-                        <select name="cust_gender" class="form-input" required>
+                        <!-- <select name="cust_gender" class="form-input" required>
                             <option value="">เลือกเพศ</option>
                             <option value="male" {{ in_array($g, ['male','ชาย'])   ? 'selected' : '' }}>ชาย</option>
                             <option value="female" {{ in_array($g, ['female','หญิง']) ? 'selected' : '' }}>หญิง</option>
                             <option value="other" {{ in_array($g, ['other','อื่นๆ']) ? 'selected' : '' }}>อื่นๆ</option>
-                        </select>
+                        </select> -->
+                        <div class="flex gap-2 mt-1">
+                            <!-- ชาย -->
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="cust_gender" value="male" class="peer sr-only" required 
+                                    {{ in_array($g, ['male','ชาย']) ? 'checked' : '' }}>
+                                <div class="text-center py-2 px-1 border border-gray-200 rounded-lg peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 transition text-sm">
+                                    ชาย
+                                </div>
+                            </label>
+                            <!-- หญิง -->
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="cust_gender" value="female" class="peer sr-only" required 
+                                    {{ in_array($g, ['female','หญิง']) ? 'checked' : '' }}>
+                                <div class="text-center py-2 px-1 border border-gray-200 rounded-lg peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 transition text-sm">
+                                    หญิง
+                                </div>
+                            </label>
+                            <!-- อื่นๆ -->
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="cust_gender" value="other" class="peer sr-only" required 
+                                    {{ in_array($g, ['other','อื่นๆ']) ? 'checked' : '' }}>
+                                <div class="text-center py-2 px-1 border border-gray-200 rounded-lg peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 transition text-sm">
+                                    อื่นๆ
+                                </div>
+                            </label>
+                        </div>
                     </div>
                     <div>
                         <label class="form-label">วันเกิด (ค.ศ.) <span class="text-red-500">*</span></label>
