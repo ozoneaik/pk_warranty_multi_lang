@@ -31,6 +31,7 @@ interface Registration {
     approver: string | null;
     pc_code: string | null;
     slip: string | null;
+    timestamp: string | null;
 }
 
 interface Props {
@@ -309,6 +310,9 @@ export default function Index({ registrations, filters }: Props) {
                                     <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap text-center">
                                         สลิป
                                     </th>
+                                    <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap text-center">
+                                        Timestamp
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -440,6 +444,11 @@ export default function Index({ registrations, filters }: Props) {
                                                         -
                                                     </span>
                                                 )}
+                                            </td>
+
+                                            {/* Timestamp */}
+                                            <td className="px-4 py-4 whitespace-nowrap text-center">
+                                                {reg.timestamp || "-"}
                                             </td>
                                         </tr>
                                     ))
