@@ -34,7 +34,13 @@ class AdminCustomerReportController extends Controller
         // $totalCustomers = TblCustomerProd::count();
 
         $totalCustomers = TblCustomerProd::whereNotNull('cust_uid')->where('cust_uid', '!=', '')->count();
-        $newCustomers = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count();
+
+        // $newCustomers = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count();
+        $newCustomers = TblCustomerProd::whereNotNull('cust_uid')
+            ->where('cust_uid', '!=', '')
+            ->whereBetween('datetime', [$queryStart, $queryEnd])
+            ->count();
+
         $totalRegistrations = TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])->count();
 
         // 3. ดึงรายชื่อลูกค้าใหม่ (Table 1)
