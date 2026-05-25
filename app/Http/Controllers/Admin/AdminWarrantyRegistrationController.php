@@ -18,6 +18,15 @@ class AdminWarrantyRegistrationController extends Controller
         $query = TblHistoryProd::where('warranty_from', 'warranty_pupmkin_crm')
             ->orderBy('id', 'desc');
 
+        // Filter Date Range TimeStamp
+        if ($request->filled('created_start')) {
+            $query->whereDate('timestamp', '>=', $request->created_start);
+        }
+
+        if ($request->filled('created_end')) {
+            $query->whereDate('timestamp', '<=', $request->created_end);
+        }
+
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -60,7 +69,7 @@ class AdminWarrantyRegistrationController extends Controller
 
         return Inertia::render('Admin/WarrantyRegistrations/Index', [
             'registrations' => $query->paginate(20)->withQueryString(),
-            'filters' => $request->only(['search', 'approval', 'start_date', 'end_date'])
+            'filters' => $request->only(['search', 'approval', 'start_date', 'end_date', 'created_start', 'created_end'])
         ]);
     }
 

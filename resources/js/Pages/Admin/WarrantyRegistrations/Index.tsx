@@ -9,6 +9,8 @@ import {
     ShieldCheck,
     Download,
     CalendarDays,
+    Filter,
+    RotateCcw,
 } from "lucide-react";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -48,6 +50,8 @@ interface Props {
         approval?: string;
         start_date?: string;
         end_date?: string;
+        created_start?: string;
+        created_end?: string;
     };
 }
 
@@ -92,6 +96,12 @@ export default function Index({ registrations, filters }: Props) {
         filters.start_date || "",
     );
     const [endDate, setEndDate] = useState<string>(filters.end_date || "");
+    const [createdStart, setCreatedStart] = useState<string>(
+        filters.created_start || "",
+    );
+    const [createdEnd, setCreatedEnd] = useState<string>(
+        filters.created_end || "",
+    );
 
     const { current_page, last_page, total, from, to } = registrations;
 
@@ -100,12 +110,15 @@ export default function Index({ registrations, filters }: Props) {
         approval,
         start_date: startDate,
         end_date: endDate,
+        created_start: createdStart,
+        created_end: createdEnd,
     };
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         router.get(route("admin.warranty-registrations.index"), currentParams, {
             preserveState: true,
+            preserveScroll: true,
         });
     };
 
@@ -114,6 +127,8 @@ export default function Index({ registrations, filters }: Props) {
         setApproval("");
         setStartDate("");
         setEndDate("");
+        setCreatedStart("");
+        setCreatedEnd("");
         router.get(route("admin.warranty-registrations.index"));
     };
 
@@ -123,6 +138,8 @@ export default function Index({ registrations, filters }: Props) {
         if (approval) params.set("approval", approval);
         if (startDate) params.set("start_date", startDate);
         if (endDate) params.set("end_date", endDate);
+        if (createdStart) params.set("created_start", createdStart);
+        if (createdEnd) params.set("created_end", createdEnd);
         window.location.href =
             route("admin.warranty-registrations.export") +
             (params.toString() ? "?" + params.toString() : "");
@@ -132,7 +149,9 @@ export default function Index({ registrations, filters }: Props) {
         filters.search ||
         filters.approval ||
         filters.start_date ||
-        filters.end_date
+        filters.end_date ||
+        filters.created_start ||
+        filters.created_end
     );
 
     return (
@@ -183,86 +202,167 @@ export default function Index({ registrations, filters }: Props) {
                     </div>
 
                     {/* Filters */}
-                    <form onSubmit={handleSearch} className="space-y-3">
-                        {/* Row 1: Search + Status */}
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <div className="relative flex-1">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Search className="h-4 w-4 text-gray-400" />
-                                </div>
-                                <input
-                                    type="text"
-                                    placeholder="ค้นหา ชื่อลูกค้า, เบอร์โทร, Serial, Line ID, รหัสลูกค้า..."
-                                    className="block w-full pl-9 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none text-sm"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
-                                {search && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setSearch("")}
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-rose-500 transition-colors"
-                                    >
-                                        <XCircle className="w-4 h-4" />
-                                    </button>
-                                )}
-                            </div>
-
-                            <select
-                                value={approval}
-                                onChange={(e) => setApproval(e.target.value)}
-                                className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700 min-w-[160px]"
-                            >
-                                <option value="">ทุกสถานะ</option>
-                                <option value="pending">รอดำเนินการ</option>
-                                <option value="Y">ผ่านการอนุมัติ</option>
-                                <option value="N">ไม่ผ่านการอนุมัติ</option>
-                            </select>
+                    <form onSubmit={handleSearch}>
+                        {/* Filter Header */}
+                        <div className="flex items-center gap-2 mb-3">
+                            <Filter className="w-4 h-4 text-indigo-500" />
+                            <span className="text-sm font-semibold text-gray-600">
+                                ตัวกรองข้อมูล
+                            </span>
+                            {hasFilter && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-600">
+                                    กำลังกรองอยู่
+                                </span>
+                            )}
                         </div>
 
-                        {/* Row 2: Date Range + Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 items-end">
-                            <div className="flex items-center gap-2 flex-1">
-                                <div className="flex items-center gap-1.5 text-sm text-gray-500 shrink-0">
-                                    <CalendarDays className="w-4 h-4" />
-                                    วันที่ซื้อ
+                        <div className="grid grid-cols-1 gap-3">
+                            {/* Row 1: Search (full width) */}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                    ค้นหา
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Search className="h-4 w-4 text-gray-400" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="ชื่อลูกค้า, เบอร์โทร, Serial Number, Line ID, รหัสลูกค้า..."
+                                        className="block w-full pl-9 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none text-sm"
+                                        value={search}
+                                        onChange={(e) =>
+                                            setSearch(e.target.value)
+                                        }
+                                    />
+                                    {search && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setSearch("")}
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-rose-500 transition-colors"
+                                        >
+                                            <XCircle className="w-4 h-4" />
+                                        </button>
+                                    )}
                                 </div>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) =>
-                                        setStartDate(e.target.value)
-                                    }
-                                    className="flex-1 py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
-                                />
-                                <span className="text-gray-400 text-sm shrink-0">
-                                    ถึง
-                                </span>
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    min={startDate || undefined}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="flex-1 py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
-                                />
                             </div>
 
-                            <div className="flex gap-2 shrink-0">
-                                <button
-                                    type="submit"
-                                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors"
-                                >
-                                    ค้นหา
-                                </button>
+                            {/* Row 2: Status + วันที่ซื้อ */}
+                            <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-3">
+                                {/* Status */}
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                        สถานะการอนุมัติ
+                                    </label>
+                                    <select
+                                        value={approval}
+                                        onChange={(e) =>
+                                            setApproval(e.target.value)
+                                        }
+                                        className="w-full py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
+                                    >
+                                        <option value="">ทุกสถานะ</option>
+                                        <option value="pending">
+                                            รอดำเนินการ
+                                        </option>
+                                        <option value="Y">
+                                            ผ่านการอนุมัติ
+                                        </option>
+                                        <option value="N">
+                                            ไม่ผ่านการอนุมัติ
+                                        </option>
+                                    </select>
+                                </div>
+
+                                {/* วันที่ซื้อ */}
+                                <div>
+                                    <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-1.5">
+                                        <CalendarDays className="w-3.5 h-3.5" />
+                                        วันที่ซื้อ
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="date"
+                                            value={startDate}
+                                            onChange={(e) =>
+                                                setStartDate(e.target.value)
+                                            }
+                                            className="flex-1 py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
+                                        />
+                                        <span className="text-gray-400 text-xs font-medium shrink-0">
+                                            —
+                                        </span>
+                                        <input
+                                            type="date"
+                                            value={endDate}
+                                            min={startDate || undefined}
+                                            onChange={(e) =>
+                                                setEndDate(e.target.value)
+                                            }
+                                            className="flex-1 py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Row 3: วันที่ลงทะเบียน */}
+                            <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-3">
+                                {/* Spacer (align with status column above) */}
+                                <div className="hidden sm:block" />
+
+                                {/* วันที่ลงทะเบียน */}
+                                <div>
+                                    <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-1.5">
+                                        <CalendarDays className="w-3.5 h-3.5" />
+                                        วันที่ลงทะเบียน
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="date"
+                                            value={createdStart}
+                                            onChange={(e) =>
+                                                setCreatedStart(e.target.value)
+                                            }
+                                            className="flex-1 py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
+                                        />
+                                        <span className="text-gray-400 text-xs font-medium shrink-0">
+                                            —
+                                        </span>
+                                        <input
+                                            type="date"
+                                            value={createdEnd}
+                                            min={createdStart || undefined}
+                                            onChange={(e) =>
+                                                setCreatedEnd(e.target.value)
+                                            }
+                                            className="flex-1 py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-700"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-gray-100" />
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-end gap-2">
                                 {hasFilter && (
                                     <button
                                         type="button"
                                         onClick={handleReset}
-                                        className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl transition-colors"
+                                        className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-semibold rounded-xl transition-colors"
                                     >
+                                        <RotateCcw className="w-3.5 h-3.5" />
                                         ล้างตัวกรอง
                                     </button>
                                 )}
+                                <button
+                                    type="submit"
+                                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+                                >
+                                    <Search className="w-3.5 h-3.5" />
+                                    ค้นหา
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -311,7 +411,7 @@ export default function Index({ registrations, filters }: Props) {
                                         สลิป
                                     </th>
                                     <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap text-center">
-                                        Timestamp
+                                        วันที่ลงทะเบียน
                                     </th>
                                 </tr>
                             </thead>
@@ -448,7 +548,8 @@ export default function Index({ registrations, filters }: Props) {
 
                                             {/* Timestamp */}
                                             <td className="px-4 py-4 whitespace-nowrap text-center">
-                                                {reg.timestamp || "-"}
+                                                {/* {reg.timestamp || "-"} */}
+                                                 {formatDate(reg.timestamp)}
                                             </td>
                                         </tr>
                                     ))
