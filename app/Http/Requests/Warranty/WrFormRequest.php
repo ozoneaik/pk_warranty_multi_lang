@@ -28,7 +28,8 @@ class WrFormRequest extends FormRequest
         return [
             'is_service_center_update'  => 'nullable|boolean',
             'is_status_approval_bypass' => 'nullable|boolean',
-            'warranty_file' => $skipFile ? 'nullable' : 'required',
+            // 'warranty_file' => $skipFile ? 'nullable' : 'required',
+            'warranty_file' => $skipFile ? 'nullable' : 'required|file|mimes:jpeg,jpg,png,pdf|max:10240',
             'serial_number' => 'required',
             'phone' => 'nullable|digits:10',
             'model_code' => $skipFile ? 'nullable' : 'required',
@@ -43,6 +44,14 @@ class WrFormRequest extends FormRequest
             'power_accessories' => 'nullable|array',
             'power_accessories.*.serial_number' => 'required|string',
             'power_accessories.*.model_code'    => 'nullable|string',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'warranty_file.mimes' => 'ระบบไม่รองรับไฟล์รูปภาพจาก iPhone (.heic) กรุณาแปลงเป็น .jpg หรือแคปหน้าจอมาอัปโหลดใหม่',
+            'warranty_file.max' => 'ขนาดไฟล์ใบเสร็จต้องไม่เกิน 10MB',
         ];
     }
 }
