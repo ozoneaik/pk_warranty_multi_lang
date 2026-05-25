@@ -24,6 +24,7 @@ class AdminWarrantyRegistrationController extends Controller
             )
             ->select(
                 'tbl_history_prod.*',
+                DB::raw("CONCAT(' ', tbl_history_prod.serial_number) as serial_number"),
                 DB::raw("TRIM(CONCAT(
                     COALESCE(tbl_customer_prod.cust_prefix, ''), ' ',
                     COALESCE(tbl_customer_prod.cust_firstname, ''), ' ',
