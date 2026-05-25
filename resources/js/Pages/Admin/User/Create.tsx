@@ -53,7 +53,7 @@ export default function Create() {
         email: '',
         password: '',
         password_confirmation: '',
-        role: 'user', // ค่า Default
+        role: 'staff', // ค่า Default
     });
 
     const { auth } = usePage().props as any;
