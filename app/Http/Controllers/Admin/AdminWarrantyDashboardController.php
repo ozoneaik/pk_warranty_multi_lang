@@ -16,54 +16,61 @@ class AdminWarrantyDashboardController extends Controller
     public function index(Request $request)
     {
         $startDate = $request->input('start_date', Carbon::now()->subDays(29)->format('Y-m-d'));
-        $endDate   = $request->input('end_date',   Carbon::now()->format('Y-m-d'));
+        $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
 
-        // Base: เฉพาะข้อมูลจาก Pumpkin CRM และกรองตามช่วงวันที่ลงทะเบียน (timestamp)
-        $base = TblHistoryProd::where('tbl_history_prod.warranty_from', 'warranty_pupmkin_crm')
-            ->leftJoin('tbl_customer_prod as prod', 'prod.cust_uid', '=', 'tbl_history_prod.lineid')
-            ->whereDate('tbl_history_prod.timestamp', '>=', $startDate)
-            ->whereDate('tbl_history_prod.timestamp', '<=', $endDate);
+        // ปรับเวลาให้คลุมทั้งวัน เพื่อใช้ whereBetween แทน whereDate (ช่วยให้ Index ทำงานได้)
+        $queryStart = $startDate . ' 00:00:00';
+        $queryEnd = $endDate . ' 23:59:59';
 
-        // ── Stats Cards ──────────────────────────────────────────────
-        $totalAll      = (clone $base)->count();
-        $totalApproved = (clone $base)->where('tbl_history_prod.approval', 'Y')->count();
-        $totalRejected = (clone $base)->where('tbl_history_prod.approval', 'N')->count();
-        $totalPending  = (clone $base)->where(function ($q) {
-            $q->whereNull('tbl_history_prod.approval')->orWhere('tbl_history_prod.approval', '');
-        })->count();
+        // Base 1: ตัด leftJoin ออกตรงนี้ เพื่อให้ Query สถิติต่างๆ เบาที่สุด
+        $base = TblHistoryProd::where('warranty_from', 'warranty_pupmkin_crm')
+            ->whereBetween('timestamp', [$queryStart, $queryEnd]);
+
+        // ── Stats Cards (รวม 4 Queries ให้เหลือ Query เดียว) ─────────
+        $statsData = (clone $base)->select(
+            DB::raw('COUNT(*) as total_all'),
+            DB::raw("SUM(CASE WHEN approval = 'Y' THEN 1 ELSE 0 END) as total_approved"),
+            DB::raw("SUM(CASE WHEN approval = 'N' THEN 1 ELSE 0 END) as total_rejected"),
+            DB::raw("SUM(CASE WHEN approval IS NULL OR approval = '' THEN 1 ELSE 0 END) as total_pending")
+        )->first();
+
+        $totalAll = (int) $statsData->total_all;
+        $totalApproved = (int) $statsData->total_approved;
+        $totalRejected = (int) $statsData->total_rejected;
+        $totalPending = (int) $statsData->total_pending;
 
         // ── Approval Status Donut Chart ──────────────────────────────
         $approvalChart = [
-            ['name' => 'ผ่านการอนุมัติ',    'value' => $totalApproved, 'color' => '#10b981'],
-            ['name' => 'รอดำเนินการ',         'value' => $totalPending,  'color' => '#f59e0b'],
-            ['name' => 'ไม่ผ่านการอนุมัติ',  'value' => $totalRejected, 'color' => '#ef4444'],
+            ['name' => 'ผ่านการอนุมัติ', 'value' => $totalApproved, 'color' => '#10b981'],
+            ['name' => 'รอดำเนินการ', 'value' => $totalPending, 'color' => '#f59e0b'],
+            ['name' => 'ไม่ผ่านการอนุมัติ', 'value' => $totalRejected, 'color' => '#ef4444'],
         ];
 
-        // ── Monthly Trend Bar Chart (group by month of timestamp) ───
+        // ── Monthly Trend Bar Chart ──────────────────────────────────
         $byMonth = (clone $base)
             ->select(
-                DB::raw("DATE_FORMAT(tbl_history_prod.timestamp, '%Y-%m') as month"),
+                DB::raw("DATE_FORMAT(timestamp, '%Y-%m') as month"),
                 DB::raw('COUNT(*) as total'),
-                DB::raw("SUM(CASE WHEN tbl_history_prod.approval = 'Y' THEN 1 ELSE 0 END) as approved"),
-                DB::raw("SUM(CASE WHEN tbl_history_prod.approval = 'N' THEN 1 ELSE 0 END) as rejected"),
-                DB::raw("SUM(CASE WHEN tbl_history_prod.approval IS NULL OR tbl_history_prod.approval = '' THEN 1 ELSE 0 END) as pending")
+                DB::raw("SUM(CASE WHEN approval = 'Y' THEN 1 ELSE 0 END) as approved"),
+                DB::raw("SUM(CASE WHEN approval = 'N' THEN 1 ELSE 0 END) as rejected"),
+                DB::raw("SUM(CASE WHEN approval IS NULL OR approval = '' THEN 1 ELSE 0 END) as pending")
             )
             ->groupBy('month')
             ->orderBy('month')
             ->get()
             ->map(fn($r) => [
-                'month'    => $r->month,
-                'total'    => (int) $r->total,
+                'month' => $r->month,
+                'total' => (int) $r->total,
                 'approved' => (int) $r->approved,
                 'rejected' => (int) $r->rejected,
-                'pending'  => (int) $r->pending,
+                'pending' => (int) $r->pending,
             ]);
 
         // ── Top Channels (buy_from) ──────────────────────────────────
         $channelChart = (clone $base)
-            ->select('tbl_history_prod.buy_from', DB::raw('COUNT(*) as total'))
-            ->whereNotNull('tbl_history_prod.buy_from')
-            ->where('tbl_history_prod.buy_from', '!=', '')
+            ->select('buy_from', DB::raw('COUNT(*) as total'))
+            ->whereNotNull('buy_from')
+            ->where('buy_from', '!=', '')
             ->groupBy('buy_from')
             ->orderByDesc('total')
             ->limit(8)
@@ -73,7 +80,7 @@ class AdminWarrantyDashboardController extends Controller
         // ── Top Products ─────────────────────────────────────────────
         $productChart = (clone $base)
             ->select(
-                DB::raw("COALESCE(NULLIF(tbl_history_prod.product_name,''), NULLIF(tbl_history_prod.model_name,''), tbl_history_prod.model_code, 'ไม่ระบุ') as product"),
+                DB::raw("COALESCE(NULLIF(product_name,''), NULLIF(model_name,''), model_code, 'ไม่ระบุ') as product"),
                 DB::raw('COUNT(*) as total')
             )
             ->groupBy('product')
@@ -83,7 +90,9 @@ class AdminWarrantyDashboardController extends Controller
             ->map(fn($r) => ['name' => $r->product ?? 'ไม่ระบุ', 'value' => (int) $r->total]);
 
         // ── Recent Registrations (paginated) ────────────────────────
+        // เอา leftJoin มาไว้เฉพาะส่วนที่ดึงข้อมูลตาราง เพราะเป็นจุดเดียวที่ต้องการชื่อลูกค้า
         $recent = (clone $base)
+            ->leftJoin('tbl_customer_prod as prod', 'prod.cust_uid', '=', 'tbl_history_prod.lineid')
             ->select(
                 'tbl_history_prod.id',
                 'prod.cust_firstname AS customer_name',
@@ -105,26 +114,26 @@ class AdminWarrantyDashboardController extends Controller
             ->withQueryString();
 
         Log::channel('admin')->info('Admin เข้าชม Warranty Registration Dashboard', [
-            'admin_id'   => Auth::guard('admin')->id() ?? Auth::id(),
+            'admin_id' => Auth::guard('admin')->id() ?? Auth::id(),
             'start_date' => $startDate,
-            'end_date'   => $endDate,
+            'end_date' => $endDate,
         ]);
 
         return Inertia::render('Admin/Reports/WarrantyDashboard', [
             'stats' => [
-                'total'    => $totalAll,
+                'total' => $totalAll,
                 'approved' => $totalApproved,
-                'pending'  => $totalPending,
+                'pending' => $totalPending,
                 'rejected' => $totalRejected,
             ],
             'approval_chart' => $approvalChart,
-            'by_month'       => $byMonth,
-            'channel_chart'  => $channelChart,
-            'product_chart'  => $productChart,
-            'recent'         => $recent,
+            'by_month' => $byMonth,
+            'channel_chart' => $channelChart,
+            'product_chart' => $productChart,
+            'recent' => $recent,
             'filters' => [
                 'start_date' => $startDate,
-                'end_date'   => $endDate,
+                'end_date' => $endDate,
             ],
         ]);
     }
