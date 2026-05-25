@@ -31,22 +31,22 @@ class AdminCustomerReportController extends Controller
         $queryEnd = $endDate . ' 23:59:59';
 
         // 2. Query Stats
-        // $totalCustomers = TblCustomerProd::count();
+        $totalCustomers = TblCustomerProd::count();
 
-        $totalCustomers = TblCustomerProd::whereNotNull('cust_uid')->where('cust_uid', '!=', '')->count();
+        // $totalCustomers = TblCustomerProd::whereNotNull('cust_uid')->where('cust_uid', '!=', '')->count();
 
-        // $newCustomers = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count();
-        $newCustomers = TblCustomerProd::whereNotNull('cust_uid')
-            ->where('cust_uid', '!=', '')
-            ->whereBetween('datetime', [$queryStart, $queryEnd])
-            ->count();
+        $newCustomers = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count();
+        // $newCustomers = TblCustomerProd::whereNotNull('cust_uid')
+        //     ->where('cust_uid', '!=', '')
+        //     ->whereBetween('datetime', [$queryStart, $queryEnd])
+        //     ->count();
 
         $totalRegistrations = TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])->count();
 
         // 3. ดึงรายชื่อลูกค้าใหม่ (Table 1)
         $customersList = TblCustomerProd::leftJoin('crm_user_types', 'tbl_customer_prod.crm_user_type_id', '=', 'crm_user_types.id')
-            ->whereNotNull('tbl_customer_prod.cust_uid')
-            ->where('tbl_customer_prod.cust_uid', '!=', '')
+            // ->whereNotNull('tbl_customer_prod.cust_uid')
+            // ->where('tbl_customer_prod.cust_uid', '!=', '')
             ->whereBetween('tbl_customer_prod.datetime', [$queryStart, $queryEnd])
             ->when($status, fn($q) => $q->where('tbl_customer_prod.status', $status))
             ->when($tier, fn($q) => $q->where('tbl_customer_prod.tier_key', $tier))
@@ -114,8 +114,8 @@ class AdminCustomerReportController extends Controller
             END AS age_range,
             COUNT(*) as count
         ")
-            ->whereNotNull('cust_uid')
-            ->where('cust_uid', '!=', '')
+            // ->whereNotNull('cust_uid')
+            // ->where('cust_uid', '!=', '')
             ->whereBetween('datetime', [$queryStart, $queryEnd])
             ->groupBy('age_range')
             ->orderBy('age_range')
@@ -155,8 +155,8 @@ class AdminCustomerReportController extends Controller
 
         // เพิ่มกราฟกลุ่มสมาชิก Tier ต่างๆ (Silver/Gold/Platinum)
         $tierGroups = TblCustomerProd::select('tier_key', DB::raw('count(*) as count'))
-            ->whereNotNull('cust_uid')
-            ->where('cust_uid', '!=', '')
+            // ->whereNotNull('cust_uid')
+            // ->where('cust_uid', '!=', '')
             ->whereBetween('datetime', [$queryStart, $queryEnd])  // กรองตามวันที่เลือก
             ->groupBy('tier_key')
             ->orderBy('count', 'desc')
@@ -220,13 +220,13 @@ class AdminCustomerReportController extends Controller
 
         // 1. ดึง Stats ทั้งหมด
         $stats = [
-            // 'total_customers' => TblCustomerProd::count(),
-            // 'new_customers' => TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count(),
-            'total_customers' => TblCustomerProd::whereNotNull('cust_uid')->where('cust_uid', '!=', '')->count(),
-            'new_customers' => TblCustomerProd::whereNotNull('cust_uid')
-                ->where('cust_uid', '!=', '')
-                ->whereBetween('datetime', [$queryStart, $queryEnd])
-                ->count(),
+            'total_customers' => TblCustomerProd::count(),
+            'new_customers' => TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])->count(),
+            // 'total_customers' => TblCustomerProd::whereNotNull('cust_uid')->where('cust_uid', '!=', '')->count(),
+            // 'new_customers' => TblCustomerProd::whereNotNull('cust_uid')
+            //     ->where('cust_uid', '!=', '')
+            //     ->whereBetween('datetime', [$queryStart, $queryEnd])
+            //     ->count(),
             'total_registrations' => TblHistoryProd::whereBetween('buy_date', [$startDate, $endDate])->count(),
             'total_points_given' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'earn')->sum('point_tran'),
             'total_points_redeemed' => PointTransaction::whereBetween('created_at', [$queryStart, $queryEnd])->where('transaction_type', 'redeem')->sum('point_tran'),
@@ -236,9 +236,7 @@ class AdminCustomerReportController extends Controller
         ];
 
         // 2. ดึงข้อมูลลูกค้า (เลือกเฉพาะ Column ที่ต้องการ)
-        $customers = TblCustomerProd::whereNotNull('cust_uid')
-            ->where('cust_uid', '!=', '')
-            ->whereBetween('datetime', [$queryStart, $queryEnd])
+        $customers = TblCustomerProd::whereBetween('datetime', [$queryStart, $queryEnd])
             ->when($status, fn($q) => $q->where('status', $status))
             ->when($tier, fn($q) => $q->where('tier_key', $tier))
             ->select('cust_firstname', 'cust_lastname', 'cust_tel', 'cust_email', 'datetime', 'tier_key', 'status')
