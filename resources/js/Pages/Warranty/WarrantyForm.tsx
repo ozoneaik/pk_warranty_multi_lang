@@ -286,7 +286,6 @@ export default function WarrantyForm({
     const [preview, setPreview] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>("");
     const [openModal, setOpenModal] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [showForm, setShowForm] = useState(false);
     const [checking, setChecking] = useState(false);
@@ -1415,23 +1414,14 @@ export default function WarrantyForm({
                                                 borderRadius: 2,
                                                 p: 3,
                                                 textAlign: "center",
-                                                cursor: "pointer",
                                                 bgcolor: preview
                                                     ? "primary.50"
                                                     : "#fafafa",
                                                 transition: "all 0.3s ease",
-                                                "&:hover": {
-                                                    bgcolor: preview
-                                                        ? "primary.100"
-                                                        : "#f0f0f0",
-                                                    borderColor: "primary.main",
-                                                },
                                             }}
                                         >
-                                            <label
-                                                htmlFor="warranty_file"
-                                                style={{ cursor: "pointer" }}
-                                            >
+                                            {/* Preview Area — ไม่ใช้ label+htmlFor เพราะ input ถูกซ่อนด้วย overlay แล้ว */}
+                                            <Box>
                                                 {preview ? (
                                                     <Stack spacing={2}>
                                                         <Box
@@ -1444,6 +1434,7 @@ export default function WarrantyForm({
                                                                     "contain",
                                                                 borderRadius: 1,
                                                                 mx: "auto",
+                                                                cursor: "pointer",
                                                             }}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -1499,42 +1490,17 @@ export default function WarrantyForm({
                                                         </Typography>
                                                     </Stack>
                                                 )}
-                                            </label>
-                                            {/* <input
-                                                id="warranty_file"
-                                                type="file"
-                                                accept="image/*"
-                                                capture="environment"
-                                                hidden
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        setData("warranty_file", file);
-                                                        setPreview(URL.createObjectURL(file));
-                                                        setFileName(file.name);
-                                                    }
-                                                }}
-                                                ref={fileInputRef}
-                                            /> */}
-                                            <input
-                                                id="capture_file"
-                                                type="file"
-                                                accept="image/*"
-                                                capture="environment"
-                                                hidden
-                                                onChange={handleFileChange}
-                                            />
-                                            <input
-                                                id="browse_file"
-                                                type="file"
-                                                accept="image/*"
-                                                hidden
-                                                onChange={handleFileChange}
-                                            />
+                                            </Box>
+
+                                            {/*
+                                             * Overlay Technique: วาง <input type="file"> ซ้อนทับปุ่มด้วย opacity:0
+                                             * แก้ปัญหา LINE WebView บล็อก programmatic .click() บน file input
+                                             * ผู้ใช้จะกดตรงๆ บน input element จริงๆ ไม่ใช่ trigger ด้วย JS
+                                             */}
                                             <Stack
                                                 direction={
                                                     isMobile ? "column" : "row"
-                                                } // มือถือเรียงลง, จอใหญ่เรียงข้าง
+                                                }
                                                 spacing={2}
                                                 sx={{
                                                     width: "100%",
@@ -1543,34 +1509,68 @@ export default function WarrantyForm({
                                                     mt: 2,
                                                 }}
                                             >
-                                                <Button
-                                                    fullWidth={isMobile} // เต็มจอเมื่อเป็นมือถือ
-                                                    variant="contained"
-                                                    onClick={() =>
-                                                        document
-                                                            .getElementById(
-                                                                "capture_file",
-                                                            )
-                                                            ?.click()
-                                                    }
-                                                    startIcon={<CameraAlt />}
+                                                {/* ปุ่มถ่ายรูป — ใช้ capture="environment" เปิดกล้องโดยตรง */}
+                                                <Box
+                                                    sx={{
+                                                        position: "relative",
+                                                        ...(isMobile ? { width: "100%" } : {}),
+                                                    }}
                                                 >
-                                                    {t.Warranty.Form.takePhoto}
-                                                </Button>
-                                                <Button
-                                                    fullWidth={isMobile}
-                                                    variant="outlined"
-                                                    onClick={() =>
-                                                        document
-                                                            .getElementById(
-                                                                "browse_file",
-                                                            )
-                                                            ?.click()
-                                                    }
-                                                    startIcon={<FileUpload />}
+                                                    <Button
+                                                        fullWidth={isMobile}
+                                                        variant="contained"
+                                                        startIcon={<CameraAlt />}
+                                                        sx={{ pointerEvents: "none" }}
+                                                        tabIndex={-1}
+                                                    >
+                                                        {t.Warranty.Form.takePhoto}
+                                                    </Button>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        capture="environment"
+                                                        onChange={handleFileChange}
+                                                        style={{
+                                                            position: "absolute",
+                                                            inset: 0,
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            opacity: 0,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    />
+                                                </Box>
+
+                                                {/* ปุ่มเลือกจากแกลลอรี่ — ไม่ใส่ capture เพื่อให้เปิด gallery บน iOS ได้ */}
+                                                <Box
+                                                    sx={{
+                                                        position: "relative",
+                                                        ...(isMobile ? { width: "100%" } : {}),
+                                                    }}
                                                 >
-                                                    {t.Warranty.Form.chooseFromGallery}
-                                                </Button>
+                                                    <Button
+                                                        fullWidth={isMobile}
+                                                        variant="outlined"
+                                                        startIcon={<FileUpload />}
+                                                        sx={{ pointerEvents: "none" }}
+                                                        tabIndex={-1}
+                                                    >
+                                                        {t.Warranty.Form.chooseFromGallery}
+                                                    </Button>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleFileChange}
+                                                        style={{
+                                                            position: "absolute",
+                                                            inset: 0,
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            opacity: 0,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    />
+                                                </Box>
                                             </Stack>
                                         </Box>
                                         <Box mt={2}>
