@@ -63,7 +63,7 @@ class WarrantyRegistrationExport implements FromCollection, WithHeadings, WithTi
             return [
                 $index + 1,
                 $row->customer_code ?? '',
-                $row->customer_name ?? '',
+                trim($row->customer_full_name ?? '') ?: ($row->customer_name ?? ''),
                 $row->cust_tel ?? '',
                 $row->lineid ?? '',
                 $row->serial_number ?? '',

@@ -156,8 +156,8 @@ Route::middleware('auth:admin')->group(function () {
 
     // ---------- Warranty Registrations ----------
     Route::prefix('warranty-registrations')->name('warranty-registrations.')->group(function () {
-        Route::get('/', [AdminWarrantyRegistrationController::class, 'index'])->middleware('check_menu:warranty_registrations,read')->name('index');
-        Route::get('/export', [AdminWarrantyRegistrationController::class, 'exportExcel'])->middleware('check_menu:warranty_registrations,read')->name('export');
+        Route::get('/', [AdminWarrantyRegistrationController::class, 'index'])->middleware('check_menu:warranty-registrations,read')->name('index');
+        Route::get('/export', [AdminWarrantyRegistrationController::class, 'exportExcel'])->middleware('check_menu:warranty-registrations,read')->name('export');
     });
 
     // ---------- Reward Management ----------

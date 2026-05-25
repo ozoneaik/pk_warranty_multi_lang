@@ -18,6 +18,7 @@ import "dayjs/locale/th";
 interface Registration {
     id: number;
     customer_name: string | null;
+    customer_full_name: string | null;
     customer_code: string | null;
     cust_tel: string | null;
     lineid: string | null;
@@ -377,9 +378,9 @@ export default function Index({ registrations, filters }: Props) {
                                     <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                         #
                                     </th>
-                                    {/* <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                    <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                         ลูกค้า
-                                    </th> */}
+                                    </th>
                                     <th className="px-4 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                         เบอร์โทร / Line ID
                                     </th>
@@ -428,16 +429,16 @@ export default function Index({ registrations, filters }: Props) {
                                             </td>
 
                                             {/* ลูกค้า */}
-                                            {/* <td className="px-4 py-4 whitespace-nowrap">
+                                            <td className="px-4 py-4 whitespace-nowrap">
                                                 <div className="font-semibold text-gray-900">
-                                                    {reg.customer_name || "-"}
+                                                    {reg.customer_full_name?.trim() || reg.customer_name || "-"}
                                                 </div>
                                                 {reg.customer_code && (
                                                     <div className="text-xs text-gray-400 font-mono mt-0.5">
                                                         {reg.customer_code}
                                                     </div>
                                                 )}
-                                            </td> */}
+                                            </td>
 
                                             {/* เบอร์ / Line */}
                                             <td className="px-4 py-4 whitespace-nowrap">
@@ -556,7 +557,7 @@ export default function Index({ registrations, filters }: Props) {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={11}
+                                            colSpan={12}
                                             className="px-6 py-16 text-center"
                                         >
                                             <div className="flex flex-col items-center justify-center">
