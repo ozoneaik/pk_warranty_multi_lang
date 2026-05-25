@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminCustomerReportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDealerController;
 use App\Http\Controllers\Admin\AdminLoginLogController;
+use App\Http\Controllers\Admin\AdminWarrantyDashboardController;
 use App\Http\Controllers\Admin\AdminWarrantyRegistrationController;
 use App\Http\Controllers\Admin\AdminMemberPointController;
 use App\Http\Controllers\Admin\AdminPcRankingReportController;
@@ -144,6 +145,8 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/customers/export', [AdminCustomerReportController::class, 'exportExcel'])->middleware('check_menu:reports.customers,read')->name('customers.export');
 
         Route::get('/pc-ranking', [AdminPcRankingReportController::class, 'index'])->middleware('check_menu:reports.pc-ranking,read')->name('pc-ranking');
+
+        Route::get('/warranty-dashboard', [AdminWarrantyDashboardController::class, 'index'])->middleware('check_menu:reports.warranty-dashboard,read')->name('warranty-dashboard');
     });
 
     // ---------- Login Logs ----------
