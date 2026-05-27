@@ -58,7 +58,7 @@ class LegacyUpdateEligibilityService
     }
 
     /**
-     * Perform the legacy update: find eligible records and update them to warranty_pupmkin_crm.
+     * Perform the legacy update: find eligible records and update them to warranty_pumpkin_crm.
      *
      * @param  array{lineid: string|null, cust_tel: string|null, buy_from: string, store_name: string, buy_date: string, pc_code: string|null, slip: string|null}  $data
      * @throws \Exception
@@ -72,7 +72,7 @@ class LegacyUpdateEligibilityService
         }
 
         $updateData = [
-            'warranty_from' => 'warranty_pupmkin_crm',
+            'warranty_from' => 'warranty_pumpkin_crm',
             'lineid'        => $data['lineid'] ?? null,
             'cust_tel'      => $data['cust_tel'] ?? null,
             'buy_from'      => $data['buy_from'],
@@ -106,7 +106,7 @@ class LegacyUpdateEligibilityService
             ]);
         }
 
-        \Illuminate\Support\Facades\Log::channel('warranty')->info('✅ [LegacyUpdate] อัพเดท legacy → warranty_pupmkin_crm สำเร็จ', [
+        \Illuminate\Support\Facades\Log::channel('warranty')->info('✅ [LegacyUpdate] อัพเดท legacy → warranty_pumpkin_crm สำเร็จ', [
             'serial_number' => $serialNumber,
             'count'         => $records->count(),
             'lineid'        => $data['lineid'] ?? null,

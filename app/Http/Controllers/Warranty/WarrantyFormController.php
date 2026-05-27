@@ -411,7 +411,7 @@ class WarrantyFormController extends Controller
                 $full_path = Storage::disk('s3')->url($path);
             }
 
-            // ===== UPDATE MODE: Legacy source → warranty_pupmkin_crm =====
+            // ===== UPDATE MODE: Legacy source → warranty_pumpkin_crm =====
             if ($isServiceCenterUpdate) {
                 $this->eligibility->performUpdate($req['serial_number'], [
                     'lineid'     => $user->line_id,
@@ -459,7 +459,7 @@ class WarrantyFormController extends Controller
                         'store_name'    => $req['store_name'],
                         'buy_date'      => $req['buy_date'],
                         'pc_code'       => $req['pc_code'] ?? null,
-                        'warranty_from' => 'warranty_pupmkin_crm',
+                        'warranty_from' => 'warranty_pumpkin_crm',
                         'status'        => 'enabled',
                         'approval'      => '',
                         'approver'      => '',
@@ -691,7 +691,7 @@ class WarrantyFormController extends Controller
                     'slip'          => $full_path,
                     'approver'      => null,
                     'round'         => null,
-                    'warranty_from' => 'warranty_pupmkin_crm',
+                    'warranty_from' => 'warranty_pumpkin_crm',
                     'customer_code' => $req['customer_code'] ?? null,
                     'customer_name' => $req['customer_name'] ?? null,
                     // 'pc_code'       => $request->pc_code ?? null,

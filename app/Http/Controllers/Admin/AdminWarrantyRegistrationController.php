@@ -31,7 +31,7 @@ class AdminWarrantyRegistrationController extends Controller
                     COALESCE(tbl_customer_prod.cust_lastname, '')
                 )) as customer_full_name")
             )
-            ->where('tbl_history_prod.warranty_from', 'warranty_pupmkin_crm')
+            ->where('tbl_history_prod.warranty_from', 'warranty_pumpkin_crm')
             ->orderBy('tbl_history_prod.id', 'desc');
 
         // Filter Date Range TimeStamp

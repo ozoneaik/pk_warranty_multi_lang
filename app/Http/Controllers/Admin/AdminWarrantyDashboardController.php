@@ -23,7 +23,7 @@ class AdminWarrantyDashboardController extends Controller
         $queryEnd = $endDate . ' 23:59:59';
 
         // Base 1: ตัด leftJoin ออกตรงนี้ เพื่อให้ Query สถิติต่างๆ เบาที่สุด
-        $base = TblHistoryProd::where('warranty_from', 'warranty_pupmkin_crm')
+        $base = TblHistoryProd::where('warranty_from', 'warranty_pumpkin_crm')
             ->whereBetween('timestamp', [$queryStart, $queryEnd]);
 
         // ── Stats Cards (รวม 4 Queries ให้เหลือ Query เดียว) ─────────
