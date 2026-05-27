@@ -83,16 +83,19 @@ class TblCustomerProd extends Model
         if (!$lineId) return 0;
 
         // ดึงแต้มรวมจากตารางธุรกรรม
-        // Earn (+) / Adjust (+) / Redeem (-)
+        // Earn (+) / Adjust (+) → point_tran เป็นบวก
+        // Redeem           → point_tran ถูกเก็บเป็น negative อยู่แล้ว (เช่น -3100)
         $earn = (int) PointTransaction::where('line_id', $lineId)
             ->whereIn('transaction_type', ['earn', 'adjust'])
             ->sum('point_tran');
-        
+
         $redeem = (int) PointTransaction::where('line_id', $lineId)
             ->where('transaction_type', 'redeem')
-            ->sum('point_tran');
+            ->sum('point_tran'); // ค่าติดลบ เช่น -3100
 
-        $totalPoints = $earn - $redeem;
+        // ✅ ใช้ + เพราะ $redeem เป็นลบอยู่แล้ว
+        // ❌ เดิมใช้ $earn - $redeem = earn - (ติดลบ) = บวกกัน → คะแนนพองตัวเกินจริง
+        $totalPoints = max(0, $earn + $redeem);
 
         // 1. อัปเดตยอดแต้มลง DB ก่อนเพื่อให้ TierService นำไปใช้คำนวณต่อได้
         $this->update([
