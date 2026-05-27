@@ -927,6 +927,7 @@ interface HistoryProps {
     product_name?: string;
     slip?: string | null;
     insurance_expire?: string | null;
+    registration_channel?: string;
 }
 
 interface PowerAccessoryItem {
@@ -1337,6 +1338,40 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                     <Card key={item.id} elevation={0} sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider", transition: "all 0.2s ease-in-out", "&:hover": { transform: "translateY(-2px)", boxShadow: 2, borderColor: "primary.light" } }}>
                                         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
                                             <Grid container spacing={1.5}>
+                                                {item.registration_channel && (
+                                                    <Paper
+                                                        elevation={0}
+                                                        sx={{
+                                                            display: "inline-flex",
+                                                            alignItems: "center",
+                                                            gap: 0.8,
+                                                            px: 1.2,
+                                                            py: 0.6,
+                                                            borderRadius: 999,
+                                                            bgcolor: "#FFF3E0",
+                                                            border: "1px solid #FFCC80",
+                                                        }}
+                                                    >
+                                                        <InfoOutlined
+                                                            sx={{
+                                                                fontSize: 16,
+                                                                color: "#EF6C00",
+                                                            }}
+                                                        />
+
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                fontWeight: 600,
+                                                                color: "#E65100",
+                                                                fontSize: "0.8rem",
+                                                                lineHeight: 1,
+                                                            }}
+                                                        >
+                                                            {t.History.Card.registrationChannel}: {item.registration_channel}
+                                                        </Typography>
+                                                    </Paper>
+                                                )}
                                                 <Grid size={12}>
                                                     <Box display="flex" gap={1} flexDirection="row" flexWrap="wrap" justifyContent={{ xs: "left", sm: "flex-start" }}>
                                                         {/* Product Image */}
@@ -1385,6 +1420,20 @@ export default function WarrantyHistory({ histories }: { histories: HistoryProps
                                                                 </Typography>
                                                             </Stack>
                                                         </Paper>
+
+                                                        {/* {item.registration_channel && (
+                                                            <Paper elevation={0} sx={{ p: 1, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}>
+                                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                                    <InfoOutlined sx={{ fontSize: 16, color: "text.secondary" }} />
+                                                                    <Typography variant="body2" color="text.secondary" fontWeight="500" sx={{ fontSize: "0.8rem" }}>
+                                                                        {t.History.Card.registrationChannel}:
+                                                                    </Typography>
+                                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", fontSize: "0.8rem" }}>
+                                                                        {item.registration_channel}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </Paper>
+                                                        )} */}
 
                                                         {/* ✅ เรียกใช้ WarrantyDetail โดยส่ง ID แทน Serial */}
                                                         <WarrantyDetail id={item.id} />

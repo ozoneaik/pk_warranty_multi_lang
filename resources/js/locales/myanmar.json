@@ -157,6 +157,7 @@
             "ProductCode": "ထုတ်ကုန်ကုဒ်",
             "ProductModelCode": "မော်ဒယ်ကုဒ်",
             "ProductName": "ထုတ်ကုန်အမည်",
+            "registrationChannel": "မှတ်ပုံတင်ခြင်းချန်နယ်",
             "Warranty": {
                 "All": "အားလုံး",
                 "isTrue": "အာမခံထားသည်",

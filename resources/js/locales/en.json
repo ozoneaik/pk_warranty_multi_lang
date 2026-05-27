@@ -153,6 +153,7 @@
             "ProductCode": "Product Code",
             "ProductModelCode": "Model Code",
             "ProductName": "Product Name",
+            "registrationChannel": "Registration Channel",
             "Warranty": {
                 "All": "All",
                 "isTrue": "Under Warranty",

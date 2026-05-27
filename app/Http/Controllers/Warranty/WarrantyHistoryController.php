@@ -165,6 +165,7 @@ class WarrantyHistoryController extends Controller
                     'slip',
                     'approval',
                     'insurance_expire',
+                    'warranty_from',
                 ]);
         }
 
@@ -185,21 +186,49 @@ class WarrantyHistoryController extends Controller
                         'slip',
                         'approval',
                         'insurance_expire',
+                        'warranty_from',
                     ]);
             }
         }
 
         return Inertia::render('Warranty/WarrantyHistory', [
-            'histories' => $histories->map(fn($item) => [
-                'id' => $item->id,
-                'serial_number' => $item->serial_number,
-                'model_code' => $item->model_code,
-                'model_name' => $item->model_name,
-                'product_name' => $item->product_name,
-                'slip' => $item->slip,
-                'approval' => $item->approval,
-                'insurance_expire' => $item->insurance_expire,
-            ]),
+            'histories' => $histories->map(function($item) {
+                $warrantyFrom = $item->warranty_from;
+                $slip = $item->slip ?? '';
+                $channel = 'ไม่ทราบ';
+
+                if ($warrantyFrom === 'pumpkin_multi_local' || $warrantyFrom === 'warranty_pumpkin_crm') {
+                    $channel = 'ระบบลงทะเบียน CRM';
+                } elseif ($warrantyFrom === 'Service Center') {
+                    $channel = 'ระบบศูนย์ซ่อมพัมคิน';
+                } elseif ($warrantyFrom === 'texus_bull') {
+                    $channel = 'เว็ปไซต์ Texus Bull';
+                } else {
+                    if (str_contains($slip, 'rewarding-rocket.s3.ap-southeast-1.amazonaws.com')) {
+                        $channel = 'ระบบลงทะเบียน Rocket';
+                    } elseif (
+                        str_contains($slip, 'slip.pumpkin.tools/uploads_warranty_online') ||
+                        str_contains($slip, 'uploads-warranty-online.s3.ap-southeast-1.amazonaws.com') ||
+                        str_contains($slip, 'localhost/storage/warranty_slip')
+                    ) {
+                        $channel = 'เว็ปไซต์ Pumpkin';
+                    } else {
+                        $channel = 'ไม่ทราบ';
+                    }
+                }
+
+                return [
+                    'id' => $item->id,
+                    'serial_number' => $item->serial_number,
+                    'model_code' => $item->model_code,
+                    'model_name' => $item->model_name,
+                    'product_name' => $item->product_name,
+                    'slip' => $item->slip,
+                    'approval' => $item->approval,
+                    'insurance_expire' => $item->insurance_expire,
+                    'registration_channel' => $channel,
+                ];
+            }),
         ]);
     }
 

@@ -231,6 +231,10 @@ class WarrantyFormController extends Controller
                 throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
             }
 
+            if (!empty($main_assets) && isset($main_assets['brand']) && strcasecmp(trim($main_assets['brand']), 'TEXAS BULL') === 0) {
+                throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
+            }
+
             if (!str_contains($apiData['search_type'] ?? '', 'serial')) {
                 throw new \Exception('ระบบอนุญาตให้ค้นหาด้วยหมายเลขซีเรียล (Serial) เท่านั้น');
             }

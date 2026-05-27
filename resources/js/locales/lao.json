@@ -153,6 +153,7 @@
             "ProductCode": "ລະຫັດສິນຄ້າ",
             "ProductModelCode": "ລະຫັດແບບ",
             "ProductName": "ຊື່ສິນຄ້າ",
+            "registrationChannel": "ຊ່องທາງການລົງທະບຽນ",
             "Warranty": {
                 "All": "ທັງໝົດ",
                 "isTrue": "ຢູ່ໃນການຮັບປະກັນ",

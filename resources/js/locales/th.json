@@ -153,6 +153,7 @@
             "ProductCode": "รหัสสินค้า",
             "ProductModelCode": "รหัสโมเดล",
             "ProductName": "ชื่อสินค้า",
+            "registrationChannel": "ช่องทางการลงทะเบียน",
             "Warranty": {
                 "All": "ทั้งหมด",
                 "isTrue": "อยู่ในรับประกัน",
