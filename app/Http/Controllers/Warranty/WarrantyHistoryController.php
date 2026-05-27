@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Warranty;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterWaaranty\TblCustomerProd;
 use App\Models\MasterWaaranty\TblHistoryProd;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -140,19 +141,53 @@ class WarrantyHistoryController extends Controller
 
     public function history()
     {
-        $histories = TblHistoryProd::query()
-            ->where('lineid', Auth::user()->line_id)
-            ->orderByDesc('id')
-            ->get([
-                'id',
-                'serial_number',
-                'model_code',
-                'model_name',
-                'product_name',
-                'slip',
-                'approval',
-                'insurance_expire',
-            ]);
+        $user = Auth::user();
+
+        // 1. ค้นหาข้อมูลลูกค้าใน tbl_customer_prod จาก cust_line หรือ cust_tel
+        $customer = TblCustomerProd::query()
+            ->where('cust_line', $user->line_id)
+            ->orWhere('cust_tel', $user->phone)
+            ->first();
+
+        $histories = collect();
+
+        // 2. เช็คจากเบอร์ tbl_history_prod.cust_tel กับตาราง tbl_customer_prod.cust_tel ก่อน
+        if ($customer && !empty($customer->cust_tel)) {
+            $histories = TblHistoryProd::query()
+                ->where('cust_tel', $customer->cust_tel)
+                ->orderByDesc('id')
+                ->get([
+                    'id',
+                    'serial_number',
+                    'model_code',
+                    'model_name',
+                    'product_name',
+                    'slip',
+                    'approval',
+                    'insurance_expire',
+                ]);
+        }
+
+        // 3. ถ้าไม่มี ค่อยมาเช็คจาก tbl_history_prod.lineid กับตาราง tbl_customer_prod.cust_uid
+        if ($histories->isEmpty()) {
+            $lineId = $customer->cust_uid ?? $customer->cust_line ?? $user->line_id;
+
+            if ($lineId) {
+                $histories = TblHistoryProd::query()
+                    ->where('lineid', $lineId)
+                    ->orderByDesc('id')
+                    ->get([
+                        'id',
+                        'serial_number',
+                        'model_code',
+                        'model_name',
+                        'product_name',
+                        'slip',
+                        'approval',
+                        'insurance_expire',
+                    ]);
+            }
+        }
 
         return Inertia::render('Warranty/WarrantyHistory', [
             'histories' => $histories->map(fn($item) => [
