@@ -10,7 +10,7 @@ class SyncCustomerPoints extends Command
     protected $signature = 'points:sync
                             {line_id : Line ID ของลูกค้าที่ต้องการ sync}';
 
-    protected $description = 'Sync คะแนนจาก point_transactions ไปยัง tbl_customer_prod';
+    protected $description = 'Sync คะแนนโดยเรียง transaction ตาม created_at แล้วคำนวณ running balance';
 
     public function handle(): int
     {
@@ -30,8 +30,8 @@ class SyncCustomerPoints extends Command
         $pointBefore = (int) $customer->point;
         $tierBefore  = $customer->tier_key;
 
-        $this->info("📊 แต้มก่อน sync : {$pointBefore} | Tier: {$tierBefore}");
-        $this->info("⏳ กำลัง sync...");
+        $this->info("📊 ก่อน sync : {$pointBefore} แต้ม | Tier: {$tierBefore}");
+        $this->info("⏳ กำลัง sync (เรียงตาม created_at, running balance step-by-step)...");
 
         $pointAfter = $customer->syncPoints();
 
@@ -42,8 +42,8 @@ class SyncCustomerPoints extends Command
         $this->table(
             ['รายการ', 'ก่อน', 'หลัง'],
             [
-                ['แต้ม', $pointBefore, $pointAfter],
-                ['Tier', $tierBefore,  $tierAfter],
+                ['แต้ม', number_format($pointBefore), number_format($pointAfter)],
+                ['Tier', $tierBefore, $tierAfter],
             ]
         );
 

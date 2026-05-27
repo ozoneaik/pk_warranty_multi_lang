@@ -75,36 +75,46 @@ class TblCustomerProd extends Model
     }
 
     /**
-     * คืนค่าคะแนนรวมที่คำนวณจากประวัติธุรกรรมทั้งหมด
+     * คำนวณคะแนนสะสมโดยเรียง transaction ตาม created_at (เวลาที่เกิดจริง)
+     * แล้ว running balance ทีละ step พร้อม cap ที่ 0 หลังทุก transaction
+     *
+     * หลักการ: แต้มไม่สามารถติดลบได้ในชีวิตจริง
+     * กรณี redeem > earn ในช่วงเวลานั้น → ยอดเป็น 0 แล้ว earn ต่อจากนั้น
+     *
+     * ตัวอย่าง:
+     *   2024-05-16  earn   +0   → 0
+     *   2025-04-04  earn  +50   → 50
+     *   2025-10-22  earn  +50   → 100
+     *   2025-10-22  redeem -3100 → max(0, -3000) = 0
+     *   2025-12-10  earn  +50   → 50
+     *   2026-02-24  earn   +1   → 51
+     *   2026-03-02  earn   +1   → 52  ← ยอดสุดท้าย
      */
-    public function syncPoints()
+    public function syncPoints(): int
     {
         $lineId = $this->cust_line;
         if (!$lineId) return 0;
 
-        // ดึงแต้มรวมจากตารางธุรกรรม
-        // Earn (+) / Adjust (+) → point_tran เป็นบวก
-        // Redeem           → point_tran ถูกเก็บเป็น negative อยู่แล้ว (เช่น -3100)
-        $earn = (int) PointTransaction::where('line_id', $lineId)
-            ->whereIn('transaction_type', ['earn', 'adjust'])
-            ->sum('point_tran');
+        // ดึงทุก transaction เรียงตามเวลาที่เกิดขึ้นจริง (created_at ASC)
+        // รองรับ transaction ที่ถูก insert ย้อนหลัง (backdated)
+        $transactions = PointTransaction::where('line_id', $lineId)
+            ->orderBy('created_at', 'asc')
+            ->get(['transaction_type', 'point_tran']);
 
-        $redeem = (int) PointTransaction::where('line_id', $lineId)
-            ->where('transaction_type', 'redeem')
-            ->sum('point_tran'); // ค่าติดลบ เช่น -3100
-
-        // ✅ ใช้ + เพราะ $redeem เป็นลบอยู่แล้ว
-        // ❌ เดิมใช้ $earn - $redeem = earn - (ติดลบ) = บวกกัน → คะแนนพองตัวเกินจริง
-        $totalPoints = max(0, $earn + $redeem);
+        // คำนวณ running balance ทีละ step
+        // cap ที่ 0 หลังแต่ละ step เพื่อป้องกันแต้มติดลบสะสม
+        $balance = 0;
+        foreach ($transactions as $txn) {
+            $balance += (int) $txn->point_tran;
+            $balance  = max(0, $balance);
+        }
 
         // 1. อัปเดตยอดแต้มลง DB ก่อนเพื่อให้ TierService นำไปใช้คำนวณต่อได้
-        $this->update([
-            'point' => $totalPoints,
-        ]);
+        $this->update(['point' => $balance]);
 
-        // 2. ให้ TierService จัดการเรื่องระดับสมาชิก (Upgrade/Expire/History) ตามเงื่อนไขในไฟล์ TierService.php
+        // 2. ให้ TierService จัดการเรื่องระดับสมาชิก (Upgrade/Expire/History)
         app(\App\Services\TierService::class)->recalculate($this);
 
-        return $totalPoints;
+        return $balance;
     }
 }
