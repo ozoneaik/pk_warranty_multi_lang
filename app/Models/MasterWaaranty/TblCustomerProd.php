@@ -78,33 +78,48 @@ class TblCustomerProd extends Model
      * คำนวณคะแนนสะสมโดยเรียง transaction ตาม created_at (เวลาที่เกิดจริง)
      * แล้ว running balance ทีละ step พร้อม cap ที่ 0 หลังทุก transaction
      *
-     * หลักการ: แต้มไม่สามารถติดลบได้ในชีวิตจริง
-     * กรณี redeem > earn ในช่วงเวลานั้น → ยอดเป็น 0 แล้ว earn ต่อจากนั้น
+     * กฎพิเศษ: process_code ที่ห้ามนับซ้ำ → นับเฉพาะ transaction แรกสุด (created_at เก่าสุด)
+     *   - REGISTER: สมัครสมาชิกได้แต้มครั้งเดียว
      *
-     * ตัวอย่าง:
-     *   2024-05-16  earn   +0   → 0
-     *   2025-04-04  earn  +50   → 50
-     *   2025-10-22  earn  +50   → 100
-     *   2025-10-22  redeem -3100 → max(0, -3000) = 0
-     *   2025-12-10  earn  +50   → 50
-     *   2026-02-24  earn   +1   → 51
-     *   2026-03-02  earn   +1   → 52  ← ยอดสุดท้าย
+     * ตัวอย่าง (user มี REGISTER 3 อัน):
+     *   2024-05-16  CHECKIN   +0   → 0
+     *   2025-04-04  REGISTER  +50  → 50   ← นับ (อันแรก)
+     *   2025-10-22  REGISTER  skip → 50   ← ข้าม (ซ้ำ)
+     *   2025-10-22  REDEEM   -3100 → 0
+     *   2025-12-10  REGISTER  skip → 0    ← ข้าม (ซ้ำ)
+     *   2026-02-24  CHECKIN   +1   → 1
+     *   2026-03-02  CHECKIN   +1   → 2    ← ยอดสุดท้าย
      */
     public function syncPoints(): int
     {
         $lineId = $this->cust_line;
         if (!$lineId) return 0;
 
+        // process_code ที่อนุญาตให้ได้แต้มได้ครั้งเดียวเท่านั้น
+        $onceOnlyCodes = ['REGISTER'];
+
         // ดึงทุก transaction เรียงตามเวลาที่เกิดขึ้นจริง (created_at ASC)
         // รองรับ transaction ที่ถูก insert ย้อนหลัง (backdated)
         $transactions = PointTransaction::where('line_id', $lineId)
             ->orderBy('created_at', 'asc')
-            ->get(['transaction_type', 'point_tran']);
+            ->get(['transaction_type', 'process_code', 'point_tran']);
 
-        // คำนวณ running balance ทีละ step
-        // cap ที่ 0 หลังแต่ละ step เพื่อป้องกันแต้มติดลบสะสม
-        $balance = 0;
+        $balance  = 0;
+        $seenCode = []; // บันทึก process_code ที่นับไปแล้ว (สำหรับ once-only)
+
         foreach ($transactions as $txn) {
+            $code = $txn->process_code;
+
+            // ถ้าเป็น process_code ที่ห้ามซ้ำ และเคยนับไปแล้ว → ข้าม
+            if (in_array($code, $onceOnlyCodes) && isset($seenCode[$code])) {
+                continue;
+            }
+
+            // บันทึกว่านับ process_code นี้แล้ว
+            if (in_array($code, $onceOnlyCodes)) {
+                $seenCode[$code] = true;
+            }
+
             $balance += (int) $txn->point_tran;
             $balance  = max(0, $balance);
         }
