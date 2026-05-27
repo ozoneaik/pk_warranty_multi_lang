@@ -225,6 +225,12 @@ class WarrantyFormController extends Controller
                 throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
             }
 
+            // กรองแบรนด์ TEXUS BULL ออก
+            $main_assets = $apiData['main_assets'] ?? [];
+            if (!empty($main_assets) && isset($main_assets['brand']) && strcasecmp(trim($main_assets['brand']), 'TEXUS BULL') === 0) {
+                throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
+            }
+
             if (!str_contains($apiData['search_type'] ?? '', 'serial')) {
                 throw new \Exception('ระบบอนุญาตให้ค้นหาด้วยหมายเลขซีเรียล (Serial) เท่านั้น');
             }
@@ -556,6 +562,11 @@ class WarrantyFormController extends Controller
                     Log::channel('warranty')->info('📡 [store] ดึงข้อมูลจาก Warranty API สำเร็จ', [
                         'is_combo' => $apiData['is_combo'] ?? false
                     ]);
+
+                    $main_assets = $apiData['main_assets'] ?? [];
+                    if (!empty($main_assets) && isset($main_assets['brand']) && strcasecmp(trim($main_assets['brand']), 'TEXUS BULL') === 0) {
+                        throw new \Exception('ไม่พบข้อมูลหมายเลขซีเรียลนี้ในระบบ');
+                    }
                 } else {
                     Log::channel('warranty')->warning('⚠️ [store] ดึงข้อมูลจาก Warranty API ไม่สำเร็จ', ['status' => $apiResponse->status()]);
                 }
